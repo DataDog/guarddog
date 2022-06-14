@@ -1,0 +1,7 @@
+Software supply chain security is a hot topic right now. There are a lot of ways to model supply chain security, but [SLSA](https://slsa.dev/spec/v0.1/index) has a great diagram of a high level threat model on their website.
+
+For the sake of this research, I’d like to focus on E - Using a risky dependency. Datadog is building a Risky Dependency product by first tracking how customers use and load potentially vulnerable dependencies via APM Backend architecture for VM.  
+
+There are risks other than vulnerabilities within 3rd-party dependencies. For example, the company Socket has a [suite of detections](https://docs.google.com/document/d/1FW_sDMQjwFr1M9rJtUCl-FGd9Qx-fSPTkGEhlrze6eE/edit#heading=h.c7o1wqxf0xx) they find for npm packages. For this project, we will explore the different threats affecting 3rd-party dependencies in popular package management frameworks, gain an expert level understanding of these frameworks, build a tool to download and scan packages from these frameworks and flag packages based on different risk heuristics. 
+
+Once we identify how packages are being downloaded from registries, we should take time to document different attack and defense techniques people have employed to protect (or attack) these registries. We will do this by writing content “hackingthe.supply”, which is a website dedicated to highlighting attack & defend techniques against the software supply chain. This was inspired by hackingthe.cloud. We will only write content for a very specific part of hackingthe.supply.
