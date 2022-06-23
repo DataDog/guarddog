@@ -1,0 +1,11 @@
+rules:
+  - id: base64-strings
+    languages:
+      - python
+    message: Do not use exec or eval commands.
+    patterns:
+    - pattern: $STR.decode(...)
+    - metavariable-pattern:
+        metavariable: $STR
+        pattern: "..."
+    severity: WARNING
