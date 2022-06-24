@@ -1,7 +1,15 @@
+""" PyPI Package Malware Scanner
+
+CLI command that scans a PyPI package version for user-specified malware flags. 
+Includes rules based on package registry metadata and source code analysis.
+
+Example: 
+    python3 scan.py -n requests -v 2.28.0 -r 0 2 5 6
+"""
+
 import argparse
 import tempfile
 import os
-import shutil
 import requests
 import tarfile
 
@@ -19,17 +27,17 @@ args = parser.parse_args()
 
 
 def get_package_urls(package_name, version):
-    """_summary_
+    """Gets the download links for all PyPI distributions of a package and version
 
     Args:
-        package_name (_type_): _description_
-        version (_type_): _description_
+        package_name (str): name of the package
+        version (str): version of the package
 
     Raises:
-        Exception: _description_
+        Exception: "Version " + version + " for package " + package_name + " doesn't exist."
 
     Returns:
-        _type_: _description_
+        list<str>: list of all download urls
     """
     
     url = "https://pypi.org/pypi/%s/json" % (package_name,)
