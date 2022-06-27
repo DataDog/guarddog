@@ -29,13 +29,13 @@ The registry metadata analysis looks for the flags detailed in the paper here: h
 
 | Rule | Reason | Heuristic | Examples |
 |---|---|---|---|
+| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if package name is a substring of more popular packages, check for lookalike letters | (Too many to name) |
 | Expired maintainer domain | Attackers can purchase an expired domain and hijack an account | Make a GET request to Godaddy's API to check if a maintainer domain is available | ctx |
 | Unmaintained packages | These packages host more vulnerabilities that an attacker can exploit | Check last update. If a gap in updates spans more than two years, mark as unmaintained | event-stream |
 
 #### Source Code Analysis
 | Rule | Reason | Heuristic | Examples |
 |---|---|---|---|
-| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if package name is a substring of more popular packages, check for lookalike letters | (Too many to name) |
 | Install command overwritten in setup.py | Custom scripts for "pip install" in setup.py allows attackers to run privileged scripts immediately when their package is installed | Semgrep instances of `cmdclass = {"install": [new script]}` in the `setup(...)` function in setup.py | httplib3, htpplib2, request-oathlib, unicode-csv, etc. |
 | Hardcoded base64 encoded strings | Common obfuscation tactic | Semgrep instances of base64 decoding functions. Regex base64 rules on the literal metavariable to determine if variable was hardcoded | colourama, httplib3, request-oathlib, unicode-csv, etc. |
 | Evaluation of strings | Attackers commonly execute privileged bash commands and other scripts through `exec`/`eval`/`subprocess.getoutput` commands | Semgrep for `exec`/`eval`/`subprocess.getoutput` functions | colourama, loglib-modules, pzymail |
