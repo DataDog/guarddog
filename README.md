@@ -2,8 +2,8 @@
 The PyPI Package Malware Scanner offers a CLI command that scans a PyPI package version for user-specified malware flags. 
 A set of predefined rules based on package registry metadata and source code analysis are used as heuristics to find malware-ridden packages.
 
-CLI Command Example: 
-`python3 scan.py -n requests [-v 2.28.0 -r 0 2 5 6]`
+CLI Command Example: \
+`python3 scan.py -n requests [-v 2.28.0 -r 0 2 5 6]`\
 `python3 scan.py --package-name requests [--version 2.28.0 --rules exec maintainers 5 6]`
 
 - [PyPI Package Malware Scanner](#pypi-package-malware-scanner)
@@ -35,7 +35,7 @@ The registry metadata analysis looks for the flags detailed in the paper here: h
 #### Source Code Analysis
 | Rule | Reason | Heuristic | Examples |
 |---|---|---|---|
-| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if package name is a substring of more popular packages, check for lookalike letters | (Too many to name, basically almost every malicious package found) |
+| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if package name is a substring of more popular packages, check for lookalike letters | (Too many to name) |
 | Install command overwritten in setup.py | Custom scripts for "pip install" in setup.py allows attackers to run privileged scripts immediately when their package is installed | Semgrep instances of `cmdclass = {"install": [new script]}` in the `setup(...)` function in setup.py | httplib3, htpplib2, request-oathlib, unicode-csv, etc. |
 | Hardcoded base64 encoded strings | Common obfuscation tactic | Semgrep instances of base64 decoding functions. Regex base64 rules on the literal metavariable to determine if variable was hardcoded | colourama, httplib3, request-oathlib, unicode-csv, etc. |
 | Evaluation of strings | Attackers commonly execute privileged bash commands and other scripts through `exec`/`eval`/`subprocess.getoutput` commands | Semgrep for `exec`/`eval`/`subprocess.getoutput` functions | colourama, loglib-modules, pzymail |
