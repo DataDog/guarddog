@@ -5,8 +5,9 @@ rules:
     message: Found a hardcoded, base64-encoded variable $STR. Might be an obscured attack.
     patterns:
     - pattern-either:
-      - pattern: $STR.decode(...)
+      - pattern: ("$STR").decode(...)
       - pattern: base64.b64decode("$STR")
+      - pattern: b64decode("$STR")
       - pattern: $VAR = "$STR"
     - metavariable-analysis:
         analyzer: entropy

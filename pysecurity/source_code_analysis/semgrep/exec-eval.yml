@@ -2,7 +2,7 @@ rules:
   - id: exec-eval
     languages:
       - python
-    message: Do not use exec or eval commands.
+    message: Malicious command found, could potentially execute unwanted code.
     pattern-either:
     - pattern: exec(...)
     - pattern: eval(...)
