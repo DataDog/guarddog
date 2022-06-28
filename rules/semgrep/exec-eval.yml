@@ -1,0 +1,9 @@
+rules:
+  - id: exec-eval
+    languages:
+      - python
+    message: Do not use exec or eval commands.
+    pattern-either:
+    - pattern: exec(...)
+    - pattern: eval(...)
+    severity: WARNING
