@@ -1,0 +1,16 @@
+rules:
+  - id: shady-links
+    patterns: 
+      - pattern: "$LINK"
+      - metavariable-pattern:
+          metavariable: $LINK
+          patterns:
+            - pattern-either:
+                - pattern-regex: http:\/\/.*
+                - pattern-regex: .*bit\.ly.*
+                - pattern-regex: \.[link|de|xyz|tk|mk|ga|cf|gq]
+            - pattern-regex: http[s]?:\/\/.*
+    message: Detected an unsafe link to $LINK.
+    languages:
+      - python
+    severity: WARNING
