@@ -19,5 +19,6 @@ rules:
     paths:
       include:
         - "*/setup.py"
+        - tests/code-execution.py # Need to run on test file
     severity: WARNING
 
