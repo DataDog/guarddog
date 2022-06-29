@@ -1,0 +1,23 @@
+rules:
+  - id: code-execution
+    languages:
+      - python
+    message: Code execution found in setup.py, could potentially execute unwanted code.
+    pattern-either:
+      - patterns:
+        - pattern-either:
+            - pattern: execfile(...)
+            - pattern: exec(...)
+        - pattern-not-inside: | # Case of reading version from file
+            with open(os.path.join(..., '__version__.py'), ...) as $F:
+              ...
+      - pattern: eval(...)
+      - pattern: subprocess.getoutput(...)
+      - pattern: getoutput(...)
+      - pattern: subprocess.call(...)
+      - pattern: subprocess.Popen(...)
+    paths:
+      include:
+        - "*/setup.py"
+    severity: WARNING
+
