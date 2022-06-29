@@ -1,9 +1,0 @@
-rules:
-  - id: exec-eval
-    languages:
-      - python
-    message: Malicious command found, could potentially execute unwanted code.
-    pattern-either:
-    - pattern: exec(...)
-    - pattern: eval(...)
-    severity: WARNING
