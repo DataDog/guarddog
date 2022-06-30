@@ -6,10 +6,9 @@ rules:
           metavariable: $LINK
           patterns:
             - pattern-either:
-                - pattern-regex: http:\/\/.*
+                # - pattern-regex: http:\/\/.* # Too many false positives
                 - pattern-regex: .*bit\.ly.*
-                - pattern-regex: \.[link|de|xyz|tk|mk|ga|cf|gq]
-            - pattern-regex: http[s]?:\/\/.*
+                - pattern-regex: http[s]?:\/\/.*\.(link|de|xyz|tk|mk|ga|cf|gq|pw)[\/]?
     message: Detected an unsafe link to $LINK.
     languages:
       - python
