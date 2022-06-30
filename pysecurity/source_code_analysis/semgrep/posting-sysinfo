@@ -1,0 +1,23 @@
+rules:
+- id: post-systeminfo
+  languages:
+    - python
+  message: Detected package posting system information.
+  mode: taint
+  pattern-sinks:
+    - pattern: $MODULE.send(...)
+    - pattern: send(...)
+    - pattern: $MODULE.request(...)
+    - pattern: request(...)
+    - pattern: $MODULE.urlopen(...)
+    - pattern: urlopen(...)
+  pattern-sources:
+    - pattern: $MODULE.gethostname()
+    - pattern: gethostname()
+    - pattern: $MODULE.uname()
+    - pattern: uname()
+    - pattern: $MODULE.getuser()
+    - pattern: getuser()
+    - pattern: $MODULE.environ.items()
+    - pattern: environ.items()
+  severity: WARNING

