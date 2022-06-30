@@ -1,3 +1,4 @@
+# TODO: Detects these links well, but lots of legitimate packages seem to use these domain extensions
 rules:
   - id: shady-links
     patterns: 
@@ -6,9 +7,12 @@ rules:
           metavariable: $LINK
           patterns:
             - pattern-either:
-                # - pattern-regex: http:\/\/.* # Too many false positives
                 - pattern-regex: .*bit\.ly.*
-                - pattern-regex: http[s]?:\/\/.*\.(link|de|xyz|tk|mk|ga|cf|gq|pw)[\/]?
+                - pattern-regex: http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq)[\/]?
+    paths:
+      exclude:
+        - "tests/*"
+        - "test/*"
     message: Detected an unsafe link to $LINK.
     languages:
       - python
