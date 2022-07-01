@@ -16,6 +16,7 @@ import requests
 from semgrep.semgrep_main import invoke_semgrep
 
 from pysecurity.metadata_analysis.typosquatting import TyposquatDetector
+from pysecurity.source_code_analysis.analyzer import analyze
 
 
 def main():
@@ -24,7 +25,12 @@ def main():
     parsed_args = get_args()
     name = parsed_args.name
     version = parsed_args.version
-
+    rules = parsed_args.rules
+    
+    if os.path.exists(name):
+        analyze_package(os.path.dirname(name), os.path.basename(name), rules)
+        return
+    
     try:
         with tempfile.TemporaryDirectory() as tmpdirname:
             package_urls = get_package_urls(name, version)
@@ -32,27 +38,19 @@ def main():
             response = requests.get(package_url, stream=True)
 
             if response.status_code == 200:
-                path = os.path.dirname(os.path.abspath(__file__))
-                dirname = os.path.join(path, tmpdirname + "/" + name + "-" + version)
-
-                with open(dirname + ".tar.gz", "wb") as f:
+                cwd = os.path.dirname(os.path.abspath(__file__))
+                directory = os.path.join(cwd, tmpdirname)
+                filename = name + "-" + version
+                fullpath = os.path.join(directory, filename)
+                
+                with open(fullpath + ".tar.gz", "wb") as f:
                     f.write(response.raw.read())
 
-                file = tarfile.open(dirname + ".tar.gz")
-                file.extractall(dirname)
+                file = tarfile.open(fullpath + ".tar.gz")
+                file.extractall(fullpath)
                 file.close()
 
-                typosquat_detector = TyposquatDetector()
-                typosquat_results = typosquat_detector.get_typosquatted_package(name)
-
-                if typosquat_results is not None:
-                    print(typosquat_results)
-
-                print(
-                    invoke_semgrep(
-                        Path(path + "/source_code_analysis/semgrep"), [Path(dirname)]
-                    )
-                )
+                analyze_package(directory, filename, rules)
             else:
                 raise Exception("Received: " + response.status_code)
     except KeyboardInterrupt:
@@ -80,9 +78,7 @@ def get_parser():
 
     parser.add_argument("-n", "--name", help="Package name", type=str, required=True)
     parser.add_argument("-v", "--version", help="Package version", required=True)
-    parser.add_argument(
-        "-r", "--rules", help="Scanning heuristics", nargs="+", required=True
-    )
+    parser.add_argument( "-r", "--rules", help="Scanning heuristics", nargs="+")
 
     return parser
 
@@ -119,3 +115,21 @@ def get_package_urls(package_name, version):
         raise Exception(
             "Version " + version + " for package " + package_name + " doesn't exist."
         )
+
+def analyze_package(directory, name, rules):
+    """Analyzes package in directory/name with the given rules
+
+    Args:
+        directory (str): path to package directory
+        name (str): name of package directory
+        rules (list(str)): list of rules to analyze package wtih
+    """
+    
+    filename = os.path.join(directory, name)
+
+    typosquat_detector = TyposquatDetector()
+    typosquat_results = typosquat_detector.get_typosquatted_package(name)
+    results = analyze(Path(filename), rules)
+    results["typosquatting"] = typosquat_results
+    
+    print(results)
