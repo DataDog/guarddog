@@ -75,7 +75,7 @@ class TyposquatDetector:
             if (
                 self._is_distance_one_Levenshtein(package_name, popular_package) 
                 or self._is_swapped_typo(package_name, popular_package)
-                or package_name in popular_package
+                # or package_name in popular_package
             ):
                 return popular_package
             
