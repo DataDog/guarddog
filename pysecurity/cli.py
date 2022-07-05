@@ -5,6 +5,7 @@ Includes rules based on package registry metadata and source code analysis.
 """
 
 import argparse
+import json
 import os
 import signal
 import sys
@@ -48,7 +49,7 @@ def main():
                 file.extractall(fullpath)
                 file.close()
 
-                analyze_package(directory, name, rules)
+                analyze_package(directory, name, rules, fullpath)
             else:
                 raise Exception("Received: " + response.status_code)
     except KeyboardInterrupt:
@@ -97,8 +98,12 @@ def get_package_urls(package_name, version=None):
 
     url = "https://pypi.org/pypi/%s/json" % (package_name,)
     data = requests.get(url).json()
+    
+    if "message" in data:
+        raise Exception(data["message"])
+    
     releases = data["releases"]
-
+    
     if version is None:
         version = data['info']['version']
         
@@ -117,20 +122,21 @@ def get_package_urls(package_name, version=None):
             "Version " + version + " for package " + package_name + " doesn't exist."
         )
 
-def analyze_package(directory, name, rules):
+def analyze_package(directory, name, rules, prefix=None):
     """Analyzes package in directory/name with the given rules
 
     Args:
         directory (str): path to package directory
         name (str): name of package directory
-        rules (list(str)): list of rules to analyze package wtih
+        rules (list(str)): list of rules to analyze package with
+        prefix (str): display filenames from this relative path
     """
     
     filename = os.path.join(directory, name)
 
     typosquat_detector = TyposquatDetector()
     typosquat_results = typosquat_detector.get_typosquatted_package(name)
-    results = analyze(Path(filename), rules)
+    results = analyze(Path(filename), rules, prefix)
     results["typosquatting"] = typosquat_results
     
-    print(results)
+    print(json.dumps(results))
