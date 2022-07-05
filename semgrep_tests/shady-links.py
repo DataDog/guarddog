@@ -6,6 +6,9 @@ import urllib3
 from requests import request
 
 # ok: shady-links
+"https://lov.linkeddata.es/dataset/lov/api/v2/vocabulary/autocomplete?q=%s'%vocab"
+
+# ok: shady-links
 SECURE_ORIGINS: List[SecureOrigin] = [
     # protocol, hostname, port\n    
     # Taken from Chrome\'s list of secure origins (See: http://bit.ly/1qrySKC)
