@@ -100,7 +100,7 @@ def get_package_urls(package_name, version=None):
     data = requests.get(url).json()
     
     if "message" in data:
-        raise Exception(data["message"])
+        raise Exception("Error retrieving package: " + data["message"])
     
     releases = data["releases"]
     
