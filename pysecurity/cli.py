@@ -13,7 +13,6 @@ import tempfile
 from pathlib import Path
 
 import requests
-from semgrep.semgrep_main import invoke_semgrep
 
 from pysecurity.metadata_analysis.typosquatting import TyposquatDetector
 from pysecurity.source_code_analysis.analyzer import analyze
@@ -40,8 +39,7 @@ def main():
             if response.status_code == 200:
                 cwd = os.path.dirname(os.path.abspath(__file__))
                 directory = os.path.join(cwd, tmpdirname)
-                filename = name + "-" + version
-                fullpath = os.path.join(directory, filename)
+                fullpath = os.path.join(directory, name)
                 
                 with open(fullpath + ".tar.gz", "wb") as f:
                     f.write(response.raw.read())
@@ -50,7 +48,7 @@ def main():
                 file.extractall(fullpath)
                 file.close()
 
-                analyze_package(directory, filename, rules)
+                analyze_package(directory, name, rules)
             else:
                 raise Exception("Received: " + response.status_code)
     except KeyboardInterrupt:
@@ -77,13 +75,13 @@ def get_parser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-n", "--name", help="Package name", type=str, required=True)
-    parser.add_argument("-v", "--version", help="Package version", required=True)
+    parser.add_argument("-v", "--version", help="Package version")
     parser.add_argument( "-r", "--rules", help="Scanning heuristics", nargs="+")
 
     return parser
 
 
-def get_package_urls(package_name, version):
+def get_package_urls(package_name, version=None):
     """Gets the download links for all PyPI distributions of a package and version
 
     Args:
@@ -101,6 +99,9 @@ def get_package_urls(package_name, version):
     data = requests.get(url).json()
     releases = data["releases"]
 
+    if version is None:
+        version = data['info']['version']
+        
     if version in releases:
         files = releases[version]
         urls = []
