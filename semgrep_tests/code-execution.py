@@ -1,11 +1,5 @@
-import base64
-import os
-import platform
-import subprocess
-from codecs import open
-
-import urllib2
-from setuptools.command.install import install
+# ruleid: code-execution
+os.popen("cd %s && git init " % TEST_MODULES_ROOT)
 
 user = os.environ['USERNAME']
 local_drive = 'C:\\Users\\%s\\AppData' % user

@@ -12,10 +12,14 @@ rules:
             with open(os.path.join(..., '__version__.py'), ...) as $F:
               ...
       - pattern: eval(...)
-      - pattern: subprocess.getoutput(...)
+      - pattern: (...).getoutput(...)
       - pattern: getoutput(...)
-      - pattern: subprocess.call(...)
-      - pattern: subprocess.Popen(...)
+      - pattern: (...).call(...)
+      - pattern: call(...)
+      - pattern: (...).Popen(...)
+      - pattern: Popen(...)
+      - pattern: (...).popen(...)
+      - pattern: popen(...)
     paths:
       include:
         - "*/setup.py"
