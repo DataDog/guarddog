@@ -1,16 +1,6 @@
 # TODO: Detects these links well, but lots of legitimate packages seem to use these domain extensions
 rules:
   - id: shady-links
-<<<<<<< Updated upstream
-    patterns: 
-      - pattern: "$LINK"
-      - metavariable-pattern:
-          metavariable: $LINK
-          patterns:
-            - pattern-either:
-                - pattern-regex: .*bit\.ly.*
-                - pattern-regex: http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|xyz|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)[\/]?
-=======
     patterns:
       - pattern: "..."
       # Semgrep not robust enough to ignore comments in lists
@@ -18,7 +8,6 @@ rules:
       - pattern-either:
         - pattern-regex: (http[s]?:\/\/bit\.ly.*)
         - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)[\/]?)
->>>>>>> Stashed changes
     paths:
       exclude:
         - "tests/*"
