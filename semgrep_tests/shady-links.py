@@ -5,6 +5,18 @@ from urllib.request import urlopen
 import urllib3
 from requests import request
 
+# ok: shady-links
+SECURE_ORIGINS: List[SecureOrigin] = [
+    # protocol, hostname, port\n    
+    # Taken from Chrome\'s list of secure origins (See: http://bit.ly/1qrySKC)
+    ("https", "*", "*"),
+    ("*", "localhost", "*"),
+    ("*", "127.0.0.0/8", "*"),
+    ("*", "::1/128", "*"),
+    ("file", "*", None),
+    # ssh is always secure.
+    ("ssh", "*", "*")]
+
 # ruleid: shady-links     
 req = urllib3.Request('https://grabify.link/E09EIF', headers={'User-Agent' : os})
 
