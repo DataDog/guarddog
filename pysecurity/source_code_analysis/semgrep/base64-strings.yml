@@ -4,6 +4,8 @@ rules:
       - python
     message: Found a hardcoded, base64-encoded variable $STR. Might be an obscured attack.
     patterns:
+    - pattern-not-regex: abcdefghijklmnopqrstuvwxyz|0123456789|ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    - pattern-not-regex: XML|HTML|CSS
     - pattern-either:
       - pattern: ("$STR").decode(...)
       - pattern: base64.b64decode("$STR")
