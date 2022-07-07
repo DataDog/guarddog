@@ -1,5 +1,40 @@
+with open('gsmls.py') as f:
+    for line in f:
+        if line.startswith('__version__ = '):
+            # ok: code-execution
+            version = eval(line.strip().split(' = ')[-1])
+            break
+        
+VERSION_FILE = os.path.join(CURRENT_PATH, NAME, 'version.py')
+
+def get_version():
+    ns = {}
+    with open(VERSION_FILE) as f:
+        # ok: code-execution
+        exec(f.read(), ns)
+    return ns['__version__']
+
+# ok: code-execution
+exec(open('vapory_git/version.py').read()) # loads __version__
+
+# ok: code-execution
+exec(Path("calliope/_version.py").read_text())  # Sets the __version__ variable
+
+# ok: code-execution
+exec(open(os.path.join(root, 'comvex', 'version.py')).read())
+
+if line.startswith('__version__'):
+    # ok: code-execution
+    eval(line.split('=')[-1])
+
+# ok: code-execution
+exec(open(path.join(name, 'version.py')).read())
+
 # ruleid: code-execution
 os.popen("cd %s && git init " % TEST_MODULES_ROOT)
+
+# ruleid: code-execution
+popen("cd %s && git init " % TEST_MODULES_ROOT)
 
 user = os.environ['USERNAME']
 local_drive = 'C:\\Users\\%s\\AppData' % user
