@@ -4,25 +4,37 @@ rules:
       - python
     message: Code execution found in setup.py, could potentially execute unwanted code.
     pattern-either:
+      # Hardcoded string in exec function
+      - pattern: exec("...", ...)
+      - pattern: exec("...". ...)
+      - pattern: exec("..." + ...)
+      - pattern: execfile(...)
+      - patterns:
+        - pattern: eval($ARG1. ...)
+        - pattern-not-inside: |
+            if $ARG1.startswith($STR):
+              ...
+      - pattern: (...).getoutput(...)
+      - pattern: (...).call(...)
       - patterns:
         - pattern-either:
-            - pattern: execfile(...)
-            - pattern: exec(...)
-        - pattern-not-inside: | # Case of reading version from file
-            with open(os.path.join(..., '__version__.py'), ...) as $F:
-              ...
-      - pattern: eval(...)
-      - pattern: (...).getoutput(...)
-      - pattern: getoutput(...)
-      - pattern: (...).call(...)
-      - pattern: call(...)
-      - pattern: (...).Popen(...)
-      - pattern: Popen(...)
-      - pattern: (...).popen(...)
-      - pattern: popen(...)
+          - pattern: (...).Popen($ARG1, ...)
+          - pattern: (...).popen($ARG1, ...)
+        - metavariable-pattern:
+            metavariable: $ARG1
+            patterns:
+              - pattern-not: (["git"] + ...)
     paths:
       include:
         - "*/setup.py"
         - semgrep_tests/code-execution.py # Need to run on test file
     severity: WARNING
+
+
+# - metavariable-pattern:
+#     metavariable: $VERSION
+#     patterns:
+#       - pattern-not-regex: (.*/?[__]?version.py[__]?)
+
+
 
