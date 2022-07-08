@@ -37,11 +37,11 @@ rules:
       
       # Avoid legitimate os.system case used for setup purposes
       - patterns:
-        - pattern: os.system("$STR")
+        - pattern: os.system($STR)
         - metavariable-pattern:
             metavariable: $STR
             patterns:
-              - pattern-not-regex: python setup.py| twine upload
+              - pattern-not-regex: (python setup.py)|(twine upload)
     paths:
       include:
         - "*/setup.py"
