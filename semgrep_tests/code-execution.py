@@ -10,6 +10,21 @@
 
 """ OK: Executing python files to extract version information 
 """
+# ok: code-execution
+exec(open('vapory_git/version.py').read()) # loads __version__
+
+# ok: code-execution
+exec(Path("calliope/_version.py").read_text())  # Sets the __version__ variable
+
+# ok: code-execution
+exec(open(os.path.join(root, 'comvex', 'version.py')).read())
+
+if line.startswith('__version__'):
+    # ok: code-execution
+    eval(line.split('=')[-1])
+
+# ok: code-execution
+exec(open(path.join(name, 'version.py')).read())
 
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
@@ -32,26 +47,9 @@ def get_version():
         exec(f.read(), ns)
     return ns['__version__']
 
-# ok: code-execution
-exec(open('vapory_git/version.py').read()) # loads __version__
-
-# ok: code-execution
-exec(Path("calliope/_version.py").read_text())  # Sets the __version__ variable
-
-# ok: code-execution
-exec(open(os.path.join(root, 'comvex', 'version.py')).read())
-
-if line.startswith('__version__'):
-    # ok: code-execution
-    eval(line.split('=')[-1])
-
-# ok: code-execution
-exec(open(path.join(name, 'version.py')).read())
-
 
 """ OK: os.system used for setup purposes
 """
-
 # ok: code-execution
 os.system('python setup.py sdist bdist_wheel')
 # ok: code-execution
@@ -60,7 +58,6 @@ os.system('twine upload dist/*')
 
 """ RULEID: executing bash commands 
 """
-
 # ruleid: code-execution
 os.popen("cd %s && git init " % TEST_MODULES_ROOT)
 
