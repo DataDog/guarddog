@@ -7,9 +7,9 @@ Includes rules based on package registry metadata and source code analysis.
 import argparse
 import json
 import os
+import shutil
 import signal
 import sys
-import tarfile
 import tempfile
 from pathlib import Path
 
@@ -33,25 +33,11 @@ def main():
     
     try:
         with tempfile.TemporaryDirectory() as tmpdirname:
-            package_urls = get_package_urls(name, version)
-            package_url = package_urls[0]
-            response = requests.get(package_url, stream=True)
-
-            if response.status_code == 200:
-                cwd = os.path.dirname(os.path.abspath(__file__))
-                directory = os.path.join(cwd, tmpdirname)
-                fullpath = os.path.join(directory, name)
-                
-                with open(fullpath + ".tar.gz", "wb") as f:
-                    f.write(response.raw.read())
-
-                file = tarfile.open(fullpath + ".tar.gz")
-                file.extractall(fullpath)
-                file.close()
-
-                analyze_package(directory, name, rules, fullpath)
-            else:
-                raise Exception("Received: " + response.status_code)
+            # Directory to download compressed and uncompressed package
+            directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), tmpdirname)
+            
+            download_package(name, directory, version)
+            analyze_package(directory, name, rules)
     except KeyboardInterrupt:
         sys.stdout.write("\n")
         sys.stdout.write("KeyboardInterrupt detected.")
@@ -82,23 +68,32 @@ def get_parser():
     return parser
 
 
-def get_package_urls(package_name, version=None):
-    """Gets the download links for all PyPI distributions of a package and version
+def download_package(package_name, directory, version=None):
+    """Downloads the PyPI distribution for a given package and version
 
     Args:
         package_name (str): name of the package
         version (str): version of the package
 
     Raises:
+        Exception: "Received status code: " + <not 200> + " from PyPI"
         Exception: "Version " + version + " for package " + package_name + " doesn't exist."
-
+        Exception: "Compressed file for package does not exist."
+        Exception: "Error retrieving package: " + <error message>
     Returns:
-        list<str>: list of all download urls
+        None
     """
-
-    url = "https://pypi.org/pypi/%s/json" % (package_name,)
-    data = requests.get(url).json()
     
+    url = "https://pypi.org/pypi/%s/json" % (package_name,)
+    response = requests.get(url)
+    
+    # Check if package file exists
+    if response.status_code != 200:
+        raise Exception("Received status code: " + str(response.status_code) + " from PyPI")
+    
+    data = response.json()
+    
+    # Check for error in retrieving package
     if "message" in data:
         raise Exception("Error retrieving package: " + data["message"])
     
@@ -106,23 +101,44 @@ def get_package_urls(package_name, version=None):
     
     if version is None:
         version = data['info']['version']
-        
+    
     if version in releases:
         files = releases[version]
-        urls = []
-
+        
+        url = None
+        file_extension = None
+        
         for file in files:
+            # Store url to compressed package and appropriate file extension
             if file["filename"].endswith(".tar.gz"):
-                urls.append(file["url"])
+                url = file["url"]
+                file_extension = ".tar.gz"
+                
+            if (file["filename"].endswith(".egg") or 
+                file["filename"].endswith(".whl") or 
+                file["filename"].endswith(".zip")):
+                    url = file["url"]
+                    file_extension = ".zip"
+        
+        if url and file_extension:            
+            response = requests.get(url, stream=True)
+            
+            # Paths to compressed and uncompressed package
+            zippath = os.path.join(directory, package_name + file_extension)
+            unzippedpath = os.path.join(directory, package_name)
+            
+            with open(zippath, "wb") as f:
+                f.write(response.raw.read())
 
-        return urls
-
+            shutil.unpack_archive(zippath, unzippedpath)
+        else:
+            raise Exception("Compressed file for package does not exist.")
     else:
         raise Exception(
             "Version " + version + " for package " + package_name + " doesn't exist."
         )
 
-def analyze_package(directory, name, rules, prefix=None):
+def analyze_package(directory, name, rules):
     """Analyzes package in directory/name with the given rules
 
     Args:
@@ -130,13 +146,16 @@ def analyze_package(directory, name, rules, prefix=None):
         name (str): name of package directory
         rules (list(str)): list of rules to analyze package with
         prefix (str): display filenames from this relative path
+    
+    Returns:
+        None
     """
     
     filename = os.path.join(directory, name)
 
     typosquat_detector = TyposquatDetector()
     typosquat_results = typosquat_detector.get_typosquatted_package(name)
-    results = analyze(Path(filename), rules, prefix)
+    results = analyze(Path(filename), rules)
     results["typosquatting"] = typosquat_results
     
     print(json.dumps(results))

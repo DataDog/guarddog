@@ -17,34 +17,27 @@ IGNORE = [
     ".semgrep_logs"
 ]
 
-RULES_PATH = os.path.join(os.path.dirname(__file__), "semgrep")
-RULESET = [rule.replace(".yml", "") for rule in os.listdir(RULES_PATH)]
+def analyze(path, rules=None) -> dict[str]:  
+    rulespath = os.path.join(os.path.dirname(__file__), "semgrep")
+    ruleset = [rule.replace(".yml", "") for rule in os.listdir(rulespath)]
+    targetpath = Path(path)
 
-def analyze(path, rules=None, prefix=None) -> dict[str]:  
-    target_path = [Path(path)]
+    results = {rule: {} for rule in (rules or ruleset)}
     
     if rules is None:
-        return get_results(RULESET, RULES_PATH, target_path, prefix)
-    
-    return get_results(rules, RULES_PATH, target_path, prefix)
-
-def get_results(rules, rulespath, targetpath, prefix=None):
-    results = {rule: {} for rule in rules}
-    
-    if rules is None:
-        response = invoke_semgrep(Path(os.path.join(rulespath)), targetpath, exclude = IGNORE)
-        return results | format_response(response, prefix=prefix)
+        response = invoke_semgrep(Path(rulespath), [targetpath], exclude = IGNORE)
+        return results | format_response(response, targetpath=targetpath)
     
     for rule in rules:
         try:
-            response = invoke_semgrep(Path(os.path.join(rulespath, rule + ".yml")), targetpath, exclude = IGNORE)
-            results = results | format_response(response, rule=rule, prefix=prefix)
+            response = invoke_semgrep(Path(os.path.join(rulespath, rule + ".yml")), [targetpath], exclude = IGNORE)
+            results = results | format_response(response, rule=rule, targetpath=targetpath)
         except:
             raise RuntimeError(rule + " is not an existing rule.")
         
     return results
 
-def format_response(response, rule=None, prefix=None):
+def format_response(response, rule=None, targetpath=None):
     results = {}
     
     for result in response["results"]:
@@ -53,8 +46,8 @@ def format_response(response, rule=None, prefix=None):
         message = result["extra"]["lines"]
         file = os.path.abspath(result["path"])
         
-        if prefix:
-            file = os.path.relpath(file, prefix)
+        if targetpath:
+            file = os.path.relpath(file, targetpath)
             
         if label not in results:
             results[label] = {file: [message]}
