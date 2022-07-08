@@ -52,8 +52,15 @@ def get_version():
 """
 # ok: code-execution
 os.system('python setup.py sdist bdist_wheel')
+
 # ok: code-execution
 os.system('twine upload dist/*')
+
+# ok: code-execution
+os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+
+# ok: code-execution
+os.system('git tag v{0}'.format(about['__version__']))
 
 
 """ RULEID: executing bash commands 
