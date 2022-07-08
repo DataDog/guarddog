@@ -20,6 +20,8 @@ rules:
         - pattern-either:
           - pattern: (...).Popen($ARG1, ...)
           - pattern: (...).popen($ARG1, ...)
+          - pattern: Popen($ARG1, ...)
+          - pattern: popen($ARG1, ...)
         - metavariable-pattern:
             metavariable: $ARG1
             patterns:
