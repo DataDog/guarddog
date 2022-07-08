@@ -41,7 +41,7 @@ rules:
         - metavariable-pattern:
             metavariable: $STR
             patterns:
-              - pattern-not-regex: (python setup.py)|(twine upload)
+              - pattern-not-regex: (setup.py)|(twine upload)|(setup.py sdist)|(git \w+)
     paths:
       include:
         - "*/setup.py"
