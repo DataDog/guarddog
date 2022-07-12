@@ -69,7 +69,7 @@ if os.system('pip freeze | grep twine'):
     os.system('gpg --detach-sign -a {}'.format(p))
 
 # ok: code-execution
-subprocess.check_output(['git', 'describe', '--tags']).strip()
+subprocess.check_output(["python3", "-m", "pip", "freeze"]).decode().splitlines()
 
 
 """ OK: executing git commands
@@ -79,6 +79,9 @@ os.popen("cd %s && git init " % TEST_MODULES_ROOT)
 
 # ok: code-execution
 popen("cd %s && git init " % TEST_MODULES_ROOT)
+
+# ok: code-execution
+subprocess.check_output(['git', 'describe', '--tags']).strip()
 
 
 """ RULEID: executing bash commands 
@@ -94,3 +97,9 @@ subprocess.call('/tmp/reloan')
 
 # ruleid: code-execution
 eval("print('hi')")
+
+if line.startswith('DANGEROUS'):
+    # ruleid: code-execution
+    eval(line)
+    # ruleid: code-execution
+    eval("print('bar')")
