@@ -153,10 +153,11 @@ def analyze_package(directory, name, rules):
     """
     
     filename = os.path.join(directory, name)
-
-    typosquat_detector = TyposquatDetector()
-    typosquat_results = typosquat_detector.get_typosquatted_package(name)
     results = analyze(Path(filename), rules)
-    results["typosquatting"] = typosquat_results
+    
+    if rules is None or "typosquatting" in rules:
+        typosquat_detector = TyposquatDetector()
+        typosquat_results = typosquat_detector.get_typosquatted_package(name)
+        results["typosquatting"] = typosquat_results
     
     print(json.dumps(results))
