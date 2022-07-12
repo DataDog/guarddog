@@ -58,7 +58,7 @@ rules:
       - metavariable-pattern:
           metavariable: $ARG1
           patterns:
-            - pattern-not-regex: (setup.py)|(twine upload)|(git \w+)|(brew )|(gpg )|(pip freeze )
+            - pattern-not-regex: (setup.py)|(twine upload)|(git)|(brew)|(gpg)|(pip freeze)
 
     paths:
       include:

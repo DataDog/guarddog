@@ -68,6 +68,9 @@ if os.system('pip freeze | grep twine'):
     # ok: code-execution
     os.system('gpg --detach-sign -a {}'.format(p))
 
+# ok: code-execution
+subprocess.check_output(['git', 'describe', '--tags']).strip()
+
 
 """ OK: executing git commands
 """
