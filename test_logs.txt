@@ -1,54 +1,6 @@
 absl-py
 {"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
 
-absl-py.tar.gz
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-adal
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-adal.tar.gz
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aenum
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aenum.tar.gz
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-agate
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-agate.tar.gz
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aiobotocore
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aiofiles
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aiofiles.tar.gz
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aiohttp
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aioitertools
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aioitertools.tar.gz
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-aiosignal
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-alabaster
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
-alabaster.tar.gz
-{"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}
-
 alembic
 absl-py
 {"shady-links": {}, "post-systeminfo": {}, "download-executable": {}, "exec-base64": {}, "code-execution": {}, "cmd-overwrite": {}, "typosquatting": null}

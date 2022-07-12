@@ -52,9 +52,6 @@ def get_version():
 """ OK: os.system used for setup purposes
 """
 # ok: code-execution
-os.popen('brew --prefix libffi')
-
-# ok: code-execution
 os.system('python setup.py sdist bdist_wheel')
 
 # ok: code-execution
@@ -65,6 +62,11 @@ os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
 
 # ok: code-execution
 os.system('git tag v{0}'.format(about['__version__']))
+
+# ok: code-execution
+if os.system('pip freeze | grep twine'):
+    # ok: code-execution
+    os.system('gpg --detach-sign -a {}'.format(p))
 
 
 """ OK: executing git commands
@@ -89,7 +91,3 @@ subprocess.call('/tmp/reloan')
 
 # ruleid: code-execution
 eval("print('hi')")
-
-if line.startswith('DANGEROUS'):
-    # ruleid: code-execution
-    eval(line)
