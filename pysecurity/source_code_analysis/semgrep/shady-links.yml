@@ -1,0 +1,19 @@
+# TODO: Detects these links well, but lots of legitimate packages seem to use these domain extensions
+rules:
+  - id: shady-links
+    patterns:
+      - pattern: "..."
+      # Semgrep not robust enough to ignore comments in lists
+      - pattern-not-regex: \# .* 
+      - pattern-either:
+        - pattern-regex: (http[s]?:\/\/bit\.ly.*)$
+        - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream))$
+        - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
+    paths:
+      exclude:
+        - "tests/*"
+        - "test/*"
+    message: Detected an unsafe link to $1.
+    languages:
+      - python
+    severity: WARNING
