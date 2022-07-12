@@ -1,0 +1,36 @@
+rules:
+- id: download-executable
+  languages:
+    - python
+  message: Found downloaded content writing to executable file at $LOC.
+  mode: taint
+  pattern-sinks:
+    - patterns:
+      - pattern-either: 
+        - pattern: |
+            $FILE = open("$LOC", ...)
+            ...
+            $FILE.write($REQUEST)
+            ...
+            $CHANGE_PERMISSIONS
+        - pattern: |
+            with open("$LOC", ...) as $FILE:
+              ...
+              $FILE.write($REQUEST)
+            ...
+            $CHANGE_PERMISSIONS
+      - metavariable-pattern:
+          metavariable: $CHANGE_PERMISSIONS
+          pattern-either:
+            - pattern: os.chmod("$LOC", 777)
+            - pattern: os.chmod("$LOC", <...stat.S_IEXEC...>)
+            - pattern: chmod("$LOC", 777)
+            - pattern: chmod("$LOC", <...stat.S_IEXEC...>)
+  pattern-sources:
+    - pattern: (...).send(...)
+    - pattern: send(...)
+    - pattern: (...).request(...)
+    - pattern: request(...)
+    - pattern: (...).urlopen(...)
+    - pattern: urlopen(...)
+  severity: WARNING
