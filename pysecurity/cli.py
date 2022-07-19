@@ -15,7 +15,7 @@ from pathlib import Path
 
 import requests
 
-from pysecurity.metadata_analysis.typosquatting import TyposquatDetector
+from pysecurity.metadata_analysis.rules.typosquatting import TyposquatDetector
 from pysecurity.source_code_analysis.analyzer import analyze
 
 
@@ -27,17 +27,18 @@ def main():
     version = parsed_args.version
     rules = parsed_args.rules
     
-    if os.path.exists(name):
-        analyze_package(os.path.dirname(name), os.path.basename(name), rules)
-        return
+    if rules is not None:
+        rules = set(rules)
     
+    if os.path.exists(name):
+        return analyze_package(os.path.dirname(name), os.path.basename(name), rules)
     try:
         with tempfile.TemporaryDirectory() as tmpdirname:
             # Directory to download compressed and uncompressed package
             directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), tmpdirname)
             
             download_package(name, directory, version)
-            analyze_package(directory, name, rules)
+            return analyze_package(directory, name, rules)
     except KeyboardInterrupt:
         sys.stdout.write("\n")
         sys.stdout.write("KeyboardInterrupt detected.")
@@ -139,19 +140,21 @@ def download_package(package_name, directory, version=None):
             "Version " + version + " for package " + package_name + " doesn't exist."
         )
 
-def analyze_package(directory, name, rules):
+def analyze_package(directory, name, rules=None):
     """Analyzes package in directory/name with the given rules
 
     Args:
         directory (str): path to package directory
         name (str): name of package directory
         rules (list(str)): list of rules to analyze package with
-        prefix (str): display filenames from this relative path
     
     Returns:
-        None
+        json output of warnings in the form of:
+            {
+                <rule>: information about warning
+                ...
+            }
     """
-    
     filename = os.path.join(directory, name)
     results = analyze(Path(filename), rules)
     
@@ -160,4 +163,4 @@ def analyze_package(directory, name, rules):
         typosquat_results = typosquat_detector.get_typosquatted_package(name)
         results["typosquatting"] = typosquat_results
     
-    print(json.dumps(results))
+    return json.dumps(results)

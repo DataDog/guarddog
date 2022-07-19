@@ -46,7 +46,7 @@ $ pipenv shell
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --quiet --test --config pysecurity/source_code_analysis/semgrep/ semgrep_tests/
+$ semgrep --quiet --test --config pysecurity/source_code_analysis/semgrep/ tests/semgrep
 ```
 
 ### Heuristics

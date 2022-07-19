@@ -1,5 +1,5 @@
 rules:
-- id: exfiltrate-sensitive-information
+- id: exfiltrate-sensitive-data
   mode: taint
   pattern-sources:
     - patterns:
