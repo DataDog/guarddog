@@ -3,7 +3,7 @@ from pathlib import Path
 
 from semgrep.semgrep_main import invoke_semgrep
 
-IGNORE = [
+EXCLUDE = [
     "helm",
     "venv",
     "test",
@@ -17,20 +17,21 @@ IGNORE = [
     ".semgrep_logs"
 ]
 
+
 def analyze(path, rules=None) -> dict[str]:  
     rulespath = os.path.join(os.path.dirname(__file__), "semgrep")
     ruleset = [rule.replace(".yml", "") for rule in os.listdir(rulespath)]
     targetpath = Path(path)
-
+    
     results = {rule: {} for rule in (rules or ruleset)}
     
     if rules is None:
-        response = invoke_semgrep(Path(rulespath), [targetpath], exclude = IGNORE)
+        response = invoke_semgrep(Path(rulespath), [targetpath], exclude = EXCLUDE, no_git_ignore=True)
         return results | format_response(response, targetpath=targetpath)
     
     for rule in rules:
         try:
-            response = invoke_semgrep(Path(os.path.join(rulespath, rule + ".yml")), [targetpath], exclude = IGNORE)
+            response = invoke_semgrep(Path(os.path.join(rulespath, rule + ".yml")), [targetpath], exclude = EXCLUDE, no_git_ignore=True)
             results = results | format_response(response, rule=rule, targetpath=targetpath)
         except:
             raise RuntimeError(rule + " is not an existing rule.")
