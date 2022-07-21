@@ -7,7 +7,10 @@ A set of predefined rules based on package registry metadata and source code ana
   - [Getting Started](#getting-started)
     - [CLI Reference](#cli-reference)
   - [Installing Pysecurity](#installing-pysecurity)
+    - [Testing](#testing)
   - [Heuristics](#heuristics)
+    - [Accuracy of Heuristics](#accuracy-of-heuristics)
+      - [Methodology](#methodology)
     - [Registry Metadata Analysis](#registry-metadata-analysis)
     - [Source Code Analysis](#source-code-analysis)
 
@@ -36,21 +39,52 @@ $ python3 -m pysecurity -n setuptools -v 63.6.0 -r code-execution shady-links
 
 
 ### Installing Pysecurity
-To install all dependencies for Pysecurity and open the virtual environment:
+To open the development environment for pysecurity: install all dependencies for Pysecurity, open the virtual environment, and add the root of the repository to PYTHONPATH:
 
 ```sh
+$ export PYTHONPATH=$(pwd)
 $ pipenv install
 $ pipenv shell
 ```
 
+#### Testing
+
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --quiet --test --config pysecurity/source_code_analysis/semgrep/ tests/semgrep
+$ semgrep --quiet --test --config pysecurity/source_code_analysis/semgrep/ pysecurity_tests/semgrep
 ```
+
+To find the precision and recall of the rules, run: 
+```sh
+$ python3 pysecurity_tests/evaluator/evaluator.py
+```
+This will calculate the false positive, false negative, true positive, and true negative rates from logs in `pysecurity_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
+
+Running the command above ***will not scan*** the directories. To scan, uncomment line 351 `metric_generator.scan()` in `pysecurity_tests/evaluator/evaluator.py`. Then, run the command again.
 
 ### Heuristics
 Heuristics are separated into two categories: registry metadata analysis and source code analysis. Registry metadata pertains to the metrics of a given package on the PyPI registry (ex. number of maintainers, popularity, similarity in package names, gaps in code pushing), while source code analysis investigates the actual code of the package. The malicious packages analyzed to guide these heuristics are listed here: [PyPI Malware Analysis](https://datadoghq.atlassian.net/wiki/spaces/~628e8c561a437e007042ec14/pages/2515534035/PyPI+Malware+Analysis).
+
+#### Accuracy of Heuristics
+The precision, recall, and false positive rate of each rule was measured using the methods described in [Testing](#testing). The precision, recall, and false positive rates achieved are:
+
+| Rule | Precision | Recall | FP |
+|---|---|---|---|
+|cmd-overwrite|0.429|1.0|0.015|
+|code-execution|0.0769|1.0|0.035|
+|download-executable|1.0|1.0|0.0|
+|exec-base64|0.5|1.0|0.001|
+|exfiltrate-sensitive-data|0.526|1.0|0.012|
+|shady-links|0.186|1.0|0.017|
+|typosquatting|0.958|0.719|0.0|
+
+The typosquatting rule ignored the top 5000 downloaded packages (in the past month), so all error is from missed typosquatting while scanning malware.
+
+##### Methodology
+The precision and recall of each rule was measured by running the tool on the 1000 most downloaded PyPI packages (benign data) and a collection of about 30-40 pieces of malware that were removed from PyPI (malicious data). Every line in the top 1000 packages is considered to be safe, so any lines flagged there is considered a false positive. In the malicious dataset, dangerous lines were hand-labeled in `malicoius_ground_truth.json` and compared to the actual result. Any discrepencies were classified as a false-negative (missed line in ground truth), true-positive (matches ground truth), or false-positive (extra line compared to ground truth). The precision and recall were calculated from these metrics. 
+<br/>
+The false positive rate used only the benign dataset, using package-level granularity. Any lines detected in a package marked the package as a false-positive. Meanwhile, if no lines were detected in the package, it was marked as a true-negative. The difference in granulary compared to precision/recall is a result of being unable to measure the number of lines in the benign dataset.
 
 #### Registry Metadata Analysis
 The registry metadata analysis looks for the flags detailed in the paper here: https://arxiv.org/pdf/2112.10165.pdf

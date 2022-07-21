@@ -26,7 +26,7 @@ def analyze(path, rules=None) -> dict[str]:
     results = {rule: {} for rule in (rules or ruleset)}
     
     if rules is None:
-        response = invoke_semgrep(Path(rulespath), [targetpath], exclude = EXCLUDE, no_git_ignore=True)
+        response = invoke_semgrep(Path(rulespath), [targetpath], exclude = EXCLUDE)
         return results | format_response(response, targetpath=targetpath)
     
     for rule in rules:
@@ -38,6 +38,7 @@ def analyze(path, rules=None) -> dict[str]:
         
     return results
 
+
 def format_response(response, rule=None, targetpath=None):
     results = {}
     
@@ -45,17 +46,18 @@ def format_response(response, rule=None, targetpath=None):
         label = rule or result["check_id"].split(".")[-1]
         
         message = result["extra"]["lines"]
+        
+        line_start = result["start"]["line"]
         file = os.path.abspath(result["path"])
         
         if targetpath:
             file = os.path.relpath(file, targetpath)
             
+        location = file + ":" + str(line_start)
+        
         if label not in results:
-            results[label] = {file: [message]}
+            results[label] = {location: message}
         else:
-            if file not in results[label]:
-                results[label][file] = [message]
-            else:
-                results[label][file].append(message)
+            results[label][location] = message
 
     return results

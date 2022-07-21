@@ -1,8 +1,10 @@
+# Only searches in setup.py to reduce false positives!
+
 rules:
   - id: code-execution
     languages:
       - python
-    message: $STR
+    message: $STR found in setup.py
     patterns:
       # exec argument must be hardcoded string
       - pattern-either:
@@ -71,6 +73,7 @@ rules:
     paths:
       include:
         - "*/setup.py"
+        - "*/code-execution.py"
     severity: WARNING
 
 
