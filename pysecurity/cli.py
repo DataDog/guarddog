@@ -74,6 +74,7 @@ def download_package(package_name, directory, version=None):
 
     Args:
         package_name (str): name of the package
+        directory (str): directory to download package to
         version (str): version of the package
 
     Raises:

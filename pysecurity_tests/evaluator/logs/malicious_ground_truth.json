@@ -2,64 +2,64 @@
     "ans1crypto": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["asn1crypto/eupolyzoan.py"],
+        "download-executable": ["asn1crypto/eupolyzoan.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "cmd-overwrite": ["setup.py:35"],
         "typosquatting": ["asn1crypto"]
     },
     "colourama": {
-        "shady-links": ["setup.py"],
+        "shady-links": ["setup.py:20"],
         "exfiltrate-sensitive-data": [],
         "download-executable": [],
-        "exec-base64": ["setup.py"],
-        "code-execution": ["setup.py"],
-        "cmd-overwrite": ["setup.py"],
+        "exec-base64": ["setup.py:18"],
+        "code-execution": ["setup.py:18"],
+        "cmd-overwrite": ["setup.py:45"],
         "typosquatting": ["colorama"]
     },
     "distrib": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["distrib-0.1/setup.py"],
+        "exfiltrate-sensitive-data": ["distrib-0.1/setup.py:36"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
         "cmd-overwrite": [],
-        "typosquatting": ["distributed"]
+        "typosquatting": ["distlib", "distributed"]
     },
     "djanga": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["setup.py"],
-        "download-executable": ["djanga-0.1/setup.py", "djanga-0.1/libari/pr.py"],
+        "exfiltrate-sensitive-data": [],
+        "download-executable": ["djanga-0.1/setup.py:29", "djanga-0.1/libari/pr.py:13"],
         "exec-base64": [],
-        "code-execution": ["djanga-0.1/setup.py"],
+        "code-execution": ["djanga-0.1/setup.py:40"],
         "cmd-overwrite": [],
         "typosquatting": ["django"]
     },
     "easyinstall": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["setup.py"],
-        "download-executable": ["easyinstall-37.0.0/setup.py", "easyinstall-37.0.0/easyinstall/pr.py"],
+        "exfiltrate-sensitive-data": [],
+        "download-executable": ["easyinstall-37.0.0/setup.py:28", "easyinstall-37.0.0/easyinstall/pr.py:13"],
         "exec-base64": [],
-        "code-execution": ["easyinstall-37.0.0/setup.py"],
+        "code-execution": ["easyinstall-37.0.0/setup.py:39"],
         "cmd-overwrite": [],
         "typosquatting": ["easy_install"]
     },
     "htpplib2": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["rest_query/refrangibleness.py"],
+        "download-executable": ["rest_query/refrangibleness.py:16"],
         "exec-base64": [],
-        "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "code-execution": [], 
+        "cmd-overwrite": ["setup.py:20"],
         "typosquatting": ["httplib2"]
     },
     "httplib3": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["python3/httplib2/musseled.py", "python2/httplib2/musseled.py"],
+        "download-executable": ["python3/httplib2/musseled.py:16", "python2/httplib2/musseled.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "cmd-overwrite": ["setup.py:13"],
         "typosquatting": ["httplib2"]
     },
     "junkeldat": {
@@ -68,30 +68,30 @@
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["junkeldat-1.0/setup.py"],
+        "cmd-overwrite": ["junkeldat-1.0/setup.py:20"],
         "typosquatting": []
     },
     "libpeshka": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["libpeshka-0.6/setup.py", "libpeshka-0.6/pr.py", "libpeshka-0.6/libari/pr.py"],
+        "download-executable": ["libpeshka-0.6/setup.py:27", "libpeshka-0.6/libari/pr.py:13", "libpeshka-0.6/pr.py:23"],
         "exec-base64": [],
-        "code-execution": ["libpeshka-0.6/setup.py"],
+        "code-execution": ["libpeshka-0.6/setup.py:38"],
         "cmd-overwrite": [],
         "typosquatting": []
     },
     "mumpy": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["mumpy-0.1/setup.py"],
+        "exfiltrate-sensitive-data": ["mumpy-0.1/setup.py:32"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
         "cmd-overwrite": [],
-        "typosquatting": ["numpy"]
+        "typosquatting": ["numpy", "mutpy"]
     },
     "mybiubiubiu": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["mybiubiubiu-0.1.6/setup.py"],
+        "exfiltrate-sensitive-data": ["mybiubiubiu-0.1.6/setup.py:63"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -104,12 +104,21 @@
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
+        "cmd-overwrite": ["setup.py:41"],
+        "typosquatting": ["mysqlpy", "mysql-python"]
+    },
+    "nmap-python": {
+        "shady-links": [],
+        "exfiltrate-sensitive-data": ["nmap-python-0.6.1/setup.py:39", "nmap-python-0.6.1/setup.py:41"],
+        "download-executable": [],
+        "exec-base64": [],
+        "code-execution": [],
         "cmd-overwrite": [],
-        "typosquatting": ["mysqlpy"]
+        "typosquatting": ["python-nmap"]
     },
     "openvc": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["openvc-1.0.0/setup.py"],
+        "exfiltrate-sensitive-data": ["openvc-1.0.0/setup.py:26", "openvc-1.0.0/setup.py:28"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -119,42 +128,42 @@
     "py-jwt": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["jwt/achroodextrin.py"],
+        "download-executable": ["jwt/achroodextrin.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
-        "typosquatting": ["pyjwt"]
+        "cmd-overwrite": ["setup.py:31"],
+        "typosquatting": ["pyjwt", "python-jwt"]
     },
     "pyflaces": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["jsondiff/fascistization.py"],
+        "download-executable": ["jsondiff/fascistization.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "cmd-overwrite": ["setup.py:9"],
         "typosquatting": ["pyflakes"]
     },
     "pyjtw": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["haros/verdour.py"],
+        "download-executable": ["haros/verdour.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "cmd-overwrite": ["setup.py:20"],
         "typosquatting": ["pyjwt"]
     },
     "python-ftp": {
-        "shady-links": ["python-ftp-2.4/setup.py"],
-        "exfiltrate-sensitive-data": ["python-ftp-2.4/setup.py"],
+        "shady-links": ["python-ftp-2.4/setup.py:44"],
+        "exfiltrate-sensitive-data": ["python-ftp-2.4/setup.py:43"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
         "cmd-overwrite": [],
-        "typosquatting": ["pyjwt"]
+        "typosquatting": []
     },
     "python-mongo": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["python-mongo-0.2.0/setup.py"],
+        "exfiltrate-sensitive-data": ["python-mongo-0.2.0/setup.py:40", "python-mongo-0.2.0/setup.py:42"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -163,16 +172,16 @@
     },
     "python-mysql": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["python-mysql-1.0.0/setup.py"],
+        "exfiltrate-sensitive-data": ["python-mysql-1.0.0/setup.py:26", "python-mysql-1.0.0/setup.py:28"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
         "cmd-overwrite": [],
-        "typosquatting": ["MySQL-python"]
+        "typosquatting": ["pymysql", "mysql-python"]
     },
     "python-mysqldb": {
-        "shady-links": ["python-mysqldb-2.4/setup.py"],
-        "exfiltrate-sensitive-data": ["python-mysqldb-2.4/setup.py"],
+        "shady-links": ["python-mysqldb-2.4/setup.py:44"],
+        "exfiltrate-sensitive-data": ["python-mysqldb-2.4/setup.py:43"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -181,16 +190,16 @@
     },
     "python-openssl": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["python-openssl-0.1/setup.py"],
+        "exfiltrate-sensitive-data": ["python-openssl-0.1/setup.py:33", "python-openssl-0.1/setup.py:35"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
         "cmd-overwrite": [],
-        "typosquatting": ["pyOpenSSL"]
+        "typosquatting": ["pyopenssl"]
     },
     "python-sqlite": {
-        "shady-links": ["python-sqlite-2.4/setup.py"],
-        "exfiltrate-sensitive-data": ["python-sqlite-2.4/setup.py"],
+        "shady-links": ["python-sqlite-2.4/setup.py:44"],
+        "exfiltrate-sensitive-data": ["python-sqlite-2.4/setup.py:43"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -198,8 +207,8 @@
         "typosquatting": ["pysqlite3"]
     },
     "pythonkafka": {
-        "shady-links": ["pythonkafka-1.3.5/setup.py"],
-        "exfiltrate-sensitive-data": ["pythonkafka-1.3.5/setup.py"],
+        "shady-links": ["pythonkafka-1.3.5/setup.py:41"],
+        "exfiltrate-sensitive-data": ["pythonkafka-1.3.5/setup.py:40"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -207,35 +216,35 @@
         "typosquatting": ["kafka-python"]
     },
     "pzymail": {
-        "shady-links": ["setup.py"],
+        "shady-links": ["setup.py:7"],
         "exfiltrate-sensitive-data": [],
         "download-executable": [],
         "exec-base64": [],
-        "code-execution": ["setup.py"],
+        "code-execution": ["setup.py:7"],
         "cmd-overwrite": [],
         "typosquatting": ["pyzmail"]
     },
     "reqeusts-oauthlib": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["sql_sanitizer/subtangent.py"],
+        "download-executable": ["sql_sanitizer/subtangent.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "cmd-overwrite": ["setup.py:3"],
         "typosquatting": ["requests-oauthlib"]
     },
     "request-oauthlib": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["pretty_cron/peracetic.py"],
+        "download-executable": ["pretty_cron/peracetic.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "cmd-overwrite": ["setup.py:62"],
         "typosquatting": ["requests-oauthlib"]
     },
     "smb": {
-        "shady-links": ["smb-2.4/setup.py"],
-        "exfiltrate-sensitive-data": ["smb-2.4/setup.py"],
+        "shady-links": ["smb-2.4/setup.py:44"],
+        "exfiltrate-sensitive-data": ["smb-2.4/setup.py:43"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -243,8 +252,8 @@
         "typosquatting": ["pysmb"]
     },
     "tenserflow": {
-        "shady-links": ["setup.py"],
-        "exfiltrate-sensitive-data": ["setup.py"],
+        "shady-links": ["setup.py:41"],
+        "exfiltrate-sensitive-data": ["setup.py:40"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],
@@ -254,15 +263,15 @@
     "unicode-csv": {
         "shady-links": [],
         "exfiltrate-sensitive-data": [],
-        "download-executable": ["rest_client/programmatist.py"],
+        "download-executable": ["rest_client/programmatist.py:16"],
         "exec-base64": [],
         "code-execution": [],
-        "cmd-overwrite": ["setup.py"],
+        "cmd-overwrite": ["setup.py:8"],
         "typosquatting": ["unicodecsv"]
     },
     "virtualnv": {
         "shady-links": [],
-        "exfiltrate-sensitive-data": ["virtualnv-0.1.1/setup.py"],
+        "exfiltrate-sensitive-data": ["virtualnv-0.1.1/setup.py:32"],
         "download-executable": [],
         "exec-base64": [],
         "code-execution": [],

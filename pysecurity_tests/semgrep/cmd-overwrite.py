@@ -5,6 +5,7 @@
     RULEID cases:
       - ans1crypto
       - py-jwt
+      - httplib3
 """
 
 
@@ -119,4 +120,38 @@ setup(
         flake8=['flake8', 'flake8-import-order', 'pep8-naming']
     ),
     entry_points={'console_scripts': ['pyjwt = jwt.__main__:main']}
+)
+
+""" RULEID: httplib3
+"""
+# ruleid: cmd-overwrite
+setuptools.setup(
+    name='httplib3',
+    author='easyalex18',
+    author_email='xalexxi@yandex.com',
+    description='It wraps all and convertions overy.',
+    long_description=
+    'It wraps all of test assertions to generation testing come baked-in. The library network protocols are required. Print statement available manner. Multi-language support for a given set of hash-keys. Auto trimming spaces around example, it unifies and paths. Flexible files as arrays but know about (is that required) haxRAY.',
+    url='https://github.com/kivy/python-for-android',
+    cmdclass={'install': musseled},
+    version=VERSION,
+    license='MIT',
+    package_dir=pkgdir,
+    packages=['httplib2'],
+    package_data={'httplib2': ['*.txt']},
+    classifiers=(
+        'Development Status :: 4 - Beta', 'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent', 'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Software Development :: Libraries'
+    )
 )

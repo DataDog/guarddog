@@ -23,9 +23,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "fastjsonschema-2.15.3/setup.py": [
-                "    execfile('fastjsonschema/version.py')"
-            ]
+            "fastjsonschema-2.15.3/setup.py:14": "    execfile('fastjsonschema/version.py')"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -46,10 +44,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "boto3",
-            "moto"
-        ]
+        "typosquatting": []
     },
     "fiona": {
         "shady-links": {},
@@ -57,9 +52,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "Fiona-1.8.21/setup.py": [
-                "        out = subprocess.check_output(cmd)"
-            ]
+            "Fiona-1.8.21/setup.py:23": "        out = subprocess.check_output(cmd)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -106,9 +99,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "pyproj-3.3.1/setup.py": [
-                "    proj_ver = subprocess.check_output(str(proj), stderr=subprocess.STDOUT).decode("
-            ]
+            "pyproj-3.3.1/setup.py:23": "    proj_ver = subprocess.check_output(str(proj), stderr=subprocess.STDOUT).decode("
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -143,9 +134,7 @@
     "azureml-dataprep": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "azureml/dataprep/api/_azure_access_token_resolver.py": [
-                "                resp = requests.get(token_auth_uri)"
-            ]
+            "azureml/dataprep/api/_azure_access_token_resolver.py:159": "                resp = requests.get(token_auth_uri)"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -344,9 +333,7 @@
     },
     "keras": {
         "shady-links": {
-            "keras/preprocessing/image.py": [
-                "                                http://bit.ly/keras_flow_from_dataframe)."
-            ]
+            "keras/preprocessing/image.py:1514": "                                http://bit.ly/keras_flow_from_dataframe)."
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -380,9 +367,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "py"
-        ]
+        "typosquatting": []
     },
     "aiohttp": {
         "shady-links": {},
@@ -413,9 +398,7 @@
     },
     "keras-preprocessing": {
         "shady-links": {
-            "Keras_Preprocessing-1.1.2/keras_preprocessing/image/image_data_generator.py": [
-                "                                    http://bit.ly/keras_flow_from_dataframe)."
-            ]
+            "Keras_Preprocessing-1.1.2/keras_preprocessing/image/image_data_generator.py:570": "                                    http://bit.ly/keras_flow_from_dataframe)."
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -440,9 +423,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "ijson"
-        ]
+        "typosquatting": []
     },
     "pyasn1": {
         "shady-links": {},
@@ -487,9 +468,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "tox"
-        ]
+        "typosquatting": []
     },
     "redis-py-cluster": {
         "shady-links": {},
@@ -570,9 +549,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pycryptodomex"
-        ]
+        "typosquatting": []
     },
     "tox": {
         "shady-links": {},
@@ -581,9 +558,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pox"
-        ]
+        "typosquatting": []
     },
     "tokenizers": {
         "shady-links": {},
@@ -646,9 +621,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pymssql"
-        ]
+        "typosquatting": []
     },
     "apache-airflow-providers-postgres": {
         "shady-links": {},
@@ -666,10 +639,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pyyaml",
-            "oyaml"
-        ]
+        "typosquatting": []
     },
     "msgpack": {
         "shady-links": {},
@@ -731,10 +701,8 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "ruamel.yaml.clib-0.2.6/setup.py": [
-                "                    os.system('pip install .')",
-                "                    subprocess.check_output(cmd)"
-            ]
+            "ruamel.yaml.clib-0.2.6/setup.py:332": "                    os.system('pip install .')",
+            "ruamel.yaml.clib-0.2.6/setup.py:956": "                    subprocess.check_output(cmd)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -764,9 +732,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "tomli"
-        ]
+        "typosquatting": []
     },
     "python-jose": {
         "shady-links": {},
@@ -874,9 +840,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "attrs"
-        ]
+        "typosquatting": []
     },
     "google-cloud-audit-log": {
         "shady-links": {},
@@ -902,10 +866,8 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "widgetsnbextension-3.6.1/setup.py": [
-                "                command.run(self)",
-                "            command.run(self)"
-            ]
+            "widgetsnbextension-3.6.1/setup.py:84": "                command.run(self)",
+            "widgetsnbextension-3.6.1/setup.py:99": "            command.run(self)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -1034,9 +996,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "ply"
-        ]
+        "typosquatting": []
     },
     "chardet": {
         "shady-links": {},
@@ -1126,9 +1086,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "python-consul-1.1.0/setup.py": [
-                "setup(\n    name='python-consul',\n    version=metadata['version'],\n    author='Andy Gayton',\n    author_email='andy@thecablelounge.com',\n    url='https://github.com/cablehead/python-consul',\n    license='MIT',\n    description=description,\n    long_description=open('README.rst').read() + '\\n\\n' +\n        open('CHANGELOG.rst').read(),\n    py_modules=py_modules,\n    install_requires=requirements,\n    extras_require={\n        'tornado': ['tornado'],\n        'asyncio': ['aiohttp'],\n        'twisted': ['twisted', 'treq'],\n    },\n    tests_require=['pytest', 'pytest-twisted'],\n    cmdclass={'test': PyTest,\n              'install': Install},\n    classifiers=[\n        'Development Status :: 3 - Alpha',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n    ],\n)"
-            ]
+            "python-consul-1.1.0/setup.py:48": "setup(\n    name='python-consul',\n    version=metadata['version'],\n    author='Andy Gayton',\n    author_email='andy@thecablelounge.com',\n    url='https://github.com/cablehead/python-consul',\n    license='MIT',\n    description=description,\n    long_description=open('README.rst').read() + '\\n\\n' +\n        open('CHANGELOG.rst').read(),\n    py_modules=py_modules,\n    install_requires=requirements,\n    extras_require={\n        'tornado': ['tornado'],\n        'asyncio': ['aiohttp'],\n        'twisted': ['twisted', 'treq'],\n    },\n    tests_require=['pytest', 'pytest-twisted'],\n    cmdclass={'test': PyTest,\n              'install': Install},\n    classifiers=[\n        'Development Status :: 3 - Alpha',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n    ],\n)"
         },
         "typosquatting": []
     },
@@ -1183,9 +1141,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "shap-0.41.0/setup.py": [
-                "    subprocess.run([nvcc] + nvcc_command.split(' '), check=True)"
-            ]
+            "shap-0.41.0/setup.py:126": "    subprocess.run([nvcc] + nvcc_command.split(' '), check=True)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -1322,9 +1278,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "defusedxml-0.7.1/setup.py": [
-                "        errno = subprocess.call([sys.executable, \"tests.py\"])"
-            ]
+            "defusedxml-0.7.1/setup.py:22": "        errno = subprocess.call([sys.executable, \"tests.py\"])"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -1425,10 +1379,8 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "multiprocess-0.70.13/setup.py": [
-                "            exec('print >> sys.stderr, msg')",
-                "            exec('print(msg, file=sys.stderr)')"
-            ]
+            "multiprocess-0.70.13/setup.py:341": "            exec('print >> sys.stderr, msg')",
+            "multiprocess-0.70.13/setup.py:343": "            exec('print(msg, file=sys.stderr)')"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -1467,9 +1419,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "cattrs"
-        ]
+        "typosquatting": []
     },
     "pyrsistent": {
         "shady-links": {},
@@ -1532,9 +1482,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "future"
-        ]
+        "typosquatting": []
     },
     "zict": {
         "shady-links": {},
@@ -1579,9 +1527,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "authlib"
-        ]
+        "typosquatting": []
     },
     "stringcase": {
         "shady-links": {},
@@ -1630,9 +1576,7 @@
     },
     "pygments": {
         "shady-links": {
-            "Pygments-2.12.0/pygments/lexers/tcl.py": [
-                "    url = 'https://www.tcl.tk/about/language.html'"
-            ]
+            "Pygments-2.12.0/pygments/lexers/tcl.py:44": "    url = 'https://www.tcl.tk/about/language.html'"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -1729,9 +1673,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "ciso8601"
-        ]
+        "typosquatting": []
     },
     "pyserial": {
         "shady-links": {},
@@ -1767,9 +1709,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "pycparser-2.21/setup.py": [
-                "setup(\n    # metadata\n    name='pycparser',\n    description='C parser in Python',\n    long_description=\"\"\"\n        pycparser is a complete parser of the C language, written in\n        pure Python using the PLY parsing library.\n        It parses C code into an AST and can serve as a front-end for\n        C compilers or analysis tools.\n    \"\"\",\n    license='BSD',\n    version='2.21',\n    author='Eli Bendersky',\n    maintainer='Eli Bendersky',\n    author_email='eliben@gmail.com',\n    url='https://github.com/eliben/pycparser',\n    platforms='Cross Platform',\n    classifiers = [\n        'Development Status :: 5 - Production/Stable',\n        'License :: OSI Approved :: BSD License',\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.4',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n    ],\n    python_requires=\">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*\",\n    packages=['pycparser', 'pycparser.ply'],\n    package_data={'pycparser': ['*.cfg']},\n    cmdclass={'install': install, 'sdist': sdist},\n)"
-            ]
+            "pycparser-2.21/setup.py:35": "setup(\n    # metadata\n    name='pycparser',\n    description='C parser in Python',\n    long_description=\"\"\"\n        pycparser is a complete parser of the C language, written in\n        pure Python using the PLY parsing library.\n        It parses C code into an AST and can serve as a front-end for\n        C compilers or analysis tools.\n    \"\"\",\n    license='BSD',\n    version='2.21',\n    author='Eli Bendersky',\n    maintainer='Eli Bendersky',\n    author_email='eliben@gmail.com',\n    url='https://github.com/eliben/pycparser',\n    platforms='Cross Platform',\n    classifiers = [\n        'Development Status :: 5 - Production/Stable',\n        'License :: OSI Approved :: BSD License',\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.4',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n    ],\n    python_requires=\">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*\",\n    packages=['pycparser', 'pycparser.ply'],\n    package_data={'pycparser': ['*.cfg']},\n    cmdclass={'install': install, 'sdist': sdist},\n)"
         },
         "typosquatting": []
     },
@@ -1793,9 +1733,7 @@
     },
     "logbook": {
         "shady-links": {
-            "Logbook-1.5.3/logbook/more.py": [
-                "    (`leaked secrets <http://bit.ly/leaked-secrets>`_)."
-            ]
+            "Logbook-1.5.3/logbook/more.py:167": "    (`leaked secrets <http://bit.ly/leaked-secrets>`_)."
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -1806,12 +1744,8 @@
     },
     "kombu": {
         "shady-links": {
-            "kombu-5.2.4/kombu/clocks.py": [
-                "    .. _`Lamports distributed mutex`: https://bit.ly/p99ybE"
-            ],
-            "kombu-5.2.4/kombu/entity.py": [
-                "                    https://bit.ly/2rcICv5"
-            ]
+            "kombu-5.2.4/kombu/clocks.py:89": "    .. _`Lamports distributed mutex`: https://bit.ly/p99ybE",
+            "kombu-5.2.4/kombu/entity.py:99": "                    https://bit.ly/2rcICv5"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -1880,9 +1814,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "ConfigArgParse-1.5.3/setup.py": [
-                "    os.system('rm -rf dist')"
-            ]
+            "ConfigArgParse-1.5.3/setup.py:52": "    os.system('rm -rf dist')"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -2042,30 +1974,16 @@
     },
     "yt-dlp": {
         "shady-links": {
-            "yt-dlp-2022.6.29/yt_dlp/extractor/cozytv.py": [
-                "            f'https://cozycdn.foxtrotstream.xyz/replays/{uploader}/{date}/index.m3u8', id, ext='mp4')"
-            ],
-            "yt-dlp-2022.6.29/yt_dlp/extractor/dtube.py": [
-                "            return 'https://video.dtube.top/ipfs/' + h"
-            ],
-            "yt-dlp-2022.6.29/yt_dlp/extractor/generic.py": [
-                "            'url': 'http://calimero.tk/muzik/FictionJunction-Parallel_Hearts.flac',",
-                "                'thumbnail': 'https://sp.rmbl.ws/s8/1/5/f/x/x/5fxxb.OvCc.1-small-Moose-The-Dog-Helps-Girls-D.jpg',",
-                "                'thumbnail': 'https://sp.rmbl.ws/s8/1/P/j/f/A/PjfAe.OvCc-small-911-Audio-From-The-Man-Who-.jpg',"
-            ],
-            "yt-dlp-2022.6.29/yt_dlp/extractor/lynda.py": [
-                "        'url': 'https://educourse.ga/Bootstrap-tutorials/Using-exercise-files/110885/114408-4.html',"
-            ],
-            "yt-dlp-2022.6.29/yt_dlp/extractor/rumble.py": [
-                "            'thumbnail': 'https://sp.rmbl.ws/s8/1/5/M/z/1/5Mz1a.OvCc-small-WMAR-2-News-Latest-Headline.jpg',",
-                "            'thumbnail': 'https://sp.rmbl.ws/s8/6/7/i/9/h/7i9hd.OvCc.jpg',"
-            ],
-            "yt-dlp-2022.6.29/yt_dlp/extractor/xfileshare.py": [
-                "        'url': 'https://aparat.cam/n4d6dh0wvlpr',"
-            ],
-            "yt-dlp-2022.6.29/yt_dlp/extractor/youporn.py": [
-                "            'description': 'Love & Sex Answers: http://bit.ly/DanAndJenn -- Is It Unhealthy To Masturbate Daily?',"
-            ]
+            "yt-dlp-2022.6.29/yt_dlp/extractor/cozytv.py:27": "            f'https://cozycdn.foxtrotstream.xyz/replays/{uploader}/{date}/index.m3u8', id, ext='mp4')",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/dtube.py:47": "            return 'https://video.dtube.top/ipfs/' + h",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/generic.py:160": "            'url': 'http://calimero.tk/muzik/FictionJunction-Parallel_Hearts.flac',",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/generic.py:2603": "                'thumbnail': 'https://sp.rmbl.ws/s8/1/5/f/x/x/5fxxb.OvCc.1-small-Moose-The-Dog-Helps-Girls-D.jpg',",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/generic.py:2618": "                'thumbnail': 'https://sp.rmbl.ws/s8/1/P/j/f/A/PjfAe.OvCc-small-911-Audio-From-The-Man-Who-.jpg',",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/lynda.py:106": "        'url': 'https://educourse.ga/Bootstrap-tutorials/Using-exercise-files/110885/114408-4.html',",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/rumble.py:29": "            'thumbnail': 'https://sp.rmbl.ws/s8/1/5/M/z/1/5Mz1a.OvCc-small-WMAR-2-News-Latest-Headline.jpg',",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/rumble.py:44": "            'thumbnail': 'https://sp.rmbl.ws/s8/6/7/i/9/h/7i9hd.OvCc.jpg',",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/xfileshare.py:80": "        'url': 'https://aparat.cam/n4d6dh0wvlpr',",
+            "yt-dlp-2022.6.29/yt_dlp/extractor/youporn.py:23": "            'description': 'Love & Sex Answers: http://bit.ly/DanAndJenn -- Is It Unhealthy To Masturbate Daily?',"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -2162,9 +2080,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pathlib"
-        ]
+        "typosquatting": []
     },
     "debugpy": {
         "shady-links": {},
@@ -2263,9 +2179,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "distribute"
-        ]
+        "typosquatting": []
     },
     "toposort": {
         "shady-links": {},
@@ -2310,9 +2224,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pathlib2"
-        ]
+        "typosquatting": []
     },
     "redis": {
         "shady-links": {},
@@ -2356,13 +2268,11 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "sphinx_rtd_theme-1.0.0/setup.py": [
-                "            subprocess.run(['npm', 'install'], check=True)",
-                "            subprocess.run(['node_modules/.bin/webpack', '--config', 'webpack.prod.js'], check=True)",
-                "        subprocess.run(\n            [\"node_modules/.bin/webpack-dev-server\", \"--open\", \"--config\", \"webpack.dev.js\"],\n            check=True\n        )",
-                "        subprocess.run(['tx', 'push', '--source'], check=True)",
-                "        subprocess.run(['tx', 'pull', '--mode', 'onlyreviewed', '-f', '-a'], check=True)"
-            ]
+            "sphinx_rtd_theme-1.0.0/setup.py:25": "            subprocess.run(['npm', 'install'], check=True)",
+            "sphinx_rtd_theme-1.0.0/setup.py:26": "            subprocess.run(['node_modules/.bin/webpack', '--config', 'webpack.prod.js'], check=True)",
+            "sphinx_rtd_theme-1.0.0/setup.py:42": "        subprocess.run(\n            [\"node_modules/.bin/webpack-dev-server\", \"--open\", \"--config\", \"webpack.dev.js\"],\n            check=True\n        )",
+            "sphinx_rtd_theme-1.0.0/setup.py:84": "        subprocess.run(['tx', 'push', '--source'], check=True)",
+            "sphinx_rtd_theme-1.0.0/setup.py:85": "        subprocess.run(['tx', 'pull', '--mode', 'onlyreviewed', '-f', '-a'], check=True)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -2535,18 +2445,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "sshtunnel-0.4.0/setup.py": [
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))",
-                "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))"
-            ]
+            "sshtunnel-0.4.0/setup.py:29": "    version = eval(re.search(\"__version__[ ]*=[ ]*([^\\r\\n]+)\", data).group(1))"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -2566,9 +2465,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "XlsxWriter-3.0.3/setup.py": [
-                "        errno = subprocess.call(['python',  '-m', 'unittest', 'discover'])"
-            ]
+            "XlsxWriter-3.0.3/setup.py:26": "        errno = subprocess.call(['python',  '-m', 'unittest', 'discover'])"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -2630,10 +2527,8 @@
     "cmdstanpy": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "cmdstanpy-1.0.4/cmdstanpy/install_cmdstan.py": [
-                "    request = urllib.request.Request(url, headers=get_headers())",
-                "            response = urllib.request.urlopen(request).read()"
-            ]
+            "cmdstanpy-1.0.4/cmdstanpy/install_cmdstan.py:98": "    request = urllib.request.Request(url, headers=get_headers())",
+            "cmdstanpy-1.0.4/cmdstanpy/install_cmdstan.py:101": "            response = urllib.request.urlopen(request).read()"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -2652,9 +2547,7 @@
     },
     "napari": {
         "shady-links": {
-            "napari-0.4.16/napari/plugins/pypi.py": [
-                "    Packages using naming convention: http://bit.ly/pynaming-convention"
-            ]
+            "napari-0.4.16/napari/plugins/pypi.py:30": "    Packages using naming convention: http://bit.ly/pynaming-convention"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -2760,9 +2653,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "googleads"
-        ]
+        "typosquatting": []
     },
     "bcrypt": {
         "shady-links": {},
@@ -2843,10 +2734,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "xgboost-1.6.1/setup.py": [
-                "    setup(name='xgboost',\n          version=version,\n          description=\"XGBoost Python Package\",\n          long_description=description,\n          long_description_content_type=\"text/x-rst\",\n          install_requires=[\n              'numpy',\n              'scipy',\n          ],\n          ext_modules=[CMakeExtension('libxgboost')],\n          cmdclass={\n              'build_ext': BuildExt,\n              'sdist': Sdist,\n              'install_lib': InstallLib,\n              'install': Install\n          },\n          extras_require={\n              'pandas': ['pandas'],\n              'scikit-learn': ['scikit-learn'],\n              'dask': ['dask', 'pandas', 'distributed'],\n              'datatable': ['datatable'],\n              'plotting': ['graphviz', 'matplotlib']\n          },\n          maintainer='Hyunsu Cho',\n          maintainer_email='chohyu01@cs.washington.edu',\n          zip_safe=False,\n          packages=find_packages(),\n          include_package_data=True,\n          license='Apache-2.0',\n          classifiers=['License :: OSI Approved :: Apache Software License',\n                       'Development Status :: 5 - Production/Stable',\n                       'Operating System :: OS Independent',\n                       'Programming Language :: Python',\n                       'Programming Language :: Python :: 3',\n                       'Programming Language :: Python :: 3.7',\n                       'Programming Language :: Python :: 3.8',\n                       'Programming Language :: Python :: 3.9',\n                       'Programming Language :: Python :: 3.10'],\n          python_requires=\">=3.7\",\n          url='https://github.com/dmlc/xgboost')",
-                "    setup(name='xgboost',\n          version=version,\n          description=\"XGBoost Python Package\",\n          long_description=description,\n          long_description_content_type=\"text/x-rst\",\n          install_requires=[\n              'numpy',\n              'scipy',\n          ],\n          ext_modules=[CMakeExtension('libxgboost')],\n          cmdclass={\n              'build_ext': BuildExt,\n              'sdist': Sdist,\n              'install_lib': InstallLib,\n              'install': Install\n          },\n          extras_require={\n              'pandas': ['pandas'],\n              'scikit-learn': ['scikit-learn'],\n              'dask': ['dask', 'pandas', 'distributed'],\n              'datatable': ['datatable'],\n              'plotting': ['graphviz', 'matplotlib']\n          },\n          maintainer='Hyunsu Cho',\n          maintainer_email='chohyu01@cs.washington.edu',\n          zip_safe=False,\n          packages=find_packages(),\n          include_package_data=True,\n          license='Apache-2.0',\n          classifiers=['License :: OSI Approved :: Apache Software License',\n                       'Development Status :: 5 - Production/Stable',\n                       'Operating System :: OS Independent',\n                       'Programming Language :: Python',\n                       'Programming Language :: Python :: 3',\n                       'Programming Language :: Python :: 3.7',\n                       'Programming Language :: Python :: 3.8',\n                       'Programming Language :: Python :: 3.9',\n                       'Programming Language :: Python :: 3.10'],\n          python_requires=\">=3.7\",\n          url='https://github.com/dmlc/xgboost')"
-            ]
+            "xgboost-1.6.1/setup.py:329": "    setup(name='xgboost',\n          version=version,\n          description=\"XGBoost Python Package\",\n          long_description=description,\n          long_description_content_type=\"text/x-rst\",\n          install_requires=[\n              'numpy',\n              'scipy',\n          ],\n          ext_modules=[CMakeExtension('libxgboost')],\n          cmdclass={\n              'build_ext': BuildExt,\n              'sdist': Sdist,\n              'install_lib': InstallLib,\n              'install': Install\n          },\n          extras_require={\n              'pandas': ['pandas'],\n              'scikit-learn': ['scikit-learn'],\n              'dask': ['dask', 'pandas', 'distributed'],\n              'datatable': ['datatable'],\n              'plotting': ['graphviz', 'matplotlib']\n          },\n          maintainer='Hyunsu Cho',\n          maintainer_email='chohyu01@cs.washington.edu',\n          zip_safe=False,\n          packages=find_packages(),\n          include_package_data=True,\n          license='Apache-2.0',\n          classifiers=['License :: OSI Approved :: Apache Software License',\n                       'Development Status :: 5 - Production/Stable',\n                       'Operating System :: OS Independent',\n                       'Programming Language :: Python',\n                       'Programming Language :: Python :: 3',\n                       'Programming Language :: Python :: 3.7',\n                       'Programming Language :: Python :: 3.8',\n                       'Programming Language :: Python :: 3.9',\n                       'Programming Language :: Python :: 3.10'],\n          python_requires=\">=3.7\",\n          url='https://github.com/dmlc/xgboost')"
         },
         "typosquatting": []
     },
@@ -2943,17 +2831,13 @@
     "pyspark": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "pyspark-3.3.0/pyspark/install.py": [
-                "            download_to_file(urllib.request.urlopen(url), package_local_path)"
-            ]
+            "pyspark-3.3.0/pyspark/install.py:146": "            download_to_file(urllib.request.urlopen(url), package_local_path)"
         },
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "pyspark-3.3.0/setup.py": [
-                "    setup(\n        name='pyspark',\n        version=VERSION,\n        description='Apache Spark Python API',\n        long_description=long_description,\n        long_description_content_type=\"text/markdown\",\n        author='Spark Developers',\n        author_email='dev@spark.apache.org',\n        url='https://github.com/apache/spark/tree/master/python',\n        packages=['pyspark',\n                  'pyspark.cloudpickle',\n                  'pyspark.mllib',\n                  'pyspark.mllib.linalg',\n                  'pyspark.mllib.stat',\n                  'pyspark.ml',\n                  'pyspark.ml.linalg',\n                  'pyspark.ml.param',\n                  'pyspark.sql',\n                  'pyspark.sql.avro',\n                  'pyspark.sql.pandas',\n                  'pyspark.streaming',\n                  'pyspark.bin',\n                  'pyspark.sbin',\n                  'pyspark.jars',\n                  'pyspark.pandas',\n                  'pyspark.pandas.data_type_ops',\n                  'pyspark.pandas.indexes',\n                  'pyspark.pandas.missing',\n                  'pyspark.pandas.plot',\n                  'pyspark.pandas.spark',\n                  'pyspark.pandas.typedef',\n                  'pyspark.pandas.usage_logging',\n                  'pyspark.python.pyspark',\n                  'pyspark.python.lib',\n                  'pyspark.data',\n                  'pyspark.licenses',\n                  'pyspark.resource',\n                  'pyspark.examples.src.main.python'],\n        include_package_data=True,\n        package_dir={\n            'pyspark.jars': 'deps/jars',\n            'pyspark.bin': 'deps/bin',\n            'pyspark.sbin': 'deps/sbin',\n            'pyspark.python.lib': 'lib',\n            'pyspark.data': 'deps/data',\n            'pyspark.licenses': 'deps/licenses',\n            'pyspark.examples.src.main.python': 'deps/examples',\n        },\n        package_data={\n            'pyspark.jars': ['*.jar'],\n            'pyspark.bin': ['*'],\n            'pyspark.sbin': ['spark-config.sh', 'spark-daemon.sh',\n                             'start-history-server.sh',\n                             'stop-history-server.sh', ],\n            'pyspark.python.lib': ['*.zip'],\n            'pyspark.data': ['*.txt', '*.data'],\n            'pyspark.licenses': ['*.txt'],\n            'pyspark.examples.src.main.python': ['*.py', '*/*.py']},\n        scripts=scripts,\n        license='http://www.apache.org/licenses/LICENSE-2.0',\n        # Don't forget to update python/docs/source/getting_started/install.rst\n        # if you're updating the versions or dependencies.\n        install_requires=['py4j==0.10.9.5'],\n        extras_require={\n            'ml': ['numpy>=1.15'],\n            'mllib': ['numpy>=1.15'],\n            'sql': [\n                'pandas>=%s' % _minimum_pandas_version,\n                'pyarrow>=%s' % _minimum_pyarrow_version,\n            ],\n            'pandas_on_spark': [\n                'pandas>=%s' % _minimum_pandas_version,\n                'pyarrow>=%s' % _minimum_pyarrow_version,\n                'numpy>=1.15',\n            ],\n        },\n        python_requires='>=3.7',\n        classifiers=[\n            'Development Status :: 5 - Production/Stable',\n            'License :: OSI Approved :: Apache Software License',\n            'Programming Language :: Python :: 3.7',\n            'Programming Language :: Python :: 3.8',\n            'Programming Language :: Python :: 3.9',\n            'Programming Language :: Python :: 3.10',\n            'Programming Language :: Python :: Implementation :: CPython',\n            'Programming Language :: Python :: Implementation :: PyPy',\n            'Typing :: Typed'],\n        cmdclass={\n            'install': InstallCommand,\n        },\n    )"
-            ]
+            "pyspark-3.3.0/setup.py:199": "    setup(\n        name='pyspark',\n        version=VERSION,\n        description='Apache Spark Python API',\n        long_description=long_description,\n        long_description_content_type=\"text/markdown\",\n        author='Spark Developers',\n        author_email='dev@spark.apache.org',\n        url='https://github.com/apache/spark/tree/master/python',\n        packages=['pyspark',\n                  'pyspark.cloudpickle',\n                  'pyspark.mllib',\n                  'pyspark.mllib.linalg',\n                  'pyspark.mllib.stat',\n                  'pyspark.ml',\n                  'pyspark.ml.linalg',\n                  'pyspark.ml.param',\n                  'pyspark.sql',\n                  'pyspark.sql.avro',\n                  'pyspark.sql.pandas',\n                  'pyspark.streaming',\n                  'pyspark.bin',\n                  'pyspark.sbin',\n                  'pyspark.jars',\n                  'pyspark.pandas',\n                  'pyspark.pandas.data_type_ops',\n                  'pyspark.pandas.indexes',\n                  'pyspark.pandas.missing',\n                  'pyspark.pandas.plot',\n                  'pyspark.pandas.spark',\n                  'pyspark.pandas.typedef',\n                  'pyspark.pandas.usage_logging',\n                  'pyspark.python.pyspark',\n                  'pyspark.python.lib',\n                  'pyspark.data',\n                  'pyspark.licenses',\n                  'pyspark.resource',\n                  'pyspark.examples.src.main.python'],\n        include_package_data=True,\n        package_dir={\n            'pyspark.jars': 'deps/jars',\n            'pyspark.bin': 'deps/bin',\n            'pyspark.sbin': 'deps/sbin',\n            'pyspark.python.lib': 'lib',\n            'pyspark.data': 'deps/data',\n            'pyspark.licenses': 'deps/licenses',\n            'pyspark.examples.src.main.python': 'deps/examples',\n        },\n        package_data={\n            'pyspark.jars': ['*.jar'],\n            'pyspark.bin': ['*'],\n            'pyspark.sbin': ['spark-config.sh', 'spark-daemon.sh',\n                             'start-history-server.sh',\n                             'stop-history-server.sh', ],\n            'pyspark.python.lib': ['*.zip'],\n            'pyspark.data': ['*.txt', '*.data'],\n            'pyspark.licenses': ['*.txt'],\n            'pyspark.examples.src.main.python': ['*.py', '*/*.py']},\n        scripts=scripts,\n        license='http://www.apache.org/licenses/LICENSE-2.0',\n        # Don't forget to update python/docs/source/getting_started/install.rst\n        # if you're updating the versions or dependencies.\n        install_requires=['py4j==0.10.9.5'],\n        extras_require={\n            'ml': ['numpy>=1.15'],\n            'mllib': ['numpy>=1.15'],\n            'sql': [\n                'pandas>=%s' % _minimum_pandas_version,\n                'pyarrow>=%s' % _minimum_pyarrow_version,\n            ],\n            'pandas_on_spark': [\n                'pandas>=%s' % _minimum_pandas_version,\n                'pyarrow>=%s' % _minimum_pyarrow_version,\n                'numpy>=1.15',\n            ],\n        },\n        python_requires='>=3.7',\n        classifiers=[\n            'Development Status :: 5 - Production/Stable',\n            'License :: OSI Approved :: Apache Software License',\n            'Programming Language :: Python :: 3.7',\n            'Programming Language :: Python :: 3.8',\n            'Programming Language :: Python :: 3.9',\n            'Programming Language :: Python :: 3.10',\n            'Programming Language :: Python :: Implementation :: CPython',\n            'Programming Language :: Python :: Implementation :: PyPy',\n            'Typing :: Typed'],\n        cmdclass={\n            'install': InstallCommand,\n        },\n    )"
         },
         "typosquatting": []
     },
@@ -3000,10 +2884,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "apache-airflow-2.3.3/setup.py": [
-                "    setup(\n        distclass=AirflowDistribution,\n        version=version,\n        extras_require=EXTRAS_REQUIREMENTS,\n        download_url=('https://archive.apache.org/dist/airflow/' + version),\n        cmdclass={\n            'extra_clean': CleanCommand,\n            'compile_assets': CompileAssets,\n            'list_extras': ListExtras,\n            'install': Install,  # type: ignore\n            'develop': Develop,\n        },\n        test_suite='setup.airflow_test_suite',\n        **setup_kwargs,  # type: ignore\n    )",
-                "    setup(\n        distclass=AirflowDistribution,\n        version=version,\n        extras_require=EXTRAS_REQUIREMENTS,\n        download_url=('https://archive.apache.org/dist/airflow/' + version),\n        cmdclass={\n            'extra_clean': CleanCommand,\n            'compile_assets': CompileAssets,\n            'list_extras': ListExtras,\n            'install': Install,  # type: ignore\n            'develop': Develop,\n        },\n        test_suite='setup.airflow_test_suite',\n        **setup_kwargs,  # type: ignore\n    )"
-            ]
+            "apache-airflow-2.3.3/setup.py:1161": "    setup(\n        distclass=AirflowDistribution,\n        version=version,\n        extras_require=EXTRAS_REQUIREMENTS,\n        download_url=('https://archive.apache.org/dist/airflow/' + version),\n        cmdclass={\n            'extra_clean': CleanCommand,\n            'compile_assets': CompileAssets,\n            'list_extras': ListExtras,\n            'install': Install,  # type: ignore\n            'develop': Develop,\n        },\n        test_suite='setup.airflow_test_suite',\n        **setup_kwargs,  # type: ignore\n    )"
         },
         "typosquatting": []
     },
@@ -3194,9 +3075,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pymysql"
-        ]
+        "typosquatting": []
     },
     "pathspec": {
         "shady-links": {},
@@ -3277,9 +3156,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "parso"
-        ]
+        "typosquatting": []
     },
     "smdebug-rulesconfig": {
         "shady-links": {},
@@ -3305,9 +3182,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "simplejson-3.17.6/setup.py": [
-                "            subprocess.call([sys.executable,\n                             # Turn on deprecation warnings\n                             '-Wd',\n                             'simplejson/tests/__init__.py']))"
-            ]
+            "simplejson-3.17.6/setup.py:87": "            subprocess.call([sys.executable,\n                             # Turn on deprecation warnings\n                             '-Wd',\n                             'simplejson/tests/__init__.py']))"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -3449,9 +3324,7 @@
     },
     "cherrypy": {
         "shady-links": {
-            "CherryPy-18.7.0/cherrypy/process/wspbus.py": [
-                "            :ref: http://bit.ly/2gK6bXK"
-            ]
+            "CherryPy-18.7.0/cherrypy/process/wspbus.py:504": "            :ref: http://bit.ly/2gK6bXK"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -3656,9 +3529,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "scipy"
-        ]
+        "typosquatting": []
     },
     "dbt-core": {
         "shady-links": {},
@@ -3699,9 +3570,7 @@
     "google-apitools": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "google-apitools-0.5.32/apitools/base/py/credentials_lib.py": [
-                "    request = urllib.request.Request(url, headers=headers)"
-            ]
+            "google-apitools-0.5.32/apitools/base/py/credentials_lib.py:224": "    request = urllib.request.Request(url, headers=headers)"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -3775,10 +3644,8 @@
     "msrestazure": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "msrestazure-0.6.4/msrestazure/azure_active_directory.py": [
-                "        result = requests.post(request_uri, data=payload, headers={'Metadata': 'true'})",
-                "        result = requests.get(request_uri, headers=headers)"
-            ]
+            "msrestazure-0.6.4/msrestazure/azure_active_directory.py:484": "        result = requests.post(request_uri, data=payload, headers={'Metadata': 'true'})",
+            "msrestazure-0.6.4/msrestazure/azure_active_directory.py:531": "        result = requests.get(request_uri, headers=headers)"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -3865,10 +3732,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "boto",
-            "motor"
-        ]
+        "typosquatting": []
     },
     "bs4": {
         "shady-links": {},
@@ -3894,10 +3758,8 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "Cython-0.29.30/Demos/libraries/setup.py": [
-                "    assert os.system(\"gcc -shared -fPIC -c mymath.c -o mymath.o\") == 0",
-                "    assert os.system(\"ar rcs libmymath.a mymath.o\") == 0"
-            ]
+            "Cython-0.29.30/Demos/libraries/setup.py:14": "    assert os.system(\"gcc -shared -fPIC -c mymath.c -o mymath.o\") == 0",
+            "Cython-0.29.30/Demos/libraries/setup.py:15": "    assert os.system(\"ar rcs libmymath.a mymath.o\") == 0"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -3931,15 +3793,9 @@
     },
     "twisted": {
         "shady-links": {
-            "Twisted-22.4.0/src/twisted/internet/cfreactor.py": [
-                "A reactor for integrating with U{CFRunLoop<http://bit.ly/cfrunloop>}, the"
-            ],
-            "Twisted-22.4.0/src/twisted/internet/tksupport.py": [
-                "@see: U{Tcl/TkAqua FAQ for more info<http://wiki.tcl.tk/12987>}"
-            ],
-            "Twisted-22.4.0/src/twisted/python/filepath.py": [
-                "        U{http://bit.ly/win32-overwrite} for more information), so this method"
-            ]
+            "Twisted-22.4.0/src/twisted/internet/cfreactor.py:6": "A reactor for integrating with U{CFRunLoop<http://bit.ly/cfrunloop>}, the",
+            "Twisted-22.4.0/src/twisted/internet/tksupport.py:29": "@see: U{Tcl/TkAqua FAQ for more info<http://wiki.tcl.tk/12987>}",
+            "Twisted-22.4.0/src/twisted/python/filepath.py:1391": "        U{http://bit.ly/win32-overwrite} for more information), so this method"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -3978,9 +3834,7 @@
     "torch": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "torch/hub.py": [
-                "            response = json.loads(_read_url(Request(url, headers=headers)))"
-            ]
+            "torch/hub.py:161": "            response = json.loads(_read_url(Request(url, headers=headers)))"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -4004,9 +3858,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "uamqp"
-        ]
+        "typosquatting": []
     },
     "azure-data-tables": {
         "shady-links": {},
@@ -4181,9 +4033,7 @@
     },
     "faker": {
         "shady-links": {
-            "Faker-13.15.0/faker/providers/color/fa_IR/__init__.py": [
-                "    - https://bit.ly/353BBiY"
-            ]
+            "Faker-13.15.0/faker/providers/color/fa_IR/__init__.py:11": "    - https://bit.ly/353BBiY"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -4234,9 +4084,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "apache-beam-2.40.0/setup.py": [
-                "    result = subprocess.call(args)"
-            ]
+            "apache-beam-2.40.0/setup.py:61": "    result = subprocess.call(args)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -4311,9 +4159,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "cachy"
-        ]
+        "typosquatting": []
     },
     "isort": {
         "shady-links": {},
@@ -4438,20 +4284,13 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "tensorboardX-2.5.1/setup.py": [
-                "    res = subprocess.call(['bash', './compile.sh'])",
-                "            subprocess.run(f\"pip install '{r}'\", shell=True)"
-            ]
+            "tensorboardX-2.5.1/setup.py:13": "    res = subprocess.call(['bash', './compile.sh'])",
+            "tensorboardX-2.5.1/setup.py:27": "            subprocess.run(f\"pip install '{r}'\", shell=True)"
         },
         "cmd-overwrite": {
-            "tensorboardX-2.5.1/setup.py": [
-                "setup(\n    name='tensorboardX',\n    version=version_git,\n    description='TensorBoardX lets you watch Tensors Flow without Tensorflow',\n    long_description=history,\n    author='Tzu-Wei Huang',\n    author_email='huang.dexter@gmail.com',\n    url='https://github.com/lanpa/tensorboardX',\n    packages=['tensorboardX'],\n    include_package_data=True,\n    install_requires=requirements,\n    license='MIT license',\n    zip_safe=False,\n    classifiers=[\n        'Development Status :: 4 - Beta',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Natural Language :: English',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n    ],\n    cmdclass={\n        'develop': PostDevelopCommand,\n        'install': PostInstallCommand,\n    },\n)",
-                "setup(\n    name='tensorboardX',\n    version=version_git,\n    description='TensorBoardX lets you watch Tensors Flow without Tensorflow',\n    long_description=history,\n    author='Tzu-Wei Huang',\n    author_email='huang.dexter@gmail.com',\n    url='https://github.com/lanpa/tensorboardX',\n    packages=['tensorboardX'],\n    include_package_data=True,\n    install_requires=requirements,\n    license='MIT license',\n    zip_safe=False,\n    classifiers=[\n        'Development Status :: 4 - Beta',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Natural Language :: English',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n    ],\n    cmdclass={\n        'develop': PostDevelopCommand,\n        'install': PostInstallCommand,\n    },\n)"
-            ]
+            "tensorboardX-2.5.1/setup.py:50": "setup(\n    name='tensorboardX',\n    version=version_git,\n    description='TensorBoardX lets you watch Tensors Flow without Tensorflow',\n    long_description=history,\n    author='Tzu-Wei Huang',\n    author_email='huang.dexter@gmail.com',\n    url='https://github.com/lanpa/tensorboardX',\n    packages=['tensorboardX'],\n    include_package_data=True,\n    install_requires=requirements,\n    license='MIT license',\n    zip_safe=False,\n    classifiers=[\n        'Development Status :: 4 - Beta',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Natural Language :: English',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n    ],\n    cmdclass={\n        'develop': PostDevelopCommand,\n        'install': PostInstallCommand,\n    },\n)"
         },
-        "typosquatting": [
-            "tensorboard"
-        ]
+        "typosquatting": []
     },
     "shellingham": {
         "shady-links": {},
@@ -4666,10 +4505,8 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "plotly-5.9.0/setup.py": [
-                "                command.run(self)",
-                "            command.run(self)"
-            ]
+            "plotly-5.9.0/setup.py:92": "                command.run(self)",
+            "plotly-5.9.0/setup.py:108": "            command.run(self)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -4704,18 +4541,14 @@
     "numpy": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "numpy-1.23.1/tools/openblas_support.py": [
-                "    req = Request(url=filename, headers=headers)",
-                "        response = urlopen(req)"
-            ]
+            "numpy-1.23.1/tools/openblas_support.py:95": "    req = Request(url=filename, headers=headers)",
+            "numpy-1.23.1/tools/openblas_support.py:97": "        response = urlopen(req)"
         },
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "numpy-1.23.1/setup.py": [
-                "        out = subprocess.run([cc, '-dumpversion'], stdout=subprocess.PIPE,\n                             stderr=subprocess.PIPE, universal_newlines=True)",
-                "        p = subprocess.call([sys.executable,\n                             os.path.join(cwd, 'tools', 'cythonize.py'),\n                             'numpy/{0}'.format(d)],\n                            cwd=cwd)"
-            ]
+            "numpy-1.23.1/setup.py:221": "        out = subprocess.run([cc, '-dumpversion'], stdout=subprocess.PIPE,\n                             stderr=subprocess.PIPE, universal_newlines=True)",
+            "numpy-1.23.1/setup.py:274": "        p = subprocess.call([sys.executable,\n                             os.path.join(cwd, 'tools', 'cythonize.py'),\n                             'numpy/{0}'.format(d)],\n                            cwd=cwd)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -4758,9 +4591,7 @@
     },
     "spark-nlp": {
         "shady-links": {
-            "spark-nlp-4.0.1/sparknlp/logging/comet.py": [
-                "    `Comet <https://www.comet.ml/>`__ is a meta machine learning platform"
-            ]
+            "spark-nlp-4.0.1/sparknlp/logging/comet.py:34": "    `Comet <https://www.comet.ml/>`__ is a meta machine learning platform"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -4892,14 +4723,10 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "osqp-0.6.2.post5/setup.py": [
-                "            check_output(['cmake', '--version'])",
-                "        call(['cmake'] + cmake_args + ['..'])",
-                "        call(['cmake', '--build', '.', '--target', 'osqpstatic'] +\n             cmake_build_flags)"
-            ],
-            "osqp-0.6.2.post5/src/osqp/codegen/files_to_generate/setup.py": [
-                "call(['cmake'] + cmake_args + ['..'], stdout=open(os.devnull, 'wb'))"
-            ]
+            "osqp-0.6.2.post5/setup.py:216": "            check_output(['cmake', '--version'])",
+            "osqp-0.6.2.post5/setup.py:221": "        call(['cmake'] + cmake_args + ['..'])",
+            "osqp-0.6.2.post5/setup.py:222": "        call(['cmake', '--build', '.', '--target', 'osqpstatic'] +\n             cmake_build_flags)",
+            "osqp-0.6.2.post5/src/osqp/codegen/files_to_generate/setup.py:40": "call(['cmake'] + cmake_args + ['..'], stdout=open(os.devnull, 'wb'))"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -5055,9 +4882,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "fbprophet-0.7.1/setup.py": [
-                "setup(\n    name='fbprophet',\n    version='0.7.1',\n    description='Automatic Forecasting Procedure',\n    url='https://facebook.github.io/prophet/',\n    author='Sean J. Taylor <sjtz@pm.me>, Ben Letham <bletham@fb.com>',\n    author_email='sjtz@pm.me',\n    license='MIT',\n    packages=find_packages(),\n    setup_requires=[\n    ],\n    install_requires=install_requires,\n    python_requires='>=3',\n    zip_safe=False,\n    include_package_data=True,\n    cmdclass={\n        'build_py': BuildPyCommand,\n        'develop': DevelopCommand,\n        'test': TestCommand,\n    },\n    test_suite='fbprophet.tests',\n    classifiers=[\n        'Programming Language :: Python',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n    ],\n    long_description=long_description,\n    long_description_content_type='text/markdown',\n)"
-            ]
+            "fbprophet-0.7.1/setup.py:122": "setup(\n    name='fbprophet',\n    version='0.7.1',\n    description='Automatic Forecasting Procedure',\n    url='https://facebook.github.io/prophet/',\n    author='Sean J. Taylor <sjtz@pm.me>, Ben Letham <bletham@fb.com>',\n    author_email='sjtz@pm.me',\n    license='MIT',\n    packages=find_packages(),\n    setup_requires=[\n    ],\n    install_requires=install_requires,\n    python_requires='>=3',\n    zip_safe=False,\n    include_package_data=True,\n    cmdclass={\n        'build_py': BuildPyCommand,\n        'develop': DevelopCommand,\n        'test': TestCommand,\n    },\n    test_suite='fbprophet.tests',\n    classifiers=[\n        'Programming Language :: Python',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n    ],\n    long_description=long_description,\n    long_description_content_type='text/markdown',\n)"
         },
         "typosquatting": []
     },
@@ -5099,9 +4924,7 @@
     },
     "ansible": {
         "shady-links": {
-            "ansible-6.0.0/ansible_collections/community/vmware/plugins/module_utils/vmware.py": [
-                "          https://bit.ly/2EDOs1B (stackoverflow question 3232943)"
-            ]
+            "ansible-6.0.0/ansible_collections/community/vmware/plugins/module_utils/vmware.py:1838": "          https://bit.ly/2EDOs1B (stackoverflow question 3232943)"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -5322,9 +5145,7 @@
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
         "exec-base64": {
-            "apache-airflow-providers-amazon-4.0.0/airflow/providers/amazon/aws/example_dags/example_sagemaker.py": [
-                "        docker_build = subprocess.Popen(\n            docker_build_and_push_commands,\n            shell=True,\n            stdout=subprocess.PIPE,\n            stderr=subprocess.PIPE,\n        )"
-            ]
+            "apache-airflow-providers-amazon-4.0.0/airflow/providers/amazon/aws/example_dags/example_sagemaker.py:347": "        docker_build = subprocess.Popen(\n            docker_build_and_push_commands,\n            shell=True,\n            stdout=subprocess.PIPE,\n            stderr=subprocess.PIPE,\n        )"
         },
         "code-execution": {},
         "cmd-overwrite": {},
@@ -5399,9 +5220,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "sentencepiece-0.1.96/setup.py": [
-                "    output = subprocess.check_output(cmd, shell=True)"
-            ]
+            "sentencepiece-0.1.96/setup.py:46": "    output = subprocess.check_output(cmd, shell=True)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -5431,9 +5250,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "toml"
-        ]
+        "typosquatting": []
     },
     "pika": {
         "shady-links": {},
@@ -5496,9 +5313,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "asn1crypto-1.5.1/setup.py": [
-                "setup(\n    name=PACKAGE_NAME,\n    version=PACKAGE_VERSION,\n\n    description=(\n        'Fast ASN.1 parser and serializer with definitions for private keys, '\n        'public keys, certificates, CRL, OCSP, CMS, PKCS#3, PKCS#7, PKCS#8, '\n        'PKCS#12, PKCS#5, X.509 and TSP'\n    ),\n    long_description=readme,\n    long_description_content_type='text/markdown',\n\n    url='https://github.com/wbond/asn1crypto',\n\n    author='wbond',\n    author_email='will@wbond.net',\n\n    license='MIT',\n\n    classifiers=[\n        'Development Status :: 5 - Production/Stable',\n\n        'Intended Audience :: Developers',\n\n        'License :: OSI Approved :: MIT License',\n\n        'Programming Language :: Python',\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.6',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.2',\n        'Programming Language :: Python :: 3.3',\n        'Programming Language :: Python :: 3.4',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: Implementation :: CPython',\n        'Programming Language :: Python :: Implementation :: PyPy',\n\n        'Topic :: Security :: Cryptography',\n    ],\n\n    keywords='asn1 crypto pki x509 certificate rsa dsa ec dh',\n\n    packages=[PACKAGE_NAME],\n    package_data=package_data,\n\n    tests_require=tests_require,\n    test_suite=test_suite,\n\n    cmdclass={\n        'clean': CleanCommand,\n        'egg_info': EggInfoCommand,\n    }\n)"
-            ]
+            "asn1crypto-1.5.1/setup.py:102": "setup(\n    name=PACKAGE_NAME,\n    version=PACKAGE_VERSION,\n\n    description=(\n        'Fast ASN.1 parser and serializer with definitions for private keys, '\n        'public keys, certificates, CRL, OCSP, CMS, PKCS#3, PKCS#7, PKCS#8, '\n        'PKCS#12, PKCS#5, X.509 and TSP'\n    ),\n    long_description=readme,\n    long_description_content_type='text/markdown',\n\n    url='https://github.com/wbond/asn1crypto',\n\n    author='wbond',\n    author_email='will@wbond.net',\n\n    license='MIT',\n\n    classifiers=[\n        'Development Status :: 5 - Production/Stable',\n\n        'Intended Audience :: Developers',\n\n        'License :: OSI Approved :: MIT License',\n\n        'Programming Language :: Python',\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.6',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.2',\n        'Programming Language :: Python :: 3.3',\n        'Programming Language :: Python :: 3.4',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: Implementation :: CPython',\n        'Programming Language :: Python :: Implementation :: PyPy',\n\n        'Topic :: Security :: Cryptography',\n    ],\n\n    keywords='asn1 crypto pki x509 certificate rsa dsa ec dh',\n\n    packages=[PACKAGE_NAME],\n    package_data=package_data,\n\n    tests_require=tests_require,\n    test_suite=test_suite,\n\n    cmdclass={\n        'clean': CleanCommand,\n        'egg_info': EggInfoCommand,\n    }\n)"
         },
         "typosquatting": []
     },
@@ -5536,9 +5351,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "moto"
-        ]
+        "typosquatting": []
     },
     "httpx": {
         "shady-links": {},
@@ -5564,11 +5377,9 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "Pillow-9.2.0/setup.py": [
-                "                subprocess.check_output(command_libs, stderr=stderr)",
-                "                subprocess.check_output(command_cflags)",
-                "                subprocess.check_output([\"xcrun\", \"--show-sdk-path\"])"
-            ]
+            "Pillow-9.2.0/setup.py:267": "                subprocess.check_output(command_libs, stderr=stderr)",
+            "Pillow-9.2.0/setup.py:273": "                subprocess.check_output(command_cflags)",
+            "Pillow-9.2.0/setup.py:416": "                subprocess.check_output([\"xcrun\", \"--show-sdk-path\"])"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -5702,9 +5513,7 @@
     "jira": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "jira-3.3.0/make_local_jira_user.py": [
-                "            requests.get(CI_JIRA_URL + \"rest/api/2/permissions\")"
-            ]
+            "jira-3.3.0/make_local_jira_user.py:45": "            requests.get(CI_JIRA_URL + \"rest/api/2/permissions\")"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -5849,19 +5658,13 @@
     },
     "transformers": {
         "shady-links": {
-            "transformers-4.20.1/src/transformers/integrations.py": [
-                "    A [`TrainerCallback`] that sends the logs to [Comet ML](https://www.comet.ml/site/).",
-                "        [here](https://www.comet.ml/docs/python-sdk/advanced/#comet-configuration-variables)."
-            ],
-            "transformers-4.20.1/src/transformers/trainer_tf.py": [
-                "                \"see https://www.comet.ml/docs/python-sdk/huggingface/\"",
-                "        <https://www.comet.ml/docs/python-sdk/advanced/#comet-configuration-variables>`__"
-            ]
+            "transformers-4.20.1/src/transformers/integrations.py:666": "    A [`TrainerCallback`] that sends the logs to [Comet ML](https://www.comet.ml/site/).",
+            "transformers-4.20.1/src/transformers/integrations.py:692": "        [here](https://www.comet.ml/docs/python-sdk/advanced/#comet-configuration-variables).",
+            "transformers-4.20.1/src/transformers/trainer_tf.py:141": "                \"see https://www.comet.ml/docs/python-sdk/huggingface/\"",
+            "transformers-4.20.1/src/transformers/trainer_tf.py:285": "        <https://www.comet.ml/docs/python-sdk/advanced/#comet-configuration-variables>`__"
         },
         "exfiltrate-sensitive-data": {
-            "transformers-4.20.1/src/transformers/utils/hub.py": [
-                "        instance_data = requests.get(os.environ[\"ECS_CONTAINER_METADATA_URI\"]).json()"
-            ]
+            "transformers-4.20.1/src/transformers/utils/hub.py:340": "        instance_data = requests.get(os.environ[\"ECS_CONTAINER_METADATA_URI\"]).json()"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -6096,15 +5899,9 @@
     },
     "tqdm": {
         "shady-links": {
-            "tqdm-4.64.0/tqdm/contrib/discord.py": [
-                "![screenshot](https://img.tqdm.ml/screenshot-discord.png)"
-            ],
-            "tqdm-4.64.0/tqdm/contrib/slack.py": [
-                "![screenshot](https://img.tqdm.ml/screenshot-slack.png)"
-            ],
-            "tqdm-4.64.0/tqdm/contrib/telegram.py": [
-                "![screenshot](https://img.tqdm.ml/screenshot-telegram.gif)"
-            ]
+            "tqdm-4.64.0/tqdm/contrib/discord.py:9": "![screenshot](https://img.tqdm.ml/screenshot-discord.png)",
+            "tqdm-4.64.0/tqdm/contrib/slack.py:9": "![screenshot](https://img.tqdm.ml/screenshot-slack.png)",
+            "tqdm-4.64.0/tqdm/contrib/telegram.py:9": "![screenshot](https://img.tqdm.ml/screenshot-telegram.gif)"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -6128,9 +5925,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "curlify-2.2.1/setup.py": [
-                "        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')"
-            ]
+            "curlify-2.2.1/setup.py:18": "        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -6204,9 +5999,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "pyodbc-4.0.32/setup.py": [
-                "        return os.system(cmd)"
-            ]
+            "pyodbc-4.0.32/setup.py:62": "        return os.system(cmd)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -6349,18 +6142,15 @@
     "tensorflow": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "tensorflow/python/distribute/failure_handling/gce_util.py": [
-                "    response = requests.get(\n        '%s/computeMetadata/v1/%s' %\n        (gce_metadata_endpoint, 'instance/hostname'),\n        headers=GCP_METADATA_HEADER,\n        timeout=5)"
-            ]
+            "tensorflow/python/distribute/failure_handling/gce_util.py:38": "  info = request.urlopen(req).read()",
+            "tensorflow/python/distribute/failure_handling/gce_util.py:59": "    response = requests.get(\n        '%s/computeMetadata/v1/%s' %\n        (gce_metadata_endpoint, 'instance/hostname'),\n        headers=GCP_METADATA_HEADER,\n        timeout=5)",
+            "tensorflow/python/tpu/client/client.py:78": "  resp = request.urlopen(req)"
         },
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "tensorflow/tools/pip_package/setup.py": [
-                "setup(\n    name=project_name,\n    version=_VERSION.replace('-', ''),\n    description=DOCLINES[0],\n    long_description='\\n'.join(DOCLINES[2:]),\n    long_description_content_type='text/markdown',\n    url='https://www.tensorflow.org/',\n    download_url='https://github.com/tensorflow/tensorflow/tags',\n    author='Google Inc.',\n    author_email='packages@tensorflow.org',\n    # Contained modules and scripts.\n    packages=find_packages(),\n    entry_points={\n        'console_scripts': CONSOLE_SCRIPTS,\n    },\n    headers=headers,\n    install_requires=REQUIRED_PACKAGES,\n    # Add in any packaged data.\n    include_package_data=True,\n    package_data={\n        'tensorflow': [\n            EXTENSION_NAME,\n        ] + matches,\n    },\n    zip_safe=False,\n    distclass=BinaryDistribution,\n    cmdclass={\n        'install_headers': InstallHeaders,\n        'install': InstallCommand,\n    },\n    # Supported Python versions\n    python_requires='>=3.7',\n    # PyPI package information.\n    classifiers=sorted([\n        'Development Status :: 5 - Production/Stable',\n        # TODO(angerson) Add IFTTT when possible\n        'Environment :: GPU :: NVIDIA CUDA :: 11.2',\n        'Intended Audience :: Developers',\n        'Intended Audience :: Education',\n        'Intended Audience :: Science/Research',\n        'License :: OSI Approved :: Apache Software License',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: 3 :: Only',\n        'Topic :: Scientific/Engineering',\n        'Topic :: Scientific/Engineering :: Mathematics',\n        'Topic :: Scientific/Engineering :: Artificial Intelligence',\n        'Topic :: Software Development',\n        'Topic :: Software Development :: Libraries',\n        'Topic :: Software Development :: Libraries :: Python Modules',\n    ]),\n    license='Apache 2.0',\n    keywords='tensorflow tensor machine learning',\n)",
-                "setup(\n    name=project_name,\n    version=_VERSION.replace('-', ''),\n    description=DOCLINES[0],\n    long_description='\\n'.join(DOCLINES[2:]),\n    long_description_content_type='text/markdown',\n    url='https://www.tensorflow.org/',\n    download_url='https://github.com/tensorflow/tensorflow/tags',\n    author='Google Inc.',\n    author_email='packages@tensorflow.org',\n    # Contained modules and scripts.\n    packages=find_packages(),\n    entry_points={\n        'console_scripts': CONSOLE_SCRIPTS,\n    },\n    headers=headers,\n    install_requires=REQUIRED_PACKAGES,\n    # Add in any packaged data.\n    include_package_data=True,\n    package_data={\n        'tensorflow': [\n            EXTENSION_NAME,\n        ] + matches,\n    },\n    zip_safe=False,\n    distclass=BinaryDistribution,\n    cmdclass={\n        'install_headers': InstallHeaders,\n        'install': InstallCommand,\n    },\n    # Supported Python versions\n    python_requires='>=3.7',\n    # PyPI package information.\n    classifiers=sorted([\n        'Development Status :: 5 - Production/Stable',\n        # TODO(angerson) Add IFTTT when possible\n        'Environment :: GPU :: NVIDIA CUDA :: 11.2',\n        'Intended Audience :: Developers',\n        'Intended Audience :: Education',\n        'Intended Audience :: Science/Research',\n        'License :: OSI Approved :: Apache Software License',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: 3 :: Only',\n        'Topic :: Scientific/Engineering',\n        'Topic :: Scientific/Engineering :: Mathematics',\n        'Topic :: Scientific/Engineering :: Artificial Intelligence',\n        'Topic :: Software Development',\n        'Topic :: Software Development :: Libraries',\n        'Topic :: Software Development :: Libraries :: Python Modules',\n    ]),\n    license='Apache 2.0',\n    keywords='tensorflow tensor machine learning',\n)"
-            ]
+            "tensorflow/tools/pip_package/setup.py:283": "setup(\n    name=project_name,\n    version=_VERSION.replace('-', ''),\n    description=DOCLINES[0],\n    long_description='\\n'.join(DOCLINES[2:]),\n    long_description_content_type='text/markdown',\n    url='https://www.tensorflow.org/',\n    download_url='https://github.com/tensorflow/tensorflow/tags',\n    author='Google Inc.',\n    author_email='packages@tensorflow.org',\n    # Contained modules and scripts.\n    packages=find_packages(),\n    entry_points={\n        'console_scripts': CONSOLE_SCRIPTS,\n    },\n    headers=headers,\n    install_requires=REQUIRED_PACKAGES,\n    # Add in any packaged data.\n    include_package_data=True,\n    package_data={\n        'tensorflow': [\n            EXTENSION_NAME,\n        ] + matches,\n    },\n    zip_safe=False,\n    distclass=BinaryDistribution,\n    cmdclass={\n        'install_headers': InstallHeaders,\n        'install': InstallCommand,\n    },\n    # Supported Python versions\n    python_requires='>=3.7',\n    # PyPI package information.\n    classifiers=sorted([\n        'Development Status :: 5 - Production/Stable',\n        # TODO(angerson) Add IFTTT when possible\n        'Environment :: GPU :: NVIDIA CUDA :: 11.2',\n        'Intended Audience :: Developers',\n        'Intended Audience :: Education',\n        'Intended Audience :: Science/Research',\n        'License :: OSI Approved :: Apache Software License',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: 3 :: Only',\n        'Topic :: Scientific/Engineering',\n        'Topic :: Scientific/Engineering :: Mathematics',\n        'Topic :: Scientific/Engineering :: Artificial Intelligence',\n        'Topic :: Software Development',\n        'Topic :: Software Development :: Libraries',\n        'Topic :: Software Development :: Libraries :: Python Modules',\n    ]),\n    license='Apache 2.0',\n    keywords='tensorflow tensor machine learning',\n)"
         },
         "typosquatting": []
     },
@@ -6730,12 +6520,10 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "uvloop-0.16.0/setup.py": [
-                "    subprocess.run(\n        ['/bin/sh', 'autogen.sh'], cwd=LIBUV_DIR, env=env, check=True)",
-                "        subprocess.run(\n            ['touch', 'configure.ac', 'aclocal.m4', 'configure',\n             'Makefile.am', 'Makefile.in'],\n            cwd=LIBUV_BUILD_DIR, env=env, check=True)",
-                "        subprocess.run(\n            cmd,\n            cwd=LIBUV_BUILD_DIR, env=env, check=True)",
-                "        subprocess.run(\n            ['make', j_flag, c_flag],\n            cwd=LIBUV_BUILD_DIR, env=env, check=True)"
-            ]
+            "uvloop-0.16.0/setup.py:86": "    subprocess.run(\n        ['/bin/sh', 'autogen.sh'], cwd=LIBUV_DIR, env=env, check=True)",
+            "uvloop-0.16.0/setup.py:212": "        subprocess.run(\n            ['touch', 'configure.ac', 'aclocal.m4', 'configure',\n             'Makefile.am', 'Makefile.in'],\n            cwd=LIBUV_BUILD_DIR, env=env, check=True)",
+            "uvloop-0.16.0/setup.py:221": "        subprocess.run(\n            cmd,\n            cwd=LIBUV_BUILD_DIR, env=env, check=True)",
+            "uvloop-0.16.0/setup.py:227": "        subprocess.run(\n            ['make', j_flag, c_flag],\n            cwd=LIBUV_BUILD_DIR, env=env, check=True)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -6873,10 +6661,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "pytest-cov-3.0.0/setup.py": [
-                "setup(\n    name='pytest-cov',\n    version='3.0.0',\n    license='MIT',\n    description='Pytest plugin for measuring coverage.',\n    long_description='{}\\n{}'.format(read('README.rst'), re.sub(':[a-z]+:`~?(.*?)`', r'``\\1``', read('CHANGELOG.rst'))),\n    author='Marc Schlaich',\n    author_email='marc.schlaich@gmail.com',\n    url='https://github.com/pytest-dev/pytest-cov',\n    packages=find_packages('src'),\n    package_dir={'': 'src'},\n    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],\n    include_package_data=True,\n    zip_safe=False,\n    classifiers=[\n        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers\n        'Development Status :: 5 - Production/Stable',\n        'Framework :: Pytest',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Operating System :: Microsoft :: Windows',\n        'Operating System :: POSIX',\n        'Operating System :: Unix',\n        'Programming Language :: Python',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3 :: Only',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: Implementation :: CPython',\n        'Programming Language :: Python :: Implementation :: PyPy',\n        'Topic :: Software Development :: Testing',\n        'Topic :: Utilities',\n    ],\n    keywords=[\n        'cover', 'coverage', 'pytest', 'py.test', 'distributed', 'parallel',\n    ],\n    install_requires=[\n        'pytest>=4.6',\n        'coverage[toml]>=5.2.1'\n    ],\n    python_requires='>=3.6',\n    extras_require={\n        'testing': [\n            'fields',\n            'hunter',\n            'process-tests',\n            'six',\n            'pytest-xdist',\n            'virtualenv',\n        ]\n    },\n    entry_points={\n        'pytest11': [\n            'pytest_cov = pytest_cov.plugin',\n        ],\n    },\n    cmdclass={\n        'build': BuildWithPTH,\n        'easy_install': EasyInstallWithPTH,\n        'install_lib': InstallLibWithPTH,\n        'develop': DevelopWithPTH,\n        'genpth': GeneratePTH,\n    },\n)",
-                "setup(\n    name='pytest-cov',\n    version='3.0.0',\n    license='MIT',\n    description='Pytest plugin for measuring coverage.',\n    long_description='{}\\n{}'.format(read('README.rst'), re.sub(':[a-z]+:`~?(.*?)`', r'``\\1``', read('CHANGELOG.rst'))),\n    author='Marc Schlaich',\n    author_email='marc.schlaich@gmail.com',\n    url='https://github.com/pytest-dev/pytest-cov',\n    packages=find_packages('src'),\n    package_dir={'': 'src'},\n    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],\n    include_package_data=True,\n    zip_safe=False,\n    classifiers=[\n        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers\n        'Development Status :: 5 - Production/Stable',\n        'Framework :: Pytest',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Operating System :: Microsoft :: Windows',\n        'Operating System :: POSIX',\n        'Operating System :: Unix',\n        'Programming Language :: Python',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3 :: Only',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: Implementation :: CPython',\n        'Programming Language :: Python :: Implementation :: PyPy',\n        'Topic :: Software Development :: Testing',\n        'Topic :: Utilities',\n    ],\n    keywords=[\n        'cover', 'coverage', 'pytest', 'py.test', 'distributed', 'parallel',\n    ],\n    install_requires=[\n        'pytest>=4.6',\n        'coverage[toml]>=5.2.1'\n    ],\n    python_requires='>=3.6',\n    extras_require={\n        'testing': [\n            'fields',\n            'hunter',\n            'process-tests',\n            'six',\n            'pytest-xdist',\n            'virtualenv',\n        ]\n    },\n    entry_points={\n        'pytest11': [\n            'pytest_cov = pytest_cov.plugin',\n        ],\n    },\n    cmdclass={\n        'build': BuildWithPTH,\n        'easy_install': EasyInstallWithPTH,\n        'install_lib': InstallLibWithPTH,\n        'develop': DevelopWithPTH,\n        'genpth': GeneratePTH,\n    },\n)"
-            ]
+            "pytest-cov-3.0.0/setup.py:82": "setup(\n    name='pytest-cov',\n    version='3.0.0',\n    license='MIT',\n    description='Pytest plugin for measuring coverage.',\n    long_description='{}\\n{}'.format(read('README.rst'), re.sub(':[a-z]+:`~?(.*?)`', r'``\\1``', read('CHANGELOG.rst'))),\n    author='Marc Schlaich',\n    author_email='marc.schlaich@gmail.com',\n    url='https://github.com/pytest-dev/pytest-cov',\n    packages=find_packages('src'),\n    package_dir={'': 'src'},\n    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],\n    include_package_data=True,\n    zip_safe=False,\n    classifiers=[\n        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers\n        'Development Status :: 5 - Production/Stable',\n        'Framework :: Pytest',\n        'Intended Audience :: Developers',\n        'License :: OSI Approved :: MIT License',\n        'Operating System :: Microsoft :: Windows',\n        'Operating System :: POSIX',\n        'Operating System :: Unix',\n        'Programming Language :: Python',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3 :: Only',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: Implementation :: CPython',\n        'Programming Language :: Python :: Implementation :: PyPy',\n        'Topic :: Software Development :: Testing',\n        'Topic :: Utilities',\n    ],\n    keywords=[\n        'cover', 'coverage', 'pytest', 'py.test', 'distributed', 'parallel',\n    ],\n    install_requires=[\n        'pytest>=4.6',\n        'coverage[toml]>=5.2.1'\n    ],\n    python_requires='>=3.6',\n    extras_require={\n        'testing': [\n            'fields',\n            'hunter',\n            'process-tests',\n            'six',\n            'pytest-xdist',\n            'virtualenv',\n        ]\n    },\n    entry_points={\n        'pytest11': [\n            'pytest_cov = pytest_cov.plugin',\n        ],\n    },\n    cmdclass={\n        'build': BuildWithPTH,\n        'easy_install': EasyInstallWithPTH,\n        'install_lib': InstallLibWithPTH,\n        'develop': DevelopWithPTH,\n        'genpth': GeneratePTH,\n    },\n)"
         },
         "typosquatting": []
     },
@@ -6895,9 +6680,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "matplotlib-3.5.2/setup.py": [
-                "                result = subprocess.run(self.compiler.compiler +\n                                        ['--version'],\n                                        stdout=subprocess.PIPE,\n                                        stderr=subprocess.STDOUT,\n                                        universal_newlines=True)"
-            ]
+            "matplotlib-3.5.2/setup.py:138": "                result = subprocess.run(self.compiler.compiler +\n                                        ['--version'],\n                                        stdout=subprocess.PIPE,\n                                        stderr=subprocess.STDOUT,\n                                        universal_newlines=True)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -7080,9 +6863,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pyaml"
-        ]
+        "typosquatting": []
     },
     "vcrpy": {
         "shady-links": {},
@@ -7127,9 +6908,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "oscrypto-1.3.0/setup.py": [
-                "setup(\n    name=PACKAGE_NAME,\n    version=PACKAGE_VERSION,\n\n    description=(\n        'TLS (SSL) sockets, key generation, encryption, decryption, signing, '\n        'verification and KDFs using the OS crypto libraries. Does not require '\n        'a compiler, and relies on the OS for patching. Works on Windows, OS X '\n        'and Linux/BSD.'\n    ),\n    long_description=readme,\n    long_description_content_type='text/markdown',\n\n    url='https://github.com/wbond/oscrypto',\n\n    author='wbond',\n    author_email='will@wbond.net',\n\n    license='MIT',\n\n    classifiers=[\n        'Development Status :: 5 - Production/Stable',\n\n        'Intended Audience :: Developers',\n\n        'License :: OSI Approved :: MIT License',\n\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.6',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.2',\n        'Programming Language :: Python :: 3.3',\n        'Programming Language :: Python :: 3.4',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: Implementation :: PyPy',\n\n        'Topic :: Security :: Cryptography',\n    ],\n\n    keywords='crypto pki tls ssl x509 certificate encrypt decrypt sign verify rsa dsa ec dh',\n\n    install_requires=['asn1crypto>=1.5.1'],\n\n    packages=find_packages(exclude=['tests*', 'dev*']),\n    package_data=package_data,\n\n    tests_require=tests_require,\n    test_suite=test_suite,\n\n    cmdclass={\n        'clean': CleanCommand,\n        'egg_info': EggInfoCommand,\n    }\n)"
-            ]
+            "oscrypto-1.3.0/setup.py:102": "setup(\n    name=PACKAGE_NAME,\n    version=PACKAGE_VERSION,\n\n    description=(\n        'TLS (SSL) sockets, key generation, encryption, decryption, signing, '\n        'verification and KDFs using the OS crypto libraries. Does not require '\n        'a compiler, and relies on the OS for patching. Works on Windows, OS X '\n        'and Linux/BSD.'\n    ),\n    long_description=readme,\n    long_description_content_type='text/markdown',\n\n    url='https://github.com/wbond/oscrypto',\n\n    author='wbond',\n    author_email='will@wbond.net',\n\n    license='MIT',\n\n    classifiers=[\n        'Development Status :: 5 - Production/Stable',\n\n        'Intended Audience :: Developers',\n\n        'License :: OSI Approved :: MIT License',\n\n        'Programming Language :: Python :: 2',\n        'Programming Language :: Python :: 2.6',\n        'Programming Language :: Python :: 2.7',\n        'Programming Language :: Python :: 3',\n        'Programming Language :: Python :: 3.2',\n        'Programming Language :: Python :: 3.3',\n        'Programming Language :: Python :: 3.4',\n        'Programming Language :: Python :: 3.5',\n        'Programming Language :: Python :: 3.6',\n        'Programming Language :: Python :: 3.7',\n        'Programming Language :: Python :: 3.8',\n        'Programming Language :: Python :: 3.9',\n        'Programming Language :: Python :: 3.10',\n        'Programming Language :: Python :: Implementation :: PyPy',\n\n        'Topic :: Security :: Cryptography',\n    ],\n\n    keywords='crypto pki tls ssl x509 certificate encrypt decrypt sign verify rsa dsa ec dh',\n\n    install_requires=['asn1crypto>=1.5.1'],\n\n    packages=find_packages(exclude=['tests*', 'dev*']),\n    package_data=package_data,\n\n    tests_require=tests_require,\n    test_suite=test_suite,\n\n    cmdclass={\n        'clean': CleanCommand,\n        'egg_info': EggInfoCommand,\n    }\n)"
         },
         "typosquatting": []
     },
@@ -7292,9 +7071,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "nbconvert-6.5.0/setup.py": [
-                "            return command.run(self)"
-            ]
+            "nbconvert-6.5.0/setup.py:165": "            return command.run(self)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -7378,9 +7155,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "iso8601"
-        ]
+        "typosquatting": []
     },
     "shortuuid": {
         "shady-links": {},
@@ -7433,9 +7208,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "pycairo-1.21.0/setup.py": [
-                "        return subprocess.check_output(command)"
-            ]
+            "pycairo-1.21.0/setup.py:29": "        return subprocess.check_output(command)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -7473,10 +7246,8 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "ruamel.yaml-0.17.21/setup.py": [
-                "                    os.system('pip install .')",
-                "                    subprocess.check_output(cmd)"
-            ]
+            "ruamel.yaml-0.17.21/setup.py:331": "                    os.system('pip install .')",
+            "ruamel.yaml-0.17.21/setup.py:955": "                    subprocess.check_output(cmd)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -7524,10 +7295,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "lightgbm-3.3.2/setup.py": [
-                "    setup(name='lightgbm',\n          version=version,\n          description='LightGBM Python Package',\n          long_description=readme,\n          install_requires=[\n              'wheel',\n              'numpy',\n              'scipy',\n              'scikit-learn!=0.22.0'\n          ],\n          extras_require={\n              'dask': [\n                  'dask[array]>=2.0.0',\n                  'dask[dataframe]>=2.0.0',\n                  'dask[distributed]>=2.0.0',\n                  'pandas',\n              ],\n          },\n          maintainer='Yu Shi',\n          maintainer_email='yushi2@microsoft.com',\n          zip_safe=False,\n          cmdclass={\n              'install': CustomInstall,\n              'install_lib': CustomInstallLib,\n              'bdist_wheel': CustomBdistWheel,\n              'sdist': CustomSdist,\n          },\n          packages=find_packages(),\n          include_package_data=True,\n          license='The MIT License (Microsoft)',\n          url='https://github.com/microsoft/LightGBM',\n          classifiers=['Development Status :: 5 - Production/Stable',\n                       'Intended Audience :: Science/Research',\n                       'License :: OSI Approved :: MIT License',\n                       'Natural Language :: English',\n                       'Operating System :: MacOS',\n                       'Operating System :: Microsoft :: Windows',\n                       'Operating System :: POSIX',\n                       'Operating System :: Unix',\n                       'Programming Language :: Python :: 3',\n                       'Programming Language :: Python :: 3.6',\n                       'Programming Language :: Python :: 3.7',\n                       'Programming Language :: Python :: 3.8',\n                       'Programming Language :: Python :: 3.9',\n                       'Topic :: Scientific/Engineering :: Artificial Intelligence'])",
-                "    setup(name='lightgbm',\n          version=version,\n          description='LightGBM Python Package',\n          long_description=readme,\n          install_requires=[\n              'wheel',\n              'numpy',\n              'scipy',\n              'scikit-learn!=0.22.0'\n          ],\n          extras_require={\n              'dask': [\n                  'dask[array]>=2.0.0',\n                  'dask[dataframe]>=2.0.0',\n                  'dask[distributed]>=2.0.0',\n                  'pandas',\n              ],\n          },\n          maintainer='Yu Shi',\n          maintainer_email='yushi2@microsoft.com',\n          zip_safe=False,\n          cmdclass={\n              'install': CustomInstall,\n              'install_lib': CustomInstallLib,\n              'bdist_wheel': CustomBdistWheel,\n              'sdist': CustomSdist,\n          },\n          packages=find_packages(),\n          include_package_data=True,\n          license='The MIT License (Microsoft)',\n          url='https://github.com/microsoft/LightGBM',\n          classifiers=['Development Status :: 5 - Production/Stable',\n                       'Intended Audience :: Science/Research',\n                       'License :: OSI Approved :: MIT License',\n                       'Natural Language :: English',\n                       'Operating System :: MacOS',\n                       'Operating System :: Microsoft :: Windows',\n                       'Operating System :: POSIX',\n                       'Operating System :: Unix',\n                       'Programming Language :: Python :: 3',\n                       'Programming Language :: Python :: 3.6',\n                       'Programming Language :: Python :: 3.7',\n                       'Programming Language :: Python :: 3.8',\n                       'Programming Language :: Python :: 3.9',\n                       'Topic :: Scientific/Engineering :: Artificial Intelligence'])"
-            ]
+            "lightgbm-3.3.2/setup.py:334": "    setup(name='lightgbm',\n          version=version,\n          description='LightGBM Python Package',\n          long_description=readme,\n          install_requires=[\n              'wheel',\n              'numpy',\n              'scipy',\n              'scikit-learn!=0.22.0'\n          ],\n          extras_require={\n              'dask': [\n                  'dask[array]>=2.0.0',\n                  'dask[dataframe]>=2.0.0',\n                  'dask[distributed]>=2.0.0',\n                  'pandas',\n              ],\n          },\n          maintainer='Yu Shi',\n          maintainer_email='yushi2@microsoft.com',\n          zip_safe=False,\n          cmdclass={\n              'install': CustomInstall,\n              'install_lib': CustomInstallLib,\n              'bdist_wheel': CustomBdistWheel,\n              'sdist': CustomSdist,\n          },\n          packages=find_packages(),\n          include_package_data=True,\n          license='The MIT License (Microsoft)',\n          url='https://github.com/microsoft/LightGBM',\n          classifiers=['Development Status :: 5 - Production/Stable',\n                       'Intended Audience :: Science/Research',\n                       'License :: OSI Approved :: MIT License',\n                       'Natural Language :: English',\n                       'Operating System :: MacOS',\n                       'Operating System :: Microsoft :: Windows',\n                       'Operating System :: POSIX',\n                       'Operating System :: Unix',\n                       'Programming Language :: Python :: 3',\n                       'Programming Language :: Python :: 3.6',\n                       'Programming Language :: Python :: 3.7',\n                       'Programming Language :: Python :: 3.8',\n                       'Programming Language :: Python :: 3.9',\n                       'Topic :: Scientific/Engineering :: Artificial Intelligence'])"
         },
         "typosquatting": []
     },
@@ -7664,9 +7432,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pathy"
-        ]
+        "typosquatting": []
     },
     "azure-mgmt-advisor": {
         "shady-links": {},
@@ -7697,9 +7463,8 @@
     },
     "setuptools": {
         "shady-links": {
-            "setuptools-63.1.0/setuptools/package_index.py": [
-                "            \"http://bit.ly/2hrImnY for details).\\n\")"
-            ]
+            "setuptools-63.1.0/setuptools/package_index.py:382": "            \"http://bit.ly/2hrImnY for details).\\n\")",
+            "setuptools-63.2.0/setuptools/package_index.py:382": "            \"http://bit.ly/2hrImnY for details).\\n\")"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
@@ -7759,9 +7524,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "spacy-3.3.1/setup.py": [
-                "        out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, env=env)"
-            ]
+            "spacy-3.3.1/setup.py:148": "        out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, env=env)"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -7782,9 +7545,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "ujson"
-        ]
+        "typosquatting": []
     },
     "isodate": {
         "shady-links": {},
@@ -7847,9 +7608,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "oauthlib"
-        ]
+        "typosquatting": []
     },
     "jdcal": {
         "shady-links": {},
@@ -7956,13 +7715,9 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "pycrypto-2.6.1/setup.py": [
-                "                    result[sym] = eval(s)     # XXX - hack to unescape C-style string",
-                "                    result[sym] = eval(s)     # XXX - hack to unescape C-style string",
-                "                    result[sym] = eval(s)     # XXX - hack to unescape C-style string",
-                "            if os.system(\"chmod 0755 configure\") != 0:",
-                "            if os.system(cmd) != 0:"
-            ]
+            "pycrypto-2.6.1/setup.py:242": "                    result[sym] = eval(s)     # XXX - hack to unescape C-style string",
+            "pycrypto-2.6.1/setup.py:272": "            if os.system(\"chmod 0755 configure\") != 0:",
+            "pycrypto-2.6.1/setup.py:277": "            if os.system(cmd) != 0:"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -8046,9 +7801,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "parse"
-        ]
+        "typosquatting": []
     },
     "virtualenv": {
         "shady-links": {},
@@ -8182,9 +7935,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "reportlab-3.6.11/setup.py": [
-                "    r = subprocess.call(\n            cmd,\n            stderr =subprocess.STDOUT,\n            stdout = subprocess.DEVNULL if kwds.pop('dropOutput',False) else None,\n            timeout = kwds.pop('timeout',3600),\n            )"
-            ]
+            "reportlab-3.6.11/setup.py:38": "    r = subprocess.call(\n            cmd,\n            stderr =subprocess.STDOUT,\n            stdout = subprocess.DEVNULL if kwds.pop('dropOutput',False) else None,\n            timeout = kwds.pop('timeout',3600),\n            )"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -8196,9 +7947,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "billiard-4.0.0/t/integration/setup.py": [
-                "setup(\n    name='billiard-funtests',\n    version='DEV',\n    description='Functional test suite for billiard',\n    author='Ask Solem',\n    author_email='ask@celeryproject.org',\n    url='https://github.com/celery/billiard',\n    platforms=['any'],\n    packages=[],\n    data_files=[],\n    zip_safe=False,\n    cmdclass={'install': no_install},\n    test_suite='nose.collector',\n    build_requires=[\n        'nose',\n        'coverage>=3.0',\n    ],\n    classifiers=[\n        'Operating System :: OS Independent',\n        'Programming Language :: Python',\n        'Programming Language :: C'\n        'License :: OSI Approved :: BSD License',\n        'Intended Audience :: Developers',\n    ],\n    long_description='Do not install this package',\n)"
-            ]
+            "billiard-4.0.0/t/integration/setup.py:31": "setup(\n    name='billiard-funtests',\n    version='DEV',\n    description='Functional test suite for billiard',\n    author='Ask Solem',\n    author_email='ask@celeryproject.org',\n    url='https://github.com/celery/billiard',\n    platforms=['any'],\n    packages=[],\n    data_files=[],\n    zip_safe=False,\n    cmdclass={'install': no_install},\n    test_suite='nose.collector',\n    build_requires=[\n        'nose',\n        'coverage>=3.0',\n    ],\n    classifiers=[\n        'Operating System :: OS Independent',\n        'Programming Language :: Python',\n        'Programming Language :: C'\n        'License :: OSI Approved :: BSD License',\n        'Intended Audience :: Developers',\n    ],\n    long_description='Do not install this package',\n)"
         },
         "typosquatting": []
     },
@@ -8461,10 +8210,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {
-            "omegaconf-2.2.2/setup.py": [
-                "    setuptools.setup(\n        cmdclass={\n            \"antlr\": ANTLRCommand,\n            \"clean\": CleanCommand,\n            \"sdist\": SDistCommand,\n            \"build_py\": BuildPyCommand,\n            \"develop\": DevelopCommand,\n        },\n        name=\"omegaconf\",\n        version=find_version(\"omegaconf\", \"version.py\"),\n        author=\"Omry Yadan\",\n        author_email=\"omry@yadan.net\",\n        description=\"A flexible configuration library\",\n        long_description=LONG_DESC,\n        long_description_content_type=\"text/markdown\",\n        url=\"https://github.com/omry/omegaconf\",\n        keywords=\"yaml configuration config\",\n        packages=[\n            \"omegaconf\",\n            \"omegaconf.grammar\",\n            \"omegaconf.grammar.gen\",\n            \"omegaconf.resolvers\",\n            \"omegaconf.resolvers.oc\",\n            \"pydevd_plugins\",\n            \"pydevd_plugins.extensions\",\n        ],\n        python_requires=\">=3.6\",\n        classifiers=[\n            \"Programming Language :: Python :: 3.6\",\n            \"Programming Language :: Python :: 3.7\",\n            \"Programming Language :: Python :: 3.8\",\n            \"Programming Language :: Python :: 3.9\",\n            \"Programming Language :: Python :: 3.10\",\n            \"License :: OSI Approved :: BSD License\",\n            \"Operating System :: OS Independent\",\n        ],\n        install_requires=install_requires,\n        package_data={\"omegaconf\": [\"py.typed\"]},\n    )",
-                "    setuptools.setup(\n        cmdclass={\n            \"antlr\": ANTLRCommand,\n            \"clean\": CleanCommand,\n            \"sdist\": SDistCommand,\n            \"build_py\": BuildPyCommand,\n            \"develop\": DevelopCommand,\n        },\n        name=\"omegaconf\",\n        version=find_version(\"omegaconf\", \"version.py\"),\n        author=\"Omry Yadan\",\n        author_email=\"omry@yadan.net\",\n        description=\"A flexible configuration library\",\n        long_description=LONG_DESC,\n        long_description_content_type=\"text/markdown\",\n        url=\"https://github.com/omry/omegaconf\",\n        keywords=\"yaml configuration config\",\n        packages=[\n            \"omegaconf\",\n            \"omegaconf.grammar\",\n            \"omegaconf.grammar.gen\",\n            \"omegaconf.resolvers\",\n            \"omegaconf.resolvers.oc\",\n            \"pydevd_plugins\",\n            \"pydevd_plugins.extensions\",\n        ],\n        python_requires=\">=3.6\",\n        classifiers=[\n            \"Programming Language :: Python :: 3.6\",\n            \"Programming Language :: Python :: 3.7\",\n            \"Programming Language :: Python :: 3.8\",\n            \"Programming Language :: Python :: 3.9\",\n            \"Programming Language :: Python :: 3.10\",\n            \"License :: OSI Approved :: BSD License\",\n            \"Operating System :: OS Independent\",\n        ],\n        install_requires=install_requires,\n        package_data={\"omegaconf\": [\"py.typed\"]},\n    )"
-            ]
+            "omegaconf-2.2.2/setup.py:34": "    setuptools.setup(\n        cmdclass={\n            \"antlr\": ANTLRCommand,\n            \"clean\": CleanCommand,\n            \"sdist\": SDistCommand,\n            \"build_py\": BuildPyCommand,\n            \"develop\": DevelopCommand,\n        },\n        name=\"omegaconf\",\n        version=find_version(\"omegaconf\", \"version.py\"),\n        author=\"Omry Yadan\",\n        author_email=\"omry@yadan.net\",\n        description=\"A flexible configuration library\",\n        long_description=LONG_DESC,\n        long_description_content_type=\"text/markdown\",\n        url=\"https://github.com/omry/omegaconf\",\n        keywords=\"yaml configuration config\",\n        packages=[\n            \"omegaconf\",\n            \"omegaconf.grammar\",\n            \"omegaconf.grammar.gen\",\n            \"omegaconf.resolvers\",\n            \"omegaconf.resolvers.oc\",\n            \"pydevd_plugins\",\n            \"pydevd_plugins.extensions\",\n        ],\n        python_requires=\">=3.6\",\n        classifiers=[\n            \"Programming Language :: Python :: 3.6\",\n            \"Programming Language :: Python :: 3.7\",\n            \"Programming Language :: Python :: 3.8\",\n            \"Programming Language :: Python :: 3.9\",\n            \"Programming Language :: Python :: 3.10\",\n            \"License :: OSI Approved :: BSD License\",\n            \"Operating System :: OS Independent\",\n        ],\n        install_requires=install_requires,\n        package_data={\"omegaconf\": [\"py.typed\"]},\n    )"
         },
         "typosquatting": []
     },
@@ -8479,18 +8225,14 @@
     },
     "future": {
         "shady-links": {
-            "future-0.18.2/src/future/types/newrange.py": [
-                "        https://late.am/post/2012/06/18/what-the-heck-is-an-xrange"
-            ]
+            "future-0.18.2/src/future/types/newrange.py:18": "        https://late.am/post/2012/06/18/what-the-heck-is-an-xrange"
         },
         "exfiltrate-sensitive-data": {},
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "futures"
-        ]
+        "typosquatting": []
     },
     "ordered-set": {
         "shady-links": {},
@@ -8517,9 +8259,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "patsy"
-        ]
+        "typosquatting": []
     },
     "apscheduler": {
         "shady-links": {},
@@ -8595,27 +8335,19 @@
     },
     "scipy": {
         "shady-links": {
-            "scipy-1.8.1/benchmarks/benchmarks/go_benchmark_functions/__init__.py": [
-                "    https://www.geocities.ws/eadorio/mvf.pdf"
-            ]
+            "scipy-1.8.1/benchmarks/benchmarks/go_benchmark_functions/__init__.py:28": "    https://www.geocities.ws/eadorio/mvf.pdf"
         },
         "exfiltrate-sensitive-data": {
-            "scipy-1.8.1/tools/openblas_support.py": [
-                "    req = Request(url=filename, headers=headers)",
-                "        response = urlopen(req)"
-            ]
+            "scipy-1.8.1/tools/openblas_support.py:94": "    req = Request(url=filename, headers=headers)",
+            "scipy-1.8.1/tools/openblas_support.py:96": "        response = urlopen(req)"
         },
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "scipy-1.8.1/setup.py": [
-                "    p = subprocess.call([sys.executable,\n                         os.path.join(cwd, 'tools', 'cythonize.py'),\n                         'scipy'],\n                        cwd=cwd)"
-            ]
+            "scipy-1.8.1/setup.py:342": "    p = subprocess.call([sys.executable,\n                         os.path.join(cwd, 'tools', 'cythonize.py'),\n                         'scipy'],\n                        cwd=cwd)"
         },
         "cmd-overwrite": {},
-        "typosquatting": [
-            "scapy"
-        ]
+        "typosquatting": []
     },
     "coverage": {
         "shady-links": {},
@@ -8749,18 +8481,13 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "PyGObject-3.42.1/setup.py": [
-                "            result = subprocess.check_output(command)",
-                "                subprocess.check_output([\"pkg-config\", \"--exists\", pkg_name])",
-                "        sys.exit(subprocess.call(pre_args + [\n            sys.executable,\n            os.path.join(tests_dir, \"runtests.py\"),\n        ], env=env))",
-                "        status = subprocess.call([\n            sys.executable, \"-m\", \"flake8\",\n        ], cwd=get_script_dir())"
-            ]
+            "PyGObject-3.42.1/setup.py:170": "            result = subprocess.check_output(command)",
+            "PyGObject-3.42.1/setup.py:178": "                subprocess.check_output([\"pkg-config\", \"--exists\", pkg_name])",
+            "PyGObject-3.42.1/setup.py:792": "        sys.exit(subprocess.call(pre_args + [\n            sys.executable,\n            os.path.join(tests_dir, \"runtests.py\"),\n        ], env=env))",
+            "PyGObject-3.42.1/setup.py:809": "        status = subprocess.call([\n            sys.executable, \"-m\", \"flake8\",\n        ], cwd=get_script_dir())"
         },
         "cmd-overwrite": {
-            "PyGObject-3.42.1/setup.py": [
-                "    setup(\n        name=pkginfo[\"Name\"],\n        version=version,\n        description=pkginfo[\"Summary\"],\n        url=pkginfo[\"Home-page\"],\n        author=pkginfo[\"Author\"],\n        author_email=pkginfo[\"Author-email\"],\n        maintainer=pkginfo[\"Maintainer\"],\n        maintainer_email=pkginfo[\"Maintainer-email\"],\n        license=pkginfo[\"License\"],\n        long_description=long_description,\n        platforms=pkginfo.get_all(\"Platform\"),\n        classifiers=pkginfo.get_all(\"Classifier\"),\n        packages=[\n            \"pygtkcompat\",\n            \"gi\",\n            \"gi.repository\",\n            \"gi.overrides\",\n        ],\n        ext_modules=ext_modules,\n        cmdclass={\n            \"build_ext\": build_ext,\n            \"distcheck\": distcheck,\n            \"sdist_gnome\": sdist_gnome,\n            \"build_tests\": build_tests,\n            \"test\": test,\n            \"quality\": quality,\n            \"install\": install,\n            \"install_pkgconfig\": install_pkgconfig,\n        },\n        install_requires=install_requires,\n        python_requires=pkginfo[\"Requires-Python\"],\n        data_files=[\n            ('include/pygobject-3.0', ['gi/pygobject.h']),\n        ],\n        zip_safe=False,\n    )",
-                "    setup(\n        name=pkginfo[\"Name\"],\n        version=version,\n        description=pkginfo[\"Summary\"],\n        url=pkginfo[\"Home-page\"],\n        author=pkginfo[\"Author\"],\n        author_email=pkginfo[\"Author-email\"],\n        maintainer=pkginfo[\"Maintainer\"],\n        maintainer_email=pkginfo[\"Maintainer-email\"],\n        license=pkginfo[\"License\"],\n        long_description=long_description,\n        platforms=pkginfo.get_all(\"Platform\"),\n        classifiers=pkginfo.get_all(\"Classifier\"),\n        packages=[\n            \"pygtkcompat\",\n            \"gi\",\n            \"gi.repository\",\n            \"gi.overrides\",\n        ],\n        ext_modules=ext_modules,\n        cmdclass={\n            \"build_ext\": build_ext,\n            \"distcheck\": distcheck,\n            \"sdist_gnome\": sdist_gnome,\n            \"build_tests\": build_tests,\n            \"test\": test,\n            \"quality\": quality,\n            \"install\": install,\n            \"install_pkgconfig\": install_pkgconfig,\n        },\n        install_requires=install_requires,\n        python_requires=pkginfo[\"Requires-Python\"],\n        data_files=[\n            ('include/pygobject-3.0', ['gi/pygobject.h']),\n        ],\n        zip_safe=False,\n    )"
-            ]
+            "PyGObject-3.42.1/setup.py:1219": "    setup(\n        name=pkginfo[\"Name\"],\n        version=version,\n        description=pkginfo[\"Summary\"],\n        url=pkginfo[\"Home-page\"],\n        author=pkginfo[\"Author\"],\n        author_email=pkginfo[\"Author-email\"],\n        maintainer=pkginfo[\"Maintainer\"],\n        maintainer_email=pkginfo[\"Maintainer-email\"],\n        license=pkginfo[\"License\"],\n        long_description=long_description,\n        platforms=pkginfo.get_all(\"Platform\"),\n        classifiers=pkginfo.get_all(\"Classifier\"),\n        packages=[\n            \"pygtkcompat\",\n            \"gi\",\n            \"gi.repository\",\n            \"gi.overrides\",\n        ],\n        ext_modules=ext_modules,\n        cmdclass={\n            \"build_ext\": build_ext,\n            \"distcheck\": distcheck,\n            \"sdist_gnome\": sdist_gnome,\n            \"build_tests\": build_tests,\n            \"test\": test,\n            \"quality\": quality,\n            \"install\": install,\n            \"install_pkgconfig\": install_pkgconfig,\n        },\n        install_requires=install_requires,\n        python_requires=pkginfo[\"Requires-Python\"],\n        data_files=[\n            ('include/pygobject-3.0', ['gi/pygobject.h']),\n        ],\n        zip_safe=False,\n    )"
         },
         "typosquatting": []
     },
@@ -8807,9 +8534,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "gitdb2"
-        ]
+        "typosquatting": []
     },
     "protobuf": {
         "shady-links": {},
@@ -8817,9 +8542,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "protobuf-4.21.2/setup.py": [
-                "    if subprocess.call(protoc_command) != 0:"
-            ]
+            "protobuf-4.21.2/setup.py:90": "    if subprocess.call(protoc_command) != 0:"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -8885,9 +8608,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "pycryptodome"
-        ]
+        "typosquatting": []
     },
     "blis": {
         "shady-links": {},
@@ -8905,9 +8626,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "amqp"
-        ]
+        "typosquatting": []
     },
     "slackclient": {
         "shady-links": {},
@@ -9122,9 +8841,7 @@
         "download-executable": {},
         "exec-base64": {},
         "code-execution": {
-            "commonmark-0.9.1/setup.py": [
-                "        errno = subprocess.call([\n            sys.executable, 'commonmark/tests/run_spec_tests.py'])"
-            ]
+            "commonmark-0.9.1/setup.py:18": "        errno = subprocess.call([\n            sys.executable, 'commonmark/tests/run_spec_tests.py'])"
         },
         "cmd-overwrite": {},
         "typosquatting": []
@@ -9222,9 +8939,7 @@
     "wandb": {
         "shady-links": {},
         "exfiltrate-sensitive-data": {
-            "wandb-0.12.21/wandb/sdk/internal/sender.py": [
-                "            requests.put(\n                env.get(\"SPELL_API_URL\", \"https://api.spell.run\") + \"/wandb_url\",\n                json={\"access_token\": env.get(\"WANDB_ACCESS_TOKEN\"), \"url\": url},\n                timeout=2,\n            )"
-            ]
+            "wandb-0.12.21/wandb/sdk/internal/sender.py:633": "            requests.put(\n                env.get(\"SPELL_API_URL\", \"https://api.spell.run\") + \"/wandb_url\",\n                json={\"access_token\": env.get(\"WANDB_ACCESS_TOKEN\"), \"url\": url},\n                timeout=2,\n            )"
         },
         "download-executable": {},
         "exec-base64": {},
@@ -9473,9 +9188,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "cssselect2"
-        ]
+        "typosquatting": []
     },
     "boto3": {
         "shady-links": {},
@@ -9484,9 +9197,7 @@
         "exec-base64": {},
         "code-execution": {},
         "cmd-overwrite": {},
-        "typosquatting": [
-            "boto"
-        ]
+        "typosquatting": []
     },
     "deprecated": {
         "shady-links": {},
