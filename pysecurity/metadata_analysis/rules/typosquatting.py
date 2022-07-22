@@ -17,12 +17,11 @@ class TyposquatDetector:
         top_package_information = requests.get(popular_packages_url).json()["rows"][:num_packages]
         
         self.popular_packages = []
-        self.lowercase_popular_packages = None
         
         for package in top_package_information:
-            self.popular_packages.append(package["project"])
-        
-        self.lowercase_popular_packages = {package.lower(): package for package in self.popular_packages}
+            name = package["project"]
+            normalized_name = name.lower().replace('_', '-')
+            self.popular_packages.append(normalized_name)
             
             
     def _is_distance_one_Levenshtein(self, name1, name2) -> bool:
@@ -73,8 +72,8 @@ class TyposquatDetector:
     def _get_permuted_typosquats(self, package) -> list[str]:
         similar = []
         for permutation in self._generate_permutations(package):
-            if permutation in self.lowercase_popular_packages:
-                similar.append(self.lowercase_popular_packages[permutation])
+            if permutation in self.popular_packages and permutation != package:
+                similar.append(permutation)
         
         return similar
     
@@ -87,30 +86,30 @@ class TyposquatDetector:
     def get_typosquatted_package(self, package_name) -> str:
         typosquatted = []
         
-        lowercase_package = package_name.lower()
+        normalized_name = package_name.lower().replace('_', '-')
         py_swapped_package = None
         
         # Detect swaps like python-package -> py-package
-        if "python" in lowercase_package:
-            py_swapped_package = lowercase_package.replace("python", "py")
+        if "python" in normalized_name:
+            py_swapped_package = normalized_name.replace("python", "py")
             typosquatted.extend(self._get_permuted_typosquats(py_swapped_package))
-        elif "py" in lowercase_package:
-            py_swapped_package = lowercase_package.replace("py", "python")
+        elif "py" in normalized_name:
+            py_swapped_package = normalized_name.replace("py", "python")
             typosquatted.extend(self._get_permuted_typosquats(py_swapped_package))
         
-        typosquatted.extend(self._get_permuted_typosquats(lowercase_package))
+        typosquatted.extend(self._get_permuted_typosquats(normalized_name))
         
         # Go through popular packages and find length one edit typosquats
         for popular_package in self.popular_packages:
-            lowercase_popular_package = popular_package.lower()
+            normalized_popular_package = popular_package.lower().replace('_', '-')
             
-            if package_name == popular_package:
+            if normalized_name == popular_package:
                 return []
                 
-            if self._is_length_one_edit_away(lowercase_package, lowercase_popular_package):
+            if self._is_length_one_edit_away(normalized_name, normalized_popular_package):
                 typosquatted.append(popular_package)
                 
-            if py_swapped_package and self._is_length_one_edit_away(py_swapped_package, lowercase_popular_package):
+            if py_swapped_package and self._is_length_one_edit_away(py_swapped_package, normalized_popular_package):
                 typosquatted.append(popular_package)
             
         return typosquatted
