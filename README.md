@@ -52,7 +52,7 @@ $ pipenv shell
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --quiet --test --config pysecurity/source_code_analysis/semgrep/ pysecurity_tests/semgrep
+$ semgrep --metrics off --quiet --test --config pysecurity/source_code_analysis/semgrep/ pysecurity_tests/semgrep
 ```
 
 To find the precision and recall of the rules, run: 
