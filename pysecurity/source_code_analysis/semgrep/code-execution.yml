@@ -69,7 +69,7 @@ rules:
       - metavariable-pattern:
           metavariable: $ARG1
           patterns:
-            - pattern-not-regex: (setup.py)|(twine)|(git)|(brew)|(gpg)|(freeze)|(docker)|(pycodestyle)|(libffi)|(coverage)|(pre_commit)
+            - pattern-not-regex: (setup.py|twine|git|brew|gpg|freeze|docker|pycodestyle|libffi|coverage|pre_commit)
     paths:
       include:
         - "*/setup.py"
