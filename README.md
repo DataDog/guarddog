@@ -2,6 +2,7 @@
 The PyPI Package Malware Scanner offers a CLI command that scans a PyPI package version for user-specified malware flags. 
 A set of predefined rules based on package registry metadata and source code analysis are used as heuristics to find malware-ridden packages.
 
+_NOTE: if you don't want to have to keep this table of contents up-to-date you can just remove it, GitHub provides a "table of contents" widget when viewing markdown files._
 
 - [PyPI Package Malware Scanner](#pypi-package-malware-scanner)
   - [Getting Started](#getting-started)
@@ -37,11 +38,15 @@ $ python3 -m pysecurity -n ./Desktop/packagename
 $ python3 -m pysecurity -n setuptools -v 63.6.0 -r code-execution shady-links 
 ```
 
+_NOTE: the ability to scan local packages is cool! Any plans on supporting the other alternate methods offered by `pip` [(see `pip install` examples)](https://pip.pypa.io/en/stable/cli/pip_install/#pip-install-examples)?_
 
 ### Installing Pysecurity
 To open the development environment for pysecurity: install all dependencies for Pysecurity, open the virtual environment, and add the root of the repository to PYTHONPATH:
 
+_NOTE: so these instructions are not for "installing pysecurity if you want to use it" but instead for "installing pysecurity if you want to contribute to it" right? If yes it could be useful to say it explicitely (I guess regular installation is just `pip install pysecurity`?). You may also want to consider moving these intructions to a `CONTRIBUTING.md` file._
+
 ```sh
+# NOTE: this would not "add", this would completely overwrite the variable right?
 $ export PYTHONPATH=$(pwd)
 $ pipenv install
 $ pipenv shell
@@ -62,6 +67,8 @@ $ python3 pysecurity_tests/evaluator/evaluator.py
 This will calculate the false positive, false negative, true positive, and true negative rates from logs in `pysecurity_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
 
 Running the command above ***will not scan*** the directories. To scan, uncomment line 351 `metric_generator.scan()` in `pysecurity_tests/evaluator/evaluator.py`. Then, run the command again.
+
+_NOTE: a command line argument or environment variable would be better than a code line to comment/uncomment, for instance so that the test suite can be run in CI to benchmark the tool when someone changes it_
 
 ### Heuristics
 Heuristics are separated into two categories: registry metadata analysis and source code analysis. Registry metadata pertains to the metrics of a given package on the PyPI registry (ex. number of maintainers, popularity, similarity in package names, gaps in code pushing), while source code analysis investigates the actual code of the package. The malicious packages analyzed to guide these heuristics are listed here: [PyPI Malware Analysis](https://datadoghq.atlassian.net/wiki/spaces/~628e8c561a437e007042ec14/pages/2515534035/PyPI+Malware+Analysis).
