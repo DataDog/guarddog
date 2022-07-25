@@ -23,6 +23,11 @@ rules:
         - pattern: subprocess.call($ARG1, ...)
         - pattern: subprocess.check_output($ARG1, ...)
         - pattern: subprocess.run($ARG1, ...)
+        
+        - pattern: getoutput($ARG1, ...)
+        - pattern: call($ARG1, ...)
+        - pattern: check_output($ARG1, ...)
+        - pattern: run($ARG1, ...)
 
         # eval, allow checking for version
         - patterns:
@@ -66,6 +71,24 @@ rules:
         - pattern: system($ARG1, ...)
         - pattern: execfile($ARG1, ...)
         - pattern: command.run($ARG1, ...)
+        - pattern: os.execl($ARG1, ...)
+        - pattern: os.execle($ARG1, ...)
+        - pattern: os.execlp($ARG1, ...)
+        - pattern: os.execlpe($ARG1, ...)
+        - pattern: os.execv($ARG1, ...)
+        - pattern: os.execve($ARG1, ...)
+        - pattern: os.execvp($ARG1, ...)
+        - pattern: os.execvpe($ARG1, ...)
+        - pattern: os.spawnl($ARG1, ...)
+        - pattern: os.spawnle($ARG1, ...)
+        - pattern: os.spawnlp($ARG1, ...)
+        - pattern: os.spawnlpe($ARG1, ...)
+        - pattern: os.spawnv($ARG1, ...)
+        - pattern: os.spawnve($ARG1, ...)
+        - pattern: os.spawnvp($ARG1, ...)
+        - pattern: os.spawnvpe($ARG1, ...)
+        - pattern: os.posix_spawn($ARG1, ...)
+        - pattern: os.posix_spawnp($ARG1, ...)
       - metavariable-pattern:
           metavariable: $ARG1
           patterns:
