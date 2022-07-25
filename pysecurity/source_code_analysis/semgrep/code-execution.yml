@@ -92,7 +92,7 @@ rules:
       - metavariable-pattern:
           metavariable: $ARG1
           patterns:
-            - pattern-not-regex: (setup.py|twine|git|brew|gpg|freeze|docker|pycodestyle|libffi|coverage|pre_commit|pkg-config)
+            - pattern-not-regex: (setup.py|twine|git|brew|gpg|freeze|docker|pycodestyle|libffi|coverage|pre_commit|pkg-config|cmake|pandoc)
     paths:
       include:
         - "*/setup.py"
