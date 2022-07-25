@@ -7,6 +7,7 @@ Includes rules based on package registry metadata and source code analysis.
 import argparse
 import json
 import os
+from pprint import pprint
 import shutil
 import signal
 import sys
@@ -16,6 +17,7 @@ from pathlib import Path
 import requests
 
 from pysecurity.metadata_analysis.rules.typosquatting import TyposquatDetector
+from pysecurity.scanners.project_scanner import RequirementsScanner
 from pysecurity.source_code_analysis.analyzer import analyze
 
 
@@ -26,6 +28,7 @@ def main():
     name = parsed_args.name
     version = parsed_args.version
     rules = parsed_args.rules
+    scanner = parsed_args.scanner
     
     if rules is not None:
         rules = set(rules)
@@ -37,6 +40,9 @@ def main():
             # Directory to download compressed and uncompressed package
             directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), tmpdirname)
             
+            requirements_scanner = RequirementsScanner()
+            all_repos = requirements_scanner.get_repos() # FIXME
+
             download_package(name, directory, version)
             return analyze_package(directory, name, rules)
     except KeyboardInterrupt:
@@ -65,6 +71,7 @@ def get_parser():
     parser.add_argument("-n", "--name", help="Package name", type=str, required=True)
     parser.add_argument("-v", "--version", help="Package version")
     parser.add_argument( "-r", "--rules", help="Scanning heuristics", nargs="+")
+    parser.add_argument( "-s", "--scanner", help="Type of dependency file to scan", nargs="+")
 
     return parser
 
