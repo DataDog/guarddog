@@ -138,5 +138,3 @@ class TyposquatDetector:
                 typosquatted.append(popular_package)
             
         return typosquatted
-
-print(TyposquatDetector().get_typosquatted_package("pip"))
