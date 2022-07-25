@@ -5,7 +5,11 @@ Checks for distance one Levenshtein, one-off character swaps, permutations
 around hyphens, and substrings.
 """
 
+import json
+import os
+from datetime import datetime, timedelta
 from itertools import permutations
+from time import time
 
 import requests
 
@@ -14,8 +18,29 @@ class TyposquatDetector:
     def __init__(self) -> None:
         num_packages = 5000
         popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
-        top_package_information = requests.get(popular_packages_url).json()["rows"][:num_packages]
         
+        # Fine top PyPI packages
+        top_packages_filename = "top_pypi_packages.json"
+        resourcesdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources"))
+        top_packages_path = os.path.join(resourcesdir, top_packages_filename)
+        
+        top_package_information = None
+        
+        if top_packages_filename in os.listdir(resourcesdir):
+            update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
+            
+            if datetime.now()-update_time <= timedelta(days=30):
+                top_packages_file = open(top_packages_path, "r")
+                top_package_information = json.load(top_packages_file)["rows"][:num_packages]
+            
+        if top_package_information is None:           
+            response = requests.get(popular_packages_url).json()
+            with open(top_packages_path, "w+") as f:
+                json.dump(response, f, ensure_ascii=False, indent=4)
+                
+            top_package_information = response["rows"][:num_packages]
+        
+        # Get list of popular packages
         self.popular_packages = []
         
         for package in top_package_information:
@@ -113,3 +138,5 @@ class TyposquatDetector:
                 typosquatted.append(popular_package)
             
         return typosquatted
+
+print(TyposquatDetector().get_typosquatted_package("pip"))
