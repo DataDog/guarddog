@@ -115,6 +115,12 @@ if os.system("pip freeze | grep wheel"):
 # ok: code-execution
 subprocess.run([sys.executable, "-m", "pre_commit", "install"])
                 
+# ok: code-execution
+check_output(['cmake', '--version'])
+
+# ok: code-execution
+os.system("pandoc --from=markdown --to=rst --output=README.rst README.md")
+
 
 """ OK: executing git commands
 """
