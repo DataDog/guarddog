@@ -5,9 +5,9 @@ import sys
 import pysecurity.cli
 
 
-def main():
+def cli():
     """Run pysecurity from script entry point"""
-    return pysecurity.cli.main()
+    return pysecurity.cli.cli()
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(cli())

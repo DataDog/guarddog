@@ -1,7 +1,14 @@
 import json
+import os
+import re
+import sys
 from posixpath import dirname
-import time
+
+import pkg_resources
 import requests
+from tqdm import tqdm
+
+from pysecurity.scanners.package_scanner import PackageScanner
 from pysecurity.scanners.scanner import Scanner
 
 BASE_URL = "https://api.github.com"
@@ -9,57 +16,119 @@ DATADOG_URL_SUFFIX = "orgs/DataDog/repos"
 MAX_RESULTS_PER_PAGE = 100
 SAVED_CACHE = dirname(__file__)
 
+
 class RequirementsScanner(Scanner):
     def __init__(self) -> None:
+        self.package_scanner = PackageScanner()
         super(Scanner)
 
     
-    def get_repos(self):
-        print("Getting repos...")
-        print("\n")
-        all_repos = []
-        page_id = 0
-        results_count = MAX_RESULTS_PER_PAGE
-
-        # TODO: Need to implement this from D's old PR to get private repos
-        # pat_auth = authenticate_by_access_token()
-        while (results_count == MAX_RESULTS_PER_PAGE):
-            req_url = "{0}/{1}?per_page={2}&page={3}".format(BASE_URL, DATADOG_URL_SUFFIX, MAX_RESULTS_PER_PAGE, page_id)
-            print("Query URL: ", req_url, " on page: ", page_id)
-            resp = requests.get(url=req_url)
-
-            if resp.status_code != 200:
-                print("Bad response from Github: {0} Please try again!".format(resp.text))
-                exit(1)
-            cur_repos_str = resp.content
-            cur_repos = json.loads(cur_repos_str)
-            results_count = len(cur_repos)
-            all_repos.extend(cur_repos)
-            page_id += 1
-            time.sleep(1)
-            if page_id > 1:
-                break
-                
-        for repo in all_repos:
-            html_url = repo['html_url']
-            default_branch = repo['default_branch']
-            githubusercontent_url = html_url.replace("github", "raw.githubusercontent")
-            
-            req_url = f"{githubusercontent_url}/{default_branch}/requirements.txt"
-            resp = requests.get(url=req_url)
-            if resp.status_code == 200:
-                # Read the requirements.txt file and output the dependencies and versions
-                dependencies = self.read_response()
-                
-                # Next, open a thread for each of the dependencies
-                for dependency in dependencies:
-                    do_thing()
+    def authenticate_by_access_token(self):
+        user = os.getenv('GIT_USERNAME')
+        personal_access_token = os.getenv('GH_TOKEN')
+        if user == None or personal_access_token == None:
+            print("WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN (generate a personal access token in Github settings > developer) as environment variables before proceeding.")
+            exit(1)
+        return (user, personal_access_token)
+    
+    
+    def sanitize_requirements(self, requirements):
+        sanitized_lines = []
         
-        return all_repos
+        for line in requirements:
+            stripped_line = line.strip()
+            
+            is_comment = stripped_line.startswith("#")
+            is_install_line = stripped_line.startswith("--") or  stripped_line.startswith("-i")
+            is_link = stripped_line.startswith("http") or stripped_line.startswith("git+")
+            
+            if not is_comment and not is_install_line and not is_link and len(line) > 0:
+                sanitized_lines.append(stripped_line)
+            
+        return sanitized_lines
+        
     
-    def read_response():
-        raise NotImplemented
+    def parse_requirements(self, requirements):
+        
+        def versions(package_name):
+            url = "https://pypi.org/pypi/%s/json" % (package_name,)
+            data = requests.get(url).json()
+            versions = sorted(data["releases"].keys(), reverse=True)
+            return versions
+        
+        sanitized_requirements = self.sanitize_requirements(requirements)
+        
+        dependencies = {}
+        
+        try:
+            for requirement in pkg_resources.parse_requirements(sanitized_requirements):
+                valid_versions = None
+                for spec in requirement.specs:
+                    qualifier, version = spec
+                    
+                    try:
+                        available_versions = versions(requirement.project_name)
+                    except Exception as e:
+                        sys.stderr.write(f"Package {requirement.project_name} not on PyPI")
+                        continue
+                    
+                    used_versions = None
+                    
+                    match qualifier:
+                        case ">":
+                            used_versions = {v for v in available_versions if v > version}
+                        case "<":
+                            used_versions = {v for v in available_versions if v < version}
+                        case ">=":
+                            used_versions = {v for v in available_versions if v >= version}
+                        case "<=":
+                            used_versions = {v for v in available_versions if v <= version}
+                        case "==":
+                            matching_versions = filter(lambda v: v is not None, (re.search(version, candidate) for candidate in available_versions))
+                            matching_versions = set(match.string for match in matching_versions)
+                            used_versions = matching_versions
+                        case "~=":
+                            prefix = "".join(version.split(".")[:-1])
+                            for available_version in available_versions: # sorted decreasing
+                                if available_version >= version and available_version.startswith(prefix):
+                                    used_versions = set(available_version)
+                                    break
+                        case _:
+                            sys.stderr.write(f"Unknown qualifier: {qualifier}")
+                            continue
+                        
+                    if valid_versions is None:
+                        valid_versions = used_versions
+                    else:
+                        valid_versions = valid_versions & used_versions
 
+                dependencies[requirement.project_name] = valid_versions
+        except Exception as e:
+            sys.stderr.write(f"Received error {str(e)}")
+
+        return dependencies
     
-    def do_thing():
-        raise NotImplemented
+
+    def scan_repo(self, url, branch, requirements_name="requirements.txt"):
+        token = self.authenticate_by_access_token()
+        githubusercontent_url = url.replace("github", "raw.githubusercontent")
+        
+        req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"
+        resp = requests.get(url=req_url, auth=token)
+        
+        if resp.status_code == 200:
+            # Read the requirements.txt file and output the dependencies and versions
+            dependencies = self.parse_requirements(resp.content.decode().splitlines())
+            project_results = {}
+            progressbar = tqdm(total=len(dependencies))
+            
+            for dependency, versions in dependencies.items():
+                for version in versions:
+                    package_results = self.package_scanner.scan_remote(dependency, version)
+                    project_results[f"{dependency}/{version}"] = package_results
+                    progressbar.update(1)
+                
+            return project_results
+        else:
+            sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
+            sys.exit(255)
