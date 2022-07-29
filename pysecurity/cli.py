@@ -25,13 +25,28 @@ def cli():
 @click.option('-f', '--output-file', default=None, type=click.Path(exists=True))
 def verify(repository_link, branch, requirements_name, output_file):
     scanner = RequirementsScanner()
-    results = scanner.scan_repo(repository_link, branch, requirements_name)
+    results = scanner.scan_remote(repository_link, branch, requirements_name)
     
     if output_file:
         with open(output_file, "w+") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
-            
-    pprint(results)
+    else:
+        pprint(results)
+    
+
+@cli.command("localverify")
+@click.argument('path')
+@click.option('-r', '--requirements-name', default="requirements.txt")
+@click.option('-f', '--output-file', default=None, type=click.Path(exists=True))
+def verify_local(path, requirements_name, output_file):
+    scanner = RequirementsScanner()
+    results = scanner.scan_local(path, requirements_name)
+    
+    if output_file:
+        with open(output_file, "w+") as f:
+            json.dump(results, f, ensure_ascii=False, indent=4)
+    else:      
+        pprint(results)
     
 
 @cli.command("scan")
@@ -49,7 +64,7 @@ def scan(name, version, rules):
     pprint(results)
 
 
-@cli.command("scan local")
+@cli.command("localscan")
 @click.argument('path', type=click.Path(exists=True))
 @click.option('-r', '--rules', multiple=True)
 def scan_local(path, rules):

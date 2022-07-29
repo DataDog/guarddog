@@ -108,8 +108,32 @@ class RequirementsScanner(Scanner):
 
         return dependencies
     
+    
+    def scan_requirements(self, requirements):
+        # Read the requirements.txt file and output the dependencies and versions
+        dependencies = self.parse_requirements(requirements)
+        project_results = {}
+        progressbar = tqdm(total=len(dependencies))
+        
+        for dependency, versions in dependencies.items():
+            for version in versions:
+                package_results = self.package_scanner.scan_remote(dependency, version)
+                project_results[f"{dependency}/{version}"] = package_results
+                progressbar.update(1)
+            
+        return project_results
+    
+    
+    def scan_local(self, path, requirements_name="requirements.txt"):
+        try:
+            with open(os.path.join(path, requirements_name), "r") as f:
+                return self.scan_requirements(f.readlines())
+        except Exception:
+            sys.stdout.write(f"Could not reach {path}")
+            sys.exit(255)
 
-    def scan_repo(self, url, branch, requirements_name="requirements.txt"):
+
+    def scan_remote(self, url, branch, requirements_name="requirements.txt"):
         token = self.authenticate_by_access_token()
         githubusercontent_url = url.replace("github", "raw.githubusercontent")
         
@@ -117,18 +141,7 @@ class RequirementsScanner(Scanner):
         resp = requests.get(url=req_url, auth=token)
         
         if resp.status_code == 200:
-            # Read the requirements.txt file and output the dependencies and versions
-            dependencies = self.parse_requirements(resp.content.decode().splitlines())
-            project_results = {}
-            progressbar = tqdm(total=len(dependencies))
-            
-            for dependency, versions in dependencies.items():
-                for version in versions:
-                    package_results = self.package_scanner.scan_remote(dependency, version)
-                    project_results[f"{dependency}/{version}"] = package_results
-                    progressbar.update(1)
-                
-            return project_results
+            return self.scan_requirements(resp.content.decode().splitlines())
         else:
             sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)
