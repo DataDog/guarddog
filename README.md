@@ -25,34 +25,30 @@ The structure for scanning a package is:
 $ python3 -m pysecurity -n [NAME] -v [VERSION] -r [RULES]
 
 # Scan the most recent version
-$ python3 -m pysecurity -n setuptools 
+$ python3 -m pysecurity scan setuptools 
 
 # Scan a specific version
-$ python3 -m pysecurity -n setuptools -v 63.6.0 
+$ python3 -m pysecurity scan setuptools -v 63.6.0 
 
 # Scan a local package
-$ python3 -m pysecurity -n ./Desktop/packagename 
+$ python3 -m pysecurity scan local ./Desktop/packagename 
 
 # Scan using a subset of the rules
-$ python3 -m pysecurity -n setuptools -v 63.6.0 -r code-execution shady-links 
+$ python3 -m pysecurity scan setuptools -v 63.6.0 -r code-execution -r shady-links 
 ```
+
+Note that to scan specific rules, use multiple `-r` flags.
 
 
 ### Installing Pysecurity
-To open the development environment for pysecurity: install all dependencies for Pysecurity, open the virtual environment, and add the root of the repository to PYTHONPATH:
-
-```sh
-$ export PYTHONPATH=$(pwd)
-$ pipenv install
-$ pipenv shell
-```
+Pysecurity is not yet packaged. To run in the development environment, check out [CONTRIBUTING](CONTRIBUTING.md)
 
 #### Testing
 
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --metrics off --quiet --test --config pysecurity/source_code_analysis/semgrep/ pysecurity_tests/semgrep
+$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode pysecurity_tests/semgrep
 ```
 
 To find the precision and recall of the rules, run: 
@@ -82,7 +78,7 @@ The precision, recall, and false positive rate of each rule was measured using t
 The typosquatting rule ignored the top 5000 downloaded packages (in the past month), so all error is from missed typosquatting while scanning malware.
 
 ##### Methodology
-The precision and recall of each rule was measured by running the tool on the 1000 most downloaded PyPI packages (benign data) and a collection of about 30-40 pieces of malware that were removed from PyPI (malicious data). Every line in the top 1000 packages is considered to be safe, so any lines flagged there is considered a false positive. In the malicious dataset, dangerous lines were hand-labeled in `malicoius_ground_truth.json` and compared to the actual result. Any discrepencies were classified as a false-negative (missed line in ground truth), true-positive (matches ground truth), or false-positive (extra line compared to ground truth). The precision and recall were calculated from these metrics. 
+The precision and recall of each rule was measured by running the tool on the 1000 most downloaded PyPI packages (benign data) and a collection of about 30-40 pieces of malware that were removed from PyPI (malicious data). Every line in the top 1000 packages is considered to be safe, so any lines flagged there is considered a false positive. In the malicious dataset, dangerous lines were hand-labeled in `malicious_ground_truth.json` and compared to the actual result. Any discrepencies were classified as a false-negative (missed line in ground truth), true-positive (matches ground truth), or false-positive (extra line compared to ground truth). The precision and recall were calculated from these metrics. 
 <br/>
 The false positive rate used only the benign dataset, using package-level granularity. Any lines detected in a package marked the package as a false-positive. Meanwhile, if no lines were detected in the package, it was marked as a true-negative. The difference in granulary compared to precision/recall is a result of being unable to measure the number of lines in the benign dataset.
 

@@ -225,18 +225,18 @@
                 "sha256:dc6a613d6c74eef5a14a214d433d06291526145431c3b964f5e16529b1842bed",
                 "sha256:de9c6b8a1ba52919ae919f3ae96abb72b994dd0350226e28f3686cb4f142165c"
             ],
-            "markers": "python_version < '3.11' and platform_python_implementation == 'CPython'",
+            "markers": "platform_python_implementation == 'CPython' and python_version < '3.11'",
             "version": "==0.2.6"
         },
         "semgrep": {
             "hashes": [
-                "sha256:0e947e36b36c5461c53d5b5b0bc149c1e67b94b970da84c613fcf0ada4367689",
-                "sha256:3258890b643b546100387e5a4c17dd6e8d57d8c484ce452416bd8bc53486482b",
-                "sha256:89a94162580686209236144c70156c549c23f28b60229be6511285383f1cc1e7",
-                "sha256:ffa7555496348acccc50c54a73df8491dd439d3afc374931dde5ab4fd9d99cdb"
+                "sha256:202a3cc52e96b6603d22f3d5629e6f654008d53ab32613dbc9a8521be6cc42b9",
+                "sha256:2902ca1825fa2a17a57b5b8fbe0828c4c714bbe82dff7bc5f415cd876f58d715",
+                "sha256:51dc4813e2304efa9811d89c81614b6076a6d16f6ca56f19f672898d451946b5",
+                "sha256:f357b650dcc517671286aa6df4b3e7a2eb1f12ca178edd6c18b9c8eeea3ca135"
             ],
             "index": "pypi",
-            "version": "==0.106.0"
+            "version": "==0.107.0"
         },
         "tqdm": {
             "hashes": [
