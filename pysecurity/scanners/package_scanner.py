@@ -3,21 +3,12 @@ import os
 import shutil
 import sys
 import tempfile
-from contextlib import contextmanager
 
 import requests
 
 from pysecurity.analyzer.analyzer import Analyzer
 from pysecurity.scanners.scanner import Scanner
 
-
-@contextmanager
-def TemporaryDirectory():
-    name = tempfile.mkdtemp()
-    try:
-        yield name
-    finally:
-        shutil.rmtree(name)
 
 
 class PackageScanner(Scanner):
@@ -38,7 +29,7 @@ class PackageScanner(Scanner):
 
     def scan_remote(self, name, version=None, rules=None):
         try:
-            with TemporaryDirectory() as tmpdirname:
+            with tempfile.TemporaryDirectory() as tmpdirname:
                 # Directory to download compressed and uncompressed package
                 directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), tmpdirname)
                 file_path = os.path.join(directory, name)

@@ -1,0 +1,6 @@
+Component,Origin,License,Copyright
+docker,PyPI,Apache-2.0,docker
+semgrep,PyPI,LGPL-2.1,r2c
+requests,PyPI,Apache-2.0,Kenneth Reitz
+tqdm,PyPI,MPL-2.0,Casper da Costa-Luis
+black,PyPI,MIT,Łukasz Langa
