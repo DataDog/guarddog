@@ -9,19 +9,21 @@ import json
 import os
 from datetime import datetime, timedelta
 from itertools import permutations
-from time import time
 
 import requests
 
+from pysecurity.analyzer.metadata.resources.detector import Detector
+from pysecurity.scanners.scanner import Scanner
 
-class TyposquatDetector:
+
+class TyposquatDetector(Detector):
     def __init__(self) -> None:
         num_packages = 5000
         popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
         
         # Fine top PyPI packages
         top_packages_filename = "top_pypi_packages.json"
-        resourcesdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources"))
+        resourcesdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "resources"))
         top_packages_path = os.path.join(resourcesdir, top_packages_filename)
         
         top_package_information = None
@@ -47,6 +49,8 @@ class TyposquatDetector:
             name = package["project"]
             normalized_name = name.lower().replace('_', '-')
             self.popular_packages.append(normalized_name)
+        
+        super(Scanner)
             
             
     def _is_distance_one_Levenshtein(self, name1, name2) -> bool:
@@ -108,7 +112,7 @@ class TyposquatDetector:
                 or self._is_swapped_typo(package1, package2))
                 
                 
-    def get_typosquatted_package(self, package_name) -> str:
+    def get_typosquatted_package(self, package_name) -> list[str]:
         typosquatted = []
         
         normalized_name = package_name.lower().replace('_', '-')
@@ -139,4 +143,6 @@ class TyposquatDetector:
             
         return typosquatted
 
-print(TyposquatDetector().get_typosquatted_package("pip"))
+
+    def detect(self, package_info) -> list[str]:
+        return self.get_typosquatted_package(package_info["name"])

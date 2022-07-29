@@ -12,7 +12,8 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 
-from pysecurity.cli import analyze_package, download_package
+from pysecurity.analyzer.analyzer import Analyzer
+from pysecurity.scanners.package_scanner import PackageScanner
 
 
 class Evaluator:
@@ -26,6 +27,10 @@ class Evaluator:
     """
     
     def __init__(self) -> None:
+        # Analyzer to scan packages
+        self.analyzer = Analyzer()
+        self.package_scanner = PackageScanner() # to download packages
+        
         # Relevant paths
         self.project_root = Path(__file__).parents[2] # get grandparent
         self.dirname = Path(os.path.dirname(__file__))
@@ -41,8 +46,8 @@ class Evaluator:
         self.malicious_logs_name = "malicious_logs.json"
         self.malicious_ground_truth_name = "malicious_ground_truth.json"
         
-        self.source_code_analysis_path = self.project_root.joinpath(Path("pysecurity/source_code_analysis/semgrep"))
-        self.metadata_analysis_path = self.project_root.joinpath(Path("pysecurity/metadata_analysis/rules"))
+        self.source_code_analysis_path = self.project_root.joinpath(Path("pysecurity/analyzer/sourcecode"))
+        self.metadata_analysis_path = self.project_root.joinpath(Path("pysecurity/analyzer/metadata"))
         self.logs_path = self.dirname.joinpath(Path("logs"))
         
         # Find rules
@@ -94,7 +99,7 @@ class Evaluator:
         
         for package in top_packages:
             name = package["project"]
-            download_package(name, self.benign_path)
+            self.package_scanner.download_package(name, self.benign_path)
             progress_bar.update(1)
             
         progress_bar.close()
@@ -132,16 +137,17 @@ class Evaluator:
                 uses all possible rules. Defaults to None.
         """
         
-        packages = list(filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path)))
+        package_names = list(filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path)))
         scan_results = {}
         
-        progress_bar = tqdm(total=len(packages))
+        progress_bar = tqdm(total=len(package_names))
         progress_bar.set_description("Scanning packages")
         
         # Scan packages
-        for package in packages:
-            package_results = analyze_package(path, package, rules)
-            scan_results[package] = json.loads(package_results)
+        for name in package_names:
+            package_path = os.path.join(path, name)
+            package_results = self.analyzer.analyze(package_path, {"name": name}, rules)
+            scan_results[name] = package_results
         
             progress_bar.update(1)
         
@@ -342,7 +348,7 @@ class Evaluator:
 
 if __name__ == "__main__":
     metric_generator = Evaluator()
-    # metric_generator.scan()
+    metric_generator.scan()
     metric_generator.evaluate(show=True)
     
     accuracy = metric_generator.get_precision_and_recall()
