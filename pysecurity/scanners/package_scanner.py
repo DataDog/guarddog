@@ -10,7 +10,6 @@ from pysecurity.analyzer.analyzer import Analyzer
 from pysecurity.scanners.scanner import Scanner
 
 
-
 class PackageScanner(Scanner):
     def __init__(self) -> None:
         self.analyzer = Analyzer()
