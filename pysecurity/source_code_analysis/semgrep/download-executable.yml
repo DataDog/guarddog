@@ -33,4 +33,6 @@ rules:
     - pattern: request(...)
     - pattern: (...).urlopen(...)
     - pattern: urlopen(...)
+    - pattern: (...).getresponse(...)
+    - pattern: getresponse(...)
   severity: WARNING

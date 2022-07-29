@@ -1,6 +1,4 @@
 .DS_Store
 .vscode
-pysecurity/__pycache__
-pysecurity/source_code_analysis/__pycache__
-pysecurity/metadata_analysis/__pycache__
-popular_packages/*
+**/__pycache__
+pysecurity_tests/evaluator/data/benign/*/
