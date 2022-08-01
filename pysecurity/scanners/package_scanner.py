@@ -43,7 +43,7 @@ class PackageScanner(Scanner):
         except Exception as e:
             sys.stderr.write("\n")
             sys.stderr.write(str(e))
-            return str(e)
+            sys.exit()
 
 
     def download_package(self, package_name, directory, version=None) -> None:
@@ -94,7 +94,7 @@ class PackageScanner(Scanner):
                 
                 self.download_compressed(url, zippath, unzippedpath)
             else:
-                raise Exception("Compressed file for package does not exist.")
+                raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
         else:
             raise Exception(
                 "Version " + version + " for package " + package_name + " doesn't exist."
