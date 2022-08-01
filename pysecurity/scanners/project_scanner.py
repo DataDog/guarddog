@@ -128,8 +128,8 @@ class RequirementsScanner(Scanner):
         try:
             with open(os.path.join(path, requirements_name), "r") as f:
                 return self.scan_requirements(f.readlines())
-        except Exception:
-            sys.stdout.write(f"Could not reach {path}")
+        except Exception as e:
+            sys.stdout.write(f"Received {e}")
             sys.exit(255)
 
 

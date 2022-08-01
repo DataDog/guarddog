@@ -5,6 +5,7 @@ Includes rules based on package registry metadata and source code analysis.
 """
 
 import json
+import re
 from pprint import pprint
 
 import click
@@ -34,7 +35,7 @@ def verify(repository_link, branch, requirements_name, output_file):
         pprint(results)
     
 
-@cli.command("localverify")
+@cli.command("verify")
 @click.argument('path')
 @click.option('-r', '--requirements-name', default="requirements.txt")
 @click.option('-f', '--output-file', default=None, type=click.Path(exists=True))
@@ -50,32 +51,22 @@ def verify_local(path, requirements_name, output_file):
     
 
 @cli.command("scan")
-@click.argument('name')
+@click.argument('identifier')
 @click.option('-v', '--version', default=None)
 @click.option('-r', '--rules', multiple=True)
-def scan(name, version, rules):
+def scan(identifier, version, rules):
     rule_param = None
     if len(rules) != 0:
         rule_param = rules
         
     scanner = PackageScanner()
-    results = scanner.scan_remote(name, version, rule_param)
+    
+    identifier_is_path = re.search(r'(.{0,2}\/)+.+', identifier)
+    
+    results = {}
+    if identifier_is_path:
+        results = scanner.scan_local(identifier, rule_param)
+    else:
+        results = scanner.scan_remote(identifier, version, rule_param)
     
     pprint(results)
-
-
-@cli.command("localscan")
-@click.argument('path', type=click.Path(exists=True))
-@click.option('-r', '--rules', multiple=True)
-def scan_local(path, rules):
-    rule_param = None
-    if len(rules) != 0:
-        rule_param = rules
-        
-    scanner = PackageScanner()
-    results = scanner.scan_local(path, rule_param)
-    
-    pprint(results)
-
-cli.add_command(scan)
-cli.add_command(scan_local)

@@ -22,7 +22,7 @@ Pysecurity can be used to scan local or remote PyPI packages using any of the av
 The structure for scanning a package is:
 
 ```sh
-$ python3 -m pysecurity -n [NAME] -v [VERSION] -r [RULES]
+$ python3 -m pysecurity scan [NAME] -v [VERSION] -r [RULE]
 
 # Scan the most recent version
 $ python3 -m pysecurity scan setuptools 
@@ -31,10 +31,24 @@ $ python3 -m pysecurity scan setuptools
 $ python3 -m pysecurity scan setuptools -v 63.6.0 
 
 # Scan a local package
-$ python3 -m pysecurity scan local ./Desktop/packagename 
+$ python3 -m pysecurity scan ./Desktop/packagename 
 
 # Scan using a subset of the rules
 $ python3 -m pysecurity scan setuptools -v 63.6.0 -r code-execution -r shady-links 
+```
+
+To scan a requirements.txt file, use the command `verify`. You can also specify the name of the requirements file if it deviates from requirements.txt and an output file to store the results in.
+
+```sh
+$ python3 -m pysecurity verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+
+$ python3 -m pysecurity verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+
+# Verifies remote project and stores results in output file
+$ python3 -m pysecurity verify https://github.com/DataDog/pysecurity/ main -o ./output.json
+
+# Verifies local project with a differently names requirements file
+$ python3 -m pysecurity verify ./samplepackage -r requirements2.txt
 ```
 
 Note that to scan specific rules, use multiple `-r` flags.
