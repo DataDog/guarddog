@@ -62,7 +62,7 @@ Pysecurity is not yet packaged. To run in the development environment, check out
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode tests/semgrep
+$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode tests/analyzer/sourcecode
 ```
 
 To find the precision and recall of the rules, run: 

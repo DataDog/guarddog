@@ -10,7 +10,6 @@ from datetime import date, datetime
 import requests
 from dateutil import parser
 from dotenv import load_dotenv
-from packaging import version
 
 from pysecurity.analyzer.metadata.detector import Detector
 
