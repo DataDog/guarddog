@@ -15,6 +15,10 @@ $ pipenv install
 $ pipenv shell
 ```
 
+The `compromised_email` rule requires an API key for a [whois rapid API subscription](https://rapidapi.com/Zozor54/api/whois-lookup/). The value for this API key should be stored in an environment variable named `RAPID_API_KEY`, or in a `.env` file.
+
+To analyze Github repos (`verify`), make sure your Github username and Github API key are set up in environment variables named 
+
 You're ready to start developing!
 
 ### :bug: Creating Issues 

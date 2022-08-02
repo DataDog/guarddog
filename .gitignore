@@ -1,4 +1,5 @@
 .DS_Store
 .vscode
+.env
 **/__pycache__
-pysecurity_tests/evaluator/data/benign/*/
+evaluator/data/benign/*/
