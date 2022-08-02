@@ -8,6 +8,7 @@ import requests
 
 from pysecurity.analyzer.analyzer import Analyzer
 from pysecurity.scanners.scanner import Scanner
+from pysecurity.utils import get_package_info
 
 
 class PackageScanner(Scanner):
@@ -35,7 +36,7 @@ class PackageScanner(Scanner):
                 
                 self.download_package(name, directory, version)
                 
-                package_info = self.get_package_info(name)["info"]
+                package_info = get_package_info(name)
                 
                 results = self.analyzer.analyze(file_path, package_info, rules)
                 
@@ -63,7 +64,7 @@ class PackageScanner(Scanner):
             None
         """
         
-        data = self.get_package_info(package_name)
+        data = get_package_info(package_name)
         releases = data["releases"]
         
         if version is None:
@@ -117,33 +118,3 @@ class PackageScanner(Scanner):
         
         shutil.unpack_archive(zippath, unzippedpath)
         os.remove(zippath)
-        
-    
-    def get_package_info(self, name) -> json:
-        """ Gets metadata and other information about package
-
-        Args:
-            name (str): name of the package
-
-        Raises:
-            Exception: "Received status code: " + str(response.status_code) + " from PyPI"
-            Exception: "Error retrieving package: " + data["message"]
-
-        Returns:
-            json: package attributes and values
-        """
-        
-        url = "https://pypi.org/pypi/%s/json" % (name,)
-        response = requests.get(url)
-        
-        # Check if package file exists
-        if response.status_code != 200:
-            raise Exception("Received status code: " + str(response.status_code) + " from PyPI")
-        
-        data = response.json()
-        
-        # Check for error in retrieving package
-        if "message" in data:
-            raise Exception("Error retrieving package: " + data["message"])
-        
-        return data

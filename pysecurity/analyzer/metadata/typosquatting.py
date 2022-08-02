@@ -12,8 +12,7 @@ from itertools import permutations
 
 import requests
 
-from pysecurity.analyzer.metadata.resources.detector import Detector
-from pysecurity.scanners.scanner import Scanner
+from pysecurity.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):
@@ -50,7 +49,7 @@ class TyposquatDetector(Detector):
             normalized_name = name.lower().replace('_', '-')
             self.popular_packages.append(normalized_name)
         
-        super(Scanner)
+        super(Detector)
             
             
     def _is_distance_one_Levenshtein(self, name1, name2) -> bool:
@@ -145,4 +144,4 @@ class TyposquatDetector(Detector):
 
 
     def detect(self, package_info) -> list[str]:
-        return self.get_typosquatted_package(package_info["name"])
+        return self.get_typosquatted_package(package_info["info"]["name"])

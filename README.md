@@ -62,12 +62,12 @@ Pysecurity is not yet packaged. To run in the development environment, check out
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode pysecurity_tests/semgrep
+$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode tests/semgrep
 ```
 
 To find the precision and recall of the rules, run: 
 ```sh
-$ python3 pysecurity_tests/evaluator/evaluator.py
+$ python3 evaluator/evaluator.py
 ```
 This will calculate the false positive, false negative, true positive, and true negative rates from logs in `pysecurity_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
 

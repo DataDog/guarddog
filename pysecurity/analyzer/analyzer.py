@@ -1,10 +1,12 @@
 import os
 import sys
 from pathlib import Path
-from unicodedata import name
 
 from semgrep.semgrep_main import invoke_semgrep
 
+from pysecurity.analyzer.metadata.compromised_email import \
+    CompromisedEmailDetector
+from pysecurity.analyzer.metadata.empty_information import EmptyInfoDetector
 from pysecurity.analyzer.metadata.typosquatting import TyposquatDetector
 
 
@@ -13,9 +15,16 @@ class Analyzer:
         self.metadata_path = os.path.join(os.path.dirname(__file__), "metadata")
         self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
         
-        self.metadata_ruleset = set(rule.replace(".py", "") for rule in os.listdir(self.metadata_path) if rule.endswith(".py"))
-        self.sourcecode_ruleset = set(rule.replace(".yml", "") for rule in os.listdir(self.sourcecode_path) if rule.endswith(".yml"))
+        # Define sourcecode and metadata rulesets
+        def get_rules(file_extension, path):
+            return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
         
+        self.metadata_ruleset = get_rules(".py", self.metadata_path)
+        self.sourcecode_ruleset = get_rules(".yml", self.sourcecode_path)
+        
+        self.metadata_ruleset.remove("detector")
+        
+        # Define paths to exclude from sourcecode analysis
         self.exclude = [
             "helm",
             "venv",
@@ -30,12 +39,29 @@ class Analyzer:
             ".semgrep_logs"
         ]
         
+        # Rules and associated detectors
         self.metadata_detectors = {
-            "typosquatting": TyposquatDetector()
+            "typosquatting": TyposquatDetector(),
+            "compromised_email": CompromisedEmailDetector(),
+            "empty_information": EmptyInfoDetector()
         }
         
     
     def analyze(self, path, info=None, rules=None) -> dict[str]:
+        """ Analyzes a package in the given path
+
+        Args:
+            path (str): path to package
+            info (dict, optional): Any package information to analyze metadata. Defaults to None.
+            rules (set, optional): Set of rules to analyze. Defaults to all rules.
+
+        Raises:
+            Exception: "{rule} is not a valid rule."
+
+        Returns:
+            dict[str]: each rule and their corresponding output
+        """
+        
         if rules is None:
             return self.analyze_metadata(info) | self.analyze_sourcecode(path)
         
@@ -61,8 +87,9 @@ class Analyzer:
             try:
                 results[rule] = self.metadata_detectors[rule].detect(info)
             except Exception as e:
-                sys.stderr.write(f"Error while analyzing metadata: {str(e)}")
-            
+                sys.stderr.write("\n")
+                sys.stderr.write(f"Error while analyzing {rule}: {str(e)}")
+        
         return results
     
 

@@ -10,7 +10,7 @@ import zipfile
 from pathlib import Path
 
 import requests
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from pysecurity.analyzer.analyzer import Analyzer
 from pysecurity.scanners.package_scanner import PackageScanner
@@ -32,7 +32,7 @@ class Evaluator:
         self.package_scanner = PackageScanner() # to download packages
         
         # Relevant paths
-        self.project_root = Path(__file__).parents[2] # get grandparent
+        self.project_root = Path(__file__).parents[1] # get grandparent
         self.dirname = Path(os.path.dirname(__file__))
         
         # Data paths
@@ -140,7 +140,7 @@ class Evaluator:
         package_names = list(filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path)))
         scan_results = {}
         
-        progress_bar = tqdm(total=len(package_names))
+        progress_bar = tqdm(total=len(package_names), position=0, leave=True)
         progress_bar.set_description("Scanning packages")
         
         # Scan packages

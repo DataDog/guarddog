@@ -8,6 +8,8 @@ docker = "*"
 semgrep = "*"
 requests = "*"
 tqdm = "*"
+python-dotenv = "*"
+python-dateutil = "*"
 
 [dev-packages]
 black = "*"
