@@ -10,6 +10,7 @@ from datetime import date, datetime
 import requests
 from dateutil import parser
 from dotenv import load_dotenv
+from packaging import version
 
 from pysecurity.analyzer.metadata.detector import Detector
 
@@ -53,22 +54,26 @@ class CompromisedEmailDetector(Detector):
         return creation_date
     
     
-    def _get_project_creation_date(self, package_info) -> date:
-        latest_release = package_info["info"]["version"]
-        version_release = package_info["releases"][latest_release][0]
+    def _get_project_creation_date(self, releases) -> date:
+        sorted_versions = sorted(releases.keys(), key=lambda r: version.parse(r), reverse=True)
+        earlier_versions = sorted_versions[:-1]
         
-        upload_time_text = version_release["upload_time_iso_8601"]
-        creation_date = parser.isoparse(upload_time_text).date()
-        
-        return creation_date
+        for early_version in earlier_versions:
+            version_release = releases[early_version]
+            
+            if len(version_release) > 0: # if there's a distribution for the package
+                upload_time_text = version_release[0]["upload_time_iso_8601"]
+                creation_date = parser.isoparse(upload_time_text).date()
+                
+                return creation_date
     
     
     def is_email_compromised(self, package_info) -> bool:
         email_domain = package_info["info"]["author_email"].split("@")[-1]
+        releases = package_info["releases"]
         
-        project_date = self._get_project_creation_date(package_info) 
+        project_date = self._get_project_creation_date(releases) 
         domain_date = self._get_domain_creation_date(email_domain)
-        
         return project_date < domain_date
     
     
