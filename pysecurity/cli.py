@@ -11,8 +11,12 @@ from pprint import pprint
 
 import click
 
+from pysecurity.analyzer.analyzer import Analyzer
 from pysecurity.scanners.package_scanner import PackageScanner
 from pysecurity.scanners.project_scanner import RequirementsScanner
+
+analyzer = Analyzer()
+ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
 
 
 @click.group
@@ -49,7 +53,8 @@ def verify(path, output_file, quiet):
 @cli.command("scan")
 @click.argument('identifier')
 @click.option('-v', '--version', default=None)
-@click.option('-r', '--rules', multiple=True)
+@click.option('-r', '--rules', multiple=True, 
+              type=click.Choice(ALL_RULES, case_sensitive=False))
 def scan(identifier, version, rules):
     rule_param = None
     if len(rules) != 0:
