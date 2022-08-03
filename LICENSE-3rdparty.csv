@@ -5,3 +5,4 @@ requests,PyPI,Apache-2.0,Kenneth Reitz
 tqdm,PyPI,MPL-2.0,Casper da Costa-Luis
 black,PyPI,MIT,Łukasz Langa
 dateutil,PyPI,Apache-2.0,Gustavo Niemeyer
+python-whois,PyPI,MIT,Richard Penman

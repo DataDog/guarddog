@@ -63,55 +63,76 @@ class Analyzer:
             dict[str]: each rule and their corresponding output
         """
         
+        metadata_results = None
+        sourcecode_results = None
+        
+        # populate results, errors, and number of issues
         if rules is None:
-            return self.analyze_metadata(info) | self.analyze_sourcecode(path)
+            metadata_results = self.analyze_metadata(info)
+            sourcecode_results = self.analyze_sourcecode(path)
+        else:
+            sourcecode_rules = set()
+            metadata_rules = set()
+            
+            for rule in rules:
+                if rule in self.sourcecode_ruleset:
+                    sourcecode_rules.add(rule)
+                elif rule in self.metadata_ruleset:
+                    metadata_rules.add(rule)
+                else:
+                    raise Exception(f"{rule} is not a valid rule.")
+            
+            metadata_results = self.analyze_metadata(info, metadata_rules)
+            sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
         
-        sourcecode_rules = set()
-        metadata_rules = set()
+        # Concatenate dictionaries together
+        issues = metadata_results["issues"] + sourcecode_results["issues"]
+        results = metadata_results["results"] | sourcecode_results["results"]
+        errors = metadata_results["errors"] | sourcecode_results["errors"]
         
-        for rule in rules:
-            if rule in self.sourcecode_ruleset:
-                sourcecode_rules.add(rule)
-            elif rule in self.metadata_ruleset:
-                metadata_rules.add(rule)
-            else:
-                raise Exception(f"{rule} is not a valid rule.")
-        
-        return self.analyze_metadata(info, metadata_rules) | self.analyze_sourcecode(path, sourcecode_rules)
+        return {"issues": issues, "errors": errors, "results": results}
     
     
     def analyze_metadata(self, info, rules=None) -> dict[str]:
         all_rules = rules if rules is not None else self.metadata_ruleset
         results = {}
+        errors = {}
+        issues = 0
         
         for rule in all_rules:
             try:
-                results[rule] = self.metadata_detectors[rule].detect(info)
+                rule_results = self.metadata_detectors[rule].detect(info)
+                issues += bool(rule_results)
+                results[rule] = rule_results
             except Exception as e:
-                sys.stderr.write("\n")
-                sys.stderr.write(f"Error while analyzing {rule}: {str(e)}")
+                errors[rule] = str(e)
         
-        return results
-    
-
-    def analyze_sourcecode(self, path, rules=None) -> dict[str]:  
+        return {"results": results, "errors": errors, "issues": issues}
+            
+            
+    def analyze_sourcecode(self, path, rules=None) -> tuple[dict, int]:  
         targetpath = Path(path)
         all_rules = rules if rules is not None else self.sourcecode_ruleset
         
         results = {rule: {} for rule in all_rules}
+        errors = {}
+        issues = 0
         
         if rules is None:
             response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude = self.exclude, no_git_ignore=True)
-            return results | self._format_semgrep_response(response, targetpath=targetpath)
+            results = results | self._format_semgrep_response(response, targetpath=targetpath)
+        else:
+            for rule in rules:
+                try:
+                    response = invoke_semgrep(Path(os.path.join(self.sourcecode_path, rule + ".yml")), [targetpath], exclude = self.exclude, no_git_ignore=True)
+                    rule_results = self._format_semgrep_response(response, rule=rule, targetpath=targetpath)
+                    issues += len(rule_results)
+                    
+                    results = results | rule_results
+                except Exception as e:
+                    errors[rule] = str(e)
         
-        for rule in rules:
-            try:
-                response = invoke_semgrep(Path(os.path.join(self.sourcecode_path, rule + ".yml")), [targetpath], exclude = self.exclude, no_git_ignore=True)
-                results = results | self._format_semgrep_response(response, rule=rule, targetpath=targetpath)
-            except:
-                raise RuntimeError(rule + " is not an existing rule.")
-        
-        return results
+        return {"results": results, "errors": errors, "issues": issues}
 
 
     def _format_semgrep_response(self, response, rule=None, targetpath=None):

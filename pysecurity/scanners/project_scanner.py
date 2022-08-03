@@ -1,12 +1,10 @@
-import json
 import os
 import re
 import sys
-from posixpath import dirname
+from pprint import pprint
 
 import pkg_resources
 import requests
-from tqdm.auto import tqdm
 
 from pysecurity.scanners.package_scanner import PackageScanner
 from pysecurity.scanners.scanner import Scanner
@@ -101,32 +99,36 @@ class RequirementsScanner(Scanner):
         return dependencies
     
     
-    def scan_requirements(self, requirements):
-        # Read the requirements.txt file and output the dependencies and versions
+    def scan_requirements(self, requirements, quiet=False):
+        """
+        Reads the requirements.txt file and outputs valid dependencies and versions
+        """
+        
         dependencies = self.parse_requirements(requirements)
         project_results = {}
-        progressbar = tqdm(total=len(dependencies), position=0, leave=True)
-        
+         
         for dependency, versions in dependencies.items():
             for version in versions:
                 package_results = self.package_scanner.scan_remote(dependency, version)
                 project_results[f"{dependency}/{version}"] = package_results
-                progressbar.update(1)
                 
-        progressbar.close()
+                if not quiet:
+                    sys.stdout.write(f"\n {dependency}/{version} \n")
+                    pprint(package_results)           
+                
         return project_results
     
     
-    def scan_local(self, path):
+    def scan_local(self, path, quiet=False):
         try:
             with open(path, "r") as f:
-                return self.scan_requirements(f.readlines())
+                return self.scan_requirements(f.readlines(), quiet)
         except Exception as e:
             sys.stdout.write(f"Received {e}")
             sys.exit(255)
 
 
-    def scan_remote(self, url, branch, requirements_name="requirements.txt"):
+    def scan_remote(self, url, branch, quiet=False, requirements_name="requirements.txt"):
         token = self._authenticate_by_access_token()
         githubusercontent_url = url.replace("github", "raw.githubusercontent")
         
@@ -134,7 +136,7 @@ class RequirementsScanner(Scanner):
         resp = requests.get(url=req_url, auth=token)
         
         if resp.status_code == 200:
-            return self.scan_requirements(resp.content.decode().splitlines())
+            return self.scan_requirements(resp.content.decode().splitlines(), quiet)
         else:
             sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)

@@ -1,8 +1,6 @@
-""" Typosquatting Detector
+""" Empty Information Detector
 
-Detects if a package name is a typosquat of one of the top 1000 packages.
-Checks for distance one Levenshtein, one-off character swaps, permutations
-around hyphens, and substrings.
+Detects if a package contains an empty description
 """
 
 

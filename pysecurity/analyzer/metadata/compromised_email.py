@@ -24,7 +24,7 @@ class CompromisedEmailDetector(Detector):
         domain_information = whois.whois(email_domain)
         
         if domain_information.creation_date is None:
-            raise Exception(f"Error with API to get domain creation date.")
+            raise Exception(f"Domain {email_domain} does not exist")
         
         creation_dates = domain_information.creation_date
         
@@ -48,8 +48,17 @@ class CompromisedEmailDetector(Detector):
     
     
     def is_email_compromised(self, package_info) -> bool:
-        email_domain = package_info["info"]["author_email"].split("@")[-1]
+        author_email = package_info["info"]["author_email"]
+        maintainer_email = package_info["info"]["maintainer_email"]
+        email = author_email or maintainer_email
+        
         releases = package_info["releases"]
+        
+        if email is None or len(email) == 0:
+            raise Exception(f"Email for {package_info['info']['name']} does not exist.")
+        
+        sanitized_email = email.strip().replace(">", "").replace("<", "")
+        email_domain = sanitized_email.split("@")[-1]
         
         project_date = self._get_project_creation_date(releases) 
         domain_date = self._get_domain_creation_date(email_domain)
