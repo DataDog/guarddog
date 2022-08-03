@@ -27,6 +27,7 @@ class Analyzer:
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
             "helm",
+            ".idea",
             "venv",
             "test",
             "tests",
