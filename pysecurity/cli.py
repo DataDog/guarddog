@@ -24,7 +24,8 @@ def cli():
 @cli.command("verify")
 @click.argument('path')
 @click.option('-o', '--output-file', default=None, type=click.Path(exists=False))
-def verify(path, output_file):
+@click.option('-q', '--quiet', default=False)
+def verify(path, output_file, quiet):
     """ Verify a requirements.txt file
 
     Args:
@@ -32,7 +33,7 @@ def verify(path, output_file):
         output_file (str): path to output file
     """
     scanner = RequirementsScanner()
-    results = scanner.scan_local(path)
+    results = scanner.scan_local(path, quiet)
     
     if output_file:
         basedir = os.path.dirname(output_file)
@@ -43,8 +44,6 @@ def verify(path, output_file):
             
         with open(output_file, "w+") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
-    else:      
-        pprint(results)
     
 
 @cli.command("scan")
