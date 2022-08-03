@@ -13,4 +13,5 @@ class EmptyInfoDetector(Detector):
     
     
     def detect(self, package_info) -> list[str]:
-        return len(package_info["info"]["description"]) == 0
+        sanitized_description = package_info["info"]["description"].split()
+        return len(sanitized_description) == 0
