@@ -6,15 +6,10 @@ from posixpath import dirname
 
 import pkg_resources
 import requests
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from pysecurity.scanners.package_scanner import PackageScanner
 from pysecurity.scanners.scanner import Scanner
-
-BASE_URL = "https://api.github.com"
-DATADOG_URL_SUFFIX = "orgs/DataDog/repos"
-MAX_RESULTS_PER_PAGE = 100
-SAVED_CACHE = dirname(__file__)
 
 
 class RequirementsScanner(Scanner):
@@ -23,7 +18,7 @@ class RequirementsScanner(Scanner):
         super(Scanner)
 
     
-    def authenticate_by_access_token(self):
+    def _authenticate_by_access_token(self):
         user = os.getenv('GIT_USERNAME')
         personal_access_token = os.getenv('GH_TOKEN')
         if user == None or personal_access_token == None:
@@ -38,11 +33,8 @@ class RequirementsScanner(Scanner):
         for line in requirements:
             stripped_line = line.strip()
             
-            is_comment = stripped_line.startswith("#")
-            is_install_line = stripped_line.startswith("--") or  stripped_line.startswith("-i")
-            is_link = stripped_line.startswith("http") or stripped_line.startswith("git+")
-            
-            if not is_comment and not is_install_line and not is_link and len(line) > 0:
+            is_requirement = re.match(r'\w', stripped_line) and len(stripped_line) > 0
+            if is_requirement:
                 sanitized_lines.append(stripped_line)
             
         return sanitized_lines
@@ -113,20 +105,21 @@ class RequirementsScanner(Scanner):
         # Read the requirements.txt file and output the dependencies and versions
         dependencies = self.parse_requirements(requirements)
         project_results = {}
-        progressbar = tqdm(total=len(dependencies))
+        progressbar = tqdm(total=len(dependencies), position=0, leave=True)
         
         for dependency, versions in dependencies.items():
             for version in versions:
                 package_results = self.package_scanner.scan_remote(dependency, version)
                 project_results[f"{dependency}/{version}"] = package_results
                 progressbar.update(1)
-            
+                
+        progressbar.close()
         return project_results
     
     
-    def scan_local(self, path, requirements_name="requirements.txt"):
+    def scan_local(self, path):
         try:
-            with open(os.path.join(path, requirements_name), "r") as f:
+            with open(path, "r") as f:
                 return self.scan_requirements(f.readlines())
         except Exception as e:
             sys.stdout.write(f"Received {e}")
@@ -134,7 +127,7 @@ class RequirementsScanner(Scanner):
 
 
     def scan_remote(self, url, branch, requirements_name="requirements.txt"):
-        token = self.authenticate_by_access_token()
+        token = self._authenticate_by_access_token()
         githubusercontent_url = url.replace("github", "raw.githubusercontent")
         
         req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"

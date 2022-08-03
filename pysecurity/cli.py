@@ -5,6 +5,7 @@ Includes rules based on package registry metadata and source code analysis.
 """
 
 import json
+import os
 import re
 from pprint import pprint
 
@@ -18,32 +19,28 @@ from pysecurity.scanners.project_scanner import RequirementsScanner
 def cli():
     """ Pysecurity cli tool to detect PyPI malware """
     pass
-
-@cli.command("verify")
-@click.argument('repository-link')
-@click.argument('branch')
-@click.option('-r', '--requirements-name', default="requirements.txt")
-@click.option('-f', '--output-file', default=None, type=click.Path(exists=True))
-def verify(repository_link, branch, requirements_name, output_file):
-    scanner = RequirementsScanner()
-    results = scanner.scan_remote(repository_link, branch, requirements_name)
-    
-    if output_file:
-        with open(output_file, "w+") as f:
-            json.dump(results, f, ensure_ascii=False, indent=4)
-    else:
-        pprint(results)
     
 
 @cli.command("verify")
 @click.argument('path')
-@click.option('-r', '--requirements-name', default="requirements.txt")
-@click.option('-f', '--output-file', default=None, type=click.Path(exists=True))
-def verify_local(path, requirements_name, output_file):
+@click.option('-o', '--output-file', default=None, type=click.Path(exists=False))
+def verify(path, output_file):
+    """ Verify a requirements.txt file
+
+    Args:
+        path (str): path to requirements.txt file
+        output_file (str): path to output file
+    """
     scanner = RequirementsScanner()
-    results = scanner.scan_local(path, requirements_name)
+    results = scanner.scan_local(path)
     
     if output_file:
+        basedir = os.path.dirname(output_file)
+        is_basedir_exist = os.path.exists(basedir)
+        
+        if not is_basedir_exist:
+            os.makedirs(basedir)
+            
         with open(output_file, "w+") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
     else:      

@@ -10,6 +10,7 @@ requests = "*"
 tqdm = "*"
 python-dotenv = "*"
 python-dateutil = "*"
+python-whois = "*"
 
 [dev-packages]
 black = "*"

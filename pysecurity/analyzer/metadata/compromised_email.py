@@ -3,11 +3,9 @@
 Detects if a maintainer's email domain has been compromised.
 """
 
-import os
-import sys
-from datetime import date, datetime
+from datetime import datetime
 
-import requests
+import whois
 from dateutil import parser
 from dotenv import load_dotenv
 from packaging import version
@@ -15,46 +13,28 @@ from packaging import version
 from pysecurity.analyzer.metadata.detector import Detector
 
 
-class MissingEnvironmentVariable(Exception):
-    pass
-
-
 class CompromisedEmailDetector(Detector):
     def __init__(self) -> None:
         load_dotenv()
         
-        self.whoisurl = "https://zozor54-whois-lookup-v1.p.rapidapi.com/"
-        self.rapidapikey = os.getenv("RAPID_API_KEY", None)
-        
-        if self.rapidapikey is None:
-            sys.stderr.write("Environment variable RAPID_API_KEY missing. Skipping compromised email rule.")
-            
         super(Detector)
             
             
-    def _get_domain_creation_date(self, email_domain) -> date:
-        if self.rapidapikey is None:
-            raise MissingEnvironmentVariable
+    def _get_domain_creation_date(self, email_domain) -> datetime:
+        domain_information = whois.whois(email_domain)
         
-        querystring = {"domain": email_domain, "format": "json"}
-
-        headers = {
-            "X-RapidAPI-Key": self.rapidapikey,
-            "X-RapidAPI-Host": "zozor54-whois-lookup-v1.p.rapidapi.com"
-        }
-
-        domain_information = requests.get(self.whoisurl, headers=headers, params=querystring)
+        if domain_information.creation_date is None:
+            raise Exception(f"Error with API to get domain creation date.")
         
-        if domain_information.status_code != 200:
-            raise Exception(f"Error with API to get domain creation date. Received {domain_information.status_code}.")
+        creation_dates = domain_information.creation_date
         
-        created_text = domain_information.json()["created"]
-        creation_date = datetime.strptime(created_text, "%Y-%m-%d %H:%M:%S").date()
+        if type(creation_dates) is list:
+            return min(creation_dates)
         
-        return creation_date
+        return creation_dates
     
     
-    def _get_project_creation_date(self, releases) -> date:
+    def _get_project_creation_date(self, releases) -> datetime:
         sorted_versions = sorted(releases.keys(), key=lambda r: version.parse(r), reverse=True)
         earlier_versions = sorted_versions[:-1]
         
@@ -63,8 +43,7 @@ class CompromisedEmailDetector(Detector):
             
             if len(version_release) > 0: # if there's a distribution for the package
                 upload_time_text = version_release[0]["upload_time_iso_8601"]
-                creation_date = parser.isoparse(upload_time_text).date()
-                
+                creation_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
                 return creation_date
     
     
