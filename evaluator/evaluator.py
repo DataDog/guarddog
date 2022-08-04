@@ -10,9 +10,10 @@ import zipfile
 from pathlib import Path
 
 import requests
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
-from pysecurity.cli import analyze_package, download_package
+from pysecurity.analyzer.analyzer import Analyzer
+from pysecurity.scanners.package_scanner import PackageScanner
 
 
 class Evaluator:
@@ -26,8 +27,12 @@ class Evaluator:
     """
     
     def __init__(self) -> None:
+        # Analyzer to scan packages
+        self.analyzer = Analyzer()
+        self.package_scanner = PackageScanner() # to download packages
+        
         # Relevant paths
-        self.project_root = Path(__file__).parents[2] # get grandparent
+        self.project_root = Path(__file__).parents[1] # get grandparent
         self.dirname = Path(os.path.dirname(__file__))
         
         # Data paths
@@ -40,9 +45,6 @@ class Evaluator:
         self.benign_logs_name = "benign_logs.json"
         self.malicious_logs_name = "malicious_logs.json"
         self.malicious_ground_truth_name = "malicious_ground_truth.json"
-        
-        self.source_code_analysis_path = self.project_root.joinpath(Path("pysecurity/source_code_analysis/semgrep"))
-        self.metadata_analysis_path = self.project_root.joinpath(Path("pysecurity/metadata_analysis/rules"))
         self.logs_path = self.dirname.joinpath(Path("logs"))
         
         # Find rules
@@ -72,13 +74,8 @@ class Evaluator:
         """ Gets the source code analysis and metadata analysis rules
         """
         
-        source_code_rule_files = os.listdir(self.source_code_analysis_path)
-        source_code_rule_files = filter(lambda p: not os.path.isdir(os.path.join(self.source_code_analysis_path, p)), source_code_rule_files)
-        self.source_code_rules = set(rule.replace(".yml", "") for rule in source_code_rule_files)
-        
-        metadata_rule_files = os.listdir(self.metadata_analysis_path)
-        metadata_rule_files = filter(lambda p: not os.path.isdir(os.path.join(self.metadata_analysis_path, p)), metadata_rule_files)
-        self.metadata_rules = set(rule.replace(".py", "") for rule in metadata_rule_files)
+        self.source_code_rules = self.analyzer.sourcecode_ruleset
+        self.metadata_rules = self.analyzer.metadata_ruleset
         
         self.all_rules = self.source_code_rules | self.metadata_rules
         
@@ -94,7 +91,7 @@ class Evaluator:
         
         for package in top_packages:
             name = package["project"]
-            download_package(name, self.benign_path)
+            self.package_scanner.download_package(name, self.benign_path)
             progress_bar.update(1)
             
         progress_bar.close()
@@ -132,18 +129,20 @@ class Evaluator:
                 uses all possible rules. Defaults to None.
         """
         
-        packages = list(filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path)))
+        package_names = list(filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path)))
         scan_results = {}
         
-        progress_bar = tqdm(total=len(packages))
+        progress_bar = tqdm(total=len(package_names), position=0, leave=True)
         progress_bar.set_description("Scanning packages")
         
         # Scan packages
-        for package in packages:
-            package_results = analyze_package(path, package, rules)
-            scan_results[package] = json.loads(package_results)
+        for name in package_names:
+            package_path = os.path.join(path, name)
+            package_info = {"info": {"name": name}}
+            package_results = self.analyzer.analyze(package_path, package_info, rules)["results"]
+            scan_results[name] = package_results
         
-            progress_bar.update(1)
+            progress_bar.update()
         
         # Record results in log
         with open(self.logs_path.joinpath(log_name), "w+") as f:
@@ -204,12 +203,10 @@ class Evaluator:
             
         for package, response in self.logs[self.benign_logs_name].items():
             
-            assert set(response.keys()) == self.all_rules
-            
             for rule, result in response.items():
             
                 if (rule in self.source_code_rules and result != {} 
-                    or rule in self.metadata_rules and result != []
+                    or rule in self.metadata_rules and result
                     ):
                     
                     if show:
@@ -256,8 +253,6 @@ class Evaluator:
             
         # calculate metrics and metric counts
         for package, expected_results in ground_truth.items():
-            
-            assert set(expected_results.keys()) == self.all_rules
             
             for rule, expected_rule_result in expected_results.items():
                 log_rule_result = self.logs[self.malicious_logs_name][package][rule]

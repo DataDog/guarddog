@@ -22,42 +22,52 @@ Pysecurity can be used to scan local or remote PyPI packages using any of the av
 The structure for scanning a package is:
 
 ```sh
-$ python3 -m pysecurity -n [NAME] -v [VERSION] -r [RULES]
+$ python3 -m pysecurity scan [NAME] -v [VERSION] -r [RULE]
 
 # Scan the most recent version
-$ python3 -m pysecurity -n setuptools 
+$ python3 -m pysecurity scan setuptools 
 
 # Scan a specific version
-$ python3 -m pysecurity -n setuptools -v 63.6.0 
+$ python3 -m pysecurity scan setuptools -v 63.6.0 
 
 # Scan a local package
-$ python3 -m pysecurity -n ./Desktop/packagename 
+$ python3 -m pysecurity scan ./Desktop/packagename 
 
 # Scan using a subset of the rules
-$ python3 -m pysecurity -n setuptools -v 63.6.0 -r code-execution shady-links 
+$ python3 -m pysecurity scan setuptools -v 63.6.0 -r code-execution -r shady-links 
 ```
+
+To scan a requirements.txt file, use the command `verify`. You can also specify the name of the requirements file if it deviates from requirements.txt and an output file to store the results in.
+
+```sh
+$ python3 -m pysecurity verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+
+$ python3 -m pysecurity verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+
+# Verifies remote project and stores results in output file
+$ python3 -m pysecurity verify https://github.com/DataDog/pysecurity/ main -o ./output.json
+
+# Verifies local project with a differently names requirements file
+$ python3 -m pysecurity verify ./samplepackage -r requirements2.txt
+```
+
+Note that to scan specific rules, use multiple `-r` flags.
 
 
 ### Installing Pysecurity
-To open the development environment for pysecurity: install all dependencies for Pysecurity, open the virtual environment, and add the root of the repository to PYTHONPATH:
-
-```sh
-$ export PYTHONPATH=$(pwd)
-$ pipenv install
-$ pipenv shell
-```
+Pysecurity is not yet packaged. To run in the development environment, check out [CONTRIBUTING](CONTRIBUTING.md)
 
 #### Testing
 
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --metrics off --quiet --test --config pysecurity/source_code_analysis/semgrep/ pysecurity_tests/semgrep
+$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode tests/analyzer/sourcecode
 ```
 
 To find the precision and recall of the rules, run: 
 ```sh
-$ python3 pysecurity_tests/evaluator/evaluator.py
+$ python3 evaluator/evaluator.py
 ```
 This will calculate the false positive, false negative, true positive, and true negative rates from logs in `pysecurity_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
 
@@ -82,7 +92,7 @@ The precision, recall, and false positive rate of each rule was measured using t
 The typosquatting rule ignored the top 5000 downloaded packages (in the past month), so all error is from missed typosquatting while scanning malware.
 
 ##### Methodology
-The precision and recall of each rule was measured by running the tool on the 1000 most downloaded PyPI packages (benign data) and a collection of about 30-40 pieces of malware that were removed from PyPI (malicious data). Every line in the top 1000 packages is considered to be safe, so any lines flagged there is considered a false positive. In the malicious dataset, dangerous lines were hand-labeled in `malicoius_ground_truth.json` and compared to the actual result. Any discrepencies were classified as a false-negative (missed line in ground truth), true-positive (matches ground truth), or false-positive (extra line compared to ground truth). The precision and recall were calculated from these metrics. 
+The precision and recall of each rule was measured by running the tool on the 1000 most downloaded PyPI packages (benign data) and a collection of about 30-40 pieces of malware that were removed from PyPI (malicious data). Every line in the top 1000 packages is considered to be safe, so any lines flagged there is considered a false positive. In the malicious dataset, dangerous lines were hand-labeled in `malicious_ground_truth.json` and compared to the actual result. Any discrepencies were classified as a false-negative (missed line in ground truth), true-positive (matches ground truth), or false-positive (extra line compared to ground truth). The precision and recall were calculated from these metrics. 
 <br/>
 The false positive rate used only the benign dataset, using package-level granularity. Any lines detected in a package marked the package as a false-positive. Meanwhile, if no lines were detected in the package, it was marked as a true-negative. The difference in granulary compared to precision/recall is a result of being unable to measure the number of lines in the benign dataset.
 
@@ -92,8 +102,9 @@ The registry metadata analysis looks for the flags detailed in the paper here: h
 | Rule | Reason | Heuristic | Examples |
 |---|---|---|---|
 | Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if package name is a substring of more popular packages, check for lookalike letters | (Too many to name) |
-<!-- | Expired maintainer domain | Attackers can purchase an expired domain and hijack an account | Make a GET request to Godaddy's API to check if a maintainer domain is available | ctx |
-| Unmaintained packages | These packages host more vulnerabilities that an attacker can exploit | Check last update. If a gap in updates spans more than two years, mark as unmaintained | event-stream | -->
+| Reregistered maintainer domain | Attackers can purchase an expired domain and hijack an account | Check creation date of author's email on who.is and compare to package's most recent release dates| ctx |
+| Empty Package Information | Legitimate packages often do not have empty descriptions | Check if package description is empty | |
+<!-- | Unmaintained packages | These packages host more vulnerabilities that an attacker can exploit | Check last update. If a gap in updates spans more than two years, mark as unmaintained | event-stream | -->
 
 #### Source Code Analysis
 | Rule | Reason | Heuristic | Examples |
