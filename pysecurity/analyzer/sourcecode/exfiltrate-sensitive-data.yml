@@ -4,7 +4,6 @@ rules:
   pattern-sources:
     - patterns:
         - pattern-either:
-          - pattern: os.environ
           - pattern: os.environ.items()
           - pattern: '[... for ... in os.environ.items()]'
           - pattern: socket.gethostname()
@@ -21,6 +20,7 @@ rules:
             - pattern-either:
                 - pattern: os.getenv($ENVVAR)
                 - pattern: os.environ[$ENVVAR]
+                - pattern: os.environ.get($ENVVAR)
             - metavariable-regex:
                 metavariable: $ENVVAR
                 regex: \"(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)\"
