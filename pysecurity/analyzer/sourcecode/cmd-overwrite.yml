@@ -1,0 +1,15 @@
+rules:
+  - id: cmd-overwrite
+    languages:
+      - python
+    message: Found dangerous code in setup.py. The pip command $COMMAND is being overwritten to $SCRIPT.
+    patterns:
+      - pattern-either:
+          - pattern: |
+              setuptools.setup(..., cmdclass = { ..., "$COMMAND": $SCRIPT, ... }, ...)
+          - pattern: |
+              setup(..., cmdclass = { ..., "$COMMAND": $SCRIPT, ... }, ...)
+      - metavariable-regex:
+          metavariable: $COMMAND
+          regex: install|develop|egg_info
+    severity: WARNING

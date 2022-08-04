@@ -1,0 +1,49 @@
+rules:
+  - id: exec-base64
+    languages:
+    - python
+    message: Found execution of a base64-encoded string
+    mode: taint
+    pattern-sinks:
+      - pattern-either:
+          - pattern-inside: exec(...)
+          - pattern-inside: eval(...)
+          - pattern-inside: subprocess.check_output(...)
+          - pattern-inside: subprocess.run(...)
+          - pattern-inside: subprocess.call(...)
+          - pattern-inside: subprocess.Popen(...)
+          - pattern-inside: check_output(...)
+          - pattern-inside: run(...)
+          - pattern-inside: call(...)
+          - pattern-inside: Popen(...)
+          - pattern-inside: os.system(...)
+          - pattern-inside: os.popen(...)
+          - pattern-inside: command.run(...)
+
+          # More exotic functions
+          - pattern-inside: os.execl(...)
+          - pattern-inside: os.execle(...)
+          - pattern-inside: os.execlp(...)
+          - pattern-inside: os.execlpe(...)
+          - pattern-inside: os.execv(...)
+          - pattern-inside: os.execve(...)
+          - pattern-inside: os.execvp(...)
+          - pattern-inside: os.execvpe(...)
+          - pattern-inside: os.spawnl(...)
+          - pattern-inside: os.spawnle(...)
+          - pattern-inside: os.spawnlp(...)
+          - pattern-inside: os.spawnlpe(...)
+          - pattern-inside: os.spawnv(...)
+          - pattern-inside: os.spawnve(...)
+          - pattern-inside: os.spawnvp(...)
+          - pattern-inside: os.spawnvpe(...)
+          - pattern-inside: os.posix_spawn(...)
+          - pattern-inside: os.posix_spawnp(...)
+    pattern-sources:
+      - pattern-either:
+          - pattern: |
+              "...".decode(...)
+          - pattern: base64.b64decode("...")
+          - pattern: base64.b64decode(...)
+          - pattern: decode("...")
+    severity: WARNING
