@@ -56,6 +56,14 @@ def verify(path, output_file, quiet):
 @click.option('-r', '--rules', multiple=True, 
               type=click.Choice(ALL_RULES, case_sensitive=False))
 def scan(identifier, version, rules):
+    """ Scan a package
+
+    Args:
+        identifier (str): name or path to the package
+        version (str): version of the package (ex. 1.0.0), defaults to most recent
+        rules (str): specific rules to run, defaults to all
+    """
+    
     rule_param = None
     if len(rules) != 0:
         rule_param = rules
