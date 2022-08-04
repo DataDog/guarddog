@@ -157,3 +157,7 @@ req = urlrequest.Request(
     data=json.dumps(data).encode("utf-8", errors='ignore'), 
     headers={'Content-Type': 'application/json'})
 req.read()
+
+# Should not match as we only use a single env variable
+# todook: exfiltrate-sensitive-information
+requests.get("foo", auth=(os.environ['GH_TOKEN'], 'x-oauth-basic'))
