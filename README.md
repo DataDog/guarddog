@@ -1,9 +1,9 @@
-## PyPI Package Malware Scanner
-The PyPI Package Malware Scanner offers a CLI command that scans a PyPI package version for user-specified malware flags. 
+## GuardDog: PyPI Package Malware Scanner
+Guarddog is a CLI tool that scans PyPI packages for user-specified malware flags. 
 A set of predefined rules based on package registry metadata and source code analysis are used as heuristics to find malware-ridden packages.
 
 
-- [PyPI Package Malware Scanner](#pypi-package-malware-scanner)
+- [GuardDog: PyPI Package Malware Scanner](#guarddog-pypi-package-malware-scanner)
   - [Getting Started](#getting-started)
     - [CLI Reference](#cli-reference)
   - [Installing Pysecurity](#installing-pysecurity)
@@ -101,7 +101,7 @@ The registry metadata analysis looks for the flags detailed in the paper here: h
 
 | Rule | Reason | Heuristic | Examples |
 |---|---|---|---|
-| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if package name is a substring of more popular packages, check for lookalike letters | (Too many to name) |
+| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if switched py to python (or vice versa), check for lookalike letters | (Too many to name) |
 | Reregistered maintainer domain | Attackers can purchase an expired domain and hijack an account | Check creation date of author's email on who.is and compare to package's most recent release dates| ctx |
 | Empty Package Information | Legitimate packages often do not have empty descriptions | Check if package description is empty | |
 <!-- | Unmaintained packages | These packages host more vulnerabilities that an attacker can exploit | Check last update. If a gap in updates spans more than two years, mark as unmaintained | event-stream | -->
