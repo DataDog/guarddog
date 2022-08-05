@@ -12,7 +12,7 @@ from itertools import permutations
 
 import requests
 
-from pysecurity.analyzer.metadata.detector import Detector
+from guarddog.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):

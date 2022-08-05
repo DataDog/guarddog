@@ -6,8 +6,8 @@ from pprint import pprint
 import pkg_resources
 import requests
 
-from pysecurity.scanners.package_scanner import PackageScanner
-from pysecurity.scanners.scanner import Scanner
+from guarddog.scanners.package_scanner import PackageScanner
+from guarddog.scanners.scanner import Scanner
 
 
 class RequirementsScanner(Scanner):

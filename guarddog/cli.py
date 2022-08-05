@@ -11,9 +11,9 @@ from pprint import pprint
 
 import click
 
-from pysecurity.analyzer.analyzer import Analyzer
-from pysecurity.scanners.package_scanner import PackageScanner
-from pysecurity.scanners.project_scanner import RequirementsScanner
+from guarddog.analyzer.analyzer import Analyzer
+from guarddog.scanners.package_scanner import PackageScanner
+from guarddog.scanners.project_scanner import RequirementsScanner
 
 analyzer = Analyzer()
 ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
@@ -21,7 +21,7 @@ ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
 
 @click.group
 def cli():
-    """ Pysecurity cli tool to detect PyPI malware """
+    """ Guard Dog cli tool to detect PyPI malware """
     pass
     
 

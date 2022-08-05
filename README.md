@@ -6,7 +6,7 @@ A set of predefined rules based on package registry metadata and source code ana
 - [GuardDog: PyPI Package Malware Scanner](#guarddog-pypi-package-malware-scanner)
   - [Getting Started](#getting-started)
     - [CLI Reference](#cli-reference)
-  - [Installing Pysecurity](#installing-pysecurity)
+  - [Installing guarddog](#installing-guarddog)
     - [Testing](#testing)
   - [Heuristics](#heuristics)
     - [Accuracy of Heuristics](#accuracy-of-heuristics)
@@ -16,62 +16,62 @@ A set of predefined rules based on package registry metadata and source code ana
 
 
 ### Getting Started
-Pysecurity can be used to scan local or remote PyPI packages using any of the available [rules](#heuristics). Here's how to use pysecurity:
+guarddog can be used to scan local or remote PyPI packages using any of the available [rules](#heuristics). Here's how to use guarddog:
 
 #### CLI Reference
 The structure for scanning a package is:
 
 ```sh
-$ python3 -m pysecurity scan [NAME] -v [VERSION] -r [RULE]
+$ python3 -m guarddog scan [NAME] -v [VERSION] -r [RULE]
 
 # Scan the most recent version
-$ python3 -m pysecurity scan setuptools 
+$ python3 -m guarddog scan setuptools 
 
 # Scan a specific version
-$ python3 -m pysecurity scan setuptools -v 63.6.0 
+$ python3 -m guarddog scan setuptools -v 63.6.0 
 
 # Scan a local package
-$ python3 -m pysecurity scan ./Desktop/packagename 
+$ python3 -m guarddog scan ./Desktop/packagename 
 
 # Scan using a subset of the rules
-$ python3 -m pysecurity scan setuptools -v 63.6.0 -r code-execution -r shady-links 
+$ python3 -m guarddog scan setuptools -v 63.6.0 -r code-execution -r shady-links 
 ```
 
 To scan a requirements.txt file, use the command `verify`. You can also specify the name of the requirements file if it deviates from requirements.txt and an output file to store the results in.
 
 ```sh
-$ python3 -m pysecurity verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+$ python3 -m guarddog verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
 
-$ python3 -m pysecurity verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+$ python3 -m guarddog verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
 
 # Verifies remote project and stores results in output file
-$ python3 -m pysecurity verify https://github.com/DataDog/pysecurity/ main -o ./output.json
+$ python3 -m guarddog verify https://github.com/DataDog/guarddog/ main -o ./output.json
 
 # Verifies local project with a differently names requirements file
-$ python3 -m pysecurity verify ./samplepackage -r requirements2.txt
+$ python3 -m guarddog verify ./samplepackage -r requirements2.txt
 ```
 
 Note that to scan specific rules, use multiple `-r` flags.
 
 
-### Installing Pysecurity
-Pysecurity is not yet packaged. To run in the development environment, check out [CONTRIBUTING](CONTRIBUTING.md)
+### Installing guarddog
+guarddog is not yet packaged. To run in the development environment, check out [CONTRIBUTING](CONTRIBUTING.md)
 
 #### Testing
 
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode tests/analyzer/sourcecode
+$ semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
 ```
 
 To find the precision and recall of the rules, run: 
 ```sh
 $ python3 evaluator/evaluator.py
 ```
-This will calculate the false positive, false negative, true positive, and true negative rates from logs in `pysecurity_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
+This will calculate the false positive, false negative, true positive, and true negative rates from logs in `guarddog_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
 
-Running the command above ***will not scan*** the directories. To scan, uncomment line 351 `metric_generator.scan()` in `pysecurity_tests/evaluator/evaluator.py`. Then, run the command again.
+Running the command above ***will not scan*** the directories. To scan, uncomment line 351 `metric_generator.scan()` in `guarddog_tests/evaluator/evaluator.py`. Then, run the command again.
 
 ### Heuristics
 Heuristics are separated into two categories: registry metadata analysis and source code analysis. Registry metadata pertains to the metrics of a given package on the PyPI registry (ex. number of maintainers, popularity, similarity in package names, gaps in code pushing), while source code analysis investigates the actual code of the package. The malicious packages analyzed to guide these heuristics are listed here: [PyPI Malware Analysis](https://datadoghq.atlassian.net/wiki/spaces/~628e8c561a437e007042ec14/pages/2515534035/PyPI+Malware+Analysis).

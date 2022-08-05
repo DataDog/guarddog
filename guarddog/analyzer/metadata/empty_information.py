@@ -4,7 +4,7 @@ Detects if a package contains an empty description
 """
 
 
-from pysecurity.analyzer.metadata.detector import Detector
+from guarddog.analyzer.metadata.detector import Detector
 
 
 class EmptyInfoDetector(Detector):
