@@ -1,18 +1,17 @@
-## GuardDog: PyPI Package Malware Scanner
+![GuardDog Banner](docs/images/banner.png)
 Guarddog is a CLI tool that scans PyPI packages for user-specified malware flags. 
 A set of predefined rules based on package registry metadata and source code analysis are used as heuristics to find malware-ridden packages.
 
 
-- [GuardDog: PyPI Package Malware Scanner](#guarddog-pypi-package-malware-scanner)
-  - [Getting Started](#getting-started)
-    - [CLI Reference](#cli-reference)
-  - [Installing guarddog](#installing-guarddog)
-    - [Testing](#testing)
-  - [Heuristics](#heuristics)
-    - [Accuracy of Heuristics](#accuracy-of-heuristics)
-      - [Methodology](#methodology)
-    - [Registry Metadata Analysis](#registry-metadata-analysis)
-    - [Source Code Analysis](#source-code-analysis)
+- [Getting Started](#getting-started)
+  - [CLI Reference](#cli-reference)
+- [Installing guarddog](#installing-guarddog)
+  - [Testing](#testing)
+- [Heuristics](#heuristics)
+  - [Accuracy of Heuristics](#accuracy-of-heuristics)
+    - [Methodology](#methodology)
+  - [Registry Metadata Analysis](#registry-metadata-analysis)
+  - [Source Code Analysis](#source-code-analysis)
 
 
 ### Getting Started
