@@ -2,28 +2,30 @@ rules:
 - id: exfiltrate-sensitive-data
   mode: taint
   pattern-sources:
+    - pattern: os.environ.items()
+    - pattern: '[... for ... in os.environ.items()]'
+    - pattern: socket.gethostname()
+    - pattern: getpass.getuser()
+    - pattern: platform.node()
     - patterns:
-        - pattern-either:
-          - pattern: os.environ.items()
-          - pattern: '[... for ... in os.environ.items()]'
-          - pattern: socket.gethostname()
-          - pattern: getpass.getuser()
-          - pattern: platform.node()
-          - patterns:
-            - pattern-either: 
-              - pattern: open($FILE)
-              - pattern: open(... + $FILE)
-            - metavariable-regex:
-                metavariable: $FILE
-                regex: \".*(.aws/credentials|.docker/config.json)\"
-          - patterns:
-            - pattern-either:
-                - pattern: os.getenv($ENVVAR)
-                - pattern: os.environ[$ENVVAR]
-                - pattern: os.environ.get($ENVVAR)
-            - metavariable-regex:
-                metavariable: $ENVVAR
-                regex: \"(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)\"
+      - pattern-either: 
+        - pattern: open($FILE)
+        - pattern: open(... + $FILE)
+      - metavariable-regex:
+          metavariable: $FILE
+          regex: \".*(.aws/credentials|.docker/config.json)\"
+    - patterns:
+      - pattern-either:
+          - pattern: os.getenv($ENVVAR)
+          - pattern: os.environ[$ENVVAR]
+          - pattern: os.environ.get($ENVVAR)
+
+          - pattern: getenv($ENVVAR)
+          - pattern: environ[$ENVVAR]
+          - pattern: environ.get($ENVVAR)
+      - metavariable-regex:
+          metavariable: $ENVVAR
+          regex: \"(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)\"
   pattern-sinks:
     - pattern-either:
         - pattern-inside: requests.$METHOD(...)
