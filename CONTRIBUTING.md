@@ -10,7 +10,6 @@ $ pip install pipenv
 To install all dependencies for Guard Dog, open the virtual environment, and add the root of the repository to PYTHONPATH:
 
 ```sh
-$ export PYTHONPATH=$PYTHONPATH:/$(pwd)
 $ poetry install
 $ poetry shell
 ```

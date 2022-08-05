@@ -22,40 +22,44 @@ guarddog can be used to scan local or remote PyPI packages using any of the avai
 The structure for scanning a package is:
 
 ```sh
-$ python3 -m guarddog scan [NAME] -v [VERSION] -r [RULE]
+$ guarddog scan [NAME] -v [VERSION] -r [RULE]
 
 # Scan the most recent version
-$ python3 -m guarddog scan setuptools 
+$ guarddog scan setuptools 
 
 # Scan a specific version
-$ python3 -m guarddog scan setuptools -v 63.6.0 
+$ guarddog scan setuptools -v 63.6.0 
 
 # Scan a local package
-$ python3 -m guarddog scan ./Desktop/packagename 
+$ guarddog scan ./Desktop/packagename 
 
 # Scan using a subset of the rules
-$ python3 -m guarddog scan setuptools -v 63.6.0 -r code-execution -r shady-links 
+$ guarddog scan setuptools -v 63.6.0 -r code-execution -r shady-links 
 ```
 
 To scan a requirements.txt file, use the command `verify`. You can also specify the name of the requirements file if it deviates from requirements.txt and an output file to store the results in.
 
 ```sh
-$ python3 -m guarddog verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+$ guarddog verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
 
-$ python3 -m guarddog verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+$ guarddog verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
 
 # Verifies remote project and stores results in output file
-$ python3 -m guarddog verify https://github.com/DataDog/guarddog/ main -o ./output.json
+$ guarddog verify https://github.com/DataDog/guarddog/ main -o ./output.json
 
 # Verifies local project with a differently names requirements file
-$ python3 -m guarddog verify ./samplepackage -r requirements2.txt
+$ guarddog verify ./samplepackage -r requirements2.txt
 ```
 
 Note that to scan specific rules, use multiple `-r` flags.
 
 
 ### Installing guarddog
-guarddog is not yet packaged. To run in the development environment, check out [CONTRIBUTING](CONTRIBUTING.md)
+To install guarddog, clone this repository. Then, in a terminal rooted at the project root:
+
+```sh
+$ python3 -m pip install dist/guarddog-0.1.0-py3-none-any.whl
+```
 
 #### Testing
 
