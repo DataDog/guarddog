@@ -2,12 +2,12 @@
 
 import sys
 
-import pysecurity.cli
+import guarddog.cli
 
 
 def cli():
-    """Run pysecurity from script entry point"""
-    return pysecurity.cli.cli()
+    """Run guarddog from script entry point"""
+    return guarddog.cli.cli()
 
 if __name__ == '__main__':
     sys.exit(cli())

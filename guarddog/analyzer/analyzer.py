@@ -4,10 +4,10 @@ from pathlib import Path
 
 from semgrep.semgrep_main import invoke_semgrep
 
-from pysecurity.analyzer.metadata.compromised_email import \
+from guarddog.analyzer.metadata.compromised_email import \
     CompromisedEmailDetector
-from pysecurity.analyzer.metadata.empty_information import EmptyInfoDetector
-from pysecurity.analyzer.metadata.typosquatting import TyposquatDetector
+from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
+from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 
 
 class Analyzer:

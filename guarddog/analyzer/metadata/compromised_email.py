@@ -10,7 +10,7 @@ from dateutil import parser
 from dotenv import load_dotenv
 from packaging import version
 
-from pysecurity.analyzer.metadata.detector import Detector
+from guarddog.analyzer.metadata.detector import Detector
 
 
 class CompromisedEmailDetector(Detector):

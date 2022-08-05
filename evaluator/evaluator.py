@@ -12,12 +12,12 @@ from pathlib import Path
 import requests
 from tqdm.auto import tqdm
 
-from pysecurity.analyzer.analyzer import Analyzer
-from pysecurity.scanners.package_scanner import PackageScanner
+from guarddog.analyzer.analyzer import Analyzer
+from guarddog.scanners.package_scanner import PackageScanner
 
 
 class Evaluator:
-    """ Generates accuracy metrics of pysecurity tool by running against real malware.
+    """ Generates accuracy metrics of guarddog tool by running against real malware.
 
         Evaluates the CLI tool by:
         1. Scanning benign packages (top 1000 downloaded packages on PyPI) and malicious packages.
@@ -154,7 +154,7 @@ class Evaluator:
 
 
     def scan(self, rules=None) -> None:
-        """ Scans the malicious and benign data using pysecurity
+        """ Scans the malicious and benign data using guarddog
 
         Args:
             rules (set[str], optional): Rules used when scanning. Defaults to None.

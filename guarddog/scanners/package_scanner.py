@@ -6,9 +6,9 @@ import tempfile
 
 import requests
 
-from pysecurity.analyzer.analyzer import Analyzer
-from pysecurity.scanners.scanner import Scanner
-from pysecurity.utils import get_package_info
+from guarddog.analyzer.analyzer import Analyzer
+from guarddog.scanners.scanner import Scanner
+from guarddog.utils import get_package_info
 
 
 class PackageScanner(Scanner):
