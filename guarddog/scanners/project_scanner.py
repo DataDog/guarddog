@@ -1,8 +1,10 @@
+import functools
 import os
 import re
 import sys
 from pprint import pprint
 
+import pathos
 import pkg_resources
 import requests
 
@@ -104,18 +106,24 @@ class RequirementsScanner(Scanner):
         Reads the requirements.txt file and outputs valid dependencies and versions
         """
         
+        def get_package_results_helper(dependency, version, quiet):
+            result = self.package_scanner.scan_remote(dependency, version)
+            
+            if not quiet:
+                sys.stdout.write(f"\n {dependency}/{version} \n")
+                pprint(result) 
+        
+        get_package_results = functools.partial(get_package_results_helper, quiet=quiet)
         dependencies = self.parse_requirements(requirements)
-        project_results = {}
-         
+        
+        params = []
         for dependency, versions in dependencies.items():
             for version in versions:
-                package_results = self.package_scanner.scan_remote(dependency, version)
-                project_results[f"{dependency}/{version}"] = package_results
+                params.append((dependency, version))
                 
-                if not quiet:
-                    sys.stdout.write(f"\n {dependency}/{version} \n")
-                    pprint(package_results)           
-                
+        pool = pathos.helpers.mp.Pool()
+        project_results = pool.starmap(get_package_results, params)
+        
         return project_results
     
     
