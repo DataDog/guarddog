@@ -23,6 +23,7 @@ class Analyzer:
         self.sourcecode_ruleset = get_rules(".yml", self.sourcecode_path)
         
         self.metadata_ruleset.remove("detector")
+        self.metadata_ruleset.remove("__init__")
         
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
