@@ -52,6 +52,9 @@ def get_version():
 """ OK: os.system used for setup purposes
 """
 # ok: code-execution
+call(["python", "-m", "unittest", "discover"])
+      
+# ok: code-execution
 subprocess.check_output(['pkg-config', optional_args, pkg_option, package]).decode('utf8').split()
 
 # ok: code-execution
