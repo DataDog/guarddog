@@ -4,12 +4,12 @@ version = "0.1.0"
 description = "CLI tool to hunt for PyPI malware"
 authors = ["Ellen Wang <ellen.wang@datadoghq.com>"]
 license = "Apache 2.0"
+requires-python = ">=3.10.0"
 
 [tool.poetry.scripts]
 guarddog = "guarddog.cli:cli"
 
 [tool.poetry.dependencies]
-python = "^3.10"
 docker = "==6.0.0b1"
 semgrep = "==0.107.0"
 requests = "==2.28.1"

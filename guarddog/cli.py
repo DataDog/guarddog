@@ -11,9 +11,9 @@ from pprint import pprint
 
 import click
 
-from guarddog.analyzer.analyzer import Analyzer
-from guarddog.scanners.package_scanner import PackageScanner
-from guarddog.scanners.project_scanner import RequirementsScanner
+from .analyzer.analyzer import Analyzer
+from .scanners.package_scanner import PackageScanner
+from .scanners.project_scanner import RequirementsScanner
 
 analyzer = Analyzer()
 ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset

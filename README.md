@@ -4,8 +4,8 @@ A set of predefined rules based on package registry metadata and source code ana
 
 
 - [Getting Started](#getting-started)
-  - [CLI Reference](#cli-reference)
 - [Installing guarddog](#installing-guarddog)
+  - [CLI Reference](#cli-reference)
   - [Testing](#testing)
 - [Heuristics](#heuristics)
   - [Accuracy of Heuristics](#accuracy-of-heuristics)
@@ -16,6 +16,15 @@ A set of predefined rules based on package registry metadata and source code ana
 
 ### Getting Started
 guarddog can be used to scan local or remote PyPI packages using any of the available [rules](#heuristics). Here's how to use guarddog:
+
+
+### Installing guarddog
+To install guarddog, clone this repository. Then, in a terminal rooted at the project root:
+
+```sh
+$ pip install git+https://github.com/DataDog/guarddog.git
+```
+
 
 #### CLI Reference
 The structure for scanning a package is:
@@ -52,13 +61,6 @@ $ guarddog verify ./samplepackage -r requirements2.txt
 
 Note that to scan specific rules, use multiple `-r` flags.
 
-
-### Installing guarddog
-To install guarddog, clone this repository. Then, in a terminal rooted at the project root:
-
-```sh
-$ python3 -m pip install dist/guarddog-0.1.0-py3-none-any.whl
-```
 
 #### Testing
 
