@@ -1,0 +1,42 @@
+[console_scripts]
+guarddog = guarddog.__main__:cli
+
+[install_requires]
+attrs= = 21.4.0
+boltons= = 21.0.0
+bracex= = 2.3.post1
+certifi= = 2022.6.15
+charset-normalizer= = 2.1.0
+click-option-group= = 0.5.3
+click= = 8.1.3
+colorama= = 0.4.5
+defusedxml= = 0.7.1
+docker= = 6.0.0b1
+face= = 20.1.1
+future= = 0.18.2
+glom= = 22.1.0
+idna= = 3.3
+jsonschema= = 4.9.1
+mypy-extensions= = 0.4.3
+pathspec= = 0.9.0
+peewee= = 3.15.1
+platformdirs= = 2.5.2
+pyparsing= = 3.0.9
+pyrsistent= = 0.18.1
+python-dateutil= = 2.8.2
+python-dotenv= = 0.20.0
+python-lsp-jsonrpc= = 1.0.0
+python-whois= = 0.8.0
+requests= = 2.28.1
+ruamel.yaml.clib= = 0.2.6
+ruamel.yaml= = 0.17.21
+semgrep= = 0.107.0
+six= = 1.16.0
+tomli= = 2.0.1
+tqdm= = 4.64.0
+typing-extensions= = 4.3.0
+ujson= = 5.4.0
+urllib3= = 1.26.11
+wcmatch= = 8.4
+websocket-client= = 1.3.3
+
