@@ -13,19 +13,23 @@ class MockWhoIs():
 
 
 class TestCompromisedEmail():
+    detector = CompromisedEmailDetector()
+    
+    
     def test_compromised(self):
         def mock_whois(domain):
             return MockWhoIs(datetime.today())
         
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised = CompromisedEmailDetector().detect(PACKAGE_INFO)
+        compromised = self.detector.detect(PACKAGE_INFO)
         assert compromised
+    
     
     def test_safe(self):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
         
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised = CompromisedEmailDetector().detect(PACKAGE_INFO)
+        compromised = self.detector.detect(PACKAGE_INFO)
         assert not compromised
         

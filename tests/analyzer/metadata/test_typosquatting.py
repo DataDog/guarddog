@@ -6,6 +6,7 @@ from tests.analyzer.metadata.resources.sample_project_info import \
 
 
 class TestTyposquatting():
+    detector = TyposquatDetector()
     typosquats = [("ans1crypto", "asn1crypto"),
                   ("colourama", "colorama"),
                   ("djanga", "django"),
@@ -34,10 +35,10 @@ class TestTyposquatting():
     @pytest.mark.parametrize("typo_name, real_name", typosquats)
     def test_typosquats(self, typo_name, real_name):
         project_info = generate_project_info("name", typo_name)
-        assert real_name in TyposquatDetector().detect(project_info)
+        assert real_name in self.detector.detect(project_info)
 
 
     @pytest.mark.parametrize("name", negative_cases + same_names)
     def test_nontyposquats(self, name):
         project_info = generate_project_info("name", name)
-        assert TyposquatDetector().detect(project_info) == []
+        assert self.detector.detect(project_info) == []
