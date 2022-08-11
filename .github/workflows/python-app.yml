@@ -5,7 +5,7 @@ name: Python application
 
 on:
   pull_request:
-    branches: [ "main" ]
+    types: [opened, reopened]
 
 permissions:
   contents: read
