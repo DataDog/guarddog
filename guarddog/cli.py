@@ -1,6 +1,6 @@
 """ PyPI Package Malware Scanner
 
-CLI command that scans a PyPI package version for user-specified malware flags. 
+CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
 
@@ -21,16 +21,16 @@ ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
 
 @click.group
 def cli():
-    """ Guard Dog cli tool to detect PyPI malware """
+    """Guard Dog cli tool to detect PyPI malware"""
     pass
-    
+
 
 @cli.command("verify")
-@click.argument('path')
-@click.option('-o', '--output-file', default=None, type=click.Path(exists=False))
-@click.option('-q', '--quiet', default=False)
+@click.argument("path")
+@click.option("-o", "--output-file", default=None, type=click.Path(exists=False))
+@click.option("-q", "--quiet", default=False)
 def verify(path, output_file, quiet):
-    """ Verify a requirements.txt file
+    """Verify a requirements.txt file
 
     Args:
         path (str): path to requirements.txt file
@@ -38,44 +38,43 @@ def verify(path, output_file, quiet):
     """
     scanner = RequirementsScanner()
     results = scanner.scan_local(path, quiet)
-    
+
     if output_file:
         basedir = os.path.dirname(output_file)
         is_basedir_exist = os.path.exists(basedir)
-        
+
         if not is_basedir_exist:
             os.makedirs(basedir)
-            
+
         with open(output_file, "w+") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
-    
+
 
 @cli.command("scan")
-@click.argument('identifier')
-@click.option('-v', '--version', default=None)
-@click.option('-r', '--rules', multiple=True, 
-              type=click.Choice(ALL_RULES, case_sensitive=False))
+@click.argument("identifier")
+@click.option("-v", "--version", default=None)
+@click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 def scan(identifier, version, rules):
-    """ Scan a package
+    """Scan a package
 
     Args:
         identifier (str): name or path to the package
         version (str): version of the package (ex. 1.0.0), defaults to most recent
         rules (str): specific rules to run, defaults to all
     """
-    
+
     rule_param = None
     if len(rules) != 0:
         rule_param = rules
-        
+
     scanner = PackageScanner()
-    
-    identifier_is_path = re.search(r'(.{0,2}\/)+.+', identifier)
-    
+
+    identifier_is_path = re.search(r"(.{0,2}\/)+.+", identifier)
+
     results = {}
     if identifier_is_path:
         results = scanner.scan_local(identifier, rule_param)
     else:
         results = scanner.scan_remote(identifier, version, rule_param)
-    
+
     pprint(results)
