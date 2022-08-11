@@ -9,5 +9,6 @@ def cli():
     """Run guarddog from script entry point"""
     return guarddog.cli.cli()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sys.exit(cli())

