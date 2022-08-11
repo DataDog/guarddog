@@ -103,7 +103,7 @@ class Analyzer:
         for rule in all_rules:
             try:
                 rule_results = self.metadata_detectors[rule].detect(info)
-                issues += bool(rule_results)
+                issues += bool(rule_results) # only True if results nonempty
                 results[rule] = rule_results
             except Exception as e:
                 errors[rule] = str(e)

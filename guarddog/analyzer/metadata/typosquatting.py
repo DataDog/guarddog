@@ -95,15 +95,6 @@ class TyposquatDetector(Detector):
         hyphen_permutations = ["-".join(p) for p in permutations(components)]
         
         return hyphen_permutations
-        
-        
-    def _get_permuted_typosquats(self, package) -> list[str]:
-        similar = []
-        for permutation in self._generate_permutations(package):
-            if permutation in self.popular_packages and permutation != package:
-                similar.append(permutation)
-        
-        return similar
     
     
     def _is_length_one_edit_away(self, package1, package2) -> bool:
@@ -111,21 +102,39 @@ class TyposquatDetector(Detector):
                 or self._is_swapped_typo(package1, package2))
                 
                 
+    def _get_confused_forms(self, package_name):
+        confused_forms = []
+        
+        terms = package_name.split("-")
+        
+        # Detect swaps like python-package -> py-package
+        for i in range(len(terms)):
+            confused_term = None
+            
+            if "python" in terms[i]:
+                confused_term = terms[i].replace("python", "py")
+            elif "py" in terms[i]:
+                confused_term = terms[i].replace("py", "python")
+            else:
+                continue
+            
+            # Get form when replacing or removing py/python term 
+            replaced_form = terms[:i] + [confused_term] + terms[i+1:]
+            removed_form = terms[:i] + terms[i+1:]
+            
+            for form in (replaced_form, removed_form):
+                confused_forms.append("-".join(form))
+        
+        return confused_forms
+                
+                
     def get_typosquatted_package(self, package_name) -> list[str]:
         typosquatted = []
         
+        # Get permuted typosquats for normalized and confused names
         normalized_name = package_name.lower().replace('_', '-')
-        py_swapped_package = None
+        confused_names = self._get_confused_forms(package_name)
         
-        # Detect swaps like python-package -> py-package
-        if "python" in normalized_name:
-            py_swapped_package = normalized_name.replace("python", "py")
-            typosquatted.extend(self._get_permuted_typosquats(py_swapped_package))
-        elif "py" in normalized_name:
-            py_swapped_package = normalized_name.replace("py", "python")
-            typosquatted.extend(self._get_permuted_typosquats(py_swapped_package))
-        
-        typosquatted.extend(self._get_permuted_typosquats(normalized_name))
         
         # Go through popular packages and find length one edit typosquats
         for popular_package in self.popular_packages:
@@ -136,12 +145,16 @@ class TyposquatDetector(Detector):
                 
             if self._is_length_one_edit_away(normalized_name, normalized_popular_package):
                 typosquatted.append(popular_package)
-                
-            if py_swapped_package and self._is_length_one_edit_away(py_swapped_package, normalized_popular_package):
-                typosquatted.append(popular_package)
             
+            alternate_popular_names = self._get_confused_forms(normalized_popular_package)
+            swapped_popular_names = self._generate_permutations(normalized_popular_package)
+            
+            for name in alternate_popular_names + swapped_popular_names:
+                if self._is_length_one_edit_away(normalized_name, name):
+                    typosquatted.append(normalized_popular_package)
         return typosquatted
 
 
     def detect(self, package_info) -> list[str]:
         return self.get_typosquatted_package(package_info["info"]["name"])
+
