@@ -5,14 +5,13 @@ name: Python application
 
 on:
   pull_request:
-    types: [opened, reopened, edited]
+    types: [synchronize]
 
 permissions:
   contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
