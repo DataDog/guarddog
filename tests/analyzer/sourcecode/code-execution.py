@@ -99,9 +99,7 @@ docker_build = subprocess.Popen(
 def RunCustomCommand(command_list):
     print("Running command: %s" % command_list)
     # ok: code-execution
-    p = subprocess.Popen(
-        command_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
+    p = subprocess.Popen(command_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
 # ok: code-execution

@@ -52,9 +52,7 @@ class Evaluator:
 
         # Populate malicious and benign results
         self.logs = {
-            self.malicious_logs_name: self._populate_results(
-                self.malicious_logs_name, self.malicious_path
-            ),
+            self.malicious_logs_name: self._populate_results(self.malicious_logs_name, self.malicious_path),
             self.benign_logs_name: self._populate_results(self.benign_logs_name, self.benign_path),
         }
 
@@ -78,9 +76,7 @@ class Evaluator:
     def _download_benign(self) -> None:
         """Downloads most popular packages as benign data"""
 
-        popular_packages_url = (
-            "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
-        )
+        popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
         top_packages = requests.get(popular_packages_url).json()["rows"][: self.benign_size]
         progress_bar = tqdm(total=self.benign_size)
         progress_bar.set_description("Downloading benign packages")
@@ -123,9 +119,7 @@ class Evaluator:
                 uses all possible rules. Defaults to None.
         """
 
-        package_names = list(
-            filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path))
-        )
+        package_names = list(filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path)))
         scan_results = {}
 
         progress_bar = tqdm(total=len(package_names), position=0, leave=True)
@@ -162,9 +156,7 @@ class Evaluator:
 
         malware_path = os.path.join(self.malicious_path, "malware")
 
-        self.logs[self.malicious_logs_name] = self._scan_packages(
-            self.malicious_logs_name, malware_path, rules
-        )
+        self.logs[self.malicious_logs_name] = self._scan_packages(self.malicious_logs_name, malware_path, rules)
 
         shutil.rmtree(malware_path)  # remove zip folder after extracted
 
@@ -172,9 +164,7 @@ class Evaluator:
         if len(os.listdir(self.benign_path)) == 0:
             self._download_benign()
 
-        self.logs[self.benign_logs_name] = self._scan_packages(
-            self.benign_logs_name, self.benign_path, rules
-        )
+        self.logs[self.benign_logs_name] = self._scan_packages(self.benign_logs_name, self.benign_path, rules)
 
     def _evaluate_benign(self, show=False) -> None:
         """Evaluates the benign data using available log files.
@@ -203,12 +193,7 @@ class Evaluator:
 
             for rule, result in response.items():
 
-                if (
-                    rule in self.source_code_rules
-                    and result != {}
-                    or rule in self.metadata_rules
-                    and result
-                ):
+                if rule in self.source_code_rules and result != {} or rule in self.metadata_rules and result:
 
                     if show:
                         incorrect_warning = set(result.keys()) if type(result) is dict else result
@@ -268,9 +253,7 @@ class Evaluator:
                 }
 
                 if show and actual != expected:
-                    sys.stdout.write(
-                        "-" + package + "/" + rule + ": " + str(actual) + ", " + str(expected)
-                    )
+                    sys.stdout.write("-" + package + "/" + rule + ": " + str(actual) + ", " + str(expected))
                     sys.stdout.write("\n")
 
                 # update count and collection
