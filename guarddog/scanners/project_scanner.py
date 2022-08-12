@@ -13,11 +13,25 @@ from guarddog.scanners.scanner import Scanner
 
 
 class RequirementsScanner(Scanner):
+    """
+    Scans all packages in the requirements.txt file of a project
+
+    Attributes:
+        package_scanner (PackageScanner): Scanner for individual packages
+    """
+
     def __init__(self) -> None:
         self.package_scanner = PackageScanner()
         super(Scanner)
 
-    def _authenticate_by_access_token(self):
+    def _authenticate_by_access_token(self) -> tuple[str, str]:
+        """
+        Gives Github authentication through access token
+
+        Returns:
+            tuple[str, str]: username, personal access token
+        """
+
         user = os.getenv("GIT_USERNAME")
         personal_access_token = os.getenv("GH_TOKEN")
         if not user or not personal_access_token:
@@ -29,7 +43,17 @@ class RequirementsScanner(Scanner):
             exit(1)
         return (user, personal_access_token)
 
-    def sanitize_requirements(self, requirements):
+    def sanitize_requirements(self, requirements) -> list[str]:
+        """
+        Filters out non-requirement specifications from a requirements specification
+
+        Args:
+            requirements (str): PEP440 styled dependency specification text
+
+        Returns:
+            list[str]: sanitized lines containing only version specifications
+        """
+
         sanitized_lines = []
 
         for line in requirements:
@@ -41,7 +65,25 @@ class RequirementsScanner(Scanner):
 
         return sanitized_lines
 
-    def parse_requirements(self, requirements):
+    def parse_requirements(self, requirements) -> dict:
+        """
+        Parses requirements.txt specification and finds all valid
+        versions of each dependency
+
+        Args:
+            requirements (str): contents of requirements.txt file
+
+        Returns:
+            dict: mapping of dependencies to valid versions
+
+            ex.
+            {
+                ....
+                <dependency-name>: [0.0.1, 0.0.2, ...],
+                ...
+            }
+        """
+
         def versions(package_name):
             url = "https://pypi.org/pypi/%s/json" % (package_name,)
             data = requests.get(url).json()
@@ -85,9 +127,7 @@ class RequirementsScanner(Scanner):
                         case "~=":
                             prefix = "".join(version.split(".")[:-1])
                             for available_version in available_versions:  # sorted decreasing
-                                if available_version >= version and available_version.startswith(
-                                    prefix
-                                ):
+                                if available_version >= version and available_version.startswith(prefix):
                                     used_versions = set(available_version)
                                     break
                         case _:
@@ -107,7 +147,27 @@ class RequirementsScanner(Scanner):
 
     def scan_requirements(self, requirements, quiet=False):
         """
-        Reads the requirements.txt file and outputs valid dependencies and versions
+        Reads the requirements.txt file and scans each possible
+        dependency and version
+
+        Args:
+            requirements (str): contents of requirements.txt file
+            quiet (bool, optional): flag to print results. Defaults to False
+
+        Returns:
+            dict: mapping of dependencies to scan results
+
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
         """
 
         def get_package_results_helper(dependency, version, quiet):
@@ -131,6 +191,29 @@ class RequirementsScanner(Scanner):
         return project_results
 
     def scan_local(self, path, quiet=False):
+        """
+        Scans a local requirements.txt file
+
+        Args:
+            path (str): path to requirements.txt file
+            quiet (bool, optional): flag to print results. Defaults to False.
+
+        Returns:
+            dict: mapping of dependencies to scan results
+
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+        """
+
         try:
             with open(path, "r") as f:
                 return self.scan_requirements(f.readlines(), quiet)
@@ -139,6 +222,32 @@ class RequirementsScanner(Scanner):
             sys.exit(255)
 
     def scan_remote(self, url, branch, quiet=False, requirements_name="requirements.txt"):
+        """
+        Scans remote requirements.txt file
+
+        Args:
+            url (str): url of the Github repo
+            branch (str): branch containing requirements.txt
+            quiet (bool, optional): flag to print results. Defaults to False.
+            requirements_name (str, optional): name of requirements file.
+                Defaults to "requirements.txt".
+
+        Returns:
+            dict: mapping of dependencies to scan results
+
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+        """
+
         token = self._authenticate_by_access_token()
         githubusercontent_url = url.replace("github", "raw.githubusercontent")
 

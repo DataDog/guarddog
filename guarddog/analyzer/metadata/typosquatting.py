@@ -31,9 +31,7 @@ class TyposquatDetector(Detector):
         super(Detector)
 
     def _get_top_packages(self):
-        popular_packages_url = (
-            "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
-        )
+        popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
 
         top_packages_filename = "top_pypi_packages.json"
         resourcesdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "resources"))
@@ -100,9 +98,7 @@ class TyposquatDetector(Detector):
         return hyphen_permutations
 
     def _is_length_one_edit_away(self, package1, package2) -> bool:
-        return self._is_distance_one_Levenshtein(package1, package2) or self._is_swapped_typo(
-            package1, package2
-        )
+        return self._is_distance_one_Levenshtein(package1, package2) or self._is_swapped_typo(package1, package2)
 
     def _get_confused_forms(self, package_name):
         confused_forms = []

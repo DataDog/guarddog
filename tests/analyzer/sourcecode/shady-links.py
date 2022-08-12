@@ -16,9 +16,7 @@
 goodlink1 = "http://google.com:5000/v1.0/"
 
 # ok: shady-links
-goodlink2 = (
-    "https://id.atlassian.com/login?continue=https%3A%2F%2Fstart.atlassian.com%2F&application=start"
-)
+goodlink2 = "https://id.atlassian.com/login?continue=https%3A%2F%2Fstart.atlassian.com%2F&application=start"
 
 # ok: shady-links
 goodlink1 = "http://xn--n3h.net//"

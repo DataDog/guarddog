@@ -78,11 +78,7 @@ class PackageScanner(Scanner):
                     url = file["url"]
                     file_extension = ".tar.gz"
 
-                if (
-                    file["filename"].endswith(".egg")
-                    or file["filename"].endswith(".whl")
-                    or file["filename"].endswith(".zip")
-                ):
+                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") or file["filename"].endswith(".zip"):
                     url = file["url"]
                     file_extension = ".zip"
 
@@ -95,9 +91,7 @@ class PackageScanner(Scanner):
             else:
                 raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
         else:
-            raise Exception(
-                "Version " + version + " for package " + package_name + " doesn't exist."
-            )
+            raise Exception("Version " + version + " for package " + package_name + " doesn't exist.")
 
     def download_compressed(self, url, zippath, unzippedpath):
         """Downloads a compressed file and extracts it
