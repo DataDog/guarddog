@@ -34,4 +34,4 @@ jobs:
     - name: Test with pytest
       run: |
         semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
-        pytest
+        python -m pytest
