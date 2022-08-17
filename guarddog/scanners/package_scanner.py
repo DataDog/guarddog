@@ -11,11 +11,32 @@ from guarddog.utils.package_info import get_package_info
 
 
 class PackageScanner(Scanner):
+    """
+    Scans package for attack vectors based on source code and metadata rules
+
+    Attributes:
+        analyzer (Analyzer): Analyzer for source code and metadata rules
+    """
+
     def __init__(self) -> None:
         self.analyzer = Analyzer()
         super(Scanner)
 
     def scan_local(self, path, rules=None) -> dict:
+        """
+        Scans local package
+
+        Args:
+            path (str): path to package
+            rules (set, optional): Set of rule names to use. Defaults to all rules.
+
+        Raises:
+            Exception: Analyzer exception
+
+        Returns:
+            dict: Analyzer output with rules to results mapping
+        """
+
         if rules is not None:
             rules = set(rules)
 
@@ -25,6 +46,21 @@ class PackageScanner(Scanner):
             raise Exception(f"Path {path} does not exist.")
 
     def scan_remote(self, name, version=None, rules=None):
+        """
+        Scans a remote package
+
+        Args:
+            name (str): name of the package on PyPI
+            version (str): verson of package (ex. 0.0.1)
+            rules (set, optional): Set of rule names to use. Defaults to all rules.
+
+        Raises:
+            Exception: Analyzer exception
+
+        Returns:
+            dict: Analyzer output with rules to results mapping
+        """
+
         try:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 # Directory to download compressed and uncompressed package
