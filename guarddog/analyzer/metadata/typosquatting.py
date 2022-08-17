@@ -1,10 +1,3 @@
-""" Typosquatting Detector
-
-Detects if a package name is a typosquat of one of the top 1000 packages.
-Checks for distance one Levenshtein, one-off character swaps, permutations
-around hyphens, and substrings.
-"""
-
 import json
 import os
 from datetime import datetime, timedelta
@@ -16,6 +9,15 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):
+    """
+    Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 1000 packages.
+    Checks for distance one Levenshtein, one-off character swaps, permutations
+    around hyphens, and substrings.
+
+    Attributes:
+        popular_packages (list): list of top 5000 downloaded packages from PyPI
+    """
+
     def __init__(self) -> None:
         # Find top PyPI packages
         top_packages_information = self._get_top_packages()
@@ -30,7 +32,22 @@ class TyposquatDetector(Detector):
 
         super(Detector)
 
-    def _get_top_packages(self):
+    def _get_top_packages(self) -> list:
+        """
+        Gets the package information of the top 5000 most downloaded PyPI packages
+
+        Returns:
+            list: list of package data in the format:
+                [
+                    ...
+                    {
+                        download_count: ...
+                        project: <package-name>
+                    }
+                    ...
+                ]
+        """
+
         popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
 
         top_packages_filename = "top_pypi_packages.json"
@@ -56,6 +73,17 @@ class TyposquatDetector(Detector):
         return top_packages_information
 
     def _is_distance_one_Levenshtein(self, name1, name2) -> bool:
+        """
+        Returns True if two names have a Levenshtein distance of one
+
+        Args:
+            name1 (str): first name
+            name2 (str): second name
+
+        Returns:
+            bool: True if within distance one
+        """
+
         if abs(len(name1) - len(name2)) > 1:
             return False
 
@@ -80,6 +108,17 @@ class TyposquatDetector(Detector):
         return False
 
     def _is_swapped_typo(self, name1, name2) -> bool:
+        """
+        Returns true is two names are adjacent swaps of each other
+
+        Args:
+            name1 (str): first name
+            name2 (str): second name
+
+        Returns:
+            bool: True if adjacent swaps
+        """
+
         if len(name1) == len(name2):
             for i in range(len(name1) - 1):
                 swapped_name1 = name1[:i] + name1[i + 1] + name1[i] + name1[i + 2 :]
@@ -89,6 +128,16 @@ class TyposquatDetector(Detector):
         return False
 
     def _generate_permutations(self, package_name) -> list[str]:
+        """
+        Generates all permutations of hyphenated terms of a package
+
+        Args:
+            package_name (str): name of package
+
+        Returns:
+            list[str]: permutations of package_name
+        """
+
         if "-" not in package_name:
             return []
 
@@ -98,9 +147,34 @@ class TyposquatDetector(Detector):
         return hyphen_permutations
 
     def _is_length_one_edit_away(self, package1, package2) -> bool:
+        """
+        Returns True if two packages are within a distance one typo edit
+        (either within a Levenshtein distance of one or an adjacent swap edit)
+
+        Args:
+            package1 (str): first package name
+            package2 (str): second package name
+
+        Returns:
+            bool: True
+        """
+
         return self._is_distance_one_Levenshtein(package1, package2) or self._is_swapped_typo(package1, package2)
 
-    def _get_confused_forms(self, package_name):
+    def _get_confused_forms(self, package_name) -> list:
+        """
+        Gets confused terms for python packages
+        Confused terms are:
+            - py to python swaps (or vice versa)
+            - the removal of py/python terms
+
+        Args:
+            package_name (str): name of the package
+
+        Returns:
+            list: list of confused terms
+        """
+
         confused_forms = []
 
         terms = package_name.split("-")
@@ -126,6 +200,21 @@ class TyposquatDetector(Detector):
         return confused_forms
 
     def get_typosquatted_package(self, package_name) -> list[str]:
+        """
+        Gets all legitimate packages that a given name
+        is possibly typosquatting from
+
+        Checks for Levenshtein distance, permutations, and confused terms
+        against the top 5000 most downloaded PyPI packages
+
+        Args:
+            package_name (str): name of package
+
+        Returns:
+            list[str]: names of packages that <package_name> could be
+            typosquatting from
+        """
+
         typosquatted = []
 
         # Get permuted typosquats for normalized and confused names
@@ -151,4 +240,17 @@ class TyposquatDetector(Detector):
         return typosquatted
 
     def detect(self, package_info) -> list[str]:
+        """
+        Uses a package's information from PyPI's JSON API to determine the
+        package is attempting a typosquatting attack
+
+        Args:
+            package_info (dict): dictionary representation of PyPI's JSON
+                output
+
+        Returns:
+            list[str]: names of packages that <package_name> could be
+            typosquatting from
+        """
+
         return self.get_typosquatted_package(package_info["info"]["name"])
