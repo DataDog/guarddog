@@ -8,7 +8,7 @@ A set of predefined rules based on package registry metadata and source code ana
   - [CLI Reference](#cli-reference)
   - [Testing](#testing)
 - [Heuristics](#heuristics)
-  - [Accuracy of Heuristics](#accuracy-of-heuristics)
+  - [Accuracy of Heuristics (Outdated)](#accuracy-of-heuristics-outdated)
     - [Methodology](#methodology)
   - [Registry Metadata Analysis](#registry-metadata-analysis)
   - [Source Code Analysis](#source-code-analysis)
@@ -86,7 +86,7 @@ Running the command above ***will not scan*** the directories. To scan, uncommen
 ### Heuristics
 Heuristics are separated into two categories: registry metadata analysis and source code analysis. Registry metadata pertains to the metrics of a given package on the PyPI registry (ex. number of maintainers, popularity, similarity in package names, gaps in code pushing), while source code analysis investigates the actual code of the package. The malicious packages analyzed to guide these heuristics are listed here: [PyPI Malware Analysis](https://datadoghq.atlassian.net/wiki/spaces/~628e8c561a437e007042ec14/pages/2515534035/PyPI+Malware+Analysis).
 
-#### Accuracy of Heuristics
+#### Accuracy of Heuristics (Outdated)
 The precision, recall, and false positive rate of each rule was measured using the methods described in [Testing](#testing). The precision, recall, and false positive rates achieved are:
 
 | Rule | Precision | Recall | FP |

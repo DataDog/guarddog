@@ -599,7 +599,7 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10, <4"
-content-hash = "ed43bf23d771803bbaba5b7c8a9bbc476185e333244843efd4bc4d6bcbd18545"
+content-hash = "b4693ea81ef66e5400757282f204ff7a12cd21b7d742ca0f0579f27a1f5a330f"
 
 [metadata.files]
 atomicwrites = [
