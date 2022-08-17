@@ -6,7 +6,7 @@ name: build guarddog
 on:
   pull_request:
     # Runs everytime a commit is pushed to the pull request
-    types: [synchronize]
+    types: [opened, synchronize]
 
 permissions:
   contents: read
