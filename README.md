@@ -70,6 +70,11 @@ To run the semgrep rules against the test cases:
 $ semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
 ```
 
+To run the metadata rules against the test cases:
+```sh
+$ pytest
+```
+
 To find the precision and recall of the rules, run: 
 ```sh
 $ python3 evaluator/evaluator.py
