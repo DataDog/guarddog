@@ -1,77 +1,87 @@
-## PyPI Package Malware Scanner
-The PyPI Package Malware Scanner offers a CLI command that scans a PyPI package version for user-specified malware flags. 
+![GuardDog Banner](docs/images/banner.png)
+Guarddog is a CLI tool that scans PyPI packages for user-specified malware flags. 
 A set of predefined rules based on package registry metadata and source code analysis are used as heuristics to find malware-ridden packages.
 
 
-- [PyPI Package Malware Scanner](#pypi-package-malware-scanner)
-  - [Getting Started](#getting-started)
-    - [CLI Reference](#cli-reference)
-  - [Installing Pysecurity](#installing-pysecurity)
-    - [Testing](#testing)
-  - [Heuristics](#heuristics)
-    - [Accuracy of Heuristics](#accuracy-of-heuristics)
-      - [Methodology](#methodology)
-    - [Registry Metadata Analysis](#registry-metadata-analysis)
-    - [Source Code Analysis](#source-code-analysis)
+- [Getting Started](#getting-started)
+- [Installing guarddog](#installing-guarddog)
+  - [CLI Reference](#cli-reference)
+  - [Testing](#testing)
+- [Heuristics](#heuristics)
+  - [Accuracy of Heuristics](#accuracy-of-heuristics)
+    - [Methodology](#methodology)
+  - [Registry Metadata Analysis](#registry-metadata-analysis)
+  - [Source Code Analysis](#source-code-analysis)
 
 
 ### Getting Started
-Pysecurity can be used to scan local or remote PyPI packages using any of the available [rules](#heuristics). Here's how to use pysecurity:
+guarddog can be used to scan local or remote PyPI packages using any of the available [rules](#heuristics). Here's how to use guarddog:
+
+
+### Installing guarddog
+To install guarddog, clone this repository. Then, in a terminal rooted at the project root:
+
+```sh
+$ pip install git+https://github.com/DataDog/guarddog.git
+```
+
 
 #### CLI Reference
 The structure for scanning a package is:
 
 ```sh
-$ python3 -m pysecurity scan [NAME] -v [VERSION] -r [RULE]
+$ guarddog scan [NAME] -v [VERSION] -r [RULE]
 
 # Scan the most recent version
-$ python3 -m pysecurity scan setuptools 
+$ guarddog scan setuptools 
 
 # Scan a specific version
-$ python3 -m pysecurity scan setuptools -v 63.6.0 
+$ guarddog scan setuptools -v 63.6.0 
 
 # Scan a local package
-$ python3 -m pysecurity scan ./Desktop/packagename 
+$ guarddog scan ./Desktop/packagename 
 
 # Scan using a subset of the rules
-$ python3 -m pysecurity scan setuptools -v 63.6.0 -r code-execution -r shady-links 
+$ guarddog scan setuptools -v 63.6.0 -r code-execution -r shady-links 
 ```
 
 To scan a requirements.txt file, use the command `verify`. You can also specify the name of the requirements file if it deviates from requirements.txt and an output file to store the results in.
 
 ```sh
-$ python3 -m pysecurity verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+$ guarddog verify [PATH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
 
-$ python3 -m pysecurity verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
+$ guarddog verify [REPOSITORY-URL] [BRANCH] -r [REQUIREMENTS-NAME] -o [OUTPUT-FILE]
 
 # Verifies remote project and stores results in output file
-$ python3 -m pysecurity verify https://github.com/DataDog/pysecurity/ main -o ./output.json
+$ guarddog verify https://github.com/DataDog/guarddog/ main -o ./output.json
 
 # Verifies local project with a differently names requirements file
-$ python3 -m pysecurity verify ./samplepackage -r requirements2.txt
+$ guarddog verify ./samplepackage -r requirements2.txt
 ```
 
 Note that to scan specific rules, use multiple `-r` flags.
 
-
-### Installing Pysecurity
-Pysecurity is not yet packaged. To run in the development environment, check out [CONTRIBUTING](CONTRIBUTING.md)
 
 #### Testing
 
 To run the semgrep rules against the test cases:
 
 ```sh
-$ semgrep --metrics off --quiet --test --config pysecurity/analyzer/sourcecode tests/analyzer/sourcecode
+$ semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
+```
+
+To run the metadata rules against the test cases:
+```sh
+$ pytest
 ```
 
 To find the precision and recall of the rules, run: 
 ```sh
 $ python3 evaluator/evaluator.py
 ```
-This will calculate the false positive, false negative, true positive, and true negative rates from logs in `pysecurity_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
+This will calculate the false positive, false negative, true positive, and true negative rates from logs in `guarddog_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
 
-Running the command above ***will not scan*** the directories. To scan, uncomment line 351 `metric_generator.scan()` in `pysecurity_tests/evaluator/evaluator.py`. Then, run the command again.
+Running the command above ***will not scan*** the directories. To scan, uncomment line 351 `metric_generator.scan()` in `guarddog_tests/evaluator/evaluator.py`. Then, run the command again.
 
 ### Heuristics
 Heuristics are separated into two categories: registry metadata analysis and source code analysis. Registry metadata pertains to the metrics of a given package on the PyPI registry (ex. number of maintainers, popularity, similarity in package names, gaps in code pushing), while source code analysis investigates the actual code of the package. The malicious packages analyzed to guide these heuristics are listed here: [PyPI Malware Analysis](https://datadoghq.atlassian.net/wiki/spaces/~628e8c561a437e007042ec14/pages/2515534035/PyPI+Malware+Analysis).
@@ -101,7 +111,7 @@ The registry metadata analysis looks for the flags detailed in the paper here: h
 
 | Rule | Reason | Heuristic | Examples |
 |---|---|---|---|
-| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if package name is a substring of more popular packages, check for lookalike letters | (Too many to name) |
+| Typosquatting | Most common way attackers get developers to install their package | Check for distance one Levenshtein distance, check for swapped terms around hyphens, check if switched py to python (or vice versa), check for lookalike letters | (Too many to name) |
 | Reregistered maintainer domain | Attackers can purchase an expired domain and hijack an account | Check creation date of author's email on who.is and compare to package's most recent release dates| ctx |
 | Empty Package Information | Legitimate packages often do not have empty descriptions | Check if package description is empty | |
 <!-- | Unmaintained packages | These packages host more vulnerabilities that an attacker can exploit | Check last update. If a gap in updates spans more than two years, mark as unmaintained | event-stream | -->

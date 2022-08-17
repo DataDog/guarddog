@@ -1,18 +1,17 @@
-# Contributing to Pysecurity
+# Contributing to Guard Dog
 
 ### Getting Started
-To open the development environment for pysecurity: first make sure pip and pipenv are installed.
+To open the development environment for Guard Dog: first make sure pip and pipenv are installed.
 
 ```sh
 $ pip install pipenv
 ```
 
-To install all dependencies for Pysecurity, open the virtual environment, and add the root of the repository to PYTHONPATH:
+To install all dependencies for Guard Dog, open the virtual environment, and add the root of the repository to PYTHONPATH:
 
 ```sh
-$ export PYTHONPATH=$PYTHONPATH:/$(pwd)
-$ pipenv install
-$ pipenv shell
+$ poetry install
+$ poetry shell
 ```
 
 To analyze Github repos (`verify`), make sure your Github username and Github API key are set up in environment variables named `GIT_USERNAME` and `GH_TOKEN`.
