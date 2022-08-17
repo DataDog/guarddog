@@ -13,7 +13,7 @@ rules:
         - pattern: open(... + $FILE)
       - metavariable-regex:
           metavariable: $FILE
-          regex: \".*(.aws/credentials|.docker/config.json)\"
+          regex: ([\"\'].*(.aws/credentials|.docker/config.json)[\"\'])
     - patterns:
       - pattern-either:
           - pattern: os.getenv($ENVVAR)
@@ -25,20 +25,18 @@ rules:
           - pattern: environ.get($ENVVAR)
       - metavariable-regex:
           metavariable: $ENVVAR
-          regex: \"(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)\"
+          regex: ([\"\'](AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)[\"\'])
   pattern-sinks:
     - pattern-either:
         - pattern-inside: requests.$METHOD(...)
         - pattern-inside: urllib.request.Request(...)
         - pattern-inside: urllib.urlopen(...)
         - pattern-inside: urllib.request.urlopen(...)
-        - pattern-inside: request.urlopen(...)
         - pattern-inside: request(...)
         - patterns:
             - pattern-inside: $S = socket.socket(...); ...
             - pattern-inside: $S.connect(...); ...
-            - pattern-inside: $S.send($SINK)
-            - pattern: $SINK
+            - pattern-inside: $S.send(...)
   message: Package exfiltrating sensitive data to a remote server
   languages:
     - python
