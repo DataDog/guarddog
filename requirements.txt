@@ -38,3 +38,4 @@ mypy-extensions==0.4.3
 pathspec==0.9.0
 platformdirs==2.5.2
 tomli==2.0.1
+pathos==0.2.9
