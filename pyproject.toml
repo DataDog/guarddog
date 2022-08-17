@@ -43,6 +43,7 @@ platformdirs = "==2.5.2"
 tomli = "==2.0.1"
 pathos = "^0.2.9"
 pytest = "^7.1.2"
+flake8 = "^5.0.4"
 
 [tool.poetry.dev-dependencies]
 
