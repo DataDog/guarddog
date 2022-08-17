@@ -57,11 +57,14 @@ class RequirementsScanner(Scanner):
         sanitized_lines = []
 
         for line in requirements:
-            stripped_line = line.strip()
-
-            is_requirement = re.match(r"\w", stripped_line) and len(stripped_line) > 0
+            is_requirement = re.match(r"\w", line)
             if is_requirement:
-                sanitized_lines.append(stripped_line)
+                if "\\" in line:
+                    line = line.replace("\\", "")
+                    
+                stripped_line = line.strip()
+                if len(stripped_line) > 0:
+                    sanitized_lines.append(stripped_line)
 
         return sanitized_lines
 
