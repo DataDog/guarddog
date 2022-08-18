@@ -11,19 +11,19 @@ from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 class Analyzer:
     """
     Analyzes a local directory for threats found by source code or metadata rules
-    
+
     Attributes:
         metadata_path (str): path to metadata rules
         sourcecode_path (str): path to source code rules
-        
+
         metadata_ruleset (list): list of metadata rule names
         sourcecode_ruleset (list): list of source code rule names
-        
+
         exclude (list): list of directories to exclude from source code search
-        
+
         metadata_detectors(list): list of metadata detectors
     """
-    
+
     def __init__(self) -> None:
         self.metadata_path = os.path.join(os.path.dirname(__file__), "metadata")
         self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
@@ -117,7 +117,7 @@ class Analyzer:
         Returns:
             dict[str]: map from each metadata rule and their corresponding output
         """
-        
+
         all_rules = rules if rules is not None else self.metadata_ruleset
         results = {}
         errors = {}
@@ -184,7 +184,7 @@ class Analyzer:
 
         Returns:
             dict: formatted response in the form...
-            
+
             {
                 ...
                 <rule-name>: {
@@ -194,14 +194,14 @@ class Analyzer:
                 ...
             }
         """
-        
+
         results = {}
 
         for result in response["results"]:
             rule_name = rule or result["check_id"].split(".")[-1]
             code_snippet = result["extra"]["lines"]
             line = result["start"]["line"]
-            
+
             file_path = os.path.abspath(result["path"])
             if targetpath:
                 file_path = os.path.relpath(file_path, targetpath)

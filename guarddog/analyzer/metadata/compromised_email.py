@@ -7,19 +7,37 @@ from datetime import datetime
 
 import whois
 from dateutil import parser
-from dotenv import load_dotenv
 from packaging import version
 
 from guarddog.analyzer.metadata.detector import Detector
 
 
 class CompromisedEmailDetector(Detector):
-    def __init__(self) -> None:
-        load_dotenv()
+    """
+    Detector for compromised email attacks. Checks if the author's email domain was
+    reregistered before the most recent package released
 
+    Args:
+        Detector (_type_): _description_
+    """
+
+    def __init__(self) -> None:
         super(Detector)
 
     def _get_domain_creation_date(self, email_domain) -> datetime:
+        """
+        Gets the creation date of an email address domain
+
+        Args:
+            email_domain (str): domain of email address
+
+        Raises:
+            Exception: "Domain {email_domain} does not exist"
+
+        Returns:
+            datetime: creation date of email_domain
+        """
+
         domain_information = whois.whois(email_domain)
 
         if domain_information.creation_date is None:
@@ -33,7 +51,19 @@ class CompromisedEmailDetector(Detector):
         return creation_dates
 
     def _get_project_creation_date(self, releases) -> datetime:
-        sorted_versions = sorted(releases.keys(), key=lambda r: version.parse(r), reverse=True)
+        """
+        Gets the most recent release date of a Python project
+
+        Args:
+            releases (dict): PyPI JSON API's representation field
+
+        Returns:
+            datetime: creation date of the most recent in releases
+        """
+
+        sorted_versions = sorted(
+            releases.keys(), key=lambda r: version.parse(r), reverse=True
+        )
         earlier_versions = sorted_versions[:-1]
 
         for early_version in earlier_versions:
@@ -44,7 +74,22 @@ class CompromisedEmailDetector(Detector):
                 creation_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
                 return creation_date
 
-    def is_email_compromised(self, package_info) -> bool:
+    def detect(self, package_info) -> bool:
+        """
+        Uses a package's information from PyPI's JSON API to determine
+        if the package's email domain is compromised
+
+        Args:
+            package_info (dict): dictionary representation of PyPI's JSON
+                output
+
+        Raises:
+            Exception: "Email for {package_info['info']['name']} does not exist."
+
+        Returns:
+            bool: True if email domain is compromised
+        """
+
         author_email = package_info["info"]["author_email"]
         maintainer_email = package_info["info"]["maintainer_email"]
         email = author_email or maintainer_email
@@ -60,6 +105,3 @@ class CompromisedEmailDetector(Detector):
         project_date = self._get_project_creation_date(releases)
         domain_date = self._get_domain_creation_date(email_domain)
         return project_date < domain_date
-
-    def detect(self, package_info) -> bool:
-        return self.is_email_compromised(package_info)
