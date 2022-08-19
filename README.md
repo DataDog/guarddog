@@ -21,7 +21,6 @@ guarddog can be used to scan local or remote PyPI packages using any of the avai
 To install guarddog, clone this repository and install [poetry](https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions). Then, in a terminal rooted at the project root:
 
 ```sh
-
 $ pip install git+https://github.com/DataDog/guarddog.git
 ```
 
