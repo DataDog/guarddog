@@ -153,7 +153,10 @@ class Analyzer:
 
         if rules is None:
             response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude, no_git_ignore=True)
-            results = results | self._format_semgrep_response(response, targetpath=targetpath)
+            rule_results = self._format_semgrep_response(response, targetpath=targetpath)
+            issues += len(rule_results)
+            
+            results = results | rule_results
         else:
             for rule in rules:
                 try:
