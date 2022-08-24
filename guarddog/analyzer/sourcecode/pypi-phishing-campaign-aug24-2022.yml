@@ -1,0 +1,11 @@
+id: pypi_phishing_campaign_aug24_2022
+patterns:
+    - pattern-either:
+        - pattern: |
+            url = "https://python-release.com/python-install.scr"
+        - pattern-regex: |
+            (.*)linkedopports\.com(.*)
+
+message: Semgrep found a match linked to a pypi phishing campaign
+languages: [python]
+severity: WARNING
