@@ -212,8 +212,16 @@ class Analyzer:
             location = file_path + ":" + str(line)
 
             if rule_name not in results:
-                results[rule_name] = {location: code_snippet}
+                results[rule_name] = {location: self.trim_code_snippet(code_snippet)}
             else:
-                results[rule_name][location] = code_snippet
+                results[rule_name][location] = self.trim_code_snippet(code_snippet)
 
         return results
+
+    # Makes sure the matching code to be displayed isn't too long
+    def trim_code_snippet(self, code):
+        THRESHOLD = 200
+        if len(code) > THRESHOLD:
+            return code[:THRESHOLD-10] + '...' + code[len(code)-10:]
+        else:
+            return code
