@@ -1,8 +1,8 @@
 import os
 import shutil
 import sys
+import tarfile
 import tempfile
-
 import requests
 
 from guarddog.analyzer.analyzer import Analyzer
@@ -41,7 +41,12 @@ class PackageScanner(Scanner):
             rules = set(rules)
 
         if os.path.exists(path):
-            return self.analyzer.analyze_sourcecode(path, rules=rules)
+            if path.endswith('.tar.gz'):
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    tarfile.open(path).extractall(tmpdirname)
+                    return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
+            elif os.path.isdir(path):
+                return self.analyzer.analyze_sourcecode(path, rules=rules)
         else:
             raise Exception(f"Path {path} does not exist.")
 

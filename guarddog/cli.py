@@ -52,7 +52,7 @@ def verify(path, output_file, quiet):
 
 @cli.command("scan")
 @click.argument("identifier")
-@click.option("-v", "--version", default=None)
+@click.option("-v", "--version", default=None, help="Specify a version to scan")
 @click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 def scan(identifier, version, rules):
     """Scan a package
@@ -68,13 +68,15 @@ def scan(identifier, version, rules):
         rule_param = rules
 
     scanner = PackageScanner()
-
-    identifier_is_path = re.search(r"(.{0,2}\/)+.+", identifier)
-
     results = {}
-    if identifier_is_path:
+    if is_local_package(identifier):
         results = scanner.scan_local(identifier, rule_param)
     else:
         results = scanner.scan_remote(identifier, version, rule_param)
 
     pprint(results)
+
+# Determines if the input passed to the 'scan' command is a local package name
+def is_local_package(input):
+    identifier_is_path = re.search(r"(.{0,2}\/)+.+", input)
+    return identifier_is_path or input.endswith('.tar.gz')
