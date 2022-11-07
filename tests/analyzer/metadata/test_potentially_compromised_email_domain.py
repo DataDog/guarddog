@@ -2,7 +2,7 @@ from datetime import datetime
 
 from _pytest.monkeypatch import MonkeyPatch
 
-from guarddog.analyzer.metadata.compromised_email import CompromisedEmailDetector
+from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
 from tests.analyzer.metadata.resources.sample_project_info import PACKAGE_INFO
 
 
@@ -12,7 +12,7 @@ class MockWhoIs:
 
 
 class TestCompromisedEmail:
-    detector = CompromisedEmailDetector()
+    detector = PotentiallyCompromisedEmailDomainDetector()
 
     def test_compromised(self):
         def mock_whois(domain):
@@ -29,3 +29,12 @@ class TestCompromisedEmail:
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised = self.detector.detect(PACKAGE_INFO)
         assert not compromised
+    
+    def test_email_domain_doesnt_exist(self):
+        def mock_whois(domain):
+            import whois
+            raise whois.parser.PywhoisError('No match for "nope.com".')
+
+        MonkeyPatch().setattr("whois.whois", mock_whois)
+        compromised = self.detector.detect(PACKAGE_INFO)
+        assert compromised

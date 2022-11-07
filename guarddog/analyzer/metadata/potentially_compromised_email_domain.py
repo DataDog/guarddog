@@ -1,6 +1,6 @@
 """ Compromised Email Detector
 
-Detects if a maintainer's email domain has been compromised.
+Detects if a maintainer's email domain might have been compromised.
 """
 
 from datetime import datetime
@@ -12,9 +12,9 @@ from packaging import version
 from guarddog.analyzer.metadata.detector import Detector
 
 
-class CompromisedEmailDetector(Detector):
+class PotentiallyCompromisedEmailDomainDetector(Detector):
     """
-    Detector for compromised email attacks. Checks if the author's email domain was
+    Detector for compromised email dommain attacks. Checks if the author's email domain was
     reregistered before the most recent package released
 
     Args:
@@ -24,7 +24,7 @@ class CompromisedEmailDetector(Detector):
     def __init__(self) -> None:
         super(Detector)
 
-    def _get_domain_creation_date(self, email_domain) -> datetime:
+    def _get_domain_creation_date(self, email_domain) -> tuple[datetime, bool]:
         """
         Gets the creation date of an email address domain
 
@@ -36,21 +36,28 @@ class CompromisedEmailDetector(Detector):
 
         Returns:
             datetime: creation date of email_domain
+            bool:     if the domain is currently registered
         """
 
-        domain_information = whois.whois(email_domain)
+        try:
+            domain_information = whois.whois(email_domain)
+        except whois.parser.PywhoisError as e:
+            # The domain doesn't exist at all, if that's the case we consider it vulnerable
+            # since someone could register it
+            return None, (not str(e).lower().startswith('no match for'))
 
         if domain_information.creation_date is None:
-            raise Exception(f"Domain {email_domain} does not exist")
+            # No creation date in whois, so we can't know
+            return None, True
 
         creation_dates = domain_information.creation_date
 
         if type(creation_dates) is list:
-            return min(creation_dates)
+            return min(creation_dates), True
 
-        return creation_dates
+        return creation_dates, True
 
-    def _get_project_creation_date(self, releases) -> datetime:
+    def _get_project_latest_release_date(self, releases) -> datetime:
         """
         Gets the most recent release date of a Python project
 
@@ -71,13 +78,13 @@ class CompromisedEmailDetector(Detector):
 
             if len(version_release) > 0:  # if there's a distribution for the package
                 upload_time_text = version_release[0]["upload_time_iso_8601"]
-                creation_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
-                return creation_date
+                release_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
+                return release_date
 
     def detect(self, package_info) -> bool:
         """
         Uses a package's information from PyPI's JSON API to determine
-        if the package's email domain is compromised
+        if the package's email domain might have been compromised
 
         Args:
             package_info (dict): dictionary representation of PyPI's JSON
@@ -97,11 +104,16 @@ class CompromisedEmailDetector(Detector):
         releases = package_info["releases"]
 
         if email is None or len(email) == 0:
-            raise Exception(f"Email for {package_info['info']['name']} does not exist.")
+            # No e-mail is set for this package, hence no risk
+            return False
 
         sanitized_email = email.strip().replace(">", "").replace("<", "")
         email_domain = sanitized_email.split("@")[-1]
 
-        project_date = self._get_project_creation_date(releases)
-        domain_date = self._get_domain_creation_date(email_domain)
-        return project_date < domain_date
+        latest_project_release = self._get_project_latest_release_date(releases)
+        domain_creation_date, domain_exists = self._get_domain_creation_date(email_domain)
+        if not domain_exists:
+            return True
+        if domain_creation_date is None:
+            return False
+        return latest_project_release < domain_creation_date
