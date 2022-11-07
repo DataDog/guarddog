@@ -4,6 +4,7 @@ GuardDog is a CLI tool that allows to identify malicious PyPI packages. It runs 
 
 GuardDog can be used to scan local or remote PyPI packages using any of the available [heuristics](#heuristics).
 
+![GuardDog demo usage](docs/images/demo.png)
 
 ## Getting started
 
