@@ -13,19 +13,19 @@ A set of predefined rules based on package registry metadata and source code ana
   - [Source Code Analysis](#source-code-analysis)
 
 
-### Getting Started
+## Getting Started
+
 guarddog can be used to scan local or remote PyPI packages using any of the available [rules](#heuristics). Here's how to use guarddog:
 
 
 ### Installing guarddog
-To install guarddog, clone this repository and install [poetry](https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions). Then, in a terminal rooted at the project root:
 
 ```sh
 $ pip install git+https://github.com/DataDog/guarddog.git
 ```
 
 
-#### CLI Reference
+## CLI Reference
 The structure for scanning a package is:
 
 ```sh
@@ -61,31 +61,14 @@ $ guarddog verify ./samplepackage -r requirements2.txt
 Note that to scan specific rules, use multiple `-r` flags.
 
 
-#### Testing
+## Testing
 
-To run the semgrep rules against the test cases:
+Run `make test` to run unit tests against Semgrep rules and package metadata rules.
 
-```sh
-$ semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
-```
-
-To run the metadata rules against the test cases:
-```sh
-$ pytest
-```
-
-To find the precision and recall of the rules, run: 
-```sh
-$ python3 evaluator/evaluator.py
-```
-This will calculate the false positive, false negative, true positive, and true negative rates from logs in `guarddog_tests/evaluator/logs` folder, which contains the results of scanning the `data` folder.
-
-Running the command above ***will not scan*** the directories. To scan, uncomment line 351 `metric_generator.scan()` in `guarddog_tests/evaluator/evaluator.py`. Then, run the command again.
-
-### Heuristics
+## Heuristics
 Heuristics are separated into two categories: registry metadata analysis and source code analysis. Registry metadata pertains to the metrics of a given package on the PyPI registry (ex. number of maintainers, popularity, similarity in package names, gaps in code pushing), while source code analysis investigates the actual code of the package. The malicious packages analyzed to guide these heuristics are listed here: [PyPI Malware Analysis](https://datadoghq.atlassian.net/wiki/spaces/~628e8c561a437e007042ec14/pages/2515534035/PyPI+Malware+Analysis).
 
-##### Methodology
+### Methodology
 The precision and recall of each rule was measured by running the tool on the 1000 most downloaded PyPI packages (benign data) and a collection of about 30-40 pieces of malware that were removed from PyPI (malicious data). Every line in the top 1000 packages is considered to be safe, so any lines flagged there is considered a false positive. In the malicious dataset, dangerous lines were hand-labeled in `malicious_ground_truth.json` and compared to the actual result. Any discrepencies were classified as a false-negative (missed line in ground truth), true-positive (matches ground truth), or false-positive (extra line compared to ground truth). The precision and recall were calculated from these metrics. 
 <br/>
 The false positive rate used only the benign dataset, using package-level granularity. Any lines detected in a package marked the package as a false-positive. Meanwhile, if no lines were detected in the package, it was marked as a true-negative. The difference in granulary compared to precision/recall is a result of being unable to measure the number of lines in the benign dataset.
