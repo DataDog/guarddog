@@ -1,18 +1,18 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: build guarddog
+name: Test
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
-    # Runs everytime a commit is pushed to the pull request
-    types: [opened, synchronize]
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,5 +33,16 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
     - name: Test with pytest
       run: |
-        semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
-        python -m pytest
+        make test
+
+  docker-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.5.0
+        with:
+          fetch-depth: 0
+      - name: Build local Docker image
+        run: docker build .
