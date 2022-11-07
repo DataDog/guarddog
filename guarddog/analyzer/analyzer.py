@@ -226,7 +226,7 @@ class Analyzer:
 
     # Makes sure the matching code to be displayed isn't too long
     def trim_code_snippet(self, code):
-        THRESHOLD = 200
+        THRESHOLD = 250
         if len(code) > THRESHOLD:
             return code[:THRESHOLD-10] + '...' + code[len(code)-10:]
         else:
