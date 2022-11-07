@@ -3,7 +3,7 @@ from pathlib import Path
 
 from semgrep.semgrep_main import invoke_semgrep
 
-from guarddog.analyzer.metadata.compromised_email import CompromisedEmailDetector
+from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 
@@ -57,7 +57,7 @@ class Analyzer:
         # Rules and associated detectors
         self.metadata_detectors = {
             "typosquatting": TyposquatDetector(),
-            "compromised_email": CompromisedEmailDetector(),
+            "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
             "empty_information": EmptyInfoDetector(),
         }
 
