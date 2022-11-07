@@ -28,7 +28,8 @@ def cli():
 
 @cli.command("verify")
 @click.argument("path")
-def verify(path):
+@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
+def verify(path, json):
     """Verify a requirements.txt file
 
     Args:
@@ -38,14 +39,19 @@ def verify(path):
     results = scanner.scan_local(path)
     for result in results:
         identifier = result['dependency'] if result['version'] is None else f"{result['dependency']} version {result['version']}"
-        print_scan_results(result.get('result'), identifier)
+        if not json:
+            print_scan_results(result.get('result'), identifier)
+    
+    if json:
+        pprint(results)
 
 
 @cli.command("scan")
 @click.argument("identifier")
 @click.option("-v", "--version", default=None, help="Specify a version to scan")
 @click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
-def scan(identifier, version, rules):
+@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
+def scan(identifier, version, rules, json):
     """Scan a package
 
     Args:
@@ -65,7 +71,10 @@ def scan(identifier, version, rules):
     else:
         results = scanner.scan_remote(identifier, version, rule_param)
 
-    print_scan_results(results, identifier)
+    if json:
+        pprint(results)
+    else:
+        print_scan_results(results, identifier)
 
 # Determines if the input passed to the 'scan' command is a local package name
 def is_local_package(input):
