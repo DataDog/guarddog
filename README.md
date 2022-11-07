@@ -47,16 +47,6 @@ GuardDog comes with 2 types of heuristics:
 ### Source code heuristics
 
 
-### Package metadata heuristics
-
-| **Heuristic** | **Description** |
-|:---:|:---:|
-| Typosquatting | Package has a name close to one of the top 5k PyPI packages |
-| Potentially compromised maintainer e-mail domain | Maintainer e-mail address is associated to a domain that was re-registered later than the last package release. This can be an indicator that this is a custom domain that expired, and was leveraged by an attacker to compromise the package owner's PyPI account. See [here](https://therecord.media/thousands-of-npm-accounts-use-email-addresses-with-expired-domains) for a description of the issue for npm. |
-| Empty package description | Package has an empty description of PyPI |
-
-#### Source Code Analysis
-
 | **Heuristic** | **Description** |
 |:---:|:---:|
 | [Command overwrite](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/cmd-overwrite.yml) | The `install` command is overwritten in the `setup.py` file, indicating that a system command is automatically run when installing the package through `pip install`. |
@@ -65,6 +55,14 @@ GuardDog comes with 2 types of heuristics:
 | [Exfiltration of sensitive data to a remote server](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/exfiltrate-sensitive-data.yml) | Sensitive data from the environment ends up being sent through an HTTP request |
 | [Code execution in `setup.py`](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/code-execution.yml) | Code in `setup.py` executes code dynamically or starts a new process |
 | [Unusual domain extension](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/shady-links.yml) | Usage of a domain name with an extension frequently used by malware (e.g. `.xyz` or `.top`) |
+
+### Package metadata heuristics
+
+| **Heuristic** | **Description** |
+|:---:|:---:|
+| Typosquatting | Package has a name close to one of the top 5k PyPI packages |
+| Potentially compromised maintainer e-mail domain | Maintainer e-mail address is associated to a domain that was re-registered later than the last package release. This can be an indicator that this is a custom domain that expired, and was leveraged by an attacker to compromise the package owner's PyPI account. See [here](https://therecord.media/thousands-of-npm-accounts-use-email-addresses-with-expired-domains) for a description of the issue for npm. |
+| Empty package description | Package has an empty description of PyPI |
 
 ## Development
 
