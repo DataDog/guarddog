@@ -74,9 +74,13 @@ GuardDog comes with 2 types of heuristics:
 * Create a virtualenv: `python3 -m venv venv && source venv/bin/activate`
 * Run GuardDog using `python -m guarddog`
 
-### Running unit tests
+### Unit tests
 
-Run `make test` to run unit tests against Semgrep rules and package metadata rules.
+Running all unit tests: `make test`
+
+Running unit tests againt Semgrep rules: `make test-semgrep-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/sourcecode)). These use the standard methodology for [testing Semgrep rules](https://semgrep.dev/docs/writing-rules/testing-rules/).
+
+Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/metadata)).
 
 ### Adding new source code heuristics
 
@@ -94,3 +98,4 @@ Authors:
 
 Inspiration: 
 * [What are Weak Links in the npm Supply Chain?](https://arxiv.org/pdf/2112.10165.pdf)
+* [A Survey on Common Threats in npm and PyPi Registries](https://arxiv.org/pdf/2108.09576.pdf)
