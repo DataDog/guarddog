@@ -148,14 +148,13 @@ class RequirementsScanner(Scanner):
 
         return dependencies
 
-    def scan_requirements(self, requirements, quiet=False):
+    def scan_requirements(self, requirements):
         """
         Reads the requirements.txt file and scans each possible
         dependency and version
 
         Args:
             requirements (str): contents of requirements.txt file
-            quiet (bool, optional): flag to print results. Defaults to False
 
         Returns:
             dict: mapping of dependencies to scan results
@@ -172,34 +171,30 @@ class RequirementsScanner(Scanner):
                 ...
             }
         """
-
-        def get_package_results_helper(dependency, version, quiet):
+        def get_package_results_helper(dependency, version):
             result = self.package_scanner.scan_remote(dependency, version)
+            return {'dependency': dependency, 'version': version, 'result': result}
 
-            if not quiet:
-                sys.stdout.write(f"\n {dependency}/{version} \n")
-                pprint(result)
-
-        get_package_results = functools.partial(get_package_results_helper, quiet=quiet)
+        get_package_results = functools.partial(get_package_results_helper)
         dependencies = self.parse_requirements(requirements)
-
         params = []
         for dependency, versions in dependencies.items():
-            for version in versions:
-                params.append((dependency, version))
-
+            if versions is None:
+                params.append((dependency, None)) # this will cause scan_remote to use the latest version
+            else:
+                for version in versions:
+                    params.append((dependency, version))
         pool = pathos.helpers.mp.Pool()
         project_results = pool.starmap(get_package_results, params)
 
         return project_results
 
-    def scan_local(self, path, quiet=False):
+    def scan_local(self, path):
         """
         Scans a local requirements.txt file
 
         Args:
             path (str): path to requirements.txt file
-            quiet (bool, optional): flag to print results. Defaults to False.
 
         Returns:
             dict: mapping of dependencies to scan results
@@ -219,19 +214,18 @@ class RequirementsScanner(Scanner):
 
         try:
             with open(path, "r") as f:
-                return self.scan_requirements(f.readlines(), quiet)
+                return self.scan_requirements(f.readlines())
         except Exception as e:
             sys.stdout.write(f"Received {e}")
             sys.exit(255)
 
-    def scan_remote(self, url, branch, quiet=False, requirements_name="requirements.txt"):
+    def scan_remote(self, url, branch, requirements_name="requirements.txt"):
         """
         Scans remote requirements.txt file
 
         Args:
             url (str): url of the Github repo
             branch (str): branch containing requirements.txt
-            quiet (bool, optional): flag to print results. Defaults to False.
             requirements_name (str, optional): name of requirements file.
                 Defaults to "requirements.txt".
 
@@ -258,7 +252,7 @@ class RequirementsScanner(Scanner):
         resp = requests.get(url=req_url, auth=token)
 
         if resp.status_code == 200:
-            return self.scan_requirements(resp.content.decode().splitlines(), quiet)
+            return self.scan_requirements(resp.content.decode().splitlines())
         else:
             sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)

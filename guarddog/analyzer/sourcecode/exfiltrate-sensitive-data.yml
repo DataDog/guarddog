@@ -1,6 +1,7 @@
 rules:
 - id: exfiltrate-sensitive-data
   mode: taint
+  message: Package exfiltrating sensitive data to a remote server
   pattern-sources:
     - pattern: os.environ.items()
     - pattern: '[... for ... in os.environ.items()]'
@@ -37,7 +38,6 @@ rules:
             - pattern-inside: $S = socket.socket(...); ...
             - pattern-inside: $S.connect(...); ...
             - pattern-inside: $S.send(...)
-  message: Package exfiltrating sensitive data to a remote server
   languages:
     - python
   severity: WARNING

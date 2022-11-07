@@ -34,7 +34,6 @@ class Analyzer:
 
         self.metadata_ruleset = get_rules(".py", self.metadata_path)
         self.sourcecode_ruleset = get_rules(".yml", self.sourcecode_path)
-
         self.metadata_ruleset.remove("detector")
         self.metadata_ruleset.remove("__init__")
 
@@ -81,10 +80,10 @@ class Analyzer:
         sourcecode_results = None
 
         # populate results, errors, and number of issues
-        if rules is None:
-            metadata_results = self.analyze_metadata(info)
-            sourcecode_results = self.analyze_sourcecode(path)
-        else:
+        metadata_rules = None
+        sourcecode_rules = None
+        if rules is not None:
+            # Only run specific rules
             sourcecode_rules = set()
             metadata_rules = set()
 
@@ -96,8 +95,9 @@ class Analyzer:
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
 
-            metadata_results = self.analyze_metadata(info, metadata_rules)
-            sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
+        metadata_results = self.analyze_metadata(info, metadata_rules)
+        sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
+            
 
         # Concatenate dictionaries together
         issues = metadata_results["issues"] + sourcecode_results["issues"]
@@ -125,9 +125,10 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_results = self.metadata_detectors[rule].detect(info)
-                issues += bool(rule_results)  # only True if results nonempty
-                results[rule] = rule_results
+                rule_matches, message = self.metadata_detectors[rule].detect(info)
+                if rule_matches:
+                    issues += 1
+                    results[rule] = message
             except Exception as e:
                 errors[rule] = str(e)
 
@@ -152,6 +153,7 @@ class Analyzer:
         issues = 0
 
         if rules is None:
+            # No rule specified, run all rules
             response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude, no_git_ignore=True)
             rule_results = self._format_semgrep_response(response, targetpath=targetpath)
             issues += len(rule_results)
@@ -199,7 +201,7 @@ class Analyzer:
         """
 
         results = {}
-
+        
         for result in response["results"]:
             rule_name = rule or result["check_id"].split(".")[-1]
             code_snippet = result["extra"]["lines"]
@@ -210,17 +212,21 @@ class Analyzer:
                 file_path = os.path.relpath(file_path, targetpath)
 
             location = file_path + ":" + str(line)
+            code = self.trim_code_snippet(code_snippet)
 
-            if rule_name not in results:
-                results[rule_name] = {location: self.trim_code_snippet(code_snippet)}
-            else:
-                results[rule_name][location] = self.trim_code_snippet(code_snippet)
+            if rule_name not in result:
+                results[rule_name] = []
+                results[rule_name].append({
+                    'location': location, 
+                    'code': code, 
+                    'message': result["extra"]["message"]
+                })
 
         return results
 
     # Makes sure the matching code to be displayed isn't too long
     def trim_code_snippet(self, code):
-        THRESHOLD = 200
+        THRESHOLD = 250
         if len(code) > THRESHOLD:
             return code[:THRESHOLD-10] + '...' + code[len(code)-10:]
         else:

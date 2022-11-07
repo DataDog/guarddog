@@ -13,9 +13,9 @@ class EmptyInfoDetector(Detector):
     """
 
     def __init__(self) -> None:
-        super(Detector)
+        super()
 
-    def detect(self, package_info) -> bool:
+    def detect(self, package_info) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package has an empty description
@@ -29,4 +29,4 @@ class EmptyInfoDetector(Detector):
         """
 
         sanitized_description = package_info["info"]["description"].strip()
-        return len(sanitized_description) == 0
+        return len(sanitized_description) == 0, 'This package has an empty description on PyPi'

@@ -8,6 +8,7 @@ import json
 import os
 import re
 from pprint import pprint
+from termcolor import colored
 
 import click
 
@@ -27,34 +28,30 @@ def cli():
 
 @cli.command("verify")
 @click.argument("path")
-@click.option("-o", "--output-file", default=None, type=click.Path(exists=False))
-@click.option("-q", "--quiet", default=False)
-def verify(path, output_file, quiet):
+@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
+def verify(path, json):
     """Verify a requirements.txt file
 
     Args:
         path (str): path to requirements.txt file
-        output_file (str): path to output file
     """
     scanner = RequirementsScanner()
-    results = scanner.scan_local(path, quiet)
-
-    if output_file:
-        basedir = os.path.dirname(output_file)
-        is_basedir_exist = os.path.exists(basedir)
-
-        if not is_basedir_exist:
-            os.makedirs(basedir)
-
-        with open(output_file, "w+") as f:
-            json.dump(results, f, ensure_ascii=False, indent=4)
+    results = scanner.scan_local(path)
+    for result in results:
+        identifier = result['dependency'] if result['version'] is None else f"{result['dependency']} version {result['version']}"
+        if not json:
+            print_scan_results(result.get('result'), identifier)
+    
+    if json:
+        pprint(results)
 
 
 @cli.command("scan")
 @click.argument("identifier")
 @click.option("-v", "--version", default=None, help="Specify a version to scan")
 @click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
-def scan(identifier, version, rules):
+@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
+def scan(identifier, version, rules, json):
     """Scan a package
 
     Args:
@@ -74,9 +71,38 @@ def scan(identifier, version, rules):
     else:
         results = scanner.scan_remote(identifier, version, rule_param)
 
-    pprint(results)
+    if json:
+        pprint(results)
+    else:
+        print_scan_results(results, identifier)
 
 # Determines if the input passed to the 'scan' command is a local package name
 def is_local_package(input):
     identifier_is_path = re.search(r"(.{0,2}\/)+.+", input)
     return identifier_is_path or input.endswith('.tar.gz')
+
+
+# Pretty prints scan results for the console
+def print_scan_results(results, identifier):
+    num_issues = results.get('issues')
+    if num_issues == 0:
+        print("Found " + colored('0 potentially malicious indicators', 'green', attrs=['bold']) + " scanning " + colored(identifier, None, attrs=['bold']))
+        return
+    
+    print("Found " + colored(str(num_issues) + ' potentially malicious indicators', 'red', attrs=['bold']) + " in " + colored(identifier, None, attrs=['bold']))
+    print()
+    
+    results = results.get('results', [])
+    for finding in results:
+        description = results[finding]
+        if type(description) == str: # package metadata
+            print(colored(finding, None, attrs=['bold']) + ': ' + description)
+            print()
+        elif type(description) == list: # semgrep rule result:
+            source_code_findings = description
+            print(colored(finding, None, attrs=['bold']) + ': found ' + str(len(source_code_findings)) + ' source code matches')
+            for finding in source_code_findings:
+                print('  * ' + finding['message'] + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
+            print()
+def format_code_line_for_output(code):
+    return '    ' + colored(code.strip().replace('\n', '\n    ').replace('\t', '  '), None, 'on_red', attrs=['bold'])
