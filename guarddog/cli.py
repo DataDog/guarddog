@@ -50,8 +50,9 @@ def verify(path, json):
 @click.argument("identifier")
 @click.option("-v", "--version", default=None, help="Specify a version to scan")
 @click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
+@click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-def scan(identifier, version, rules, json):
+def scan(identifier, version, rules, exclude_rules, json):
     """Scan a package
 
     Args:
@@ -63,6 +64,8 @@ def scan(identifier, version, rules, json):
     rule_param = None
     if len(rules) != 0:
         rule_param = rules
+    if len(exclude_rules):
+        rule_param = ALL_RULES - set(exclude_rules)
 
     scanner = PackageScanner()
     results = {}
