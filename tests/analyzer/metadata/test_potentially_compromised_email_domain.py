@@ -19,7 +19,7 @@ class TestCompromisedEmail:
             return MockWhoIs(datetime.today())
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised = self.detector.detect(PACKAGE_INFO)
+        compromised, _ = self.detector.detect(PACKAGE_INFO)
         assert compromised
 
     def test_safe(self):
@@ -27,7 +27,7 @@ class TestCompromisedEmail:
             return MockWhoIs(datetime(1990, 1, 31))
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised = self.detector.detect(PACKAGE_INFO)
+        compromised, _ = self.detector.detect(PACKAGE_INFO)
         assert not compromised
     
     def test_email_domain_doesnt_exist(self):
@@ -36,5 +36,5 @@ class TestCompromisedEmail:
             raise whois.parser.PywhoisError('No match for "nope.com".')
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised = self.detector.detect(PACKAGE_INFO)
+        compromised, _ = self.detector.detect(PACKAGE_INFO)
         assert compromised

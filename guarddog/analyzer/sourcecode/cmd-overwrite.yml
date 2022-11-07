@@ -2,7 +2,7 @@ rules:
   - id: cmd-overwrite
     languages:
       - python
-    message: Found dangerous code in setup.py. The pip command $COMMAND is being overwritten to $SCRIPT.
+    message: Standard pip command overwritten in setup.py
     patterns:
       - pattern-either:
           - pattern: |

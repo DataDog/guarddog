@@ -44,6 +44,7 @@ pathos = "^0.2.9"
 pytest = "^7.1.2"
 flake8 = "^5.0.4"
 python-whois = "^0.8.0"
+termcolor = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
 

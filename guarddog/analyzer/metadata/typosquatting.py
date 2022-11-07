@@ -30,7 +30,7 @@ class TyposquatDetector(Detector):
             normalized_name = name.lower().replace("_", "-")
             self.popular_packages.append(normalized_name)
 
-        super(Detector)
+        super()
 
     def _get_top_packages(self) -> list:
         """
@@ -239,7 +239,7 @@ class TyposquatDetector(Detector):
 
         return typosquatted
 
-    def detect(self, package_info) -> list[str]:
+    def detect(self, package_info) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine the
         package is attempting a typosquatting attack
@@ -252,5 +252,8 @@ class TyposquatDetector(Detector):
             list[str]: names of packages that <package_name> could be
             typosquatting from
         """
-
-        return self.get_typosquatted_package(package_info["info"]["name"])
+        similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
+        if len(similar_package_names) > 0:
+            return True, "This package closely ressembles the following package names, and might be a typosquatting attempt: " + ", ".join(similar_package_names)
+        
+        return False,  None
