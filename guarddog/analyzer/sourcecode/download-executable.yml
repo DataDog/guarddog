@@ -2,7 +2,7 @@ rules:
 - id: download-executable
   languages:
     - python
-  message: Found downloaded content writing to executable file at $LOC.
+  message: Download of a second-stage executable.
   mode: taint
   pattern-sinks:
     - patterns:

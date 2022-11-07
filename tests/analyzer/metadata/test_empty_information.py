@@ -14,8 +14,10 @@ class TestEmptyInformation:
 
     @pytest.mark.parametrize("package_info", [empty_information])
     def test_empty(self, package_info):
-        assert self.detector.detect(package_info)
+        matches, _ = self.detector.detect(package_info)
+        assert matches
 
     @pytest.mark.parametrize("package_info", [nonempty_information])
     def test_nonempty(self, package_info):
-        assert not self.detector.detect(package_info)
+        matches, _ = self.detector.detect(package_info)
+        assert not matches
