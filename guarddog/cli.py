@@ -87,6 +87,7 @@ def print_scan_results(results, identifier):
     num_issues = results.get('issues')
     if num_issues == 0:
         print("Found " + colored('0 potentially malicious indicators', 'green', attrs=['bold']) + " scanning " + colored(identifier, None, attrs=['bold']))
+        print()
         return
     
     print("Found " + colored(str(num_issues) + ' potentially malicious indicators', 'red', attrs=['bold']) + " in " + colored(identifier, None, attrs=['bold']))
