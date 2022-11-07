@@ -4,7 +4,7 @@ rules:
   - id: code-execution
     languages:
       - python
-    message: $STR found in setup.py
+    message: 'setup.py file executing code'
     patterns:
       # exec argument must be hardcoded string
       - pattern-either:

@@ -14,7 +14,7 @@ from guarddog.analyzer.metadata.detector import Detector
 
 class PotentiallyCompromisedEmailDomainDetector(Detector):
     """
-    Detector for compromised email dommain attacks. Checks if the author's email domain was
+    Detector for compromised email domain attacks. Checks if the author's email domain was
     reregistered before the most recent package released
 
     Args:
@@ -22,7 +22,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
     """
 
     def __init__(self) -> None:
-        super(Detector)
+        super()
 
     def _get_domain_creation_date(self, email_domain) -> tuple[datetime, bool]:
         """
@@ -81,7 +81,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
                 release_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
                 return release_date
 
-    def detect(self, package_info) -> bool:
+    def detect(self, package_info) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package's email domain might have been compromised
@@ -105,7 +105,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
 
         if email is None or len(email) == 0:
             # No e-mail is set for this package, hence no risk
-            return False
+            return False, "No e-mail found for this package"
 
         sanitized_email = email.strip().replace(">", "").replace("<", "")
         email_domain = sanitized_email.split("@")[-1]
@@ -113,7 +113,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
         latest_project_release = self._get_project_latest_release_date(releases)
         domain_creation_date, domain_exists = self._get_domain_creation_date(email_domain)
         if not domain_exists:
-            return True
+            return True, "The maintainer's email domain does not exist and can likely be registered by an attacker to compromise the maintainer's PyPi account"
         if domain_creation_date is None:
-            return False
-        return latest_project_release < domain_creation_date
+            return False, "No e-mail domain creation date found"
+        return latest_project_release < domain_creation_date, "The domain name of the maintainer's email address was re-registered after the latest release of this package. This can be an indicator that this is a custom domain that expired, and was leveraged by an attacker to compromise the package owner's PyPi account."
