@@ -26,6 +26,9 @@ guarddog scan requests --version 2.28.1
 # Scan the 'request' package using 2 specific heuristics
 guarddog scan requests --rules exec-base64 --rules code-execution
 
+# Scan the 'requests' package using all rules but one
+guarddog scan requests --exclude-rules exec-base64
+
 # Scan a local package
 guarddog scan /tmp/triage.tar.gz
 
