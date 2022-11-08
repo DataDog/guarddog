@@ -69,6 +69,7 @@ GuardDog comes with 2 types of heuristics:
 | Typosquatting | Package has a name close to one of the top 5k PyPI packages |
 | Potentially compromised maintainer e-mail domain | Maintainer e-mail address is associated to a domain that was re-registered later than the last package release. This can be an indicator that this is a custom domain that expired, and was leveraged by an attacker to compromise the package owner's PyPI account. See [here](https://therecord.media/thousands-of-npm-accounts-use-email-addresses-with-expired-domains) for a description of the issue for npm. |
 | Empty package description | Package has an empty description of PyPI |
+| Release 0.0.0 | Package has its latest release set to `0.0.0` or `0.0` |
 
 ## Development
 
