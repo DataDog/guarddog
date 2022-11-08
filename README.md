@@ -61,6 +61,7 @@ GuardDog comes with 2 types of heuristics:
 | [Exfiltration of sensitive data to a remote server](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/exfiltrate-sensitive-data.yml) | Sensitive data from the environment ends up being sent through an HTTP request |
 | [Code execution in `setup.py`](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/code-execution.yml) | Code in `setup.py` executes code dynamically or starts a new process |
 | [Unusual domain extension](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/shady-links.yml) | Usage of a domain name with an extension frequently used by malware (e.g. `.xyz` or `.top`) |
+| [Use of a common obfuscation method](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/obfuscation.yml) | The package uses an obfuscation method commonly used by malware, such as running `eval` on hexadecimal strings |
 
 ### Package metadata heuristics
 
