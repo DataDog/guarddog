@@ -1,0 +1,14 @@
+rules:
+  - id: obfuscation
+    message: "Detected common obfuscation method used by malware"
+    patterns:
+      - pattern-either:
+        # evaluates to "eval"
+        - pattern: 'eval("\145\166\141\154")'
+        # evaluates to "eval"
+        - pattern: 'eval("\x65\x76\x61\x6c")'
+        # this naming is used by some obfuscators such as BlankOBF
+        - pattern: '_____=eval(...)'
+    languages:
+      - python
+    severity: WARNING
