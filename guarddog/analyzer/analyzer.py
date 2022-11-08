@@ -6,6 +6,7 @@ from semgrep.semgrep_main import invoke_semgrep
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
+from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
 
 
 class Analyzer:
@@ -58,6 +59,7 @@ class Analyzer:
             "typosquatting": TyposquatDetector(),
             "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
             "empty_information": EmptyInfoDetector(),
+            "release_zero": ReleaseZeroDetector()
         }
 
     def analyze(self, path, info=None, rules=None) -> dict[str]:
