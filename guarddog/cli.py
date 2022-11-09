@@ -43,7 +43,8 @@ def verify(path, json):
             print_scan_results(result.get('result'), identifier)
     
     if json:
-        pprint(results)
+        import json as js
+        print(js.dumps(results))
 
 
 @cli.command("scan")
@@ -75,7 +76,8 @@ def scan(identifier, version, rules, exclude_rules, json):
         results = scanner.scan_remote(identifier, version, rule_param)
 
     if json:
-        pprint(results)
+        import json as js
+        print(js.dumps(results))
     else:
         print_scan_results(results, identifier)
 
