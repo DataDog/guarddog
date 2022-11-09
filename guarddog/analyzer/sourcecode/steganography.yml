@@ -1,0 +1,16 @@
+rules:
+- id: steganography
+  languages:
+    - python
+  message: Dynamic execution of hidden data from an image
+  mode: taint
+  pattern-sinks:
+     - pattern-either:
+          - pattern-inside: exec(...)
+          - pattern-inside: eval(...)
+  pattern-sources:
+    - pattern-either: 
+        - pattern: steganography.steganography.Steganography.decode(...)
+        - pattern: lsb.reveal(...)
+        - pattern: $SOMETHING.lsb.reveal(...)
+  severity: WARNING
