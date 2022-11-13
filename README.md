@@ -16,6 +16,13 @@ GuardDog can be used to scan local or remote PyPI packages using any of the avai
 pip install git+https://github.com/DataDog/guarddog.git
 ```
 
+Or use the Docker image:
+
+```
+docker pull ghcr.io/datadog/guarddog
+alias guarddog='docker run --rm ghcr.io/datadog/guarddog'
+```
+
 ### Sample usage
 
 ```sh
