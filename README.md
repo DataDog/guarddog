@@ -18,7 +18,7 @@ pip install git+https://github.com/DataDog/guarddog.git
 
 Or use the Docker image:
 
-```
+```sh
 docker pull ghcr.io/datadog/guarddog
 alias guarddog='docker run --rm ghcr.io/datadog/guarddog'
 ```
