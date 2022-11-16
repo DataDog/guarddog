@@ -485,7 +485,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "semgrep"
-version = "0.107.0"
+version = "0.122.0"
 description = "Lightweight static analysis for many languages. Find bug variants with patterns that look like source code."
 category = "main"
 optional = false
@@ -505,10 +505,14 @@ peewee = ">=3.14,<4.0"
 python-lsp-jsonrpc = ">=1.0.0,<1.1.0"
 requests = ">=2.22,<3.0"
 "ruamel.yaml" = ">=0.16.0,<0.18"
+tomli = ">=2.0.1,<2.1.0"
 tqdm = ">=4.46,<5.0"
 typing-extensions = ">=4.2,<5.0"
 urllib3 = ">=1.26,<2.0"
 wcmatch = ">=8.3,<9.0"
+
+[package.extras]
+experiments = ["jsonnet (>=0.18,<1.0)"]
 
 [[package]]
 name = "six"
@@ -609,8 +613,8 @@ test = ["websockets"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.10, <4"
-content-hash = "e873e8f4a01c7694c53abc7954920de1e33e54072478a105e52954ef44b81d54"
+python-versions = ">=3.9, <4"
+content-hash = "22667f3d22e91d7ad659fea68e700b90fddc7595914971f3ab78a0c052746ec6"
 
 [metadata.files]
 atomicwrites = [
@@ -865,10 +869,10 @@ requests = [
     {file = "ruamel.yaml.clib-0.2.6.tar.gz", hash = "sha256:4ff604ce439abb20794f05613c374759ce10e3595d1867764dd1ae675b85acbd"},
 ]
 semgrep = [
-    {file = "semgrep-0.107.0-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:51dc4813e2304efa9811d89c81614b6076a6d16f6ca56f19f672898d451946b5"},
-    {file = "semgrep-0.107.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:2902ca1825fa2a17a57b5b8fbe0828c4c714bbe82dff7bc5f415cd876f58d715"},
-    {file = "semgrep-0.107.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:202a3cc52e96b6603d22f3d5629e6f654008d53ab32613dbc9a8521be6cc42b9"},
-    {file = "semgrep-0.107.0.tar.gz", hash = "sha256:f357b650dcc517671286aa6df4b3e7a2eb1f12ca178edd6c18b9c8eeea3ca135"},
+    {file = "semgrep-0.122.0-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:c7002b9aba97deb6677f4cabfa5dcc8faef2808ce6a6f28ecdd70cd8e90b01b5"},
+    {file = "semgrep-0.122.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:e3fb9956e2bb926cfeff52deafe4cec24d5f1e91fe6d3fc4f81e86ec452b2ad5"},
+    {file = "semgrep-0.122.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:6116391b0c8c87581d9d72113702b6f8c2938d799cdae7d71a845ec89249566c"},
+    {file = "semgrep-0.122.0.tar.gz", hash = "sha256:a4c7400eb8bec9fe8df25520d1ffcb5d78b87c73dc654f1c2aec1195789bc611"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},

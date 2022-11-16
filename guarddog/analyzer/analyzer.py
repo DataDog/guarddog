@@ -106,7 +106,7 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        return {"issues": issues, "errors": errors, "results": results}
+        return {"issues": issues, "errors": errors, "results": results, "path": path}
 
     def analyze_metadata(self, info, rules=None) -> dict[str]:
         """
