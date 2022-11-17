@@ -85,12 +85,13 @@ GuardDog comes with 2 types of heuristics:
 ### Running a local version of GuardDog
 
 * Clone the repository
-* Create a virtualenv: `python3 -m venv venv && source venv/bin/activate`
+* Install needed virtualenv: ` $ poetry install `
+* Invoke virtualenv: ` $ poetry shell`
 * Run GuardDog using `python -m guarddog`
 
 ### Unit tests
 
-Running all unit tests: `make test`
+Running all unit tests (in proper virtual environment): `make test`
 
 Running unit tests againt Semgrep rules: `make test-semgrep-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/sourcecode)). These use the standard methodology for [testing Semgrep rules](https://semgrep.dev/docs/writing-rules/testing-rules/).
 
