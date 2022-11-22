@@ -4,6 +4,7 @@ import sys
 import tarfile
 import tempfile
 import requests
+import json
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import Scanner

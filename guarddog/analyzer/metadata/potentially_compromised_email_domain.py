@@ -18,7 +18,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
     reregistered before the most recent package released
 
     Args:
-        Detector (_type_): _description_
+        Detector (_type_): Detector class defined in guarddog.analyzer.metadata.detector
     """
 
     def __init__(self) -> None:

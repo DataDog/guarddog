@@ -7,6 +7,7 @@ from guarddog.analyzer.metadata.potentially_compromised_email_domain import Pote
 from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
+from guarddog.analyzer.metadata.match_github_source import MatchGithubSource
 
 
 class Analyzer:
@@ -59,7 +60,8 @@ class Analyzer:
             "typosquatting": TyposquatDetector(),
             "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
             "empty_information": EmptyInfoDetector(),
-            "release_zero": ReleaseZeroDetector()
+            "release_zero": ReleaseZeroDetector(),
+            "match_github_source": MatchGithubSource()
         }
 
     def analyze(self, path, info=None, rules=None) -> dict[str]:

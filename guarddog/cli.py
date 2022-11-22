@@ -77,7 +77,7 @@ def scan(identifier, version, rules, exclude_rules, json):
 
     if json:
         import json as js
-        print(js.dumps(results))
+        print(js.dumps(results, indent = 4))
     else:
         print_scan_results(results, identifier)
 
