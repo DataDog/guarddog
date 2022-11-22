@@ -80,7 +80,9 @@ class PackageScanner(Scanner):
 
                 return results
         except Exception as e:
-            raise Exception(e)
+            sys.stderr.write("\n")
+            sys.stderr.write(str(e))
+            sys.exit()
 
     def download_package(self, package_name, directory, version=None) -> None:
         """Downloads the PyPI distribution for a given package and version
