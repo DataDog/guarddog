@@ -132,7 +132,7 @@ class Analyzer:
                     issues += 1
                     results[rule] = message
             except Exception as e:
-                errors[rule] = str(e)
+                errors[rule] = f"failed to run rule {rule}: {str(e)}"
 
         return {"results": results, "errors": errors, "issues": issues}
 
@@ -156,11 +156,14 @@ class Analyzer:
 
         if rules is None:
             # No rule specified, run all rules
-            response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude, no_git_ignore=True)
-            rule_results = self._format_semgrep_response(response, targetpath=targetpath)
-            issues += len(rule_results)
-            
-            results = results | rule_results
+            try:
+                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude, no_git_ignore=True)
+                rule_results = self._format_semgrep_response(response, targetpath=targetpath)
+                issues += len(rule_results)
+                
+                results = results | rule_results
+            except Exception as e:
+                errors["rules-all"] = f"failed to run rule: {str(e)}"
         else:
             for rule in rules:
                 try:
@@ -175,7 +178,7 @@ class Analyzer:
 
                     results = results | rule_results
                 except Exception as e:
-                    errors[rule] = str(e)
+                    errors[rule] = f"failed to run rule {rule}: {str(e)}"
 
         return {"results": results, "errors": errors, "issues": issues}
 
