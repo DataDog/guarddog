@@ -45,7 +45,8 @@ pytest = "^7.1.2"
 flake8 = "^5.0.4"
 python-whois = "^0.8.0"
 termcolor = "^2.1.0"
-
+setuptools = "^65.6.3"
+    
 [tool.poetry.dev-dependencies]
 
 [build-system]
