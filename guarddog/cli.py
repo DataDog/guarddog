@@ -81,6 +81,8 @@ def scan(identifier, version, rules, exclude_rules, json):
     else:
         print_scan_results(results, identifier)
 
+    exit(results.get('issues', 0))
+
 # Determines if the input passed to the 'scan' command is a local package name
 def is_local_package(input):
     identifier_is_path = re.search(r"(.{0,2}\/)+.+", input)
@@ -90,6 +92,7 @@ def is_local_package(input):
 # Pretty prints scan results for the console
 def print_scan_results(results, identifier):
     num_issues = results.get('issues')
+
     if num_issues == 0:
         print("Found " + colored('0 potentially malicious indicators', 'green', attrs=['bold']) + " scanning " + colored(identifier, None, attrs=['bold']))
         print()
@@ -110,5 +113,6 @@ def print_scan_results(results, identifier):
             for finding in source_code_findings:
                 print('  * ' + finding['message'] + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
             print()
+
 def format_code_line_for_output(code):
     return '    ' + colored(code.strip().replace('\n', '\n    ').replace('\t', '  '), None, 'on_red', attrs=['bold'])
