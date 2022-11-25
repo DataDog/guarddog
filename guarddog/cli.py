@@ -81,7 +81,7 @@ def scan(identifier, version, rules, exclude_rules, json):
     else:
         print_scan_results(results, identifier)
 
-    exit(results.get('issues', 0))
+    exit(min(results.get('issues', 1), 1))
 
 # Determines if the input passed to the 'scan' command is a local package name
 def is_local_package(input):
