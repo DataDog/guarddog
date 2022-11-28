@@ -72,12 +72,11 @@ class PackageScanner(Scanner):
         Scans a remote package
 
         Args:
-            name (str): name of the package on PyPI
-            version (str, optional): version of package (ex. 0.0.1)
-            rules (set, optional): Set of rule names to use. Defaults to all rules.
-            base_dir (str, optional): directory to use to download package. There will be no cleanup after the scan
-            write_package_info (bool, default False): if set to true, the result of the metadata API will be writen to a
-                json file
+            * `name` (str): name of the package on PyPI
+            * `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is assumed.
+            * `rules` (set, optional): Set of rule names to use. Defaults to all rules.
+            * `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder is created and cleaned up automatically. If not specified, the provided directory is not removed after the scan.
+            * `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written to a json file
 
         Raises:
             Exception: Analyzer exception

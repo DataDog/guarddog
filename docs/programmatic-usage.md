@@ -1,4 +1,4 @@
-# Programmatic use
+# Programmatic usage
 
 GuardDog can be used as a Python library:
 
@@ -7,17 +7,18 @@ from guarddog import PackageScanner
 
 scanner = PackageScanner()
 
-results = scanner.scan_remote('guarddog')
+results = scanner.scan_remote('requests')
 print(results)
 ```
 
-This will download the package `guarddog`, scan it and cleanup the directory from the disk.
+This will download the package `requests`, scan it, then cleanup the temporary directory from disk.
 
 ## API
 
 ### Class `PackageScanner`
 
-Scans package for attack vectors based on source code and metadata rules.
+Scans package for attack vectors based on [source code](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/sourcecode) and [metadata](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata) heuristics.
+
 ```python
 from guarddog import PackageScanner
 ```
@@ -27,13 +28,13 @@ from guarddog import PackageScanner
 Scans a remote package
 
 Arguments:
-* name (str): name of the package on PyPI
-* version (str, optional): version of package (ex. 0.0.1)
-* rules (set, optional): Set of rule names to use. Defaults to all rules.
-* base_dir (str, optional): directory to use to download package. There will be no cleanup after the scan.
-* write_package_info (bool, default False): if set to true, the result of the metadata API will be writen to a json file
+* `name` (str): name of the package on PyPI
+* `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is assumed.
+* `rules` (set, optional): Set of rule names to use. Defaults to all rules.
+* `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder is created and cleaned up automatically. If not specified, the provided directory is not removed after the scan.
+* `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written to a JSON file where the package is downloaded.
 
-##### Example
+Example:
 
 ```python
 from guarddog import PackageScanner
