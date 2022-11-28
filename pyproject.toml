@@ -3,7 +3,7 @@ name = "guarddog"
 description = "GuardDog is a CLI tool to Identify malicious PyPI packages"
 authors = ["Ellen Wang", "Christophe Tafani-Dereeper"]
 license = "Apache-2.0"
-readme = "README.md"
+readme = "pypi.rst"
 dynamic = ["version"]
 
 [tool.poetry.scripts]
