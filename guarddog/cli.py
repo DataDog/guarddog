@@ -18,7 +18,7 @@ from .scanners.project_scanner import RequirementsScanner
 
 analyzer = Analyzer()
 ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
-
+EXIT_CODE_ISSUES_FOUND = 1
 
 @click.group
 def cli():
@@ -29,7 +29,8 @@ def cli():
 @cli.command("verify")
 @click.argument("path")
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-def verify(path, json):
+@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at least one issue is identified")
+def verify(path, json, exit_non_zero_on_finding):
     """Verify a requirements.txt file
 
     Args:
@@ -46,6 +47,8 @@ def verify(path, json):
         import json as js
         print(js.dumps(results))
 
+    if exit_non_zero_on_finding:
+        exit_with_status_code(results)
 
 @cli.command("scan")
 @click.argument("identifier")
@@ -53,7 +56,8 @@ def verify(path, json):
 @click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 @click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-def scan(identifier, version, rules, exclude_rules, json):
+@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at least one issue is identified")
+def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding):
     """Scan a package
 
     Args:
@@ -81,7 +85,8 @@ def scan(identifier, version, rules, exclude_rules, json):
     else:
         print_scan_results(results, identifier)
 
-    exit(min(results.get('issues', 1), 1))
+    if exit_non_zero_on_finding:
+        exit_with_status_code(results)
 
 # Determines if the input passed to the 'scan' command is a local package name
 def is_local_package(input):
@@ -114,5 +119,13 @@ def print_scan_results(results, identifier):
                 print('  * ' + finding['message'] + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
             print()
 
+
 def format_code_line_for_output(code):
     return '    ' + colored(code.strip().replace('\n', '\n    ').replace('\t', '  '), None, 'on_red', attrs=['bold'])
+
+
+# Given the results, exit with the appropriate status code
+def exit_with_status_code(results):
+    num_issues = results.get('issues', 0)
+    if num_issues > 0:
+        exit(EXIT_CODE_ISSUES_FOUND)
