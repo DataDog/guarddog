@@ -90,7 +90,7 @@ class PackageScanner(Scanner):
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             # Directory to download compressed and uncompressed package
-            return self._scan_remote(name, tmpdirname, version, rules)
+            return self._scan_remote(name, tmpdirname, version, rules, write_package_info)
 
     def download_package(self, package_name, directory, version=None) -> None:
         """Downloads the PyPI distribution for a given package and version
