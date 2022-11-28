@@ -9,3 +9,5 @@ venv
 .idea/
 dist/
 wheels/
+*.egg-info/
+build/
