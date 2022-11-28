@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "guarddog"
-version = "0.1.0"
-description = "CLI tool to hunt for PyPI malware"
-authors = ["Ellen Wang <ellen.wang@datadoghq.com>"]
+version = "0.1.1"
+description = "GuardDog is a CLI tool to Identify malicious PyPI packages"
+authors = ["Ellen Wang", "Christophe Tafani-Dereeper"]
 license = "Apache 2.0"
 
 [tool.poetry.scripts]
