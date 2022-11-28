@@ -1,3 +1,6 @@
+[project]
+dynamic = ["version"]
+
 [tool.poetry]
 name = "guarddog"
 description = "GuardDog is a CLI tool to Identify malicious PyPI packages"
