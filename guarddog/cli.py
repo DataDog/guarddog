@@ -4,13 +4,11 @@ CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
 
-import json
-import os
 import re
-from pprint import pprint
-from termcolor import colored
+import sys
 
 import click
+from termcolor import colored
 
 from .analyzer.analyzer import Analyzer
 from .scanners.package_scanner import PackageScanner
@@ -73,7 +71,12 @@ def scan(identifier, version, rules, exclude_rules, json):
     if is_local_package(identifier):
         results = scanner.scan_local(identifier, rule_param)
     else:
-        results = scanner.scan_remote(identifier, version, rule_param)
+        try:
+            results = scanner.scan_remote(identifier, version, rule_param)
+        except Exception as e:
+            sys.stderr.write("\n")
+            sys.stderr.write(str(e))
+            sys.exit()
 
     if json:
         import json as js
