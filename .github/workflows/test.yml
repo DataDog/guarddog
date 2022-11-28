@@ -35,6 +35,8 @@ jobs:
       run: make test-semgrep-rules
     - name: Python unit tests
       run: make test-metadata-rules
+    - name: Core unit tests
+      run: make test-core
 
   docker-build:
     runs-on: ubuntu-latest
