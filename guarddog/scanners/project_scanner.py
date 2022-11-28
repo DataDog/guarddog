@@ -100,13 +100,15 @@ class RequirementsScanner(Scanner):
         try:
             for requirement in pkg_resources.parse_requirements(sanitized_requirements):
                 valid_versions = None
+                project_exists_on_pypi = True
                 for spec in requirement.specs:
                     qualifier, version = spec
 
                     try:
                         available_versions = versions(requirement.project_name)
                     except Exception:
-                        sys.stderr.write(f"Package {requirement.project_name} not on PyPI")
+                        sys.stderr.write(f"Package {requirement.project_name} not on PyPI\n")
+                        project_exists_on_pypi = False
                         continue
 
                     used_versions = None
@@ -142,7 +144,8 @@ class RequirementsScanner(Scanner):
                     else:
                         valid_versions = valid_versions & used_versions
 
-                dependencies[requirement.project_name] = valid_versions
+                if project_exists_on_pypi:
+                    dependencies[requirement.project_name] = valid_versions
         except Exception as e:
             sys.stderr.write(f"Received error {str(e)}")
 
