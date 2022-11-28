@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -38,6 +38,27 @@ jobs:
     - name: Core unit tests
       run: make test-core
 
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.5.0
+        with:
+          fetch-depth: 0
+
+      - name: 'Set up Python 3.10'
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run GuardDog against a remote package
+        run: python -m guarddog scan requests
+
+  
   docker-build:
     runs-on: ubuntu-latest
     permissions:
