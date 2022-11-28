@@ -6,4 +6,6 @@
 evaluator/data/benign/*/
 **/*.pyc
 venv
-
+.idea/
+dist/
+wheels/
