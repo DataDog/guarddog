@@ -5,5 +5,4 @@ from guarddog.scanners.project_scanner import RequirementsScanner
 def test_requirements_scanner_on_non_existing_package():
     scanner = RequirementsScanner()
     result = scanner.parse_requirements(["not-a-real-package==1.0.0"])
-    print(result)
     assert "not-a-real-package" not in result
