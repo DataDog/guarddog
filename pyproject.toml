@@ -4,7 +4,7 @@ description = "GuardDog is a CLI tool to Identify malicious PyPI packages"
 authors = ["Ellen Wang", "Christophe Tafani-Dereeper"]
 license = "Apache-2.0"
 readme = "pypi.rst"
-dynamic = ["version"]
+version = "0.0.0"
 
 [tool.poetry.scripts]
 guarddog = "guarddog.cli:cli"
@@ -50,10 +50,6 @@ setuptools = "^65.6.3"
     
 [tool.poetry.dev-dependencies]
 
-[build-system]
-requires = ["poetry-core>=1.0.0", "setuptools-git-versioning<2"]
-build-backend = "setuptools.build_meta"
-
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore::DeprecationWarning"
@@ -63,5 +59,7 @@ testpaths = [
     "tests/core"
 ]
 
-[tool.setuptools-git-versioning]
-enabled = true
+[build-system]
+requires = [ "setuptools>=41", "wheel" ]
+build-backend = "setuptools.build_meta"
+
