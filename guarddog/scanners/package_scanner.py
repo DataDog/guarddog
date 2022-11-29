@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import sys
-import tarfile
+import tarsafe
 import tempfile
 import requests
 
@@ -44,7 +44,7 @@ class PackageScanner(Scanner):
         if os.path.exists(path):
             if path.endswith('.tar.gz'):
                 with tempfile.TemporaryDirectory() as tmpdirname:
-                    tarfile.open(path).extractall(tmpdirname)
+                    tarsafe.open(path).extractall(tmpdirname)
                     return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
             elif os.path.isdir(path):
                 return self.analyzer.analyze_sourcecode(path, rules=rules)
