@@ -51,12 +51,12 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install dependencies
+      - name: Install GuardDog
         run: |
-          pip install -r requirements.txt
+          pip install .
 
       - name: Run GuardDog against a remote package
-        run: python -m guarddog scan requests
+        run: guarddog scan requests
 
   
   docker-build:
