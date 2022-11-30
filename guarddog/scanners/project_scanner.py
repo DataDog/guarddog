@@ -2,12 +2,11 @@ import functools
 import os
 import re
 import sys
-from pprint import pprint
+from typing import List
 
 import pathos
 import pkg_resources
 import requests
-from packaging.requirements import InvalidRequirement
 
 from guarddog.scanners.package_scanner import PackageScanner
 from guarddog.scanners.scanner import Scanner
@@ -69,7 +68,7 @@ class RequirementsScanner(Scanner):
 
         return sanitized_lines
 
-    def parse_requirements(self, requirements) -> dict:
+    def parse_requirements(self, requirements: List[str]) -> dict:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
