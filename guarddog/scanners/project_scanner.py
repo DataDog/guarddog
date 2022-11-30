@@ -7,6 +7,7 @@ from pprint import pprint
 import pathos
 import pkg_resources
 import requests
+from packaging.requirements import InvalidRequirement
 
 from guarddog.scanners.package_scanner import PackageScanner
 from guarddog.scanners.scanner import Scanner
@@ -74,7 +75,7 @@ class RequirementsScanner(Scanner):
         versions of each dependency
 
         Args:
-            requirements (str): contents of requirements.txt file
+            requirements (List[str]): contents of requirements.txt file
 
         Returns:
             dict: mapping of dependencies to valid versions
@@ -97,8 +98,22 @@ class RequirementsScanner(Scanner):
 
         dependencies = {}
 
+        def safe_parse_requirements(req):
+            parsed = pkg_resources.parse_requirements(req)
+            while True:
+                try:
+                    yield next(parsed)
+                except StopIteration:
+                    break
+                except Exception as e:
+                    sys.stderr.write(f"Error when parsing requirements, received error {str(e)}. This entry will be "
+                                     "ignored.\n")
+                    yield None
+
         try:
-            for requirement in pkg_resources.parse_requirements(sanitized_requirements):
+            for requirement in safe_parse_requirements(sanitized_requirements):
+                if requirement is None:
+                    continue
                 valid_versions = None
                 project_exists_on_pypi = True
                 for spec in requirement.specs:
