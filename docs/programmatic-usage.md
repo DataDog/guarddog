@@ -3,9 +3,9 @@
 GuardDog can be used as a Python library:
 
 ```python
-from guarddog import PackageScanner
+from guarddog import PypiPackageScanner
 
-scanner = PackageScanner()
+scanner = PypiPackageScanner()
 
 results = scanner.scan_remote('requests')
 print(results)
@@ -15,12 +15,12 @@ This will download the package `requests`, scan it, then cleanup the temporary d
 
 ## API
 
-### Class `PackageScanner`
+### Class `PypiPackageScanner`
 
 Scans package for attack vectors based on [source code](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/sourcecode) and [metadata](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata) heuristics.
 
 ```python
-from guarddog import PackageScanner
+from guarddog import PypiPackageScanner
 ```
 
 #### Method `scan_remote(self, name, version=None, rules=None, base_dir=None, write_package_info=False)`
@@ -37,9 +37,9 @@ Arguments:
 Example:
 
 ```python
-from guarddog import PackageScanner
+from guarddog import PypiPackageScanner
 
-scanner = PackageScanner()
+scanner = PypiPackageScanner()
 
 with tempfile.TemporaryDirectory() as tmpdirname:
     results = scanner.scan_remote(package, version, None, tmpdirname, True)  # fixing the dir prevents the cleanup

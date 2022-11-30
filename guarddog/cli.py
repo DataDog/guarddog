@@ -10,9 +10,8 @@ import sys
 import click
 from termcolor import colored
 
-from .analyzer.analyzer import Analyzer
-from .scanners.package_scanner import PackageScanner
-from .scanners.project_scanner import RequirementsScanner
+from guarddog.analyzer.analyzer import Analyzer
+from guarddog.scanners import get_scanner
 
 analyzer = Analyzer()
 ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
@@ -27,14 +26,19 @@ def cli():
 @cli.command("verify")
 @click.argument("path")
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
+# TODO: can we avoid duplication of arguments?
 @click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at least one issue is identified")
-def verify(path, json, exit_non_zero_on_finding):
+@click.option("-e", "--ecosystem", default="pypi", help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
+def verify(path, json, exit_non_zero_on_finding, ecosystem):
     """Verify a requirements.txt file
 
     Args:
         path (str): path to requirements.txt file
     """
-    scanner = RequirementsScanner()
+    scanner = get_scanner(ecosystem, True)
+    if scanner is None:
+        sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
+        exit(1)
     results = scanner.scan_local(path)
     for result in results:
         identifier = result['dependency'] if result['version'] is None else f"{result['dependency']} version {result['version']}"
@@ -55,7 +59,8 @@ def verify(path, json, exit_non_zero_on_finding):
 @click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
 @click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at least one issue is identified")
-def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding):
+@click.option("-e", "--ecosystem", default="pypi", help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
+def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem):
     """Scan a package
 
     Args:
@@ -70,9 +75,12 @@ def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_findi
     if len(exclude_rules):
         rule_param = ALL_RULES - set(exclude_rules)
 
-    scanner = PackageScanner()
+    scanner = get_scanner(ecosystem, False)
+    if scanner is None:
+        sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
+        exit(1)
     results = {}
-    if is_local_package(identifier):
+    if is_local_package(identifier, ecosystem):
         results = scanner.scan_local(identifier, rule_param)
     else:
         try:
@@ -92,7 +100,8 @@ def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_findi
         exit_with_status_code(results)
 
 # Determines if the input passed to the 'scan' command is a local package name
-def is_local_package(input):
+def is_local_package(input: str, ecosystem: str):
+    # FIXME: will break on scoped npm packages
     identifier_is_path = re.search(r"(.{0,2}\/)+.+", input)
     return identifier_is_path or input.endswith('.tar.gz')
 

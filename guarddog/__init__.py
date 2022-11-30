@@ -1,1 +1,1 @@
-from guarddog.scanners.package_scanner import PackageScanner
+from guarddog.scanners.pypi_package_scanner import PypiPackageScanner

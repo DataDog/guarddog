@@ -8,7 +8,7 @@ import pathos
 import pkg_resources
 import requests
 
-from guarddog.scanners.package_scanner import PackageScanner
+from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
 from guarddog.scanners.scanner import Scanner
 
 
@@ -21,7 +21,7 @@ class RequirementsScanner(Scanner):
     """
 
     def __init__(self) -> None:
-        self.package_scanner = PackageScanner()
+        self.package_scanner = PypiPackageScanner()
         super(Scanner)
 
     def _authenticate_by_access_token(self) -> tuple[str, str]:
