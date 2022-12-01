@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from semgrep.semgrep_main import invoke_semgrep
+from semgrep.semgrep_main import invoke_semgrep    # type: ignore
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
@@ -62,7 +62,7 @@ class Analyzer:
             "release_zero": ReleaseZeroDetector()
         }
 
-    def analyze(self, path, info=None, rules=None) -> dict[str]:
+    def analyze(self, path, info=None, rules=None) -> dict:
         """
         Analyzes a package in the given path
 
@@ -108,7 +108,7 @@ class Analyzer:
 
         return {"issues": issues, "errors": errors, "results": results, "path": path}
 
-    def analyze_metadata(self, info, rules=None) -> dict[str]:
+    def analyze_metadata(self, info, rules=None) -> dict:
         """
         Analyzes the metadata of a given package
 

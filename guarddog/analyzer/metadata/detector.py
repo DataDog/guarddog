@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Optional
 
 
 class Detector:
@@ -7,5 +8,5 @@ class Detector:
 
     # returns (ruleMatches, message)
     @abstractmethod
-    def detect(self, package_info) -> tuple[bool, str]:
+    def detect(self, package_info) -> tuple[bool, Optional[str]]:
         pass

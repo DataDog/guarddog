@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import sys
-import tarsafe
+import tarsafe  # type: ignore
 import tempfile
 import requests
 
