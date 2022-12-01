@@ -2,9 +2,8 @@ import functools
 import os
 import re
 import sys
-from pprint import pprint
 
-import pathos
+import pathos # type: ignore
 import pkg_resources
 import requests
 
@@ -105,7 +104,7 @@ class RequirementsScanner(Scanner):
                     qualifier, version = spec
 
                     try:
-                        available_versions = versions(requirement.project_name)
+                        available_versions = versions(requirement.project_name)  # type: list[str]
                     except Exception:
                         sys.stderr.write(f"Package {requirement.project_name} not on PyPI\n")
                         project_exists_on_pypi = False
@@ -123,12 +122,10 @@ class RequirementsScanner(Scanner):
                         case "<=":
                             used_versions = {v for v in available_versions if v <= version}
                         case "==":
-                            matching_versions = filter(
-                                lambda v: v is not None,
-                                (re.search(version, candidate) for candidate in available_versions),
-                            )
-                            matching_versions = set(match.string for match in matching_versions)
-                            used_versions = matching_versions
+                            matches = [re.search(version, candidate) for candidate in available_versions]
+                            filtered_matches = list(filter(None, matches))
+                            str_matches = [v.string for v in filtered_matches]
+                            used_versions = set(str_matches)
                         case "~=":
                             prefix = "".join(version.split(".")[:-1])
                             for available_version in available_versions:  # sorted decreasing

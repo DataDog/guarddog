@@ -25,8 +25,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install poetry
-        poetry install --with=dev-dependencies
     - name: Type check with mypy
       run: mypy guarddog
     - name: Lint with flake8

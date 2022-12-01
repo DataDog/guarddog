@@ -51,7 +51,6 @@ setuptools = "^65.6.3"
 tarsafe = "^0.0.4"
     
 [tool.poetry.dev-dependencies]
-types-python-dateutil = "2.8.19.4"
 
 [tool.pytest.ini_options]
 filterwarnings = [

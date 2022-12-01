@@ -1,7 +1,6 @@
 import json
 import os
 import shutil
-import sys
 import tarsafe  # type: ignore
 import tempfile
 import requests
@@ -48,8 +47,9 @@ class PackageScanner(Scanner):
                     return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
             elif os.path.isdir(path):
                 return self.analyzer.analyze_sourcecode(path, rules=rules)
-        else:
-            raise Exception(f"Path {path} does not exist.")
+            else:
+                raise Exception(f"Path {path} is not a directory nor a tar.gz archive.")
+        raise Exception(f"Path {path} does not exist.")
 
     def _scan_remote(self, name, base_dir, version=None, rules=None, write_package_info=False):
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), base_dir)

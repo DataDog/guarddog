@@ -136,7 +136,7 @@ class Analyzer:
 
         return {"results": results, "errors": errors, "issues": issues}
 
-    def analyze_sourcecode(self, path, rules=None) -> tuple[dict, int]:
+    def analyze_sourcecode(self, path, rules=None) -> dict:
         """
         Analyzes the source code of a given package
 
@@ -150,7 +150,7 @@ class Analyzer:
         targetpath = Path(path)
         all_rules = rules if rules is not None else self.sourcecode_ruleset
 
-        results = {rule: {} for rule in all_rules}
+        results = {rule: {} for rule in all_rules}  # type: dict
         errors = {}
         issues = 0
 
