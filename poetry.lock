@@ -570,33 +570,6 @@ slack = ["slack-sdk"]
 telegram = ["requests"]
 
 [[package]]
-name = "types-python-dateutil"
-version = "2.8.19.4"
-description = "Typing stubs for python-dateutil"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "types-requests"
-version = "2.28.11.5"
-description = "Typing stubs for requests"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-types-urllib3 = "<1.27"
-
-[[package]]
-name = "types-urllib3"
-version = "1.26.25.4"
-description = "Typing stubs for urllib3"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "typing-extensions"
 version = "4.3.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -652,7 +625,7 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9, <4"
-content-hash = "39d6290e44d27f713948ff8571c0d2da7c2ba1080f0591728f73de1cd129f0f4"
+content-hash = "0faf892801caefce1e994f6fdee7254ac4e2e95ad947d7459b75113af80eed74"
 
 [metadata.files]
 attrs = [
@@ -929,18 +902,6 @@ tomli = [
 tqdm = [
     {file = "tqdm-4.64.0-py2.py3-none-any.whl", hash = "sha256:74a2cdefe14d11442cedf3ba4e21a3b84ff9a2dbdc6cfae2c34addb2a14a5ea6"},
     {file = "tqdm-4.64.0.tar.gz", hash = "sha256:40be55d30e200777a307a7585aee69e4eabb46b4ec6a4b4a5f2d9f11e7d5408d"},
-]
-types-python-dateutil = [
-    {file = "types-python-dateutil-2.8.19.4.tar.gz", hash = "sha256:351a8ca9afd4aea662f87c1724d2e1ae59f9f5f99691be3b3b11d2393cd3aaa1"},
-    {file = "types_python_dateutil-2.8.19.4-py3-none-any.whl", hash = "sha256:722a55be8e2eeff749c3e166e7895b0e2f4d29ab4921c0cff27aa6b997d7ee2e"},
-]
-types-requests = [
-    {file = "types-requests-2.28.11.5.tar.gz", hash = "sha256:a7df37cc6fb6187a84097da951f8e21d335448aa2501a6b0a39cbd1d7ca9ee2a"},
-    {file = "types_requests-2.28.11.5-py3-none-any.whl", hash = "sha256:091d4a5a33c1b4f20d8b1b952aa8fa27a6e767c44c3cf65e56580df0b05fd8a9"},
-]
-types-urllib3 = [
-    {file = "types-urllib3-1.26.25.4.tar.gz", hash = "sha256:eec5556428eec862b1ac578fb69aab3877995a99ffec9e5a12cf7fbd0cc9daee"},
-    {file = "types_urllib3-1.26.25.4-py3-none-any.whl", hash = "sha256:ed6b9e8a8be488796f72306889a06a3fc3cb1aa99af02ab8afb50144d7317e49"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
