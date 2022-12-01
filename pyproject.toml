@@ -10,7 +10,7 @@ version = "0.0.0"
 guarddog = "guarddog.cli:cli"
 
 [tool.poetry.dependencies]
-python = ">=3.9, <4"
+python = ">=3.10"
 docker = "==6.0.0b1"
 # NOTE: Before https://github.com/returntocorp/semgrep/issues/6631 is addressed, we can't seem to upgrade past 0.112.1
 semgrep = "==0.112.1"

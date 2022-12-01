@@ -84,9 +84,19 @@ GuardDog comes with 2 types of heuristics:
 
 ### Running a local version of GuardDog
 
+#### Using pip
+
+* Ensure `>=python3.10` is installed
 * Clone the repository
 * Create a virtualenv: `python3 -m venv venv && source venv/bin/activate`
+* Install requirements: `pip install -r requirements.txt`
 * Run GuardDog using `python -m guarddog`
+
+#### Using poetry
+
+* Ensure poetry has an env with `python >=3.10` `poetry env use 3.10.0`
+* Install dependencies `poetry install`
+* Run guarddog `poetry run guarddog` or `poetry shell` then run `guarddog`
 
 ### Unit tests
 
