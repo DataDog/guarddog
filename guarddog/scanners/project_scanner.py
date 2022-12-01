@@ -4,7 +4,7 @@ import re
 import sys
 from typing import List
 
-import pathos # type: ignore
+import pathos  # type: ignore
 import pkg_resources
 import requests
 
@@ -61,7 +61,7 @@ class RequirementsScanner(Scanner):
             if is_requirement:
                 if "\\" in line:
                     line = line.replace("\\", "")
-                    
+
                 stripped_line = line.strip()
                 if len(stripped_line) > 0:
                     sanitized_lines.append(stripped_line)
@@ -195,7 +195,7 @@ class RequirementsScanner(Scanner):
         params = []
         for dependency, versions in dependencies.items():
             if versions is None:
-                params.append((dependency, None)) # this will cause scan_remote to use the latest version
+                params.append((dependency, None))  # this will cause scan_remote to use the latest version
             else:
                 for version in versions:
                     params.append((dependency, version))

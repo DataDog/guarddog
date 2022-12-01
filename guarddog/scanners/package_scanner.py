@@ -73,10 +73,14 @@ class PackageScanner(Scanner):
 
         Args:
             * `name` (str): name of the package on PyPI
-            * `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is assumed.
+            * `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is
+            assumed.
             * `rules` (set, optional): Set of rule names to use. Defaults to all rules.
-            * `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder is created and cleaned up automatically. If not specified, the provided directory is not removed after the scan.
-            * `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written to a json file
+            * `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder
+            is created and cleaned up automatically. If not specified, the provided directory is not removed after the
+            scan.
+            * `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written
+             to a json file
 
         Raises:
             Exception: Analyzer exception
@@ -126,7 +130,8 @@ class PackageScanner(Scanner):
                     url = file["url"]
                     file_extension = ".tar.gz"
 
-                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") or file["filename"].endswith(".zip"):
+                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") \
+                        or file["filename"].endswith(".zip"):
                     url = file["url"]
                     file_extension = ".zip"
 

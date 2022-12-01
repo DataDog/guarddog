@@ -255,6 +255,7 @@ class TyposquatDetector(Detector):
         """
         similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
         if len(similar_package_names) > 0:
-            return True, "This package closely ressembles the following package names, and might be a typosquatting attempt: " + ", ".join(similar_package_names)
-        
+            return True, "This package closely ressembles the following package names, and might be a typosquatting " \
+                         "attempt: " + ", ".join(similar_package_names)
+
         return False, None
