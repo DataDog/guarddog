@@ -4,13 +4,14 @@ description = "GuardDog is a CLI tool to Identify malicious PyPI packages"
 authors = ["Ellen Wang", "Christophe Tafani-Dereeper"]
 license = "Apache-2.0"
 readme = "pypi.rst"
+repository = "https://github.com/DataDog/guarddog"
 version = "0.0.0"
 
 [tool.poetry.scripts]
 guarddog = "guarddog.cli:cli"
 
 [tool.poetry.dependencies]
-python = ">=3.9, <4"
+python = ">=3.10"
 docker = "==6.0.0b1"
 # NOTE: Before https://github.com/returntocorp/semgrep/issues/6631 is addressed, we can't seem to upgrade past 0.112.1
 semgrep = "==0.112.1"
