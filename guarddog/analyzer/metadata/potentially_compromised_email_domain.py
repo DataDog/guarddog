@@ -17,13 +17,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
     """
     Detector for compromised email domain attacks. Checks if the author's email domain was
     reregistered before the most recent package released
-
-    Args:
-        Detector (_type_): _description_
     """
-
-    def __init__(self) -> None:
-        super()
 
     def _get_domain_creation_date(self, email_domain) -> tuple[Optional[datetime], bool]:
         """
