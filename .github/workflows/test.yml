@@ -62,6 +62,9 @@ jobs:
       run: make test-metadata-rules
     - name: Core unit tests
       run: make test-core
+    - name: Report coverage
+      run: make coverage-report
+
 
   integration-tests:
     runs-on: ubuntu-latest
