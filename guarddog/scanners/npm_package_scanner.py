@@ -9,7 +9,7 @@ from guarddog.scanners.scanner import PackageScanner
 
 class NPMPackageScanner(PackageScanner):
     def __init__(self) -> None:
-        super().__init__(Analyzer())
+        super().__init__(Analyzer("npm"))
 
     def scan_local(self, path, rules=None) -> dict:
         raise NotImplementedError()
