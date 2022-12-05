@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from semgrep.semgrep_main import invoke_semgrep
+from semgrep.semgrep_main import invoke_semgrep  # type: ignore
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
@@ -62,7 +62,7 @@ class Analyzer:
             "release_zero": ReleaseZeroDetector()
         }
 
-    def analyze(self, path, info=None, rules=None) -> dict[str]:
+    def analyze(self, path, info=None, rules=None) -> dict:
         """
         Analyzes a package in the given path
 
@@ -99,7 +99,6 @@ class Analyzer:
 
         metadata_results = self.analyze_metadata(info, metadata_rules)
         sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
-            
 
         # Concatenate dictionaries together
         issues = metadata_results["issues"] + sourcecode_results["issues"]
@@ -108,7 +107,7 @@ class Analyzer:
 
         return {"issues": issues, "errors": errors, "results": results, "path": path}
 
-    def analyze_metadata(self, info, rules=None) -> dict[str]:
+    def analyze_metadata(self, info, rules=None) -> dict:
         """
         Analyzes the metadata of a given package
 
@@ -136,7 +135,7 @@ class Analyzer:
 
         return {"results": results, "errors": errors, "issues": issues}
 
-    def analyze_sourcecode(self, path, rules=None) -> tuple[dict, int]:
+    def analyze_sourcecode(self, path, rules=None) -> dict:
         """
         Analyzes the source code of a given package
 
@@ -150,17 +149,18 @@ class Analyzer:
         targetpath = Path(path)
         all_rules = rules if rules is not None else self.sourcecode_ruleset
 
-        results = {rule: {} for rule in all_rules}
+        results = {rule: {} for rule in all_rules}  # type: dict
         errors = {}
         issues = 0
 
         if rules is None:
             # No rule specified, run all rules
             try:
-                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude, no_git_ignore=True)
+                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude,
+                                          no_git_ignore=True)
                 rule_results = self._format_semgrep_response(response, targetpath=targetpath)
                 issues += len(rule_results)
-                
+
                 results = results | rule_results
             except Exception as e:
                 errors["rules-all"] = f"failed to run rule: {str(e)}"
@@ -206,7 +206,7 @@ class Analyzer:
         """
 
         results = {}
-        
+
         for result in response["results"]:
             rule_name = rule or result["check_id"].split(".")[-1]
             code_snippet = result["extra"]["lines"]
@@ -222,8 +222,8 @@ class Analyzer:
             if rule_name not in result:
                 results[rule_name] = []
                 results[rule_name].append({
-                    'location': location, 
-                    'code': code, 
+                    'location': location,
+                    'code': code,
                     'message': result["extra"]["message"]
                 })
 
@@ -233,6 +233,6 @@ class Analyzer:
     def trim_code_snippet(self, code):
         THRESHOLD = 250
         if len(code) > THRESHOLD:
-            return code[:THRESHOLD-10] + '...' + code[len(code)-10:]
+            return code[: THRESHOLD - 10] + '...' + code[len(code) - 10:]
         else:
             return code

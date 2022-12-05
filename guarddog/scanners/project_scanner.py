@@ -4,7 +4,7 @@ import re
 import sys
 from typing import List
 
-import pathos
+import pathos  # type: ignore
 import pkg_resources
 import requests
 
@@ -61,7 +61,7 @@ class RequirementsScanner(Scanner):
             if is_requirement:
                 if "\\" in line:
                     line = line.replace("\\", "")
-                    
+
                 stripped_line = line.strip()
                 if len(stripped_line) > 0:
                     sanitized_lines.append(stripped_line)
@@ -119,7 +119,7 @@ class RequirementsScanner(Scanner):
                     qualifier, version = spec
 
                     try:
-                        available_versions = versions(requirement.project_name)
+                        available_versions = versions(requirement.project_name)  # type: list[str]
                     except Exception:
                         sys.stderr.write(f"Package {requirement.project_name} not on PyPI\n")
                         project_exists_on_pypi = False
@@ -137,12 +137,10 @@ class RequirementsScanner(Scanner):
                         case "<=":
                             used_versions = {v for v in available_versions if v <= version}
                         case "==":
-                            matching_versions = filter(
-                                lambda v: v is not None,
-                                (re.search(version, candidate) for candidate in available_versions),
-                            )
-                            matching_versions = set(match.string for match in matching_versions)
-                            used_versions = matching_versions
+                            matches = [re.search(version, candidate) for candidate in available_versions]
+                            filtered_matches = list(filter(None, matches))
+                            str_matches = [v.string for v in filtered_matches]
+                            used_versions = set(str_matches)
                         case "~=":
                             prefix = "".join(version.split(".")[:-1])
                             for available_version in available_versions:  # sorted decreasing
@@ -197,7 +195,7 @@ class RequirementsScanner(Scanner):
         params = []
         for dependency, versions in dependencies.items():
             if versions is None:
-                params.append((dependency, None)) # this will cause scan_remote to use the latest version
+                params.append((dependency, None))  # this will cause scan_remote to use the latest version
             else:
                 for version in versions:
                     params.append((dependency, version))

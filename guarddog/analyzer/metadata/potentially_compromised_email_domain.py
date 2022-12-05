@@ -4,8 +4,9 @@ Detects if a maintainer's email domain might have been compromised.
 """
 
 from datetime import datetime
+from typing import Optional
 
-import whois
+import whois  # type: ignore
 from dateutil import parser
 from packaging import version
 
@@ -24,7 +25,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
     def __init__(self) -> None:
         super()
 
-    def _get_domain_creation_date(self, email_domain) -> tuple[datetime, bool]:
+    def _get_domain_creation_date(self, email_domain) -> tuple[Optional[datetime], bool]:
         """
         Gets the creation date of an email address domain
 
@@ -57,7 +58,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
 
         return creation_dates, True
 
-    def _get_project_latest_release_date(self, releases) -> datetime:
+    def _get_project_latest_release_date(self, releases) -> Optional[datetime]:
         """
         Gets the most recent release date of a Python project
 
@@ -80,6 +81,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
                 upload_time_text = version_release[0]["upload_time_iso_8601"]
                 release_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
                 return release_date
+        return None
 
     def detect(self, package_info) -> tuple[bool, str]:
         """
@@ -113,7 +115,15 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
         latest_project_release = self._get_project_latest_release_date(releases)
         domain_creation_date, domain_exists = self._get_domain_creation_date(email_domain)
         if not domain_exists:
-            return True, "The maintainer's email domain does not exist and can likely be registered by an attacker to compromise the maintainer's PyPi account"
+            return True, "The maintainer's email domain does not exist and can likely be registered by an attacker to" \
+                         " compromise the maintainer's PyPi account"
         if domain_creation_date is None:
             return False, "No e-mail domain creation date found"
-        return latest_project_release < domain_creation_date, "The domain name of the maintainer's email address was re-registered after the latest release of this package. This can be an indicator that this is a custom domain that expired, and was leveraged by an attacker to compromise the package owner's PyPi account."
+        if latest_project_release is None:
+            return False, "Could not find latest release date"
+        return latest_project_release < domain_creation_date, "The domain name of the maintainer's email address was" \
+                                                              " re-registered after the latest release of this " \
+                                                              "package. This can be an indicator that this is a" \
+                                                              " custom domain that expired, and was leveraged by" \
+                                                              " an attacker to compromise the package owner's PyPi" \
+                                                              " account."
