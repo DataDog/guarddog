@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-import tarsafe
+import tarsafe  # type: ignore
 import tempfile
 import requests
 
@@ -68,8 +68,9 @@ class PypiPackageScanner(PackageScanner):
                     return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
             elif os.path.isdir(path):
                 return self.analyzer.analyze_sourcecode(path, rules=rules)
-        else:
-            raise Exception(f"Path {path} does not exist.")
+            else:
+                raise Exception(f"Path {path} is not a directory nor a tar.gz archive.")
+        raise Exception(f"Path {path} does not exist.")
 
     def download_and_get_package_info(self, directory: str, package_name: str, version=None):
         self.download_package(package_name, directory, version)
@@ -110,7 +111,8 @@ class PypiPackageScanner(PackageScanner):
                     url = file["url"]
                     file_extension = ".tar.gz"
 
-                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") or file["filename"].endswith(".zip"):
+                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") \
+                        or file["filename"].endswith(".zip"):
                     url = file["url"]
                     file_extension = ".zip"
 

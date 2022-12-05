@@ -27,28 +27,25 @@ alias guarddog='docker run --rm ghcr.io/datadog/guarddog'
 
 ```sh
 # Scan the most recent version of the 'requests' package
-guarddog pypi scan requests
+guarddog scan requests
 
 # Scan a specific version of the 'requests' package
-guarddog pypi scan requests --version 2.28.1
+guarddog scan requests --version 2.28.1
 
 # Scan the 'request' package using 2 specific heuristics
-guarddog pypi scan requests --rules exec-base64 --rules code-execution
+guarddog scan requests --rules exec-base64 --rules code-execution
 
 # Scan the 'requests' package using all rules but one
-guarddog pypi scan requests --exclude-rules exec-base64
+guarddog scan requests --exclude-rules exec-base64
 
 # Scan a local package
-guarddog pypi scan /tmp/triage.tar.gz
+guarddog scan /tmp/triage.tar.gz
 
 # Scan every package referenced in a requirements.txt file of a local folder
-guarddog pypi verify workspace/guarddog/requirements.txt
+guarddog verify workspace/guarddog/requirements.txt
 
 # Output JSON to standard output - works for every command
-guarddog pypi scan requests --output-format=json
-
-# All the commands also work on npm
-guarddog npm scan express
+guarddog scan requests --json
 ```
 
 
@@ -111,28 +108,15 @@ Running unit tests against package metadata heuristics: `make test-metadata-rule
 
 ### Code quality checks
 
-Type checking:
-
+Run the type checker with
 ```shell
-pip install mypy
-make type-check
+mypy --install-types --non-interactive guarddog
 ```
-
-Linting:
-
+and the linter with
 ```shell
-pip install flake8
-make lint
+flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data
+flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
-
-You can also use pre-commit hooks. Install them once using:
-
-```
-pip install pre-commit
-pre-commit install
-```
-
-This will cause `make lint` and `make type-check` to automatically run before each of your commits, failing early if your code has an issue that would fail on CI.
 
 ### Adding new source code heuristics
 
@@ -147,7 +131,6 @@ TBD
 Authors: 
 * [Ellen Wang](https://www.linkedin.com/in/ellen-wang-4bb5961a0/)
 * [Christophe Tafani-Dereeper](https://github.com/christophetd)
-* [Vladimir de Turckheim](https://www.linkedin.com/in/vladimirdeturckheim/)
 
 Inspiration: 
 * [What are Weak Links in the npm Supply Chain?](https://arxiv.org/pdf/2112.10165.pdf)

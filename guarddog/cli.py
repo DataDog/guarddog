@@ -16,6 +16,7 @@ from guarddog.scanners import get_scanner
 ALL_RULES = METADATA_DETECTORS.keys() | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
 
+
 @click.group
 def cli():
     """Guard Dog cli tool to detect PyPI malware"""
@@ -26,7 +27,8 @@ def cli():
 @click.argument("path")
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
 # TODO: can we avoid duplication of arguments?
-@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at least one issue is identified")
+@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
+                                                                              "least one issue is identified")
 @click.option("-e", "--ecosystem", default="pypi", help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
 def verify(path, json, exit_non_zero_on_finding, ecosystem):
     """Verify a requirements.txt file
@@ -40,10 +42,11 @@ def verify(path, json, exit_non_zero_on_finding, ecosystem):
         exit(1)
     results = scanner.scan_local(path)
     for result in results:
-        identifier = result['dependency'] if result['version'] is None else f"{result['dependency']} version {result['version']}"
+        identifier = result['dependency'] if result['version'] is None \
+            else f"{result['dependency']} version {result['version']}"
         if not json:
             print_scan_results(result.get('result'), identifier)
-    
+
     if json:
         import json as js
         print(js.dumps(results))
@@ -51,13 +54,15 @@ def verify(path, json, exit_non_zero_on_finding, ecosystem):
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
 
+
 @cli.command("scan")
 @click.argument("identifier")
 @click.option("-v", "--version", default=None, help="Specify a version to scan")
 @click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 @click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at least one issue is identified")
+@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
+                                                                              "least one issue is identified")
 @click.option("-e", "--ecosystem", default="pypi", help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
 def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem):
     """Scan a package
@@ -98,6 +103,7 @@ def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_findi
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
 
+
 # Determines if the input passed to the 'scan' command is a local package name
 def is_local_package(input: str, ecosystem: str):
     # FIXME: will break on scoped npm packages
@@ -110,24 +116,28 @@ def print_scan_results(results, identifier):
     num_issues = results.get('issues')
 
     if num_issues == 0:
-        print("Found " + colored('0 potentially malicious indicators', 'green', attrs=['bold']) + " scanning " + colored(identifier, None, attrs=['bold']))
+        print("Found " + colored('0 potentially malicious indicators', 'green',
+                                 attrs=['bold']) + " scanning " + colored(identifier, None, attrs=['bold']))
         print()
         return
-    
-    print("Found " + colored(str(num_issues) + ' potentially malicious indicators', 'red', attrs=['bold']) + " in " + colored(identifier, None, attrs=['bold']))
+
+    print("Found " + colored(str(num_issues) + ' potentially malicious indicators', 'red',
+                             attrs=['bold']) + " in " + colored(identifier, None, attrs=['bold']))
     print()
-    
+
     results = results.get('results', [])
     for finding in results:
         description = results[finding]
-        if type(description) == str: # package metadata
+        if type(description) == str:  # package metadata
             print(colored(finding, None, attrs=['bold']) + ': ' + description)
             print()
-        elif type(description) == list: # semgrep rule result:
+        elif type(description) == list:  # semgrep rule result:
             source_code_findings = description
-            print(colored(finding, None, attrs=['bold']) + ': found ' + str(len(source_code_findings)) + ' source code matches')
+            print(colored(finding, None,
+                          attrs=['bold']) + ': found ' + str(len(source_code_findings)) + ' source code matches')
             for finding in source_code_findings:
-                print('  * ' + finding['message'] + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
+                print('  * ' + finding['message']
+                      + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
             print()
 
 

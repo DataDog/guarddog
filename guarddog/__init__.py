@@ -1,1 +1,1 @@
-from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
+from guarddog.scanners.package_scanner import PypiPackageScanner  # NOQA
