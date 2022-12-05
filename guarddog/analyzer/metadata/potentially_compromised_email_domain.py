@@ -142,4 +142,3 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
                                 " custom domain that expired, and was leveraged by"" an attacker to compromise the"
                                 " package owner's PyPi"" account.")
         return has_issues, "\n".join(messages)
-
