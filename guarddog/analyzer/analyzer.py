@@ -9,14 +9,28 @@ from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
 
 
+def get_rules(file_extension, path):
+    return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
+
+
+SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
+SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
+
+METADATA_DETECTORS = {
+    "typosquatting": TyposquatDetector(),
+    "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
+    "empty_information": EmptyInfoDetector(),
+    "release_zero": ReleaseZeroDetector()
+}
+
+
 class Analyzer:
     """
     Analyzes a local directory for threats found by source code or metadata rules
 
     Attributes:
-        metadata_path (str): path to metadata rules
         sourcecode_path (str): path to source code rules
-
+        ecosystem (str): name of the current ecosystem
         metadata_ruleset (list): list of metadata rule names
         sourcecode_ruleset (list): list of source code rule names
 
@@ -25,18 +39,16 @@ class Analyzer:
         metadata_detectors(list): list of metadata detectors
     """
 
-    def __init__(self) -> None:
-        self.metadata_path = os.path.join(os.path.dirname(__file__), "metadata")
+    def __init__(self, ecosystem="pypi") -> None:
         self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
 
-        # Define sourcecode and metadata rulesets
-        def get_rules(file_extension, path):
-            return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
+        self.ecosystem = ecosystem
 
-        self.metadata_ruleset = get_rules(".py", self.metadata_path)
-        self.sourcecode_ruleset = get_rules(".yml", self.sourcecode_path)
-        self.metadata_ruleset.remove("detector")
-        self.metadata_ruleset.remove("__init__")
+        # Rules and associated detectors
+        self.metadata_detectors = METADATA_DETECTORS
+
+        self.metadata_ruleset = self.metadata_detectors.keys()
+        self.sourcecode_ruleset = SEMGREP_RULE_NAMES
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -53,14 +65,6 @@ class Analyzer:
             ".github",
             ".semgrep_logs",
         ]
-
-        # Rules and associated detectors
-        self.metadata_detectors = {
-            "typosquatting": TyposquatDetector(),
-            "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
-            "empty_information": EmptyInfoDetector(),
-            "release_zero": ReleaseZeroDetector()
-        }
 
     def analyze(self, path, info=None, rules=None) -> dict[str]:
         """
@@ -127,7 +131,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, ecosystem)
                 if rule_matches:
                     issues += 1
                     results[rule] = message

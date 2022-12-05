@@ -10,11 +10,10 @@ import sys
 import click
 from termcolor import colored
 
-from guarddog.analyzer.analyzer import Analyzer
+from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES, METADATA_DETECTORS
 from guarddog.scanners import get_scanner
 
-analyzer = Analyzer()
-ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
+ALL_RULES = METADATA_DETECTORS.keys() | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
 
 @click.group
