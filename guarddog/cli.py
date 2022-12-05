@@ -29,7 +29,8 @@ def cli():
 # TODO: can we avoid duplication of arguments?
 @click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
                                                                               "least one issue is identified")
-@click.option("-e", "--ecosystem", default="pypi", help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
+@click.option("-e", "--ecosystem", default="pypi",
+              help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
 def verify(path, json, exit_non_zero_on_finding, ecosystem):
     """Verify a requirements.txt file
 
@@ -63,7 +64,8 @@ def verify(path, json, exit_non_zero_on_finding, ecosystem):
 @click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
 @click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
                                                                               "least one issue is identified")
-@click.option("-e", "--ecosystem", default="pypi", help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
+@click.option("-e", "--ecosystem", default="pypi",
+              help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
 def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem):
     """Scan a package
 
