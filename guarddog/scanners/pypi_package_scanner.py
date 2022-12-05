@@ -39,7 +39,7 @@ def get_package_info(name: str) -> dict:
 
 class PypiPackageScanner(PackageScanner):
     def __init__(self) -> None:
-        super().__init__(Analyzer())
+        super().__init__(Analyzer("pypi"))
 
     def scan_local(self, path, rules=None) -> dict:
         """
