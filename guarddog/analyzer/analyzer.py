@@ -1,10 +1,12 @@
 import os
 from pathlib import Path
 
-from semgrep.semgrep_main import invoke_semgrep  # type: ignore
+from semgrep.semgrep_main import invoke_semgrep
 
-from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.ecosystems import ECOSYSTEM
+from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
+from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
+from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
+from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
 
 
 def get_rules(file_extension, path):
@@ -13,6 +15,13 @@ def get_rules(file_extension, path):
 
 SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
+
+METADATA_DETECTORS = {
+    "typosquatting": TyposquatDetector(),
+    "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
+    "empty_information": EmptyInfoDetector(),
+    "release_zero": ReleaseZeroDetector()
+}
 
 
 class Analyzer:
@@ -30,13 +39,13 @@ class Analyzer:
         metadata_detectors(list): list of metadata detectors
     """
 
-    def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
+    def __init__(self, ecosystem="pypi") -> None:
         self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
 
         self.ecosystem = ecosystem
 
         # Rules and associated detectors
-        self.metadata_detectors = get_metadata_detectors(ecosystem)
+        self.metadata_detectors = METADATA_DETECTORS
 
         self.metadata_ruleset = self.metadata_detectors.keys()
         self.sourcecode_ruleset = SEMGREP_RULE_NAMES
@@ -57,7 +66,7 @@ class Analyzer:
             ".semgrep_logs",
         ]
 
-    def analyze(self, path, info=None, rules=None) -> dict:
+    def analyze(self, path, info=None, rules=None) -> dict[str]:
         """
         Analyzes a package in the given path
 
@@ -92,8 +101,9 @@ class Analyzer:
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
 
-        metadata_results = self.analyze_metadata(path, info, metadata_rules)
+        metadata_results = self.analyze_metadata(info, metadata_rules)
         sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
+            
 
         # Concatenate dictionaries together
         issues = metadata_results["issues"] + sourcecode_results["issues"]
@@ -102,12 +112,11 @@ class Analyzer:
 
         return {"issues": issues, "errors": errors, "results": results, "path": path}
 
-    def analyze_metadata(self, path: str, info, rules=None) -> dict:
+    def analyze_metadata(self, info, rules=None) -> dict[str]:
         """
         Analyzes the metadata of a given package
 
         Args:
-            path (str): path to package
             info (dict): package information given by PyPI Json API
             rules (set, optional): Set of metadata rules to analyze. Defaults to all rules.
 
@@ -122,7 +131,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info, path)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, ecosystem)
                 if rule_matches:
                     issues += 1
                     results[rule] = message
@@ -131,7 +140,7 @@ class Analyzer:
 
         return {"results": results, "errors": errors, "issues": issues}
 
-    def analyze_sourcecode(self, path, rules=None) -> dict:
+    def analyze_sourcecode(self, path, rules=None) -> tuple[dict, int]:
         """
         Analyzes the source code of a given package
 
@@ -145,18 +154,17 @@ class Analyzer:
         targetpath = Path(path)
         all_rules = rules if rules is not None else self.sourcecode_ruleset
 
-        results = {rule: {} for rule in all_rules}  # type: dict
+        results = {rule: {} for rule in all_rules}
         errors = {}
         issues = 0
 
         if rules is None:
             # No rule specified, run all rules
             try:
-                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude,
-                                          no_git_ignore=True)
+                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude, no_git_ignore=True)
                 rule_results = self._format_semgrep_response(response, targetpath=targetpath)
                 issues += len(rule_results)
-
+                
                 results = results | rule_results
             except Exception as e:
                 errors["rules-all"] = f"failed to run rule: {str(e)}"
@@ -202,7 +210,7 @@ class Analyzer:
         """
 
         results = {}
-
+        
         for result in response["results"]:
             rule_name = rule or result["check_id"].split(".")[-1]
             code_snippet = result["extra"]["lines"]
@@ -218,8 +226,8 @@ class Analyzer:
             if rule_name not in result:
                 results[rule_name] = []
                 results[rule_name].append({
-                    'location': location,
-                    'code': code,
+                    'location': location, 
+                    'code': code, 
                     'message': result["extra"]["message"]
                 })
 
@@ -229,6 +237,6 @@ class Analyzer:
     def trim_code_snippet(self, code):
         THRESHOLD = 250
         if len(code) > THRESHOLD:
-            return code[: THRESHOLD - 10] + '...' + code[len(code) - 10:]
+            return code[:THRESHOLD-10] + '...' + code[len(code)-10:]
         else:
             return code
