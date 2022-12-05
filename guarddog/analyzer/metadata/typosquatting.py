@@ -240,7 +240,7 @@ class TyposquatDetector(Detector):
 
         return typosquatted
 
-    def detect(self, package_info) -> tuple[bool, Optional[str]]:
+    def detect(self, package_info, ecosystem: str) -> tuple[bool, Optional[str]]:
         """
         Uses a package's information from PyPI's JSON API to determine the
         package is attempting a typosquatting attack

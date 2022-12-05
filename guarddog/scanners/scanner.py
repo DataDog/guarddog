@@ -29,7 +29,7 @@ class PackageScanner(Scanner):
         raise NotImplementedError('scan_local is not implemented')
 
     @abstractmethod
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> json:
+    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> dict:
         raise NotImplementedError('download_and_get_package_info is not implemented')
 
     def _scan_remote(self, name, base_dir, version=None, rules=None, write_package_info=False):
@@ -52,10 +52,13 @@ class PackageScanner(Scanner):
 
         Args:
             * `name` (str): name of the package on PyPI
-            * `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is assumed.
+            * `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is assumed
             * `rules` (set, optional): Set of rule names to use. Defaults to all rules.
-            * `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder is created and cleaned up automatically. If not specified, the provided directory is not removed after the scan.
-            * `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written to a json file
+            * `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder
+            is created and cleaned up automatically. If not specified, the provided directory is not removed after the
+            scan.
+            * `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written
+             to a json file
 
         Raises:
             Exception: Analyzer exception

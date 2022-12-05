@@ -130,7 +130,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info, ecosystem)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, self.ecosystem)
                 if rule_matches:
                     issues += 1
                     results[rule] = message

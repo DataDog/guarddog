@@ -1,4 +1,3 @@
-import json
 import os
 import pathlib
 
@@ -12,7 +11,10 @@ class NPMPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer())
 
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> json:
+    def scan_local(self, path, rules=None) -> dict:
+        raise NotImplementedError()
+
+    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> dict:
         url = f"https://registry.npmjs.org/{package_name}"
         response = requests.get(url)
 

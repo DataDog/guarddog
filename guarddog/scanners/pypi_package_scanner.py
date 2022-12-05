@@ -1,6 +1,4 @@
-import json
 import os
-import shutil
 import tarsafe  # type: ignore
 import tempfile
 import requests
@@ -9,7 +7,7 @@ from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import PackageScanner
 
 
-def get_package_info(name: str) -> json:
+def get_package_info(name: str) -> dict:
     """Gets metadata and other information about package
 
     Args:
@@ -126,4 +124,3 @@ class PypiPackageScanner(PackageScanner):
                 raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
         else:
             raise Exception("Version " + version + " for package " + package_name + " doesn't exist.")
-
