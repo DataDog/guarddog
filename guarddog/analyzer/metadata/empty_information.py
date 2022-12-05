@@ -12,9 +12,6 @@ class EmptyInfoDetector(Detector):
     Detector for packages with empty information.
     """
 
-    def __init__(self) -> None:
-        super()
-
     def detect(self, package_info, ecosystem: str) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine

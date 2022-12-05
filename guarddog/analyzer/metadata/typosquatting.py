@@ -21,6 +21,7 @@ class TyposquatDetector(Detector):
 
     def __init__(self) -> None:
         # Find top PyPI packages
+        super().__init__()
         top_packages_information = self._get_top_packages()
 
         # Get list of popular packages
@@ -30,8 +31,6 @@ class TyposquatDetector(Detector):
             name = package["project"]
             normalized_name = name.lower().replace("_", "-")
             self.popular_packages.append(normalized_name)
-
-        super()
 
     def _get_top_packages(self) -> list:
         """

@@ -8,8 +8,6 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class ReleaseZeroDetector(Detector):
-    def __init__(self) -> None:
-        super()
 
     def detect(self, package_info, ecosystem: str) -> tuple[bool, str]:
         return (package_info["info"]['version'] in ['0.0.0', '0.0'],
