@@ -1,9 +1,7 @@
-import json
-
 import requests
 
 
-def get_package_info(name) -> json:
+def get_package_info(name) -> dict:
     """Gets metadata and other information about package
 
     Args:

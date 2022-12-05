@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from itertools import permutations
+from typing import Optional
 
 import requests
 
@@ -239,7 +240,7 @@ class TyposquatDetector(Detector):
 
         return typosquatted
 
-    def detect(self, package_info) -> tuple[bool, str]:
+    def detect(self, package_info) -> tuple[bool, Optional[str]]:
         """
         Uses a package's information from PyPI's JSON API to determine the
         package is attempting a typosquatting attack
@@ -254,6 +255,7 @@ class TyposquatDetector(Detector):
         """
         similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
         if len(similar_package_names) > 0:
-            return True, "This package closely ressembles the following package names, and might be a typosquatting attempt: " + ", ".join(similar_package_names)
-        
-        return False,  None
+            return True, "This package closely ressembles the following package names, and might be a typosquatting " \
+                         "attempt: " + ", ".join(similar_package_names)
+
+        return False, None

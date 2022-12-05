@@ -12,4 +12,5 @@ class ReleaseZeroDetector(Detector):
         super()
 
     def detect(self, package_info) -> tuple[bool, str]:
-        return package_info["info"]['version'] in ['0.0.0', '0.0'], "The package has its latest release version to 0.0.0"
+        return (package_info["info"]['version'] in ['0.0.0', '0.0'],
+                "The package has its latest release version to 0.0.0")
