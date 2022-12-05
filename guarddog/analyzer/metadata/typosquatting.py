@@ -252,6 +252,9 @@ class TyposquatDetector(Detector):
             list[str]: names of packages that <package_name> could be
             typosquatting from
         """
+        if ecosystem == "npm":
+            return False, "This rule does not work for npm yet"
+
         similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
         if len(similar_package_names) > 0:
             return True, "This package closely ressembles the following package names, and might be a typosquatting " \
