@@ -1,4 +1,3 @@
-import pkg_resources
 
 from guarddog.scanners.project_scanner import RequirementsScanner
 
@@ -23,4 +22,3 @@ def test_requirements_scanner_on_git_url_packages():
     assert "guarddog" in result
     assert "flask" in result
     assert len(result) == 2
-
