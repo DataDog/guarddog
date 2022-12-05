@@ -106,6 +106,18 @@ Running unit tests against Semgrep rules: `make test-semgrep-rules` (tests are [
 
 Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/metadata)).
 
+### Code quality checks
+
+Run the type checker with
+```shell
+mypy --install-types --non-interactive guarddog
+```
+and the linter with
+```shell
+flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data
+flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
+```
+
 ### Adding new source code heuristics
 
 TBD

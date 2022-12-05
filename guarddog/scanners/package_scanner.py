@@ -1,8 +1,7 @@
 import json
 import os
 import shutil
-import sys
-import tarsafe
+import tarsafe  # type: ignore
 import tempfile
 import requests
 
@@ -48,8 +47,9 @@ class PackageScanner(Scanner):
                     return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
             elif os.path.isdir(path):
                 return self.analyzer.analyze_sourcecode(path, rules=rules)
-        else:
-            raise Exception(f"Path {path} does not exist.")
+            else:
+                raise Exception(f"Path {path} is not a directory nor a tar.gz archive.")
+        raise Exception(f"Path {path} does not exist.")
 
     def _scan_remote(self, name, base_dir, version=None, rules=None, write_package_info=False):
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), base_dir)
@@ -73,10 +73,14 @@ class PackageScanner(Scanner):
 
         Args:
             * `name` (str): name of the package on PyPI
-            * `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is assumed.
+            * `version` (str, optional): version of package (ex. 0.0.1). If not specified, the latest version is
+            assumed.
             * `rules` (set, optional): Set of rule names to use. Defaults to all rules.
-            * `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder is created and cleaned up automatically. If not specified, the provided directory is not removed after the scan.
-            * `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written to a json file
+            * `base_dir` (str, optional): directory to use to download package to. If not specified, a temporary folder
+            is created and cleaned up automatically. If not specified, the provided directory is not removed after the
+            scan.
+            * `write_package_info` (bool, default False): if set to true, the result of the PyPI metadata API is written
+             to a json file
 
         Raises:
             Exception: Analyzer exception
@@ -126,7 +130,8 @@ class PackageScanner(Scanner):
                     url = file["url"]
                     file_extension = ".tar.gz"
 
-                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") or file["filename"].endswith(".zip"):
+                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") \
+                        or file["filename"].endswith(".zip"):
                     url = file["url"]
                     file_extension = ".zip"
 
