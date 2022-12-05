@@ -11,5 +11,5 @@ dist/
 wheels/
 *.egg-info/
 build/
-.coverage*
+.coverage
 
