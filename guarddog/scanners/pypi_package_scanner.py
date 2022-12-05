@@ -1,5 +1,5 @@
 import os
-import tarsafe  # type: ignore
+import tarsafe  # type:ignore
 import tempfile
 import requests
 
@@ -124,3 +124,23 @@ class PypiPackageScanner(PackageScanner):
                 raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
         else:
             raise Exception("Version " + version + " for package " + package_name + " doesn't exist.")
+
+    def download_compressed(self, url, zippath, unzippedpath):
+        """Downloads a compressed file and extracts it
+
+        Args:
+            url (str): download link
+            zippath (str): path to download compressed file
+            unzippedpath (str): path to unzip compressed file
+        """
+
+        response = requests.get(url, stream=True)
+
+        with open(zippath, "wb") as f:
+            f.write(response.raw.read())
+
+        if zippath.endswith('.tar.gz'):
+            tarsafe.open(zippath).extractall(unzippedpath)
+            os.remove(zippath)
+        else:
+            raise ValueError("unsupported archive extension: " + zippath)
