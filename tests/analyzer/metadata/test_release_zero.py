@@ -32,4 +32,4 @@ class TestEmptyInformation:
         try:
             self.detector.detect({}, "foo")
         except NotImplementedError as e:
-            assert str(e) == "Not implemented for ecosystem foo"
+            assert str(e) == 'Not implemented for ecosystem foo'
