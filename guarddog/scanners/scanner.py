@@ -120,6 +120,36 @@ class ProjectScanner(Scanner):
             sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)
 
+    def scan_local(self, path):
+        """
+        Scans a local requirements.txt file
+
+        Args:
+            path (str): path to requirements.txt file
+
+        Returns:
+            dict: mapping of dependencies to scan results
+
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+        """
+
+        try:
+            with open(path, "r") as f:
+                return self.scan_requirements(f.read())
+        except Exception as e:
+            sys.stdout.write(f"Received {e}")
+            sys.exit(255)
+
     @abstractmethod
     def parse_requirements(self, param):
         pass
