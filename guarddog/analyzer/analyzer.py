@@ -101,7 +101,7 @@ class Analyzer:
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
 
-        metadata_results = self.analyze_metadata(info, metadata_rules)
+        metadata_results = self.analyze_metadata(path, info, metadata_rules)
         sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
 
         # Concatenate dictionaries together
@@ -111,11 +111,12 @@ class Analyzer:
 
         return {"issues": issues, "errors": errors, "results": results, "path": path}
 
-    def analyze_metadata(self, info, rules=None) -> dict:
+    def analyze_metadata(self, path: str, info, rules=None) -> dict:
         """
         Analyzes the metadata of a given package
 
         Args:
+             path (str): path to package
             info (dict): package information given by PyPI Json API
             rules (set, optional): Set of metadata rules to analyze. Defaults to all rules.
 
@@ -130,7 +131,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info, self.ecosystem)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, self.ecosystem, path)
                 if rule_matches:
                     issues += 1
                     results[rule] = message

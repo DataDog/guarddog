@@ -1,3 +1,6 @@
+import os
+import tempfile
+
 import pytest
 
 from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
@@ -21,3 +24,19 @@ class TestEmptyInformation:
     def test_nonempty(self, package_info):
         matches, _ = self.detector.detect(package_info, "pypi")
         assert not matches
+
+    def test_empty_npm(self):
+        with tempfile.TemporaryDirectory() as dir:
+            full_path = os.path.join(dir, "package")
+            os.mkdir(full_path)
+            matches, _ = self.detector.detect({}, "npm", dir)
+            assert matches
+
+    def test_non_empty_npm(self):
+        with tempfile.TemporaryDirectory() as dir:
+            full_path = os.path.join(dir, "package")
+            os.mkdir(full_path)
+            with open(os.path.join(full_path, "README.md"), "w") as readme:
+                readme.write("# Hello World")
+            matches, _ = self.detector.detect({}, "npm", dir)
+            assert not matches

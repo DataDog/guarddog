@@ -2,26 +2,20 @@
 
 Detects if a package contains an empty description
 """
+import os.path
+from typing import Optional
 
 from guarddog.analyzer.metadata.detector import Detector
 
 
-def get_info(ecosystem: str, package_info: dict) -> str:
-    match ecosystem:
-        case 'pypi':  # FIXME: ecosystem names in a const
-            return package_info["info"]["description"].strip()
-        case 'npm':
-            #  FIXME: should be checking the content of README actually
-            return package_info["description"]
-    raise NotImplementedError(f"unsupported ecosystem {ecosystem}")
-
+MESSAGE = "This package has an empty description on PyPi"
 
 class EmptyInfoDetector(Detector):
     """
     Detector for packages with empty information.
     """
 
-    def detect(self, package_info, ecosystem: str) -> tuple[bool, str]:
+    def detect(self, package_info, ecosystem: str, path: Optional[str] = None) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package has an empty description
@@ -33,6 +27,12 @@ class EmptyInfoDetector(Detector):
         Returns:
             bool: True if package description is empty
         """
+        if ecosystem == "pypi":
+            return len(package_info["info"]["description"].strip()) == 0, MESSAGE
 
-        sanitized_description = get_info(ecosystem, package_info)
-        return len(sanitized_description) == 0, 'This package has an empty description on PyPi'
+        if ecosystem == "npm":
+            package_path = os.path.join(path, "package")
+            content = os.listdir(package_path)
+            return "README.md" not in content, MESSAGE
+
+        raise NotImplementedError(f"unsupported ecosystem {ecosystem}")
