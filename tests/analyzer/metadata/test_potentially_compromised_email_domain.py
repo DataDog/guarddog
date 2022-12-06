@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
@@ -15,22 +16,22 @@ class MockWhoIs:
 class TestCompromisedEmail:
     detector = PotentiallyCompromisedEmailDomainDetector()
 
-    def test_compromised(self):
+    @pytest.mark.parametrize("package_info, ecosystem", [(PACKAGE_INFO, "pypi"), (NPM_PACKAGE_INFO, "npm")])
+    def test_compromised(self, package_info, ecosystem):
         def mock_whois(domain):
             return MockWhoIs(datetime.today())
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised, _ = self.detector.detect(PACKAGE_INFO, "pypi")
+        compromised, _ = self.detector.detect(package_info, ecosystem)
         assert compromised
 
-    def test_safe(self):
+    @pytest.mark.parametrize("package_info, ecosystem", [(PACKAGE_INFO, "pypi"), (NPM_PACKAGE_INFO, "npm")])
+    def test_safe(self, package_info, ecosystem):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised, _ = self.detector.detect(PACKAGE_INFO, "pypi")
-        assert not compromised
-        compromised, _ = self.detector.detect(NPM_PACKAGE_INFO, "npm")
+        compromised, _ = self.detector.detect(package_info, ecosystem)
         assert not compromised
 
     def test_email_domain_doesnt_exist(self):
