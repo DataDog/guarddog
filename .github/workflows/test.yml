@@ -66,7 +66,7 @@ jobs:
       run: make coverage-report
 
 
-  integration-tests:
+  integration-tests-scan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -85,6 +85,27 @@ jobs:
 
       - name: Run GuardDog against a remote package
         run: guarddog scan requests
+
+  integration-tests-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.5.0
+        with:
+          fetch-depth: 0
+
+      - name: 'Set up Python 3.10'
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install GuardDog
+        run: |
+          pip install .
+
+      - name: Run GuardDog against a remote package
+        run: guarddog verify ./requirements.txt
+
 
   
   docker-build:
