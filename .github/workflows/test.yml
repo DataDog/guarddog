@@ -100,7 +100,7 @@ jobs:
         run: |
           pip install .
 
-      - name: Run GuardDog against a remote package
+      - name: Run GuardDog verify on its own requirements.txt
         run: guarddog verify ./requirements.txt
 
   
