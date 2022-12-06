@@ -1,5 +1,9 @@
+import functools
 import json
 import os
+import sys
+
+import pathos  # type: ignore
 import tarsafe  # type:ignore
 import tempfile
 from abc import abstractmethod
@@ -9,6 +13,115 @@ import requests
 
 class Scanner:
     def __init__(self) -> None:
+        pass
+
+
+class ProjectScanner(Scanner):
+    def __init__(self, package_scanner):
+        super().__init__()
+        self.package_scanner = package_scanner
+
+    def _authenticate_by_access_token(self) -> tuple[str, str]:
+        """
+        Gives Github authentication through access token
+
+        Returns:
+            tuple[str, str]: username, personal access token
+        """
+
+        user = os.getenv("GIT_USERNAME")
+        personal_access_token = os.getenv("GH_TOKEN")
+        if not user or not personal_access_token:
+            print(
+                """WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN
+                (generate a personal access token in Github settings > developer)
+                as environment variables before proceeding."""
+            )
+            exit(1)
+        return (user, personal_access_token)
+
+    def scan_requirements(self, requirements: str) -> dict:
+        """
+        Reads the requirements.txt file and scans each possible
+        dependency and version
+
+        Args:
+            requirements (str): contents of requirements.txt file
+
+        Returns:
+            dict: mapping of dependencies to scan results
+
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+        """
+
+        def get_package_results_helper(dependency, version):
+            result = self.package_scanner.scan_remote(dependency, version)
+            return {'dependency': dependency, 'version': version, 'result': result}
+
+        get_package_results = functools.partial(get_package_results_helper)
+        dependencies = self.parse_requirements(requirements.splitlines())
+        params = []
+        for dependency, versions in dependencies.items():
+            if versions is None:
+                params.append((dependency, None))  # this will cause scan_remote to use the latest version
+            else:
+                for version in versions:
+                    params.append((dependency, version))
+        pool = pathos.helpers.mp.Pool()
+        project_results = pool.starmap(get_package_results, params)
+
+        return project_results
+
+    def scan_remote(self, url: str, branch: str, requirements_name: str) -> dict:
+        """
+        Scans remote requirements.txt file
+
+        Args:
+            url (str): url of the Github repo
+            branch (str): branch containing requirements.txt
+            requirements_name (str, optional): name of requirements file.
+                Defaults to "requirements.txt".
+
+        Returns:
+            dict: mapping of dependencies to scan results
+
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+        """
+
+        token = self._authenticate_by_access_token()
+        githubusercontent_url = url.replace("github", "raw.githubusercontent")
+
+        req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"
+        resp = requests.get(url=req_url, auth=token)
+
+        if resp.status_code == 200:
+            return self.scan_requirements(resp.content.decode())
+        else:
+            sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
+            sys.exit(255)
+
+    @abstractmethod
+    def parse_requirements(self, param):
         pass
 
 

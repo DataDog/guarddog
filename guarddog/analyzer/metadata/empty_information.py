@@ -10,6 +10,7 @@ from guarddog.analyzer.metadata.detector import Detector
 
 MESSAGE = "This package has an empty description on PyPi"
 
+
 class EmptyInfoDetector(Detector):
     """
     Detector for packages with empty information.
@@ -30,7 +31,7 @@ class EmptyInfoDetector(Detector):
         if ecosystem == "pypi":
             return len(package_info["info"]["description"].strip()) == 0, MESSAGE
 
-        if ecosystem == "npm":
+        if ecosystem == "npm" and path is not None:
             package_path = os.path.join(path, "package")
             content = os.listdir(package_path)
             return "README.md" not in content, MESSAGE

@@ -1,5 +1,5 @@
 
-from guarddog.scanners.project_scanner import RequirementsScanner
+from guarddog.scanners.pypi_project_scanner import RequirementsScanner
 
 
 # Regression test for https://github.com/DataDog/guarddog/issues/78
