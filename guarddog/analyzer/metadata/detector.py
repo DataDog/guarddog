@@ -8,5 +8,5 @@ class Detector:
 
     # returns (ruleMatches, message)
     @abstractmethod
-    def detect(self, package_info, ecosystem: str, path: Optional[str] = None) -> tuple[bool, Optional[str]]:  # pragma: no cover
-        pass
+    def detect(self, package_info, ecosystem: str, path: Optional[str] = None) -> tuple[bool, Optional[str]]:
+        pass  # pragma: no cover

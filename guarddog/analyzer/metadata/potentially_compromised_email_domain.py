@@ -42,7 +42,7 @@ def _get_project_latest_release_date(ecosystem: str, package_info) -> Optional[d
         raw_date = package_info["time"][latest_release_version]
         release_date = parser.isoparse(raw_date).replace(tzinfo=None)
         return release_date
-    return None
+    raise NotImplementedError(f"not implemented for ecosystem {ecosystem}")
 
 
 def _get_domain_creation_date(email_domain) -> tuple[Optional[datetime], bool]:

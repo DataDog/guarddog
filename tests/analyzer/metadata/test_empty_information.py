@@ -40,3 +40,9 @@ class TestEmptyInformation:
                 readme.write("# Hello World")
             matches, _ = self.detector.detect({}, "npm", dir)
             assert not matches
+
+    def test_unsupported_ecosystem(self):
+        try:
+            self.detector.detect({}, "foo", "")
+        except NotImplementedError as e:
+            assert e
