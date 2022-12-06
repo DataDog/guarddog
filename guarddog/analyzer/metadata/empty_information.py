@@ -11,6 +11,7 @@ def get_info(ecosystem: str, package_info: dict) -> str:
         case 'pypi':  # FIXME: ecosystem names in a const
             return package_info["info"]["description"].strip()
         case 'npm':
+            #  FIXME: should be checking the content of README actually
             return package_info["description"]
     raise NotImplementedError(f"unsupported ecosystem {ecosystem}")
 

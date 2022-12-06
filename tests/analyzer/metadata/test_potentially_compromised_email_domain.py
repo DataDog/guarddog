@@ -3,6 +3,7 @@ from datetime import datetime
 from _pytest.monkeypatch import MonkeyPatch
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
+from tests.analyzer.metadata.resources.sample_npm_project_info import NPM_PACKAGE_INFO
 from tests.analyzer.metadata.resources.sample_project_info import PACKAGE_INFO
 
 
@@ -28,6 +29,8 @@ class TestCompromisedEmail:
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised, _ = self.detector.detect(PACKAGE_INFO, "pypi")
+        assert not compromised
+        compromised, _ = self.detector.detect(NPM_PACKAGE_INFO, "npm")
         assert not compromised
 
     def test_email_domain_doesnt_exist(self):
