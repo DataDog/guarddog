@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .npm_package_scanner import NPMPackageScanner
-from .project_scanner import RequirementsScanner
+from .pypi_project_scanner import RequirementsScanner
 from .scanner import Scanner
 from .pypi_package_scanner import PypiPackageScanner
 

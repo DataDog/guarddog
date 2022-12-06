@@ -1,5 +1,6 @@
 import re
 import sys
+from typing import List
 
 import pkg_resources
 import requests
@@ -8,7 +9,7 @@ from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
 
 
-class PypiRequirementsScanner(ProjectScanner):
+class RequirementsScanner(ProjectScanner):
     """
     Scans all packages in the requirements.txt file of a project
 
@@ -19,7 +20,7 @@ class PypiRequirementsScanner(ProjectScanner):
     def __init__(self) -> None:
         super().__init__(PypiPackageScanner())
 
-    def _sanitize_requirements(self, requirements: list[str]) -> list[str]:
+    def _sanitize_requirements(self, requirements) -> list[str]:
         """
         Filters out non-requirement specifications from a requirements specification
 
@@ -44,8 +45,7 @@ class PypiRequirementsScanner(ProjectScanner):
 
         return sanitized_lines
 
-    # FIXME: type return value properly to dict[str, set[str]]
-    def parse_requirements(self, raw_requirements: str) -> dict:
+    def parse_requirements(self, requirements: List[str]) -> dict:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
@@ -63,7 +63,6 @@ class PypiRequirementsScanner(ProjectScanner):
                 ...
             }
         """
-        requirements = raw_requirements.splitlines()
 
         def versions(package_name):
             url = "https://pypi.org/pypi/%s/json" % (package_name,)
