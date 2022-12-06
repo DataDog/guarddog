@@ -13,10 +13,11 @@ test-semgrep-rules:
 	semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
 
 test-metadata-rules:
-	coverage run -m pytest tests/analyzer/metadata
+	COVERAGE_FILE=.coverage_metadata coverage run -m pytest tests/analyzer/metadata
 
 test-core:
-	coverage run -m pytest tests/core
+	COVERAGE_FILE=.coverage_core coverage run -m pytest tests/core
 
 coverage-report:
+	coverage combine .coverage_metadata .coverage_core
 	coverage report
