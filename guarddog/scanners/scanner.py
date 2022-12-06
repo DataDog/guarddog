@@ -87,7 +87,7 @@ class PackageScanner(Scanner):
         with open(zippath, "wb") as f:
             f.write(response.raw.read())
 
-        if zippath.endswith('.tar.gz'):
+        if zippath.endswith('.tar.gz') or zippath.endswith('.tgz'):
             tarsafe.open(zippath).extractall(unzippedpath)
             os.remove(zippath)
         else:
