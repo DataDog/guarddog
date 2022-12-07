@@ -128,22 +128,3 @@ class PypiPackageScanner(PackageScanner):
                 raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
         else:
             raise Exception("Version " + version + " for package " + package_name + " doesn't exist.")
-
-    def download_compressed(self, url, archive_path, target_path):
-        """Downloads a compressed file and extracts it
-
-        Args:
-            url (str): download link
-            archive_path (str): path to download compressed file
-            target_path (str): path to unzip compressed file
-        """
-
-        response = requests.get(url, stream=True)
-
-        with open(archive_path, "wb") as f:
-            f.write(response.raw.read())
-
-        try:
-            safe_extract(archive_path, target_path)
-        finally:
-            os.remove(archive_path)
