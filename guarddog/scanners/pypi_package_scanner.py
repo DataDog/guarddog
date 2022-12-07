@@ -5,6 +5,7 @@ import requests
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import PackageScanner
+from guarddog.utils.package_info import get_package_info
 
 
 def get_package_info(name: str) -> dict:
