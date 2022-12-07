@@ -1,13 +1,13 @@
 import json
 
 import requests
-from semantic_version import NpmSpec, Version  # type:ignore
+from semantic_version import NpmSpec, Version
 
-from guarddog.scanners.npm_package_scanner import NPMPackageScanner
+from guarddog.scanners import NPMPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
 
-
 def find_all_versions(package_name: str, semver_range: str) -> set[str]:
+    #  FIXME: handle cases where its a url, a git repo
     url = f"https://registry.npmjs.org/{package_name}"
     response = requests.get(url)
     if response.status_code != 200:
@@ -16,20 +16,18 @@ def find_all_versions(package_name: str, semver_range: str) -> set[str]:
     data = response.json()
     versions = list(data["versions"].keys())
     result = set()
-    try:
-        npm_spec = NpmSpec(semver_range)
-    except ValueError:  # not a semver range, let's keep it raw
-        result.add(semver_range)
-        return result
+    npm_spec = NpmSpec(semver_range)
     for v in versions:
         if Version(v) in npm_spec:
             result.add(v)
     return result
 
 
+
+
 class NPMRequirementsScanner(ProjectScanner):
     """
-    Scans all packages in the package.json file of a project
+    Scans all packages in the requirements.txt file of a project
 
     Attributes:
         package_scanner (PackageScanner): Scanner for individual packages
@@ -40,10 +38,10 @@ class NPMRequirementsScanner(ProjectScanner):
 
     def parse_requirements(self, raw_requirements: str) -> dict:
         package = json.loads(raw_requirements)
-        dependencies = package["dependencies"] if "dependencies" in package else {}
-        dev_dependencies = package["devDependencies"] if "devDependencies" in package else {}
+        dependencies = package["dependencies"]
+        dev_dependencies = package["devDependencies"]
 
-        merged = {}  # type: dict[str, set[str]]
+        merged = {}
         for package, selector in list(dependencies.items()) + list(dev_dependencies.items()):
             if package not in merged:
                 merged[package] = set()
@@ -51,9 +49,8 @@ class NPMRequirementsScanner(ProjectScanner):
 
         results = {}
         for package, all_selectors in merged.items():
-            versions = set()  # type: set[str]
+            versions = set()
             for selector in all_selectors:
                 versions = versions.union(find_all_versions(package, selector))
-            if len(versions) > 0:
-                results[package] = versions
+            results[package] = versions
         return results
