@@ -95,6 +95,15 @@ rules:
         - pattern: os.spawnvpe($ARG1, ...)
         - pattern: os.posix_spawn($ARG1, ...)
         - pattern: os.posix_spawnp($ARG1, ...)
+
+        # Usage of builtins + base64 decode
+        - pattern: __import__('builtins').exec($ARG1)
+
+        # Usage of globals to call eval
+        - pattern-either:
+            - pattern: globals()['eval']($ARG1)
+            - pattern: globals()['\x65\x76\x61\x6c']($ARG1) # that's "eval" in hexadecimal
+
       - metavariable-pattern:
           metavariable: $ARG1
           patterns:
