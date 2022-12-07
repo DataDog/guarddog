@@ -1,11 +1,13 @@
 import json
 import os
-import tarsafe  # type:ignore
 import tempfile
+
 import requests
+import tarsafe  # type:ignore
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import Scanner
+from guarddog.utils.archives import safe_extract
 from guarddog.utils.package_info import get_package_info
 
 
@@ -145,22 +147,21 @@ class PackageScanner(Scanner):
         else:
             raise Exception("Version " + version + " for package " + package_name + " doesn't exist.")
 
-    def download_compressed(self, url, zippath, unzippedpath):
+    def download_compressed(self, url, archive_path, target_path):
         """Downloads a compressed file and extracts it
 
         Args:
             url (str): download link
-            zippath (str): path to download compressed file
-            unzippedpath (str): path to unzip compressed file
+            archive_path (str): path to download compressed file
+            target_path (str): path to unzip compressed file
         """
 
         response = requests.get(url, stream=True)
 
-        with open(zippath, "wb") as f:
+        with open(archive_path, "wb") as f:
             f.write(response.raw.read())
 
-        if zippath.endswith('.tar.gz'):
-            tarsafe.open(zippath).extractall(unzippedpath)
-            os.remove(zippath)
-        else:
-            raise ValueError("unsupported archive extension: " + zippath)
+        try:
+            safe_extract(archive_path, target_path)
+        finally:
+            os.remove(archive_path)

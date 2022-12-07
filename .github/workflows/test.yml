@@ -83,6 +83,10 @@ jobs:
       - name: Run GuardDog against a remote package
         run: guarddog scan requests
 
+      - name: Run GuardDog against a local requirements.txt file
+        run: >
+          echo -e "requests\npywin32" > requirements.txt
+          guarddog verify ./requirements.txt
   
   docker-build:
     runs-on: ubuntu-latest
