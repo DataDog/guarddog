@@ -1,5 +1,7 @@
 import json
 import os
+import zipfile
+
 import tarsafe  # type:ignore
 import tempfile
 import requests
@@ -159,8 +161,14 @@ class PackageScanner(Scanner):
         with open(zippath, "wb") as f:
             f.write(response.raw.read())
 
-        if zippath.endswith('.tar.gz'):
-            tarsafe.open(zippath).extractall(unzippedpath)
+        try:
+            if zippath.endswith('.tar.gz'):
+                tarsafe.open(zippath).extractall(unzippedpath)
+            elif zippath.endswith('.zip'):
+                with zipfile.ZipFile(zippath, 'r') as zip:
+                    for file in zip.namelist():
+                        zip.extract(file, path=os.path.join(unzippedpath, file))
+            else:
+                raise ValueError("unsupported archive extension: " + zippath)
+        finally:
             os.remove(zippath)
-        else:
-            raise ValueError("unsupported archive extension: " + zippath)
