@@ -1,7 +1,9 @@
 import os
 import pathlib
+import tempfile
 
 import requests
+from src import tarsafe
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import PackageScanner
@@ -10,9 +12,6 @@ from guarddog.scanners.scanner import PackageScanner
 class NPMPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer("npm"))
-
-    def scan_local(self, path, rules=None) -> dict:
-        raise NotImplementedError()
 
     def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> dict:
         url = f"https://registry.npmjs.org/{package_name}"
