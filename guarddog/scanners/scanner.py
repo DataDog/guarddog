@@ -261,4 +261,3 @@ class PackageScanner(Scanner):
             safe_extract(archive_path, target_path)
         finally:
             os.remove(archive_path)
-

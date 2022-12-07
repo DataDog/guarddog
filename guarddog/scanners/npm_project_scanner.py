@@ -1,10 +1,11 @@
 import json
 
 import requests
-from semantic_version import NpmSpec, Version
+from semantic_version import NpmSpec, Version  # type:ignore
 
 from guarddog.scanners import NPMPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
+
 
 def find_all_versions(package_name: str, semver_range: str) -> set[str]:
     #  FIXME: handle cases where its a url, a git repo
@@ -23,8 +24,6 @@ def find_all_versions(package_name: str, semver_range: str) -> set[str]:
     return result
 
 
-
-
 class NPMRequirementsScanner(ProjectScanner):
     """
     Scans all packages in the requirements.txt file of a project
@@ -41,7 +40,7 @@ class NPMRequirementsScanner(ProjectScanner):
         dependencies = package["dependencies"]
         dev_dependencies = package["devDependencies"]
 
-        merged = {}
+        merged = {}  # type: dict[str, set[str]]
         for package, selector in list(dependencies.items()) + list(dev_dependencies.items()):
             if package not in merged:
                 merged[package] = set()
@@ -49,7 +48,7 @@ class NPMRequirementsScanner(ProjectScanner):
 
         results = {}
         for package, all_selectors in merged.items():
-            versions = set()
+            versions = set()  # type: set[str]
             for selector in all_selectors:
                 versions = versions.union(find_all_versions(package, selector))
             results[package] = versions
