@@ -108,14 +108,18 @@ Running unit tests against package metadata heuristics: `make test-metadata-rule
 
 ### Code quality checks
 
-Run the type checker with
+Type checking:
+
 ```shell
-mypy --install-types --non-interactive guarddog
+pip install mypy
+make type-check
 ```
-and the linter with
+
+Linting:
+
 ```shell
-flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data
-flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
+pip install flake8
+make lint
 ```
 
 ### Adding new source code heuristics
