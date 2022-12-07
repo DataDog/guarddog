@@ -216,22 +216,22 @@ class PackageScanner(Scanner):
             # Directory to download compressed and uncompressed package
             return self._scan_remote(name, tmpdirname, version, rules, write_package_info)
 
-    def download_compressed(self, url, zippath, unzippedpath):
+    def download_compressed(self, url, archive_path, target_path):
         """Downloads a compressed file and extracts it
 
         Args:
             url (str): download link
-            zippath (str): path to download compressed file
-            unzippedpath (str): path to unzip compressed file
+            archive_path (str): path to download compressed file
+            target_path (str): path to unzip compressed file
         """
 
         response = requests.get(url, stream=True)
 
-        with open(zippath, "wb") as f:
+        with open(archive_path, "wb") as f:
             f.write(response.raw.read())
 
-        if zippath.endswith('.tar.gz') or zippath.endswith('.tgz'):
-            tarsafe.open(zippath).extractall(unzippedpath)
-            os.remove(zippath)
-        else:
-            raise ValueError("unsupported archive extension: " + zippath)
+        try:
+            safe_extract(archive_path, target_path)
+        finally:
+            os.remove(archive_path)
+
