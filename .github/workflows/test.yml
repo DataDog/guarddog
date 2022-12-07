@@ -93,6 +93,7 @@ jobs:
         run: >
           echo -e "requests\npywin32" > requirements.txt
           guarddog verify ./requirements.txt
+          pip list
           guarddog verify -e npm ./tests/core/package.json
 
   docker-build:
