@@ -122,6 +122,15 @@ pip install flake8
 make lint
 ```
 
+You can also use pre-commit hooks. Install them once using:
+
+```
+pip install pre-commit
+pre-commit install
+```
+
+This will cause `make lint` and `make type-check` to automatically run before each of your commits, failing early if your code has an issue that would fail on CI.
+
 ### Adding new source code heuristics
 
 TBD
