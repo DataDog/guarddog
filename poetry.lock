@@ -475,6 +475,18 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "semantic-version"
+version = "2.10.0"
+description = "A library implementing the 'SemVer' scheme."
+category = "main"
+optional = false
+python-versions = ">=2.7"
+
+[package.extras]
+dev = ["Django (>=1.11)", "check-manifest", "colorama (<=0.4.1)", "coverage", "flake8", "nose2", "readme-renderer (<25.0)", "tox", "wheel", "zest.releaser[recommended]"]
+doc = ["Sphinx", "sphinx-rtd-theme"]
+
+[[package]]
 name = "semgrep"
 version = "0.112.1"
 description = "Lightweight static analysis for many languages. Find bug variants with patterns that look like source code."
@@ -570,14 +582,6 @@ slack = ["slack-sdk"]
 telegram = ["requests"]
 
 [[package]]
-name = "types-python-dateutil"
-version = "2.8.19.4"
-description = "Typing stubs for python-dateutil"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "typing-extensions"
 version = "4.3.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -632,8 +636,8 @@ test = ["websockets"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.9, <4"
-content-hash = "31d220f94c38906af610a441245fc28a3e44587911f1380bdf93fe891d63606a"
+python-versions = ">=3.10,<4"
+content-hash = "75c1265305ab00d94b37ca311b5fa2640549dfb0e354316b0ccef4f29b72c0a7"
 
 [metadata.files]
 attrs = [
@@ -881,6 +885,10 @@ ruamel-yaml-clib = [
     {file = "ruamel.yaml.clib-0.2.7-cp39-cp39-win_amd64.whl", hash = "sha256:184faeaec61dbaa3cace407cffc5819f7b977e75360e8d5ca19461cd851a5fc5"},
     {file = "ruamel.yaml.clib-0.2.7.tar.gz", hash = "sha256:1f08fd5a2bea9c4180db71678e850b995d2a5f4537be0e94557668cf0f5f9497"},
 ]
+semantic-version = [
+    {file = "semantic_version-2.10.0-py2.py3-none-any.whl", hash = "sha256:de78a3b8e0feda74cabc54aab2da702113e33ac9d9eb9d2389bcf1f58b7d9177"},
+    {file = "semantic_version-2.10.0.tar.gz", hash = "sha256:bdabb6d336998cbb378d4b9db3a4b56a1e3235701dc05ea2690d9a997ed5041c"},
+]
 semgrep = [
     {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:2a62bc6321d371dadc41df2c68678e87df807ddfa3d1faafb40bd0998abfe503"},
     {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:b690a84cbaa6a4670ff6c11a674818b8ad99736e89520a3c47d1542cc45e6d05"},
@@ -910,10 +918,6 @@ tomli = [
 tqdm = [
     {file = "tqdm-4.64.0-py2.py3-none-any.whl", hash = "sha256:74a2cdefe14d11442cedf3ba4e21a3b84ff9a2dbdc6cfae2c34addb2a14a5ea6"},
     {file = "tqdm-4.64.0.tar.gz", hash = "sha256:40be55d30e200777a307a7585aee69e4eabb46b4ec6a4b4a5f2d9f11e7d5408d"},
-]
-types-python-dateutil = [
-    {file = "types-python-dateutil-2.8.19.4.tar.gz", hash = "sha256:351a8ca9afd4aea662f87c1724d2e1ae59f9f5f99691be3b3b11d2393cd3aaa1"},
-    {file = "types_python_dateutil-2.8.19.4-py3-none-any.whl", hash = "sha256:722a55be8e2eeff749c3e166e7895b0e2f4d29ab4921c0cff27aa6b997d7ee2e"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
