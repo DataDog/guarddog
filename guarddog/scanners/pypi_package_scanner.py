@@ -1,7 +1,4 @@
 import os
-import tarsafe  # type: ignore
-import tempfile
-import requests
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import PackageScanner

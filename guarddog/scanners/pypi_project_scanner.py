@@ -1,6 +1,5 @@
 import re
 import sys
-from typing import List
 
 import pkg_resources
 import requests
@@ -45,7 +44,8 @@ class PypiRequirementsScanner(ProjectScanner):
 
         return sanitized_lines
 
-    def parse_requirements(self, raw_requirements: str) -> dict:  # FIXME: type return value properly to dict[str, set[str]]
+    # FIXME: type return value properly to dict[str, set[str]]
+    def parse_requirements(self, raw_requirements: str) -> dict:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
