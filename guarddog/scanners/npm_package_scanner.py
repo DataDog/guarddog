@@ -1,9 +1,7 @@
 import os
 import pathlib
-import tempfile
 
 import requests
-from src import tarsafe
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import PackageScanner

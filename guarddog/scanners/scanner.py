@@ -71,7 +71,7 @@ class ProjectScanner(Scanner):
             return {'dependency': dependency, 'version': version, 'result': result}
 
         get_package_results = functools.partial(get_package_results_helper)
-        dependencies = self.parse_requirements(requirements.splitlines())
+        dependencies = self.parse_requirements(requirements)
         params = []
         for dependency, versions in dependencies.items():
             if versions is None:
@@ -153,7 +153,7 @@ class ProjectScanner(Scanner):
             sys.exit(255)
 
     @abstractmethod
-    def parse_requirements(self, param):
+    def parse_requirements(self, param: str) -> dict[str, set[str]]:  # returns { package: version }
         pass
 
 
