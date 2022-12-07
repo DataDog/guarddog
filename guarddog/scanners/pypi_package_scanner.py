@@ -5,10 +5,8 @@ import requests
 import tarsafe  # type:ignore
 
 from guarddog.analyzer.analyzer import Analyzer
-from guarddog.scanners.scanner import Scanner
-from guarddog.utils.archives import safe_extract
-from guarddog.utils.package_info import get_package_info
 from guarddog.scanners.scanner import PackageScanner
+from guarddog.utils.package_info import get_package_info
 
 
 def get_package_info(name: str) -> dict:

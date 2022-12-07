@@ -10,6 +10,8 @@ from abc import abstractmethod
 
 import requests
 
+from guarddog.utils.archives import safe_extract
+
 
 class Scanner:
     def __init__(self) -> None:
