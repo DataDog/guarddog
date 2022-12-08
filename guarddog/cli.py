@@ -33,7 +33,15 @@ def version_option(fn):
 
 @click.group
 def cli(**kwargs):
-    """Guard Dog cli tool to detect PyPI malware"""
+    """
+    GuardDog cli tool to detect malware in package ecosystems
+
+    Supports PyPI and npm
+
+    Example: guarddog pypi scan semantic-version
+
+    Use --help for the detail of all commands and subcommands
+    """
     pass
 
 
@@ -79,24 +87,34 @@ def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_find
 
 @cli.group
 def npm(**kwargs):
-    print()
+    """ Scan a npm package or verify a npm project
+    @param kwargs:
+    @return:
+    """
+    pass
 
 
 @cli.group
 def pypi(**kwargs):
-    print()
+    """ Scan a PyPI package or verify a PyPI project
+    """
+    pass
 
 
 @npm.command("scan")
 @common_options
 @version_option
 def scan_npm(target, version, rules, exclude_rules, json, exit_non_zero_on_finding):
+    """ Scan a given npm package
+    """
     return _scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding, "npm")
 
 
 @npm.command("verify")
 @common_options
 def verify_npm(**kwargs):
+    """ Verify a given npm project
+    """
     print()
 
 
@@ -104,12 +122,16 @@ def verify_npm(**kwargs):
 @common_options
 @version_option
 def scan_pypi(target, version, rules, exclude_rules, json, exit_non_zero_on_finding):
+    """ Scan a given PyPI package
+    """
     return _scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding, "pypi")
 
 
 @pypi.command("verify")
 @common_options
 def verify_pypi(**kwargs):
+    """ Verify a given Pypi project
+    """
     print()
 
 
@@ -146,54 +168,10 @@ def verify(path, json, exit_non_zero_on_finding, ecosystem):
         exit_with_status_code(results)
 
 
-@cli.command("scan")
-@click.argument("identifier")
-@click.option("-v", "--version", default=None, help="Specify a version to scan")
-@click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
-@click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
-@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
-                                                                              "least one issue is identified")
-@click.option("-e", "--ecosystem", default="pypi",
-              help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
-def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem):
-    """Scan a package
-
-    Args:
-        identifier (str): name or path to the package
-        version (str): version of the package (ex. 1.0.0), defaults to most recent
-        rules (str): specific rules to run, defaults to all
-    """
-
-    rule_param = None
-    if len(rules) != 0:
-        rule_param = rules
-    if len(exclude_rules):
-        rule_param = ALL_RULES - set(exclude_rules)
-
-    scanner = get_scanner(ecosystem, False)
-    if scanner is None:
-        sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
-        exit(1)
-    results = {}
-    if is_local_package(identifier, ecosystem):
-        results = scanner.scan_local(identifier, rule_param)
-    else:
-        try:
-            results = scanner.scan_remote(identifier, version, rule_param)
-        except Exception as e:
-            sys.stderr.write("\n")
-            sys.stderr.write(str(e))
-            sys.exit()
-
-    if json:
-        import json as js
-        print(js.dumps(results))
-    else:
-        print_scan_results(results, identifier)
-
-    if exit_non_zero_on_finding:
-        exit_with_status_code(results)
+@cli.command(context_settings={"ignore_unknown_options": True}, deprecated=True)
+@click.argument('target', nargs=-1)
+def scan(target):
+    exit(1)
 
 
 # Determines if the input passed to the 'scan' command is a local package name
