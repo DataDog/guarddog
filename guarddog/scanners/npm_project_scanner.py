@@ -37,8 +37,8 @@ class NPMRequirementsScanner(ProjectScanner):
 
     def parse_requirements(self, raw_requirements: str) -> dict:
         package = json.loads(raw_requirements)
-        dependencies = package["dependencies"]
-        dev_dependencies = package["devDependencies"]
+        dependencies = package["dependencies"] if "dependencies" in package else {}
+        dev_dependencies = package["devDependencies"] if "devDependencies" in package else {}
 
         merged = {}  # type: dict[str, set[str]]
         for package, selector in list(dependencies.items()) + list(dev_dependencies.items()):
@@ -51,5 +51,6 @@ class NPMRequirementsScanner(ProjectScanner):
             versions = set()  # type: set[str]
             for selector in all_selectors:
                 versions = versions.union(find_all_versions(package, selector))
-            results[package] = versions
+            if len(versions) > 0:
+                results[package] = versions
         return results
