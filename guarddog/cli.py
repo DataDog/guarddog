@@ -45,6 +45,17 @@ def cli(**kwargs):
     pass
 
 
+def _get_rule_pram(rules, exclude_rules):
+    rule_param = None
+    if len(rules) > 0:
+        rule_param = rules
+    if len(exclude_rules) > 0:
+        rule_param = ALL_RULES - set(exclude_rules)
+        if len(rules) > 0:
+            print("--rules and --exclude-rules have been used together. --rules will be ignored.")
+    return rule_param
+
+
 def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem):
     """Scan a package
 
@@ -54,12 +65,7 @@ def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_find
         rules (str): specific rules to run, defaults to all
     """
 
-    rule_param = None
-    if len(rules) != 0:
-        rule_param = rules
-    if len(exclude_rules):
-        rule_param = ALL_RULES - set(exclude_rules)
-
+    rule_param = _get_rule_pram(rules, exclude_rules)
     scanner = get_scanner(ecosystem, False)
     if scanner is None:
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")

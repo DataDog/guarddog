@@ -3,7 +3,7 @@ import json
 import requests
 from semantic_version import NpmSpec, Version  # type:ignore
 
-from guarddog.scanners import NPMPackageScanner
+from guarddog.scanners.npm_package_scanner import NPMPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
 
 
