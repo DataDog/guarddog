@@ -1,21 +1,21 @@
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Optional
-    from .scanner import Scanner
+from .pypi_package_scanner import PypiPackageScanner
+from .pypi_project_scanner import PypiRequirementsScanner
+from .npm_package_scanner import NPMPackageScanner
+from .npm_project_scanner import NPMRequirementsScanner
+
+from typing import Optional
+from .scanner import Scanner
+from ..ecosystems import ECOSYSTEM
 
 
-def get_scanner(ecosystem: str, project: bool) -> Optional[Scanner]:
+def get_scanner(ecosystem: ECOSYSTEM, project: bool) -> Optional[Scanner]:
     match (ecosystem, project):
-        case ("pypi", False):
-            from .pypi_package_scanner import PypiPackageScanner
+        case (ECOSYSTEM.PYPI, False):
             return PypiPackageScanner()
-        case ("pypi", True):
-            from .pypi_project_scanner import PypiRequirementsScanner
+        case (ECOSYSTEM.PYPI, True):
             return PypiRequirementsScanner()
-        case ("npm", False):
-            from .npm_package_scanner import NPMPackageScanner
+        case (ECOSYSTEM.NPM, False):
             return NPMPackageScanner()
-        case ("npm", True):
-            from .npm_project_scanner import NPMRequirementsScanner
+        case (ECOSYSTEM.NPM, True):
             return NPMRequirementsScanner()
     return None
