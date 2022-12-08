@@ -12,4 +12,5 @@ rules:
         - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
     languages:
       - python
+      - javascript
     severity: WARNING
