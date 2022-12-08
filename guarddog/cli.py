@@ -6,12 +6,15 @@ Includes rules based on package registry metadata and source code analysis.
 
 import re
 import sys
+from typing import cast, Optional
 
 import click
 from termcolor import colored
 
 from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES, METADATA_DETECTORS
+from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners import get_scanner
+from guarddog.scanners.scanner import PackageScanner
 
 ALL_RULES = METADATA_DETECTORS.keys() | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
@@ -56,7 +59,33 @@ def _get_rule_pram(rules, exclude_rules):
     return rule_param
 
 
-def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem):
+def _verify(path, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem):
+    """Verify a requirements.txt file
+
+    Args:
+        path (str): path to requirements.txt file
+    """
+    rule_param = _get_rule_pram(rules, exclude_rules)
+    scanner = get_scanner(ecosystem, True)
+    if scanner is None:
+        sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
+        exit(1)
+    results = scanner.scan_local(path, rule_param)
+    for result in results:
+        identifier = result['dependency'] if result['version'] is None \
+            else f"{result['dependency']} version {result['version']}"
+        if not json:
+            print_scan_results(result.get('result'), identifier)
+
+    if json:
+        import json as js
+        print(js.dumps(results))
+
+    if exit_non_zero_on_finding:
+        exit_with_status_code(results)
+
+
+def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):
     """Scan a package
 
     Args:
@@ -66,7 +95,7 @@ def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_find
     """
 
     rule_param = _get_rule_pram(rules, exclude_rules)
-    scanner = get_scanner(ecosystem, False)
+    scanner = cast(Optional[PackageScanner], get_scanner(ecosystem, False))
     if scanner is None:
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         exit(1)
@@ -113,15 +142,15 @@ def pypi(**kwargs):
 def scan_npm(target, version, rules, exclude_rules, json, exit_non_zero_on_finding):
     """ Scan a given npm package
     """
-    return _scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding, "npm")
+    return _scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding, ECOSYSTEM.NPM)
 
 
 @npm.command("verify")
 @common_options
-def verify_npm(**kwargs):
+def verify_npm(target, rules, exclude_rules, json, exit_non_zero_on_finding):
     """ Verify a given npm project
     """
-    print()
+    return _verify(target, rules, exclude_rules, json, exit_non_zero_on_finding, ECOSYSTEM.NPM)
 
 
 @pypi.command("scan")
@@ -130,48 +159,21 @@ def verify_npm(**kwargs):
 def scan_pypi(target, version, rules, exclude_rules, json, exit_non_zero_on_finding):
     """ Scan a given PyPI package
     """
-    return _scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding, "pypi")
+    return _scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 @pypi.command("verify")
 @common_options
-def verify_pypi(**kwargs):
+def verify_pypi(target, rules, exclude_rules, json, exit_non_zero_on_finding):
     """ Verify a given Pypi project
     """
-    print()
+    return _verify(target, rules, exclude_rules, json, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
-@cli.command("verify")
-@click.argument("path")
-@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-# TODO: can we avoid duplication of arguments?
-@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
-                                                                              "least one issue is identified")
-@click.option("-e", "--ecosystem", default="pypi",
-              help="Ecosystem for the given pacakge. Allowed: pypi, npm. Default: pypi")
-def verify(path, json, exit_non_zero_on_finding, ecosystem):
-    """Verify a requirements.txt file
-
-    Args:
-        path (str): path to requirements.txt file
-    """
-    scanner = get_scanner(ecosystem, True)
-    if scanner is None:
-        sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
-        exit(1)
-    results = scanner.scan_local(path)
-    for result in results:
-        identifier = result['dependency'] if result['version'] is None \
-            else f"{result['dependency']} version {result['version']}"
-        if not json:
-            print_scan_results(result.get('result'), identifier)
-
-    if json:
-        import json as js
-        print(js.dumps(results))
-
-    if exit_non_zero_on_finding:
-        exit_with_status_code(results)
+@cli.command(context_settings={"ignore_unknown_options": True}, deprecated=True)
+@click.argument('target', nargs=-1)
+def verify(target):
+    exit(1)
 
 
 @cli.command(context_settings={"ignore_unknown_options": True}, deprecated=True)
@@ -181,7 +183,7 @@ def scan(target):
 
 
 # Determines if the input passed to the 'scan' command is a local package name
-def is_local_package(input: str, ecosystem: str):
+def is_local_package(input: str, ecosystem: ECOSYSTEM):
     # FIXME: will break on scoped npm packages
     identifier_is_path = re.search(r"(.{0,2}\/)+.+", input)
     return identifier_is_path or input.endswith('.tar.gz')

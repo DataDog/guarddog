@@ -17,6 +17,10 @@ class Scanner:
     def __init__(self) -> None:
         pass
 
+    @abstractmethod
+    def scan_local(self, path, rules=None):
+        pass
+
 
 class ProjectScanner(Scanner):
     def __init__(self, package_scanner):
@@ -42,7 +46,7 @@ class ProjectScanner(Scanner):
             exit(1)
         return (user, personal_access_token)
 
-    def scan_requirements(self, requirements: str) -> dict:
+    def scan_requirements(self, requirements: str, rules=None) -> dict:
         """
         Reads the requirements.txt file and scans each possible
         dependency and version
@@ -67,7 +71,7 @@ class ProjectScanner(Scanner):
         """
 
         def get_package_results_helper(dependency, version):
-            result = self.package_scanner.scan_remote(dependency, version)
+            result = self.package_scanner.scan_remote(dependency, version, rules)
             return {'dependency': dependency, 'version': version, 'result': result}
 
         get_package_results = functools.partial(get_package_results_helper)
@@ -122,7 +126,7 @@ class ProjectScanner(Scanner):
             sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)
 
-    def scan_local(self, path):
+    def scan_local(self, path, rules=None):
         """
         Scans a local requirements.txt file
 
@@ -147,7 +151,7 @@ class ProjectScanner(Scanner):
 
         try:
             with open(path, "r") as f:
-                return self.scan_requirements(f.read())
+                return self.scan_requirements(f.read(), rules)
         except Exception as e:
             sys.stdout.write(f"Received {e}")
             sys.exit(255)
