@@ -1,13 +1,14 @@
 import os
 
 from guarddog.analyzer.analyzer import Analyzer
+from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
 from guarddog.utils.package_info import get_package_info
 
 
 class PypiPackageScanner(PackageScanner):
     def __init__(self) -> None:
-        super().__init__(Analyzer("pypi"))
+        super().__init__(Analyzer(ECOSYSTEM.PYPI))
 
     def download_and_get_package_info(self, directory: str, package_name: str, version=None):
         self.download_package(package_name, directory, version)

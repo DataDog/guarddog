@@ -1,11 +1,11 @@
 import pytest
 
-from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
+from guarddog.analyzer.metadata.pypi import PypiTyposquatDetector
 from tests.analyzer.metadata.resources.sample_project_info import generate_project_info
 
 
 class TestTyposquatting:
-    detector = TyposquatDetector()
+    detector = PypiTyposquatDetector()
     typosquats = [
         ("ans1crypto", "asn1crypto"),
         ("colourama", "colorama"),
