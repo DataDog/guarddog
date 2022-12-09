@@ -20,18 +20,8 @@ class TyposquatDetector(Detector):
     """
 
     def __init__(self) -> None:
-        # Find top PyPI packages
-        top_packages_information = self._get_top_packages()
-
-        # Get list of popular packages
-        self.popular_packages = []
-
-        for package in top_packages_information:
-            name = package["project"]
-            normalized_name = canonicalize_name(name)
-            self.popular_packages.append(normalized_name)
-
-        super()
+        self.popular_packages = self._get_top_packages()  # Find top PyPI packages
+        super().__init__()  # Call constructor
 
     def _get_top_packages(self) -> list:
         """
@@ -52,12 +42,12 @@ class TyposquatDetector(Detector):
         popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
 
         top_packages_filename = "top_pypi_packages.json"
-        resourcesdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "resources"))
-        top_packages_path = os.path.join(resourcesdir, top_packages_filename)
+        resources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "resources"))
+        top_packages_path = os.path.join(resources_dir, top_packages_filename)
 
         top_packages_information = None
 
-        if top_packages_filename in os.listdir(resourcesdir):
+        if top_packages_filename in os.listdir(resources_dir):
             update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
 
             if datetime.now() - update_time <= timedelta(days=30):
@@ -71,7 +61,10 @@ class TyposquatDetector(Detector):
 
             top_packages_information = response["rows"]
 
-        return top_packages_information
+        def get_safe_name(package):
+            return canonicalize_name(package["project"])
+
+        return list(map(get_safe_name, top_packages_information))
 
     def _is_distance_one_Levenshtein(self, name1, name2) -> bool:
         """
@@ -216,8 +209,6 @@ class TyposquatDetector(Detector):
             typosquatting from
         """
 
-        typosquatted = set()
-
         # Get permuted typosquats for normalized and confused names
         normalized_name = canonicalize_name(package_name)
 
@@ -225,6 +216,7 @@ class TyposquatDetector(Detector):
             return []
 
         # Go through popular packages and find length one edit typosquats
+        typosquatted = set()
         for popular_package in self.popular_packages:
             if self._is_length_one_edit_away(normalized_name, popular_package):
                 typosquatted.add(popular_package)
@@ -253,7 +245,7 @@ class TyposquatDetector(Detector):
         """
         similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
         if len(similar_package_names) > 0:
-            return True, "This package closely ressembles the following package names, and might be a typosquatting " \
+            return True, "This package closely resembles the following package names, and might be a typosquatting " \
                          "attempt: " + ", ".join(similar_package_names)
 
         return False, None
