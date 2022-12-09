@@ -3,10 +3,11 @@
 CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
-
+import os
 import re
 import sys
 from typing import cast, Optional
+from urllib.parse import urlparse
 
 import click
 from termcolor import colored
@@ -35,7 +36,7 @@ def version_option(fn):
 
 
 @click.group
-def cli(**kwargs):
+def cli():
     """
     GuardDog cli tool to detect malware in package ecosystems
 
@@ -100,7 +101,7 @@ def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_find
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         exit(1)
     results = {}
-    if is_local_package(identifier, ecosystem):
+    if os.path.exists(identifier):
         results = scanner.scan_local(identifier, rule_param)
     else:
         try:
@@ -180,13 +181,6 @@ def verify(target):
 @click.argument('target', nargs=-1)
 def scan(target):
     exit(1)
-
-
-# Determines if the input passed to the 'scan' command is a local package name
-def is_local_package(input: str, ecosystem: ECOSYSTEM):
-    # FIXME: will break on scoped npm packages
-    identifier_is_path = re.search(r"(.{0,2}\/)+.+", input)
-    return identifier_is_path or input.endswith('.tar.gz')
 
 
 # Pretty prints scan results for the console

@@ -17,7 +17,11 @@ def find_all_versions(package_name: str, semver_range: str) -> set[str]:
     data = response.json()
     versions = list(data["versions"].keys())
     result = set()
-    npm_spec = NpmSpec(semver_range)
+    try:
+        npm_spec = NpmSpec(semver_range)
+    except ValueError:  # not a semver range, let's keep it raw
+        result.add(semver_range)
+        return result
     for v in versions:
         if Version(v) in npm_spec:
             result.add(v)
