@@ -8,7 +8,6 @@ from guarddog.scanners.scanner import ProjectScanner
 
 
 def find_all_versions(package_name: str, semver_range: str) -> set[str]:
-    #  FIXME: handle cases where its a url, a git repo
     url = f"https://registry.npmjs.org/{package_name}"
     response = requests.get(url)
     if response.status_code != 200:
