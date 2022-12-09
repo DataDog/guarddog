@@ -29,5 +29,3 @@ def test_npm_requirements_scanner_github():
     assert "expressjs/express" in result["express"]
     assert "cors" in result
     assert "https://github.com/expressjs/cors.git" in result["cors"]
-
-# TODO: test also the package scanner
