@@ -42,3 +42,22 @@ class TestTyposquatting:
         project_info = generate_project_info("name", name)
         matches, _ = self.detector.detect(project_info)
         assert not matches
+
+    def test_no_duplicate_errors(self):
+        """
+        Verify that a package with a typo in the name only reports 1 error
+
+        Regression test for https://github.com/DataDog/guarddog/issues/71
+        """
+        result = self.detector.get_typosquatted_package("pdfminer.sid")
+        assert len(result) == 1
+
+    def test_normalize_names(self):
+        """
+        Verify that a package with 1 or more dots(.), hyphens(-) or underscore(_) gets normalized
+        to avoid false positives
+
+        Regression test for https://github.com/DataDog/guarddog/issues/71
+        """
+        result = self.detector.get_typosquatted_package("pdfminer...---___six")
+        assert len(result) == 0
