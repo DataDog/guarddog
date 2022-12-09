@@ -221,12 +221,12 @@ class TyposquatDetector(Detector):
         # Get permuted typosquats for normalized and confused names
         normalized_name = package_name.lower().replace("_", "-")
 
+        if normalized_name in self.popular_packages:
+            return []
+
         # Go through popular packages and find length one edit typosquats
         for popular_package in self.popular_packages:
             normalized_popular_package = popular_package.lower().replace("_", "-")
-
-            if normalized_name == popular_package:
-                return []
 
             if self._is_length_one_edit_away(normalized_name, normalized_popular_package):
                 typosquatted.add(popular_package)
