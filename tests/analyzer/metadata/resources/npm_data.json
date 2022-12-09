@@ -1,6 +1,4 @@
-from copy import deepcopy
-
-NPM_PACKAGE_INFO = {
+{
   "_id": "minivlad",
   "name": "minivlad",
   "dist-tags": {
@@ -50,7 +48,7 @@ NPM_PACKAGE_INFO = {
         "host": "s3://npm-registry-packages",
         "tmp": "tmp/minivlad_1.0.0_1669823449300_0.541082556902319"
       },
-      "_hasShrinkwrap": False
+      "_hasShrinkwrap": false
     }
   },
   "time": {

@@ -1,11 +1,16 @@
+import json
+import os
+import pathlib
 from datetime import datetime
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
-from tests.analyzer.metadata.resources.sample_npm_project_info import NPM_PACKAGE_INFO
 from tests.analyzer.metadata.resources.sample_project_info import PACKAGE_INFO
+
+with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
+    NPM_PACKAGE_INFO = json.load(file)
 
 
 class MockWhoIs:
