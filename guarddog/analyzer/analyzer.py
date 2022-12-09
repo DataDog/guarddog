@@ -3,10 +3,8 @@ from pathlib import Path
 
 from semgrep.semgrep_main import invoke_semgrep  # type: ignore
 
-from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
-from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
-from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
-from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
+from guarddog.analyzer.metadata import get_metadata_detectors
+from guarddog.ecosystems import ECOSYSTEM
 
 
 def get_rules(file_extension, path):
@@ -15,13 +13,6 @@ def get_rules(file_extension, path):
 
 SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
-
-METADATA_DETECTORS = {
-    "typosquatting": TyposquatDetector(),
-    "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
-    "empty_information": EmptyInfoDetector(),
-    "release_zero": ReleaseZeroDetector()
-}
 
 
 class Analyzer:
@@ -39,13 +30,13 @@ class Analyzer:
         metadata_detectors(list): list of metadata detectors
     """
 
-    def __init__(self, ecosystem="pypi") -> None:
+    def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
         self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
 
         self.ecosystem = ecosystem
 
         # Rules and associated detectors
-        self.metadata_detectors = METADATA_DETECTORS
+        self.metadata_detectors = get_metadata_detectors(ecosystem)
 
         self.metadata_ruleset = self.metadata_detectors.keys()
         self.sourcecode_ruleset = SEMGREP_RULE_NAMES
@@ -131,7 +122,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info, self.ecosystem, path)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, path)
                 if rule_matches:
                     issues += 1
                     results[rule] = message

@@ -10,12 +10,16 @@ from typing import cast, Optional
 import click
 from termcolor import colored
 
-from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES, METADATA_DETECTORS
+from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES
+from guarddog.analyzer.metadata import get_metadata_detectors
+from guarddog.analyzer.sourcecode import SOURCECODE_RULES
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 
-ALL_RULES = METADATA_DETECTORS.keys() | SEMGREP_RULE_NAMES
+ALL_RULES = \
+    set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) \
+    | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
 
 
@@ -119,6 +123,18 @@ def _scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_find
         exit_with_status_code(results)
 
 
+def _list_rules(ecosystem):
+    metadata_detectors = get_metadata_detectors(ecosystem)
+    if len(SOURCECODE_RULES[ecosystem]) > 0:
+        print("Available source code rules:")
+        for rule in SOURCECODE_RULES[ecosystem]:
+            print(f"\t{rule}")
+    if len(metadata_detectors.keys()) > 0:
+        print("Available metadata detectors:")
+        for detector in metadata_detectors.keys():
+            print(f"\t{detector}")
+
+
 @cli.group
 def npm(**kwargs):
     """ Scan a npm package or verify a npm project
@@ -167,6 +183,20 @@ def verify_pypi(target, rules, exclude_rules, json, exit_non_zero_on_finding):
     """ Verify a given Pypi project
     """
     return _verify(target, rules, exclude_rules, json, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+
+
+@pypi.command("list-rules")
+def list_rules_pypi():
+    """ Print available rules for PyPI
+    """
+    return _list_rules(ECOSYSTEM.PYPI)
+
+
+@npm.command("list-rules")
+def list_rules_npm():
+    """ Print available rules for npm
+    """
+    return _list_rules(ECOSYSTEM.NPM)
 
 
 @cli.command(context_settings={"ignore_unknown_options": True}, deprecated=True)
