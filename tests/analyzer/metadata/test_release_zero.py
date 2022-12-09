@@ -1,13 +1,18 @@
+import json
+import os
+import pathlib
 from copy import deepcopy
 
 import pytest
 
 from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
-from tests.analyzer.metadata.resources.sample_npm_project_info import NPM_PACKAGE_INFO
 from tests.analyzer.metadata.resources.sample_project_info import (
     PACKAGE_INFO,
     generate_project_info,
 )
+
+with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
+    NPM_PACKAGE_INFO = json.load(file)
 
 
 class TestEmptyInformation:

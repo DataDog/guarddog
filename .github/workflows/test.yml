@@ -94,7 +94,7 @@ jobs:
           echo -e "requests\npywin32" > requirements.txt
           guarddog verify ./requirements.txt
           pip list
-          guarddog verify -e npm ./tests/core/package.json
+          guarddog verify -e npm ./tests/core/resources/package.json
 
   docker-build:
     runs-on: ubuntu-latest
