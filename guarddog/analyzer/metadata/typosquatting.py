@@ -3,7 +3,7 @@ import os
 from datetime import datetime, timedelta
 from itertools import permutations
 from typing import Optional
-
+from packaging.utils import canonicalize_name
 import requests
 
 from guarddog.analyzer.metadata.detector import Detector
@@ -28,7 +28,7 @@ class TyposquatDetector(Detector):
 
         for package in top_packages_information:
             name = package["project"]
-            normalized_name = name.lower().replace("_", "-")
+            normalized_name = canonicalize_name(name)
             self.popular_packages.append(normalized_name)
 
         super()
@@ -219,24 +219,22 @@ class TyposquatDetector(Detector):
         typosquatted = set()
 
         # Get permuted typosquats for normalized and confused names
-        normalized_name = package_name.lower().replace("_", "-")
+        normalized_name = canonicalize_name(package_name)
 
         if normalized_name in self.popular_packages:
             return []
 
         # Go through popular packages and find length one edit typosquats
         for popular_package in self.popular_packages:
-            normalized_popular_package = popular_package.lower().replace("_", "-")
-
-            if self._is_length_one_edit_away(normalized_name, normalized_popular_package):
+            if self._is_length_one_edit_away(normalized_name, popular_package):
                 typosquatted.add(popular_package)
 
-            alternate_popular_names = self._get_confused_forms(normalized_popular_package)
-            swapped_popular_names = self._generate_permutations(normalized_popular_package)
+            alternate_popular_names = self._get_confused_forms(popular_package)
+            swapped_popular_names = self._generate_permutations(popular_package)
 
             for name in alternate_popular_names + swapped_popular_names:
                 if self._is_length_one_edit_away(normalized_name, name):
-                    typosquatted.add(normalized_popular_package)
+                    typosquatted.add(popular_package)
 
         return list(typosquatted)
 
