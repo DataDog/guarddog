@@ -216,7 +216,7 @@ class TyposquatDetector(Detector):
             typosquatting from
         """
 
-        typosquatted = []
+        typosquatted = set()
 
         # Get permuted typosquats for normalized and confused names
         normalized_name = package_name.lower().replace("_", "-")
@@ -229,16 +229,16 @@ class TyposquatDetector(Detector):
                 return []
 
             if self._is_length_one_edit_away(normalized_name, normalized_popular_package):
-                typosquatted.append(popular_package)
+                typosquatted.add(popular_package)
 
             alternate_popular_names = self._get_confused_forms(normalized_popular_package)
             swapped_popular_names = self._generate_permutations(normalized_popular_package)
 
             for name in alternate_popular_names + swapped_popular_names:
                 if self._is_length_one_edit_away(normalized_name, name):
-                    typosquatted.append(normalized_popular_package)
+                    typosquatted.add(normalized_popular_package)
 
-        return typosquatted
+        return list(typosquatted)
 
     def detect(self, package_info) -> tuple[bool, Optional[str]]:
         """
