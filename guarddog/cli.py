@@ -4,10 +4,8 @@ CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
 import os
-import re
 import sys
 from typing import cast, Optional
-from urllib.parse import urlparse
 
 import click
 from termcolor import colored
