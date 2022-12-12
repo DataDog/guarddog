@@ -199,16 +199,17 @@ def list_rules_npm():
     return _list_rules(ECOSYSTEM.NPM)
 
 
-@cli.command(context_settings={"ignore_unknown_options": True}, deprecated=True)
-@click.argument('target', nargs=-1)
-def verify(target):
-    exit(1)
+@cli.command("verify", deprecated=True)
+@common_options
+def verify(target, rules, exclude_rules, json, exit_non_zero_on_finding):
+    return _verify(target, rules, exclude_rules, json, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
-@cli.command(context_settings={"ignore_unknown_options": True}, deprecated=True)
-@click.argument('target', nargs=-1)
-def scan(target):
-    exit(1)
+@cli.command("scan", deprecated=True)
+@common_options
+@version_option
+def scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding):
+    return _scan(target, version, rules, exclude_rules, json, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 # Pretty prints scan results for the console
