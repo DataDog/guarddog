@@ -2,9 +2,9 @@ import json
 import os
 from datetime import datetime, timedelta
 from itertools import permutations
-from typing import Optional
-from packaging.utils import canonicalize_name
+
 import requests
+from packaging.utils import canonicalize_name
 
 from guarddog.analyzer.metadata.detector import Detector
 
@@ -233,4 +233,3 @@ class TyposquatDetector(Detector):
                     typosquatted.add(popular_package)
 
         return list(typosquatted)
-
