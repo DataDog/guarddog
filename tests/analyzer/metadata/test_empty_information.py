@@ -43,3 +43,12 @@ class TestEmptyInformation:
                 readme.write("# Hello World")
             matches, _ = self.npm_detector.detect({}, dir)
             assert not matches
+
+    def test_non_empty_npm_with_mixed_case(self):
+        with tempfile.TemporaryDirectory() as dir:
+            full_path = os.path.join(dir, "package")
+            os.mkdir(full_path)
+            with open(os.path.join(full_path, "Readme.md"), "w") as readme:
+                readme.write("# Hello World")
+            matches, _ = self.npm_detector.detect({}, dir)
+            assert not matches

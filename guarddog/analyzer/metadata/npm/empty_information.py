@@ -16,5 +16,8 @@ class NPMEmptyInfoDetector(EmptyInfoDetector):
         if path is None:
             raise TypeError("path must be a string")
         package_path = os.path.join(path, "package")
-        content = os.listdir(package_path)
-        return "README.md" not in content, EmptyInfoDetector.MESSAGE_TEMPLATE % "npm"
+        content = map(
+            lambda x: x.lower(),
+            os.listdir(package_path)
+        )
+        return "readme.md" not in content, EmptyInfoDetector.MESSAGE_TEMPLATE % "npm"
