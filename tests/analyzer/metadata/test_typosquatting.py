@@ -34,13 +34,13 @@ class TestTyposquatting:
     @pytest.mark.parametrize("typo_name, real_name", typosquats)
     def test_typosquats(self, typo_name, real_name):
         project_info = generate_project_info("name", typo_name)
-        matches, message = self.detector.detect(project_info, "pypi")
+        matches, message = self.detector.detect(project_info)
         assert matches and real_name in message
 
     @pytest.mark.parametrize("name", negative_cases + same_names)
     def test_nontyposquats(self, name):
         project_info = generate_project_info("name", name)
-        matches, _ = self.detector.detect(project_info, "pypi")
+        matches, _ = self.detector.detect(project_info)
         assert not matches
 
     def test_no_duplicate_errors(self):

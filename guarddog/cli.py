@@ -58,7 +58,8 @@ def _get_rule_pram(rules, exclude_rules):
     if len(exclude_rules) > 0:
         rule_param = ALL_RULES - set(exclude_rules)
         if len(rules) > 0:
-            print("--rules and --exclude-rules have been used together. --rules will be ignored.")
+            print("--rules and --exclude-rules cannot be used together")
+            exit(1)
     return rule_param
 
 
