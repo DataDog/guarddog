@@ -25,6 +25,7 @@ class PypiTyposquatDetector(TyposquatDetector):
         Returns:
             list[str]: names of packages that <package_name> could be
             typosquatting from
+            @param **kwargs:
         """
 
         similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
