@@ -29,7 +29,7 @@ def find_all_versions(package_name: str, semver_range: str) -> set[str]:
 
 class NPMRequirementsScanner(ProjectScanner):
     """
-    Scans all packages in the requirements.txt file of a project
+    Scans all packages in the package.json file of a project
 
     Attributes:
         package_scanner (PackageScanner): Scanner for individual packages
