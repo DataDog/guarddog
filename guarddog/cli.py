@@ -139,8 +139,6 @@ def _list_rules(ecosystem):
 @cli.group
 def npm(**kwargs):
     """ Scan a npm package or verify a npm project
-    @param kwargs:
-    @return:
     """
     pass
 
