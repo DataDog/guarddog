@@ -4,3 +4,7 @@ eval(atob(str));
 
 // ok: eval-call
 eval('console.log(\'hello world\');');
+
+const str2 = 'console.log(\'hello world\');';
+// ok: eval-call
+eval(str2);
