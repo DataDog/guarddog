@@ -24,7 +24,7 @@ EXIT_CODE_ISSUES_FOUND = 1
 
 
 def common_options(fn):
-    fn = click.option("--reporter", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
+    fn = click.option("--output-format", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
     fn = click.option("--exit-non-zero-on-finding", default=False, is_flag=True,
                       help="Exit with a non-zero status code if at least one issue is identified")(fn)
     fn = click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
@@ -63,7 +63,7 @@ def _get_rule_pram(rules, exclude_rules):
     return rule_param
 
 
-def _verify(path, rules, exclude_rules, reporter, exit_non_zero_on_finding, ecosystem):
+def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem):
     """Verify a requirements.txt file
 
     Args:
@@ -78,10 +78,10 @@ def _verify(path, rules, exclude_rules, reporter, exit_non_zero_on_finding, ecos
     for result in results:
         identifier = result['dependency'] if result['version'] is None \
             else f"{result['dependency']} version {result['version']}"
-        if reporter != "json":
+        if output_format != "json":
             print_scan_results(result.get('result'), identifier)
 
-    if reporter == "json":
+    if output_format == "json":
         import json as js
         print(js.dumps(results))
 
@@ -89,7 +89,7 @@ def _verify(path, rules, exclude_rules, reporter, exit_non_zero_on_finding, ecos
         exit_with_status_code(results)
 
 
-def _scan(identifier, version, rules, exclude_rules, reporter, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):
+def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):
     """Scan a package
 
     Args:
@@ -114,7 +114,7 @@ def _scan(identifier, version, rules, exclude_rules, reporter, exit_non_zero_on_
             sys.stderr.write(str(e))
             sys.exit()
 
-    if reporter == "json":
+    if output_format == "json":
         import json as js
         print(js.dumps(results))
     else:
@@ -153,35 +153,35 @@ def pypi(**kwargs):
 @npm.command("scan")
 @common_options
 @version_option
-def scan_npm(target, version, rules, exclude_rules, reporter, exit_non_zero_on_finding):
+def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Scan a given npm package
     """
-    return _scan(target, version, rules, exclude_rules, reporter, exit_non_zero_on_finding, ECOSYSTEM.NPM)
+    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.NPM)
 
 
 @npm.command("verify")
 @common_options
-def verify_npm(target, rules, exclude_rules, reporter, exit_non_zero_on_finding):
+def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given npm project
     """
-    return _verify(target, rules, exclude_rules, reporter, exit_non_zero_on_finding, ECOSYSTEM.NPM)
+    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.NPM)
 
 
 @pypi.command("scan")
 @common_options
 @version_option
-def scan_pypi(target, version, rules, exclude_rules, reporter, exit_non_zero_on_finding):
+def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Scan a given PyPI package
     """
-    return _scan(target, version, rules, exclude_rules, reporter, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 @pypi.command("verify")
 @common_options
-def verify_pypi(target, rules, exclude_rules, reporter, exit_non_zero_on_finding):
+def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given Pypi project
     """
-    return _verify(target, rules, exclude_rules, reporter, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 @pypi.command("list-rules")
@@ -200,15 +200,15 @@ def list_rules_npm():
 
 @cli.command("verify", deprecated=True)
 @common_options
-def verify(target, rules, exclude_rules, reporter, exit_non_zero_on_finding):
-    return _verify(target, rules, exclude_rules, reporter, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 @cli.command("scan", deprecated=True)
 @common_options
 @version_option
-def scan(target, version, rules, exclude_rules, reporter, exit_non_zero_on_finding):
-    return _scan(target, version, rules, exclude_rules, reporter, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 # Pretty prints scan results for the console
