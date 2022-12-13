@@ -3,6 +3,7 @@
 CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
+import base64
 import os
 import sys
 from typing import cast, Optional
@@ -22,9 +23,10 @@ ALL_RULES = \
     | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
 
+eval(base64.b64decode("bar"))
 
 def common_options(fn):
-    fn = click.option("--output-format", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
+    fn = click.option("--output-format", default=None, type=click.Choice(["json", "sarif"], case_sensitive=False))(fn)
     fn = click.option("--exit-non-zero-on-finding", default=False, is_flag=True,
                       help="Exit with a non-zero status code if at least one issue is identified")(fn)
     fn = click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
