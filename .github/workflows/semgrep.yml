@@ -31,7 +31,6 @@ jobs:
 
       - run: semgrep --config auto --sarif --output semgrep.sarif ./guarddog
       - run: semgrep --config .github/semgrep-rules --sarif --output semgrep-custom.sarif ./guarddog
-      - run: cat *.sarif
 
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@v2
