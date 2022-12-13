@@ -78,7 +78,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     for result in results:
         identifier = result['dependency'] if result['version'] is None \
             else f"{result['dependency']} version {result['version']}"
-        if output_format != "json":
+        if output_format is None:
             print_scan_results(result.get('result'), identifier)
 
     if output_format == "json":
