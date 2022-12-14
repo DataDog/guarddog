@@ -93,9 +93,9 @@ jobs:
         run: >
           echo -e "requests\npywin32" > requirements.txt
           guarddog pypi verify ./requirements.txt
-          guarddog npm verify --output-format=sarif ./tests/core/resources/package.json > output.sarif
-          cat output.sarif
+          guarddog npm verify ./tests/core/resources/package.json
 
+      - run: guarddog npm verify --reporter=sarfif ./tests/core/resources/package.json > output.sarif
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@v2
         with:
