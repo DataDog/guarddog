@@ -84,7 +84,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     for result in results:
         identifier = result['dependency'] if result['version'] is None \
             else f"{result['dependency']} version {result['version']}"
-        if output_format != "json":
+        if output_format is None:
             print_scan_results(result.get('result'), identifier)
 
     if output_format == "json":
@@ -167,6 +167,7 @@ def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero
 
 @npm.command("verify")
 @common_options
+@verify_options
 def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given npm project
     """
@@ -184,6 +185,7 @@ def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zer
 
 @pypi.command("verify")
 @common_options
+@verify_options
 def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given Pypi project
     """
@@ -206,13 +208,14 @@ def list_rules_npm():
 
 @cli.command("verify", deprecated=True)
 @common_options
+@verify_options
 def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 @cli.command("scan", deprecated=True)
 @common_options
-@version_option
+@scan_options
 def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
