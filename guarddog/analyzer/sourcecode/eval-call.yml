@@ -1,0 +1,11 @@
+rules:
+  - id: eval-call
+    message: Package calling insecure `eval` method with a non static string
+    languages:
+      - javascript
+    severity: WARNING
+    patterns:
+      - pattern-not: eval('...')
+      - pattern-not: eval("...")
+      - pattern-not: eval(`...`)
+      - pattern: eval(atob(...))
