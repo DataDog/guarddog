@@ -127,7 +127,8 @@ def report_npm_verify_sarif(package_path: str, rule_names: list[str], scan_resul
         if entry["result"]["issues"] == 0:
             continue
         region = _get_npm_region(package_raw, entry["dependency"])
-        physical_location = get_physical_location(package_path, region)
+        uri = package_path[2:] if package_path.startswith('./') else package_path
+        physical_location = get_physical_location(uri, region)
         location = get_location(physical_location)
         scan_result_details = entry["result"]["results"]
         for rule_name in scan_result_details.keys():
