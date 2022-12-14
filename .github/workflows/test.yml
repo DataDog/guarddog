@@ -93,7 +93,13 @@ jobs:
         run: >
           echo -e "requests\npywin32" > requirements.txt
           guarddog pypi verify ./requirements.txt
-          guarddog npm verify --output-format=sarif ./tests/core/resources/package.json
+          guarddog npm verify --output-format=sarif ./tests/core/resources/package.json > output.sarif
+
+      - name: Upload SARIF file for GitHub Advanced Security Dashboard
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          category: guarddog-builtin
+          sarif_file: output.sarif
 
   docker-build:
     runs-on: ubuntu-latest
