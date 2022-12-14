@@ -95,7 +95,7 @@ jobs:
         run: >
           echo -e "requests\npywin32" > requirements.txt
           guarddog pypi verify ./requirements.txt
-          guarddog npm verify ./tests/core/resources/package.json
+          guarddog npm verify --output-format=sarif ./tests/core/resources/package.json
 
   docker-build:
     runs-on: ubuntu-latest
