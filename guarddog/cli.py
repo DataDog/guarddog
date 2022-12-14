@@ -93,7 +93,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
         print(js.dumps(results))
 
     if output_format == "sarif":
-        print(report_npm_verify_sarif(path, [], results))
+        print(report_npm_verify_sarif(path, list(ALL_RULES), results))
 
     if exit_non_zero_on_finding:
         exit_with_status_code(results)

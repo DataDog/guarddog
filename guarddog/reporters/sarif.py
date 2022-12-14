@@ -1,57 +1,97 @@
+import hashlib
 import json
 
-tool = {
-    "driver": {
-        "name": "semgrep",
-        "rules": [
-            {
-                "defaultConfiguration": {
-                    "level": "warning"
-                },
-                "fullDescription": {
-                    "text": "Found user controlled content in `run_string`. This is dangerous because it allows a malicious actor to run arbitrary Python code."
-                },
-                "helpUri": "https://semgrep.dev/r/python.lang.security.dangerous-subinterpreters-run-string.dangerous-subinterpreters-run-string",
-                "id": "python.lang.security.dangerous-subinterpreters-run-string.dangerous-subinterpreters-run-string",
-                "name": "python.lang.security.dangerous-subinterpreters-run-string.dangerous-subinterpreters-run-string",
-                "properties": {
-                    "precision": "very-high",
-                    "tags": [
-                        "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')",
-                        "OWASP-A03:2021 - Injection",
-                        "security"
-                    ]
-                },
-                "shortDescription": {
-                    "text": "Found user controlled content in `run_string`. This is dangerous because it allows a malicious actor to run arbitrary Python code."
-                }
-            },
-            {
-                "defaultConfiguration": {
-                    "level": "warning"
-                },
-                "fullDescription": {
-                    "text": "Queue $X is missing encryption at rest. Add \"encryption: $Y.QueueEncryption.KMS\" or \"encryption: $Y.QueueEncryption.KMS_MANAGED\" to the queue props to enable encryption at rest for the queue."
-                },
-                "helpUri": "https://semgrep.dev/r/typescript.aws-cdk.security.audit.awscdk-sqs-unencryptedqueue.awscdk-sqs-unencryptedqueue",
-                "id": "typescript.aws-cdk.security.audit.awscdk-sqs-unencryptedqueue.awscdk-sqs-unencryptedqueue",
-                "name": "typescript.aws-cdk.security.audit.awscdk-sqs-unencryptedqueue.awscdk-sqs-unencryptedqueue",
-                "properties": {
-                    "precision": "very-high",
-                    "tags": [
-                        "CWE-311: Missing Encryption of Sensitive Data",
-                        "OWASP-A03:2017 - Sensitive Data Exposure",
-                        "OWASP-A04:2021 - Insecure Design",
-                        "security"
-                    ]
-                },
-                "shortDescription": {
-                    "text": "Queue $X is missing encryption at rest. Add \"encryption: $Y.QueueEncryption.KMS\" or \"encryption: $Y.QueueEncryption.KMS_MANAGED\" to the queue props to enable encryption at rest for the queue."
-                }
-            }
-        ]
+
+def get_sarif_log(runs):
+    """
+    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#sariflog-object
+    """
+    return {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": runs
     }
-}
+
+
+def get_run(results, driver):
+    """
+    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#run-object
+    """
+    return {
+        "tool": {
+            "driver": driver
+        },
+        "results": results
+    }
+
+
+def get_driver(rules):
+    """
+    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#toolcomponent-object
+    """
+    return {
+        "name": "GuardDog",
+        "rules": rules
+    }
+
+
+def get_rule(rule_name: str) -> dict:
+    """
+    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#reportingdescriptor-object
+    """
+    return {
+        "id": rule_name,
+        "defaultConfiguration": {
+            "level": "warning"
+        },
+        "shortDescription": {
+            "text": "TODO: I should not be this placeholder come on!"
+        },
+        "fullDescription": {
+            "text": "TODO: I should not be this placeholder come on!"
+        },
+        "help": {
+            "text": "TODO: I should not be this placeholder come on!"
+        },
+        "properties": {
+            "precision": "medium"
+        }
+    }
+
+
+def get_result(rule_name, locations, text, partial_fingerprints):
+    """
+    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#result-object
+    """
+    return {
+        "ruleId": rule_name,
+        "message": {
+            "text": text
+        },
+        "locations": locations,
+        "partialFingerprints": partial_fingerprints
+    }
+
+
+def get_location(physical_location):
+    """
+    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#location-object
+    """
+    return {
+        "physicalLocation": physical_location
+    }
+
+
+def get_physical_location(uri, region):
+    """
+    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#physicallocation-object
+    """
+    return {
+        "artifactLocation": {
+            "uri": uri
+        },
+        "region": region
+    }
 
 
 def _get_npm_region(package_raw: str, package: str) -> dict:
@@ -72,54 +112,38 @@ def _get_npm_region(package_raw: str, package: str) -> dict:
     }
 
 
-def report_npm_verify_sarif(package_path: str, rules: list[str], scan_results: list[dict]) -> str:
+def report_npm_verify_sarif(package_path: str, rule_names: list[str], scan_results: list[dict]) -> str:
+    rules = list(map(
+        lambda s: get_rule(s),
+        rule_names
+    ))
+    driver = get_driver(rules)
     results = []
+
     with open(package_path, "r") as file:
         package_raw = file.read()
+
     for entry in scan_results:
         if entry["result"]["issues"] == 0:
             continue
         region = _get_npm_region(package_raw, entry["dependency"])
-        fingerprint = json.dumps(entry)  # TODO: hash
-
-        results.append({
-            "fingerprints": {
-                "guarddogfindings/v1": fingerprint
-            },
-            "partialFingerprints": {
-                "guarddogfindings/v1": fingerprint
-            },
-            "locations": [
-                {
-                    "physicalLocation": {
-                        "artifactLocation": {
-                            "uri": package_path
-                        },
-                        "region": region
-                    }
-                }
-            ],
-            "message": {
-                "text": json.dumps(entry)  # FIXME
-            },
-            "ruleId": json.dumps(entry)  # FIXME
-        })
-
-    res = {
-        "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/schemas/sarif-schema-2.1.0.json",
-        "version": "2.1.0",
-        "runs": [
-            {
-                "invocations": [
-                    {
-                        "executionSuccessful": True,
-                        "toolExecutionNotifications": []
-                    }
-                ],
-                "results": results,
-                "tool": tool
+        physical_location = get_physical_location(package_path, region)
+        location = get_location(physical_location)
+        scan_result_details = entry["result"]["results"]
+        for rule_name in scan_result_details.keys():
+            if len(scan_result_details[rule_name]) == 0:
+                continue
+            text = json.dumps(scan_result_details[rule_name], indent=2)
+            key = f"{rule_name}-{text}"
+            partial_fingerprints = {
+                f"guarddog/v1/{rule_name}": hashlib.sha256(key.encode('utf-8')).hexdigest()
             }
-        ]
-    }
+            result = get_result(rule_name,
+                                [location],
+                                json.dumps(scan_result_details[rule_name], indent=2),
+                                partial_fingerprints)
+            results.append(result)
 
-    return json.dumps(res, indent=2)
+    runs = get_run(results, driver)
+    log = get_sarif_log([runs])
+    return json.dumps(log, indent=2)
