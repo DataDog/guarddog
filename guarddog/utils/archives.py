@@ -13,7 +13,7 @@ def safe_extract(source_archive: str, target_directory: str) -> None:
     @param target_directory:    The directory where to extract the archive to
     @raise ValueError           If the archive type is unsupported
     """
-    if source_archive.endswith('.tar.gz'):
+    if source_archive.endswith('.tar.gz') or source_archive.endswith('.tgz'):
         tarsafe.open(source_archive).extractall(target_directory)
     elif source_archive.endswith('.zip'):
         with zipfile.ZipFile(source_archive, 'r') as zip:

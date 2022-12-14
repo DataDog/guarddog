@@ -13,7 +13,7 @@ import requests
 from tqdm.auto import tqdm
 
 from guarddog.analyzer.analyzer import Analyzer
-from guarddog.scanners.package_scanner import PackageScanner
+from guarddog.scanners.pypi_package_scanner import PackageScanner
 
 
 class Evaluator:

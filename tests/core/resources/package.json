@@ -1,0 +1,13 @@
+{
+  "name": "tests-npm-project",
+  "private": true,
+  "comment": "need to handle all syntaxes allowed in https://docs.npmjs.com/cli/v9/configuring-npm/package-json#dependencies",
+  "dependencies": {
+    "express": "^4.18.2",
+    "minivlad": "^1.0.0",
+    "joi": "6"
+  },
+  "devDependencies": {
+    "joi": "6.x"
+  }
+}

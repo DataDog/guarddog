@@ -62,6 +62,9 @@ jobs:
       run: make test-metadata-rules
     - name: Core unit tests
       run: make test-core
+    - name: Report coverage
+      run: make coverage-report
+
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -81,13 +84,17 @@ jobs:
           pip install .
 
       - name: Run GuardDog against a remote package
-        run: guarddog scan requests
+        run: guarddog pypi scan requests
+
+      - name: Run GuardDog against a remote package
+        run: guarddog npm scan express
 
       - name: Run GuardDog against a local requirements.txt file
         run: >
           echo -e "requests\npywin32" > requirements.txt
-          guarddog verify ./requirements.txt
-  
+          guarddog pypi verify ./requirements.txt
+          guarddog npm verify ./tests/core/resources/package.json
+
   docker-build:
     runs-on: ubuntu-latest
     permissions:

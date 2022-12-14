@@ -3,48 +3,85 @@
 CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
-
-import re
+import os
 import sys
+from typing import cast, Optional
 
 import click
 from termcolor import colored
 
-from .analyzer.analyzer import Analyzer
-from .scanners.package_scanner import PackageScanner
-from .scanners.project_scanner import RequirementsScanner
+from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES
+from guarddog.analyzer.metadata import get_metadata_detectors
+from guarddog.analyzer.sourcecode import SOURCECODE_RULES
+from guarddog.ecosystems import ECOSYSTEM
+from guarddog.scanners import get_scanner
+from guarddog.scanners.scanner import PackageScanner
 
-analyzer = Analyzer()
-ALL_RULES = analyzer.sourcecode_ruleset | analyzer.metadata_ruleset
+ALL_RULES = \
+    set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) \
+    | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
+
+
+def common_options(fn):
+    fn = click.option("--output-format", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
+    fn = click.option("--exit-non-zero-on-finding", default=False, is_flag=True,
+                      help="Exit with a non-zero status code if at least one issue is identified")(fn)
+    fn = click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
+    fn = click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
+    fn = click.argument("target")(fn)
+    return fn
+
+
+def version_option(fn):
+    return click.option("-v", "--version", default=None, help="Specify a version to scan")(fn)
 
 
 @click.group
 def cli():
-    """Guard Dog cli tool to detect PyPI malware"""
+    """
+    GuardDog cli tool to detect malware in package ecosystems
+
+    Supports PyPI and npm
+
+    Example: guarddog pypi scan semantic-version
+
+    Use --help for the detail of all commands and subcommands
+    """
     pass
 
 
-@cli.command("verify")
-@click.argument("path")
-@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
-                                                                              "least one issue is identified")
-def verify(path, json, exit_non_zero_on_finding):
+def _get_rule_pram(rules, exclude_rules):
+    rule_param = None
+    if len(rules) > 0:
+        rule_param = rules
+    if len(exclude_rules) > 0:
+        rule_param = ALL_RULES - set(exclude_rules)
+        if len(rules) > 0:
+            print("--rules and --exclude-rules cannot be used together")
+            exit(1)
+    return rule_param
+
+
+def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem):
     """Verify a requirements.txt file
 
     Args:
         path (str): path to requirements.txt file
     """
-    scanner = RequirementsScanner()
-    results = scanner.scan_local(path)
+    rule_param = _get_rule_pram(rules, exclude_rules)
+    scanner = get_scanner(ecosystem, True)
+    if scanner is None:
+        sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
+        exit(1)
+    results = scanner.scan_local(path, rule_param)
     for result in results:
         identifier = result['dependency'] if result['version'] is None \
             else f"{result['dependency']} version {result['version']}"
-        if not json:
+        if output_format is None:
             print_scan_results(result.get('result'), identifier)
 
-    if json:
+    if output_format == "json":
         import json as js
         print(js.dumps(results))
 
@@ -52,15 +89,7 @@ def verify(path, json, exit_non_zero_on_finding):
         exit_with_status_code(results)
 
 
-@cli.command("scan")
-@click.argument("identifier")
-@click.option("-v", "--version", default=None, help="Specify a version to scan")
-@click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
-@click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))
-@click.option("--json", default=False, is_flag=True, help="Dump the output as JSON to standard out")
-@click.option("--exit-non-zero-on-finding", default=False, is_flag=True, help="Exit with a non-zero status code if at "
-                                                                              "least one issue is identified")
-def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_finding):
+def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):
     """Scan a package
 
     Args:
@@ -69,15 +98,13 @@ def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_findi
         rules (str): specific rules to run, defaults to all
     """
 
-    rule_param = None
-    if len(rules) != 0:
-        rule_param = rules
-    if len(exclude_rules):
-        rule_param = ALL_RULES - set(exclude_rules)
-
-    scanner = PackageScanner()
+    rule_param = _get_rule_pram(rules, exclude_rules)
+    scanner = cast(Optional[PackageScanner], get_scanner(ecosystem, False))
+    if scanner is None:
+        sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
+        exit(1)
     results = {}
-    if is_local_package(identifier):
+    if os.path.exists(identifier):
         results = scanner.scan_local(identifier, rule_param)
     else:
         try:
@@ -87,7 +114,7 @@ def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_findi
             sys.stderr.write(str(e))
             sys.exit()
 
-    if json:
+    if output_format == "json":
         import json as js
         print(js.dumps(results))
     else:
@@ -97,10 +124,91 @@ def scan(identifier, version, rules, exclude_rules, json, exit_non_zero_on_findi
         exit_with_status_code(results)
 
 
-# Determines if the input passed to the 'scan' command is a local package name
-def is_local_package(input):
-    identifier_is_path = re.search(r"(.{0,2}\/)+.+", input)
-    return identifier_is_path or input.endswith('.tar.gz')
+def _list_rules(ecosystem):
+    metadata_detectors = get_metadata_detectors(ecosystem)
+    if len(SOURCECODE_RULES[ecosystem]) > 0:
+        print("Available source code rules:")
+        for rule in SOURCECODE_RULES[ecosystem]:
+            print(f"\t{rule}")
+    if len(metadata_detectors.keys()) > 0:
+        print("Available metadata detectors:")
+        for detector in metadata_detectors.keys():
+            print(f"\t{detector}")
+
+
+@cli.group
+def npm(**kwargs):
+    """ Scan a npm package or verify a npm project
+    """
+    pass
+
+
+@cli.group
+def pypi(**kwargs):
+    """ Scan a PyPI package or verify a PyPI project
+    """
+    pass
+
+
+@npm.command("scan")
+@common_options
+@version_option
+def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    """ Scan a given npm package
+    """
+    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.NPM)
+
+
+@npm.command("verify")
+@common_options
+def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    """ Verify a given npm project
+    """
+    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.NPM)
+
+
+@pypi.command("scan")
+@common_options
+@version_option
+def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    """ Scan a given PyPI package
+    """
+    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+
+
+@pypi.command("verify")
+@common_options
+def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    """ Verify a given Pypi project
+    """
+    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+
+
+@pypi.command("list-rules")
+def list_rules_pypi():
+    """ Print available rules for PyPI
+    """
+    return _list_rules(ECOSYSTEM.PYPI)
+
+
+@npm.command("list-rules")
+def list_rules_npm():
+    """ Print available rules for npm
+    """
+    return _list_rules(ECOSYSTEM.NPM)
+
+
+@cli.command("verify", deprecated=True)
+@common_options
+def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+
+
+@cli.command("scan", deprecated=True)
+@common_options
+@version_option
+def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 # Pretty prints scan results for the console

@@ -2,20 +2,23 @@
 
 Detects if a package contains an empty description
 """
-
+from abc import abstractmethod
+from typing import Optional
 
 from guarddog.analyzer.metadata.detector import Detector
+
+MESSAGE = "This package has an empty description on PyPi"
 
 
 class EmptyInfoDetector(Detector):
     """
     Detector for packages with empty information.
     """
+    MESSAGE_TEMPLATE = "This package has an empty description on %s"
+    RULE_NAME = "empty_information"
 
-    def __init__(self) -> None:
-        super()
-
-    def detect(self, package_info) -> tuple[bool, str]:
+    @abstractmethod
+    def detect(self, package_info, path: Optional[str] = None) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package has an empty description
@@ -27,6 +30,4 @@ class EmptyInfoDetector(Detector):
         Returns:
             bool: True if package description is empty
         """
-
-        sanitized_description = package_info["info"]["description"].strip()
-        return len(sanitized_description) == 0, 'This package has an empty description on PyPi'
+        pass

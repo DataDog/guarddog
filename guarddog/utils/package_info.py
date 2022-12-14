@@ -1,7 +1,7 @@
 import requests
 
 
-def get_package_info(name) -> dict:
+def get_package_info(name: str) -> dict:
     """Gets metadata and other information about package
 
     Args:

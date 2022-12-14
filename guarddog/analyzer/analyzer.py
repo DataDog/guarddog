@@ -3,10 +3,16 @@ from pathlib import Path
 
 from semgrep.semgrep_main import invoke_semgrep  # type: ignore
 
-from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
-from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
-from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
-from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
+from guarddog.analyzer.metadata import get_metadata_detectors
+from guarddog.ecosystems import ECOSYSTEM
+
+
+def get_rules(file_extension, path):
+    return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
+
+
+SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
+SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
 
 
 class Analyzer:
@@ -14,9 +20,8 @@ class Analyzer:
     Analyzes a local directory for threats found by source code or metadata rules
 
     Attributes:
-        metadata_path (str): path to metadata rules
         sourcecode_path (str): path to source code rules
-
+        ecosystem (str): name of the current ecosystem
         metadata_ruleset (list): list of metadata rule names
         sourcecode_ruleset (list): list of source code rule names
 
@@ -25,18 +30,16 @@ class Analyzer:
         metadata_detectors(list): list of metadata detectors
     """
 
-    def __init__(self) -> None:
-        self.metadata_path = os.path.join(os.path.dirname(__file__), "metadata")
+    def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
         self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
 
-        # Define sourcecode and metadata rulesets
-        def get_rules(file_extension, path):
-            return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
+        self.ecosystem = ecosystem
 
-        self.metadata_ruleset = get_rules(".py", self.metadata_path)
-        self.sourcecode_ruleset = get_rules(".yml", self.sourcecode_path)
-        self.metadata_ruleset.remove("detector")
-        self.metadata_ruleset.remove("__init__")
+        # Rules and associated detectors
+        self.metadata_detectors = get_metadata_detectors(ecosystem)
+
+        self.metadata_ruleset = self.metadata_detectors.keys()
+        self.sourcecode_ruleset = SEMGREP_RULE_NAMES
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -53,14 +56,6 @@ class Analyzer:
             ".github",
             ".semgrep_logs",
         ]
-
-        # Rules and associated detectors
-        self.metadata_detectors = {
-            "typosquatting": TyposquatDetector(),
-            "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
-            "empty_information": EmptyInfoDetector(),
-            "release_zero": ReleaseZeroDetector()
-        }
 
     def analyze(self, path, info=None, rules=None) -> dict:
         """
@@ -97,7 +92,7 @@ class Analyzer:
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
 
-        metadata_results = self.analyze_metadata(info, metadata_rules)
+        metadata_results = self.analyze_metadata(path, info, metadata_rules)
         sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
 
         # Concatenate dictionaries together
@@ -107,11 +102,12 @@ class Analyzer:
 
         return {"issues": issues, "errors": errors, "results": results, "path": path}
 
-    def analyze_metadata(self, info, rules=None) -> dict:
+    def analyze_metadata(self, path: str, info, rules=None) -> dict:
         """
         Analyzes the metadata of a given package
 
         Args:
+            path (str): path to package
             info (dict): package information given by PyPI Json API
             rules (set, optional): Set of metadata rules to analyze. Defaults to all rules.
 
@@ -126,7 +122,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, path)
                 if rule_matches:
                     issues += 1
                     results[rule] = message

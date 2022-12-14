@@ -27,25 +27,28 @@ alias guarddog='docker run --rm ghcr.io/datadog/guarddog'
 
 ```sh
 # Scan the most recent version of the 'requests' package
-guarddog scan requests
+guarddog pypi scan requests
 
 # Scan a specific version of the 'requests' package
-guarddog scan requests --version 2.28.1
+guarddog pypi scan requests --version 2.28.1
 
 # Scan the 'request' package using 2 specific heuristics
-guarddog scan requests --rules exec-base64 --rules code-execution
+guarddog pypi scan requests --rules exec-base64 --rules code-execution
 
 # Scan the 'requests' package using all rules but one
-guarddog scan requests --exclude-rules exec-base64
+guarddog pypi scan requests --exclude-rules exec-base64
 
 # Scan a local package
-guarddog scan /tmp/triage.tar.gz
+guarddog pypi scan /tmp/triage.tar.gz
 
 # Scan every package referenced in a requirements.txt file of a local folder
-guarddog verify workspace/guarddog/requirements.txt
+guarddog pypi verify workspace/guarddog/requirements.txt
 
 # Output JSON to standard output - works for every command
-guarddog scan requests --json
+guarddog pypi scan requests --json
+
+# All the commands also work on npm
+guarddog npm scan express
 ```
 
 
