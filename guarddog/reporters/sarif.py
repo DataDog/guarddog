@@ -64,7 +64,7 @@ def get_rule(rule_name: str, rules_documentation) -> dict:
     """
     https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#reportingdescriptor-object
     """
-    message = rules_documentation[rule_name]
+    message = rules_documentation[rule_name] if rules_documentation[rule_name] is not None else "TODO: I should not be this placeholder come on!"
     return {
         "id": rule_name,
         "defaultConfiguration": {
