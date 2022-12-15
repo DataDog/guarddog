@@ -1,9 +1,7 @@
 rules:
   - id: eval-call
     message: |
-      # `eval` of base64 encoded strings
-      
-      This heuristics detects when a JavaScript code calls the `eval` function on a `base64` encoded string.
+      This package contains a call to the `eval` function with a `base64` encoded string as argument.
       This is a common method used to hide a malicious payload in a module as static analysis will not decode the
       string.
     languages:
