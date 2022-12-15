@@ -162,7 +162,10 @@ def report_npm_verify_sarif(package_path: str, rule_names: list[str], scan_resul
         for rule_name in scan_result_details.keys():
             if len(scan_result_details[rule_name]) == 0:
                 continue
-            text = scan_result_details[rule_name]["message"]
+            text = "\n".join(map(
+                lambda x: x["message"],
+                scan_result_details[rule_name]
+            ))
             key = f"{rule_name}-{text}"
             partial_fingerprints = {
                 f"guarddog/v1/{rule_name}": hashlib.sha256(key.encode('utf-8')).hexdigest()
