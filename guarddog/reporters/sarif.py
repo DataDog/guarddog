@@ -172,7 +172,7 @@ def report_npm_verify_sarif(package_path: str, rule_names: list[str], scan_resul
             }
             result = get_result(rule_name,
                                 [location],
-                                json.dumps(scan_result_details[rule_name], indent=2),
+                                text,
                                 partial_fingerprints)
             results.append(result)
 
