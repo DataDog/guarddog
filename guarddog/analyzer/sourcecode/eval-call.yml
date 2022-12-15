@@ -1,7 +1,6 @@
 rules:
   - id: eval-call
-    message: Package calling insecure `eval` method with a non static string
-    description: |
+    message: |
       # `eval` of base64 encoded strings
       
       This heuristics detects when a JavaScript code calls the `eval` function on a `base64` encoded string.
