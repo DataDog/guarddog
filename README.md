@@ -147,6 +147,7 @@ TBD
 Authors: 
 * [Ellen Wang](https://www.linkedin.com/in/ellen-wang-4bb5961a0/)
 * [Christophe Tafani-Dereeper](https://github.com/christophetd)
+* [Vladimir de Turckheim](https://www.linkedin.com/in/vladimirdeturckheim/)
 
 Inspiration: 
 * [What are Weak Links in the npm Supply Chain?](https://arxiv.org/pdf/2112.10165.pdf)
