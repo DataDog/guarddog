@@ -64,14 +64,14 @@ def get_rule(rule_name: str, rules_documentation) -> dict:
     """
     https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#reportingdescriptor-object
     """
-    message = rules_documentation[rule_name] if rules_documentation[rule_name] is not None else "TODO: I should not be this placeholder come on!"
+    message = rules_documentation[rule_name] if rules_documentation[rule_name] is not None else ""
     return {
         "id": rule_name,
         "defaultConfiguration": {
             "level": "warning"
         },
         "shortDescription": {
-            "text": "TODO: I should not be this placeholder come on!"
+            "text": f"GuardDog rule: {rule_name}"
         },
         "fullDescription": {
             "text": message
@@ -128,8 +128,8 @@ def _get_npm_region(package_raw: str, package: str) -> dict:
     for idx, val in enumerate(package_raw.split("\n")):
         if package in val:
             start_line = idx + 1
-            start_column = val.index(package)
-            end_column = start_line + len(package)
+            start_column = val.index(package) + 1
+            end_column = start_column + len(package)
 
     return {
         "startLine": start_line,
@@ -162,7 +162,7 @@ def report_npm_verify_sarif(package_path: str, rule_names: list[str], scan_resul
         for rule_name in scan_result_details.keys():
             if len(scan_result_details[rule_name]) == 0:
                 continue
-            text = json.dumps(scan_result_details[rule_name], indent=2)
+            text = scan_result_details[rule_name]["message"]
             key = f"{rule_name}-{text}"
             partial_fingerprints = {
                 f"guarddog/v1/{rule_name}": hashlib.sha256(key.encode('utf-8')).hexdigest()
