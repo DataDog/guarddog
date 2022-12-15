@@ -3,7 +3,7 @@
   "private": true,
   "comment": "need to handle all syntaxes allowed in https://docs.npmjs.com/cli/v9/configuring-npm/package-json#dependencies",
   "dependencies": {
-    "minivlad": "^2.0.0"
+    "minivlad": "^3.0.0"
   },
   "devDependencies": {
   }
