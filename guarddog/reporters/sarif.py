@@ -121,7 +121,7 @@ def get_physical_location(uri, region):
     }
 
 
-def _get_npm_region(package_raw: str, package: str) -> dict:
+def get_region(package_raw: str, package: str) -> dict:
     start_line = 0
     start_column = 0
     end_column = 0
@@ -131,23 +131,6 @@ def _get_npm_region(package_raw: str, package: str) -> dict:
             start_column = val.index(package) + 1
             end_column = start_column + len(package)
 
-    return {
-        "startLine": start_line,
-        "endLine": start_line,
-        "startColumn": start_column,
-        "endColumn": end_column,
-    }
-
-
-def _get_pypi_region(package_raw: str, package: str) -> dict:
-    start_line = 0
-    start_column = 0
-    end_column = 0
-    for idx, val in enumerate(package_raw.split("\n")):
-        if package in val:
-            start_line = idx + 1
-            start_column = val.index(package) + 1
-            end_column = start_column + len(package)
     return {
         "startLine": start_line,
         "endLine": start_line,
@@ -173,12 +156,7 @@ def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: 
         if entry["result"]["issues"] == 0:
             continue
 
-        if ecosystem == ECOSYSTEM.NPM:
-            region = _get_npm_region(package_raw, entry["dependency"])
-        elif ecosystem == ECOSYSTEM.PYPI:
-            region = _get_pypi_region(package_raw, entry["dependency"])
-        else:
-            raise Exception("sarif output not supported for this ecosystem")
+        region = get_region(package_raw, entry["dependency"])
         uri = package_path[2:] if package_path.startswith('./') else package_path
         physical_location = get_physical_location(uri, region)
         location = get_location(physical_location)
