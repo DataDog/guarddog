@@ -96,13 +96,18 @@ jobs:
           guarddog npm verify ./tests/core/resources/package.json
 
       - run: guarddog npm verify --output-format=sarif ./tests/core/resources/package.json > gd.sarif
-      - run: cat gd.sarif
-      - run: cat ./tests/core/resources/package.json
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@v2
         with:
           category: guarddog
           sarif_file: gd.sarif
+
+      - run: guarddog pypi verify --output-format=sarif ./tests/core/resources/requirements.txt > gd2.sarif
+      - name: Upload SARIF file for GitHub Advanced Security Dashboard
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          category: guarddog
+          sarif_file: gd2.sarif
 
   docker-build:
     runs-on: ubuntu-latest
