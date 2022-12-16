@@ -44,6 +44,9 @@ guarddog pypi scan /tmp/triage.tar.gz
 # Scan every package referenced in a requirements.txt file of a local folder
 guarddog pypi verify workspace/guarddog/requirements.txt
 
+# Scan every package referenced in a requirements.txt file and output a sarif file - works only for verify
+guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
+
 # Output JSON to standard output - works for every command
 guarddog pypi scan requests --output-format=json
 
