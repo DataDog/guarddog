@@ -159,10 +159,12 @@ def report_npm_verify_sarif(package_path: str, rule_names: list[str], scan_resul
         physical_location = get_physical_location(uri, region)
         location = get_location(physical_location)
         scan_result_details = entry["result"]["results"]
+        package = entry["dependency"]
+        version = entry["version"]
         for rule_name in scan_result_details.keys():
             if len(scan_result_details[rule_name]) == 0:
                 continue
-            text = "\n".join(map(
+            text = f"On package: {package} version: {version}\n" + "\n".join(map(
                 lambda x: x["message"],
                 scan_result_details[rule_name]
             )) if type(scan_result_details[rule_name]) == list else scan_result_details[rule_name]
