@@ -50,12 +50,12 @@ def get_run(results, driver):
     }
 
 
-def get_driver(rules):
+def get_driver(rules, ecosystem: str):
     """
     https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#toolcomponent-object
     """
     return {
-        "name": "GuardDog",
+        "name": f"GuardDog-{ecosystem}",
         "rules": rules
     }
 
@@ -163,7 +163,7 @@ def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: 
         lambda s: get_rule(s, rules_documentation),
         rule_names
     ))
-    driver = get_driver(rules)
+    driver = get_driver(rules, ecosystem.value)
     results = []
 
     with open(package_path, "r") as file:
