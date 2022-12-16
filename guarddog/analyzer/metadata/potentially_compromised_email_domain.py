@@ -12,6 +12,8 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class PotentiallyCompromisedEmailDomainDetector(Detector):
+    """This heuristic detects whether the maintainer email address has an outdated domain that anyone could acquire.
+    This could lead to the package being overtaken by malicious actors."""
     RULE_NAME = "potentially_compromised_email_domain"
 
     def __init__(self):
