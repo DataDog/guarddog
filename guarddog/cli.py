@@ -14,7 +14,7 @@ from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import SOURCECODE_RULES
 from guarddog.ecosystems import ECOSYSTEM
-from guarddog.reporters.sarif import report_npm_verify_sarif
+from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 
@@ -93,7 +93,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
         print(js.dumps(results))
 
     if output_format == "sarif":
-        print(report_npm_verify_sarif(path, list(ALL_RULES), results))
+        print(report_verify_sarif(path, list(ALL_RULES), results, ecosystem))
 
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
