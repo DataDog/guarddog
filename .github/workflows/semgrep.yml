@@ -2,9 +2,13 @@ name: Semgrep scan
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - v1.0-rc
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - v1.0-rc
 
 permissions:
   contents: read
