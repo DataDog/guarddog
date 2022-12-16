@@ -7,6 +7,6 @@
     "minivlad": "*"
   },
   "devDependencies": {
-    "joi": "6"
+    "joi": "17.6"
   }
 }
