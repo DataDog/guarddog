@@ -146,7 +146,7 @@ def _get_pypi_region(package_raw: str, package: str) -> dict:
     for idx, val in enumerate(package_raw.split("\n")):
         if package in val:
             start_line = idx + 1
-            start_column = val.index(package)
+            start_column = val.index(package) + 1
             end_column = start_column + len(package)
     return {
         "startLine": start_line,
