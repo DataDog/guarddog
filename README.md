@@ -45,7 +45,7 @@ guarddog pypi scan /tmp/triage.tar.gz
 guarddog pypi verify workspace/guarddog/requirements.txt
 
 # Output JSON to standard output - works for every command
-guarddog pypi scan requests --json
+guarddog pypi scan requests --output-format=json
 
 # All the commands also work on npm
 guarddog npm scan express
