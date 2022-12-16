@@ -7,7 +7,7 @@ from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
 
 
-def build_rules_help_list() -> dict[str, str]:
+def build_rules_help_list() -> dict:
     rules_documentation = {}
     for ecosystem in ECOSYSTEM:
         rules = get_metadata_detectors(ecosystem)
@@ -157,7 +157,7 @@ def _get_pypi_region(package_raw: str, package: str) -> dict:
 
 
 def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: list[dict],
-                            ecosystem: ECOSYSTEM) -> str:
+                        ecosystem: ECOSYSTEM) -> str:
     rules_documentation = build_rules_help_list()
     rules = list(map(
         lambda s: get_rule(s, rules_documentation),
