@@ -102,6 +102,9 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
                 tag_candidates.append(tag_info)
 
         #  TODO: parse the code of the package to find the real real version
+        # Idea: we can grep the project files for the version, the, git biscect until we have a file with the same version?
+        # will not work if main has not been bumped yet in version
+        # so tags and releases are out only solutions here
         # print(tag_candidates)
 
         target_tag = None
