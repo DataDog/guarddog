@@ -4,15 +4,16 @@ Detects if a package contains an empty description
 """
 import os
 import re
+import subprocess
 from typing import Optional
 
 import requests
 
 from guarddog.analyzer.metadata.repository_integrity_missmatch import IntegrityMissmatch
 
-
 GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/){2}'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
+
 
 def extract_owner_and_repo(url):
     match = re.search(GH_REPO_OWNER_REGEX, url)
@@ -61,13 +62,13 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         if len(github_urls) == 0:
             return False, "Could not find any GitHub url in the project's description"
         # now, let's find the right url
-        best_candidate = None
+        github_url = None
         for entry in github_urls:
             if f"/{name}" in entry:
-                best_candidate = entry
+                github_url = entry
                 break
 
-        if best_candidate is None:
+        if github_url is None:
             return False, "Could not find a good GitHub url in the project's description"
 
         # ok, now let's try to find the version! (I need to know which version we are scanning)
@@ -75,14 +76,33 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
             return False, ""  # FIXME: use latest come on!
         tmp_dir = os.path.dirname(path)
 
-        owner, repo = extract_owner_and_repo(best_candidate)
+        owner, repo = extract_owner_and_repo(github_url)
         if owner is None or repo is None:
-            raise Exception(f"Could not parse url {best_candidate}")
+            raise Exception(f"Could not parse url {github_url}")
 
-        tags = requests.get(f"https://api.github.com/repos/{owner}/{repo}/tags")
-        print(tags)
+        tags_request = requests.get(f"https://api.github.com/repos/{owner}/{repo}/tags")
+        if tags_request.status_code != 200:
+            raise Exception(f"something went wrong when listing tags for repo {owner}/{repo}")
+        tags = tags_request.json()
+        tag_candidates = []
+        for tag_info in tags:
+            if version in tag_info["name"]:
+                tag_candidates.append(tag_info)
 
+        #  TODO: parse the code of the package to find the real real version
+        print(tag_candidates)
 
+        target_tag = None
+        for tag in tag_candidates:
+            target_tag = tag
+
+        if target_tag is None:
+            return False, "Could not find a suitable tag on GitHub"
+
+        repo_path = os.path.join(tmp_dir, "sources", repo)
+        # Do we need to use pygit2 here instead? probably to reduce risks of code execution here
+        subprocess.run(["git", "clone", "-b", target_tag["name"], f"https://github.com/{owner}/{repo}", repo_path])
+        print(repo_path)
         # with a GH release/tag
         # by finding the commit setting the version
         # cool we have the version, let's compare files that exist
