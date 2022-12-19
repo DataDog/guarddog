@@ -47,7 +47,7 @@ def get_file_hash(path):
         # Read the contents of the file
         file_contents = f.read()
         # Create a hash object
-        hash_object = hashlib.sha1()
+        hash_object = hashlib.sha256()
         # Feed the file contents to the hash object
         hash_object.update(file_contents)
         # Get the hexadecimal hash value
