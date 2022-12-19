@@ -1,29 +1,18 @@
+import json
 import os
 import pathlib
-from urllib.parse import urlparse
 
 import requests
 
 from guarddog.analyzer.analyzer import Analyzer
-from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
 
 
 class NPMPackageScanner(PackageScanner):
     def __init__(self) -> None:
-        super().__init__(Analyzer(ECOSYSTEM.NPM))
+        super().__init__(Analyzer())
 
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> dict:
-        git_target = None
-        if urlparse(package_name).hostname is not None and package_name.endswith('.git'):
-            git_target = package_name
-
-        if not package_name.startswith("@") and package_name.count("/") == 1:
-            git_target = f"https://github.com/{package_name}.git"
-
-        if git_target is not None:
-            raise Exception("Git targets are not yet supported for npm")
-
+    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> json:
         url = f"https://registry.npmjs.org/{package_name}"
         response = requests.get(url)
 

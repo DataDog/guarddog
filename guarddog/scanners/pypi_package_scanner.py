@@ -1,14 +1,75 @@
+import json
 import os
+import shutil
+import tarsafe
+import tempfile
+import requests
 
 from guarddog.analyzer.analyzer import Analyzer
-from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
-from guarddog.utils.package_info import get_package_info
+
+
+def get_package_info(name: str) -> json:
+    """Gets metadata and other information about package
+
+    Args:
+        name (str): name of the package
+
+    Raises:
+        Exception: "Received status code: " + str(response.status_code) + " from PyPI"
+        Exception: "Error retrieving package: " + data["message"]
+
+    Returns:
+        json: package attributes and values
+    """
+
+    url = "https://pypi.org/pypi/%s/json" % (name,)
+    response = requests.get(url)
+
+    # Check if package file exists
+    if response.status_code != 200:
+        raise Exception("Received status code: " + str(response.status_code) + " from PyPI")
+
+    data = response.json()
+
+    # Check for error in retrieving package
+    if "message" in data:
+        raise Exception("Error retrieving package: " + data["message"])
+
+    return data
 
 
 class PypiPackageScanner(PackageScanner):
     def __init__(self) -> None:
-        super().__init__(Analyzer(ECOSYSTEM.PYPI))
+        super().__init__(Analyzer())
+
+    def scan_local(self, path, rules=None) -> dict:
+        """
+        Scans local package
+
+        Args:
+            path (str): path to package
+            rules (set, optional): Set of rule names to use. Defaults to all rules.
+
+        Raises:
+            Exception: Analyzer exception
+
+        Returns:
+            dict: Analyzer output with rules to results mapping
+        """
+
+        if rules is not None:
+            rules = set(rules)
+
+        if os.path.exists(path):
+            if path.endswith('.tar.gz'):
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    tarsafe.open(path).extractall(tmpdirname)
+                    return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
+            elif os.path.isdir(path):
+                return self.analyzer.analyze_sourcecode(path, rules=rules)
+        else:
+            raise Exception(f"Path {path} does not exist.")
 
     def download_and_get_package_info(self, directory: str, package_name: str, version=None):
         self.download_package(package_name, directory, version)
@@ -49,8 +110,7 @@ class PypiPackageScanner(PackageScanner):
                     url = file["url"]
                     file_extension = ".tar.gz"
 
-                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") \
-                        or file["filename"].endswith(".zip"):
+                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") or file["filename"].endswith(".zip"):
                     url = file["url"]
                     file_extension = ".zip"
 
@@ -64,3 +124,4 @@ class PypiPackageScanner(PackageScanner):
                 raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
         else:
             raise Exception("Version " + version + " for package " + package_name + " doesn't exist.")
+

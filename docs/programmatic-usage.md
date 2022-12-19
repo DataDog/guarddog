@@ -15,7 +15,7 @@ This will download the package `requests`, scan it, then cleanup the temporary d
 
 ## API
 
-### Class `PypiPackageScanner` and Class `NPMPackageScanner`
+### Class `PypiPackageScanner`
 
 Scans package for attack vectors based on [source code](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/sourcecode) and [metadata](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata) heuristics.
 
@@ -50,5 +50,3 @@ with tempfile.TemporaryDirectory() as tmpdirname:
 In this example, GuardDog will download and scan the package defined by `package` and `version`. It will use a provided
 temporary directory and write the Pypi metadata of the package in a JSON file.
 This can be used, for instance, to upload the findings in a specific place for review.
-
-To scan a npm package, importing `NPMPackageScanner` instead of `PypiPackageScanner` will work.

@@ -1,21 +1,17 @@
-from .pypi_package_scanner import PypiPackageScanner
-from .pypi_project_scanner import PypiRequirementsScanner
-from .npm_package_scanner import NPMPackageScanner
-from .npm_project_scanner import NPMRequirementsScanner
-
 from typing import Optional
+
+from .npm_package_scanner import NPMPackageScanner
+from .project_scanner import RequirementsScanner
 from .scanner import Scanner
-from ..ecosystems import ECOSYSTEM
+from .pypi_package_scanner import PypiPackageScanner
 
 
-def get_scanner(ecosystem: ECOSYSTEM, project: bool) -> Optional[Scanner]:
+def get_scanner(ecosystem: str, project: bool) -> Optional[Scanner]:
     match (ecosystem, project):
-        case (ECOSYSTEM.PYPI, False):
+        case ("pypi", False):
             return PypiPackageScanner()
-        case (ECOSYSTEM.PYPI, True):
-            return PypiRequirementsScanner()
-        case (ECOSYSTEM.NPM, False):
+        case ("pypi", True):
+            return RequirementsScanner()
+        case ("npm", False):
             return NPMPackageScanner()
-        case (ECOSYSTEM.NPM, True):
-            return NPMRequirementsScanner()
     return None

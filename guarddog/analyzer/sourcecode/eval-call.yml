@@ -7,5 +7,4 @@ rules:
     patterns:
       - pattern-not: eval('...')
       - pattern-not: eval("...")
-      - pattern-not: eval(`...`)
-      - pattern: eval(atob(...))
+      - pattern: eval(...)
