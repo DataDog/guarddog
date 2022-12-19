@@ -13,7 +13,8 @@ class PypiTyposquatDetector(TyposquatDetector):
         popular_packages (list): list of top 5000 downloaded packages from PyPI
     """
 
-    def detect(self, package_info, path: Optional[str] = None) -> tuple[bool, Optional[str]]:
+    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
+               version: Optional[str] = None) -> tuple[bool, Optional[str]]:
         """
         Uses a package's information from PyPI's JSON API to determine the
         package is attempting a typosquatting attack
