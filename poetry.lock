@@ -30,7 +30,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "certifi"
-version = "2022.9.24"
+version = " 2022.12.07"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
