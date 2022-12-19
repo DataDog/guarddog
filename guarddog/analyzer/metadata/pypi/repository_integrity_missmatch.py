@@ -2,6 +2,7 @@
 
 Detects if a package contains an empty description
 """
+import hashlib
 import os
 import re
 import subprocess
@@ -40,6 +41,17 @@ def dict_generator(indict, pre=None):
     else:
         yield pre + [indict]
 
+
+def get_file_hash(path):
+    with open(path, 'rb') as f:
+        # Read the contents of the file
+        file_contents = f.read()
+        # Create a hash object
+        hash_object = hashlib.sha1()
+        # Feed the file contents to the hash object
+        hash_object.update(file_contents)
+        # Get the hexadecimal hash value
+        return hash_object.hexdigest()
 
 class PypiIntegrityMissmatch(IntegrityMissmatch):
     """This package contains files that have been tampered with between the source repository and the package CDN"""
@@ -90,7 +102,7 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
                 tag_candidates.append(tag_info)
 
         #  TODO: parse the code of the package to find the real real version
-        print(tag_candidates)
+        # print(tag_candidates)
 
         target_tag = None
         for tag in tag_candidates:
@@ -102,12 +114,28 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         repo_path = os.path.join(tmp_dir, "sources", repo)
         # Do we need to use pygit2 here instead? probably to reduce risks of code execution here
         subprocess.run(["git", "clone", "-b", target_tag["name"], f"https://github.com/{owner}/{repo}", repo_path])
-        print(repo_path)
         # with a GH release/tag
         # by finding the commit setting the version
         # cool we have the version, let's compare files that exist
-
-        return False, ""
-
-# d = PypiIntegrityMissmatch()
-# d.detect(FLASK_2_2_2_INFO, None)
+        base_dir_name = os.listdir(path)[0]  #  FIXME!!
+        base_path = os.path.join(path, base_dir_name)
+        missmatches = set()
+        for root, dirs, files in os.walk(base_path):
+            relative_path = os.path.relpath(root, base_path)
+            repo_root = os.path.join(repo_path, relative_path)
+            if not os.path.exists(repo_root):
+                continue
+            repo_files = list(filter(
+                lambda x: os.path.isfile(os.path.join(repo_root, x)),
+                os.listdir(repo_root)
+            ))
+            for file_name in repo_files:
+                if file_name not in files:
+                    continue
+                repo_hash = get_file_hash(os.path.join(repo_root, file_name))
+                pkg_path = get_file_hash(os.path.join(root, file_name))
+                if repo_hash != pkg_path:
+                    missmatches.add(os.path.join(relative_path, file_name))
+        missmatch_strings = ", ".join(missmatches)
+        return len(missmatches) > 0, f"Some files present in the package are different from the ones on GitHub for " \
+                                     f"the same version of the package. {missmatch_strings} "
