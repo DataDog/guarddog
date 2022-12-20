@@ -3,6 +3,7 @@
 Detects if a package contains an empty description
 """
 import configparser
+import difflib
 import hashlib
 import os
 import re
@@ -17,11 +18,12 @@ GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/){2}'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
 
 
+# eventually, GuardDog core should be doing the job of selecting a single version to scan
 def parse_version(raw):
     try:
-        return Version(raw)
-    except Exception as e:
-        return Version("0.0.0")  # FIXME
+        return Version.coerce(raw)
+    except Exception:
+        return Version("0.0.0")
 
 
 def extract_owner_and_repo(url):
@@ -59,7 +61,7 @@ def get_file_hash(path):
         # Feed the file contents to the hash object
         hash_object.update(file_contents)
         # Get the hexadecimal hash value
-        return hash_object.hexdigest(), str(file_contents)
+        return hash_object.hexdigest(), str(file_contents).strip().splitlines()
 
 
 class PypiIntegrityMissmatch(IntegrityMissmatch):
@@ -106,20 +108,13 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
             raise Exception(f"Could not parse url {github_url}")
 
         repo_path = os.path.join(tmp_dir, "sources", repo)
-        print(f"cloning repo")
         repo = pygit2.clone_repository(url=f"https://github.com/{owner}/{repo}", path=repo_path)
-        print(f"cloning repo done")
         tags_regex = re.compile('^refs/tags/(.*)')
-        tags = list(map( # TODO replace by a single for loop
-            lambda x: x.group(0),
-            filter(
-                lambda r: r is not None,
-                map(
-                    lambda r: tags_regex.match(r),
-                    repo.references
-                )
-            )
-        ))
+        tags = []
+        for ref in repo.references:
+            match = tags_regex.match(ref)
+            if match is not None:
+                tags.append(match.group(0))
 
         tag_candidates = []
         for tag_name in tags:
@@ -133,6 +128,7 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         # print(tag_candidates)
 
         target_tag = None
+        # best candidate should have the closest
         for tag in tag_candidates:  # FIXME
             target_tag = tag
 
@@ -160,7 +156,8 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
                 repo_hash, repo_content = get_file_hash(os.path.join(repo_root, file_name))
                 pkg_hash, pkg_content = get_file_hash(os.path.join(root, file_name))
                 if repo_hash != pkg_hash:
-                    # TODO: compute diff for output
+                    if file_name.endswith('.rst') or file_name.endswith('.md'):
+                        continue  # let's ignore non executable files
                     if file_name.endswith("setup.cfg"):
                         repo_cfg = configparser.ConfigParser()
                         repo_cfg.read(os.path.join(repo_root, file_name))
@@ -174,7 +171,15 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
                         "file": os.path.join(relative_path, file_name),
                         "repo_sha256": repo_hash,
                         "pkg_sha256": pkg_hash,
-                        # "diff": diff.compare(repo_content.splitlines(True), pkg_content.split("\n"))
+                        # This does not work in terms of output yet
+                        # "diff": "\n".join(
+                        #     list(
+                        #         difflib.unified_diff(repo_content,
+                        #                              pkg_content,
+                        #                              fromfile=os.path.join("sources", file_name),
+                        #                              tofile=os.path.join("package", file_name),
+                        #                              lineterm=''))
+                        # )
                     }
                     missmatch.append(res)
         message = "\n".join(map(
