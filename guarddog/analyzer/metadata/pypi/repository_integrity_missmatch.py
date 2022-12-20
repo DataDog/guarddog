@@ -154,7 +154,6 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
                 pkg_hash, pkg_content = get_file_hash(os.path.join(root, file_name))
                 if repo_hash != pkg_hash:
                     # TODO: compute diff for output
-                    # TODO: if the file is a setup.cfg, we need to parse it to see if only the dist infos have changed https://docs.python.org/3/library/configparser.html
                     if file_name.endswith("setup.cfg"):
                         repo_cfg = configparser.ConfigParser()
                         repo_cfg.read(os.path.join(repo_root, file_name))
