@@ -2,7 +2,10 @@ rules:
   - id: exec-base64
     languages:
     - python
-    message: Found execution of a base64-encoded string
+    message: |
+      This package contains a call to the `eval` function with a `base64` encoded string as argument.
+      This is a common method used to hide a malicious payload in a module as static analysis will not decode the
+      string.
     mode: taint
     pattern-sinks:
       - pattern-either:

@@ -52,7 +52,6 @@ setuptools = "^65.6.3"
 tarsafe = "^0.0.4"
 semantic-version = "^2.10.0"
 pyyaml = "^6.0"
-packaging = "21"
     
 [tool.poetry.dev-dependencies]
 

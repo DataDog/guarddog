@@ -14,6 +14,7 @@ from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import SOURCECODE_RULES
 from guarddog.ecosystems import ECOSYSTEM
+from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 
@@ -24,7 +25,6 @@ EXIT_CODE_ISSUES_FOUND = 1
 
 
 def common_options(fn):
-    fn = click.option("--output-format", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
     fn = click.option("--exit-non-zero-on-finding", default=False, is_flag=True,
                       help="Exit with a non-zero status code if at least one issue is identified")(fn)
     fn = click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
@@ -33,8 +33,15 @@ def common_options(fn):
     return fn
 
 
-def version_option(fn):
-    return click.option("-v", "--version", default=None, help="Specify a version to scan")(fn)
+def verify_options(fn):
+    fn = click.option("--output-format", default=None, type=click.Choice(["json", "sarif"], case_sensitive=False))(fn)
+    return fn
+
+
+def scan_options(fn):
+    fn = click.option("--output-format", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
+    fn = click.option("-v", "--version", default=None, help="Specify a version to scan")(fn)
+    return fn
 
 
 @click.group
@@ -69,6 +76,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     Args:
         path (str): path to requirements.txt file
     """
+    return_value = None
     rule_param = _get_rule_pram(rules, exclude_rules)
     scanner = get_scanner(ecosystem, True)
     if scanner is None:
@@ -83,10 +91,16 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
 
     if output_format == "json":
         import json as js
-        print(js.dumps(results))
+        return_value = js.dumps(results)
 
+    if output_format == "sarif":
+        return_value = report_verify_sarif(path, list(ALL_RULES), results, ecosystem)
+
+    print(return_value)
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
+
+    return return_value  # this is mostly for testing
 
 
 def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):
@@ -152,7 +166,7 @@ def pypi(**kwargs):
 
 @npm.command("scan")
 @common_options
-@version_option
+@scan_options
 def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Scan a given npm package
     """
@@ -161,6 +175,7 @@ def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero
 
 @npm.command("verify")
 @common_options
+@verify_options
 def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given npm project
     """
@@ -169,7 +184,7 @@ def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_fin
 
 @pypi.command("scan")
 @common_options
-@version_option
+@scan_options
 def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Scan a given PyPI package
     """
@@ -178,6 +193,7 @@ def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zer
 
 @pypi.command("verify")
 @common_options
+@verify_options
 def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given Pypi project
     """
@@ -200,13 +216,14 @@ def list_rules_npm():
 
 @cli.command("verify", deprecated=True)
 @common_options
+@verify_options
 def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
 
 @cli.command("scan", deprecated=True)
 @common_options
-@version_option
+@scan_options
 def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 

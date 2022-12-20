@@ -11,9 +11,9 @@ MESSAGE = "This package has an empty description on PyPi"
 
 
 class EmptyInfoDetector(Detector):
-    """
-    Detector for packages with empty information.
-    """
+    """This heuristic detects packages with empty documentation on the package repository.
+    Such situation might be the marker of a low quality package."""
+
     MESSAGE_TEMPLATE = "This package has an empty description on %s"
     RULE_NAME = "empty_information"
 
