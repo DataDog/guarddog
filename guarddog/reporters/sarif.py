@@ -17,7 +17,7 @@ def build_rules_help_list() -> dict:
     dir_path = os.path.dirname(os.path.realpath(__file__))
     semgrep_rules_base_dir = os.path.join(dir_path, "..", "analyzer", "sourcecode")
     for file in os.listdir(semgrep_rules_base_dir):
-        if not file.endswith('.yml'):
+        if not file.endswith('.yml') and not file.endswith('.yaml'):
             continue
         with open(os.path.join(semgrep_rules_base_dir, file), "r") as fd:
             content = yaml.safe_load(fd)
