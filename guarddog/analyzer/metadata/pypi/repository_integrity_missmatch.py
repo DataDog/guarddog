@@ -2,6 +2,7 @@
 
 Detects if a package contains an empty description
 """
+import difflib
 import hashlib
 import os
 import re
@@ -9,11 +10,19 @@ import subprocess
 from typing import Optional
 
 import requests
+from semantic_version import Version
 
 from guarddog.analyzer.metadata.repository_integrity_missmatch import IntegrityMissmatch
 
 GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/){2}'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
+
+
+def parse_version(raw):
+    try:
+        return Version(raw)
+    except Exception as e:
+        return Version("0.0.0")  # FIXME
 
 
 def extract_owner_and_repo(url):
@@ -51,7 +60,8 @@ def get_file_hash(path):
         # Feed the file contents to the hash object
         hash_object.update(file_contents)
         # Get the hexadecimal hash value
-        return hash_object.hexdigest()
+        return hash_object.hexdigest(), file_contents
+
 
 class PypiIntegrityMissmatch(IntegrityMissmatch):
     """This package contains files that have been tampered with between the source repository and the package CDN"""
@@ -85,7 +95,11 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
 
         # ok, now let's try to find the version! (I need to know which version we are scanning)
         if version is None:
-            return False, ""  # FIXME: use latest come on!
+            all_versions = list(map(
+                parse_version,
+                list(package_info["releases"].keys())
+            ))
+            version = str(max(all_versions))
         tmp_dir = os.path.dirname(path)
 
         owner, repo = extract_owner_and_repo(github_url)
@@ -108,7 +122,7 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         # print(tag_candidates)
 
         target_tag = None
-        for tag in tag_candidates:
+        for tag in tag_candidates:  # FIXME
             target_tag = tag
 
         if target_tag is None:
@@ -120,9 +134,9 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         # with a GH release/tag
         # by finding the commit setting the version
         # cool we have the version, let's compare files that exist
-        base_dir_name = os.listdir(path)[0]  #  FIXME!!
+        base_dir_name = os.listdir(path)[0]  # FIXME!!
         base_path = os.path.join(path, base_dir_name)
-        missmatches = set()
+        missmatch = []
         for root, dirs, files in os.walk(base_path):
             relative_path = os.path.relpath(root, base_path)
             repo_root = os.path.join(repo_path, relative_path)
@@ -135,10 +149,21 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
             for file_name in repo_files:
                 if file_name not in files:
                     continue
-                repo_hash = get_file_hash(os.path.join(repo_root, file_name))
-                pkg_path = get_file_hash(os.path.join(root, file_name))
-                if repo_hash != pkg_path:
-                    missmatches.add(os.path.join(relative_path, file_name))
-        missmatch_strings = ", ".join(missmatches)
-        return len(missmatches) > 0, f"Some files present in the package are different from the ones on GitHub for " \
-                                     f"the same version of the package. {missmatch_strings} "
+                repo_hash, repo_content = get_file_hash(os.path.join(repo_root, file_name))
+                pkg_hash, pkg_content = get_file_hash(os.path.join(root, file_name))
+                if repo_hash != pkg_hash:
+                    # TODO: compute diff for output
+                    # TODO: if the file is a setup.cfg, we need to parse it to see if only the dist infos have changed https://docs.python.org/3/library/configparser.html
+                    res = {
+                        "file": os.path.join(relative_path, file_name),
+                        "repo_sha256": repo_hash,
+                        "pkg_sha256": pkg_hash,
+                        # "diff": diff.compare(repo_content.splitlines(True), pkg_content.split("\n"))
+                    }
+                    missmatch.append(res)
+        message = "\n".join(map(
+            lambda x: x["file"],
+            missmatch
+        ))
+        return len(missmatch) > 0, f"Some files present in the package are different from the ones on GitHub for " \
+                                   f"the same version of the package: {message}"
