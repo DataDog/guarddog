@@ -2,6 +2,7 @@
 
 Detects if a package contains an empty description
 """
+import configparser
 import difflib
 import hashlib
 import os
@@ -60,7 +61,7 @@ def get_file_hash(path):
         # Feed the file contents to the hash object
         hash_object.update(file_contents)
         # Get the hexadecimal hash value
-        return hash_object.hexdigest(), file_contents
+        return hash_object.hexdigest(), str(file_contents)
 
 
 class PypiIntegrityMissmatch(IntegrityMissmatch):
@@ -154,6 +155,15 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
                 if repo_hash != pkg_hash:
                     # TODO: compute diff for output
                     # TODO: if the file is a setup.cfg, we need to parse it to see if only the dist infos have changed https://docs.python.org/3/library/configparser.html
+                    if file_name.endswith("setup.cfg"):
+                        repo_cfg = configparser.ConfigParser()
+                        repo_cfg.read(os.path.join(repo_root, file_name))
+                        pkg_cfg = configparser.ConfigParser()
+                        pkg_cfg.read(os.path.join(root, file_name))
+                        repo_sections = list(repo_cfg.keys())
+                        pkg_sections = list(pkg_cfg.keys())
+                        if "egg_info" in pkg_sections and "egg_info" not in repo_sections:
+                            continue
                     res = {
                         "file": os.path.join(relative_path, file_name),
                         "repo_sha256": repo_hash,
