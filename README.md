@@ -44,6 +44,9 @@ guarddog pypi scan /tmp/triage.tar.gz
 # Scan every package referenced in a requirements.txt file of a local folder
 guarddog pypi verify workspace/guarddog/requirements.txt
 
+# Scan every package referenced in a requirements.txt file and output a sarif file - works only for verify
+guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
+
 # Output JSON to standard output - works for every command
 guarddog pypi scan requests --output-format=json
 
@@ -111,28 +114,15 @@ Running unit tests against package metadata heuristics: `make test-metadata-rule
 
 ### Code quality checks
 
-Type checking:
-
+Run the type checker with
 ```shell
-pip install mypy
-make type-check
+mypy --install-types --non-interactive guarddog
 ```
-
-Linting:
-
+and the linter with
 ```shell
-pip install flake8
-make lint
+flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data
+flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
-
-You can also use pre-commit hooks. Install them once using:
-
-```
-pip install pre-commit
-pre-commit install
-```
-
-This will cause `make lint` and `make type-check` to automatically run before each of your commits, failing early if your code has an issue that would fail on CI.
 
 ### Adding new source code heuristics
 
