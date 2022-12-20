@@ -3,14 +3,12 @@
 Detects if a package contains an empty description
 """
 import configparser
-import difflib
 import hashlib
 import os
 import re
-import subprocess
 from typing import Optional
 
-import requests
+import pygit2
 from semantic_version import Version
 
 from guarddog.analyzer.metadata.repository_integrity_missmatch import IntegrityMissmatch
@@ -107,14 +105,26 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         if owner is None or repo is None:
             raise Exception(f"Could not parse url {github_url}")
 
-        tags_request = requests.get(f"https://api.github.com/repos/{owner}/{repo}/tags")
-        if tags_request.status_code != 200:
-            raise Exception(f"something went wrong when listing tags for repo {owner}/{repo}")
-        tags = tags_request.json()
+        repo_path = os.path.join(tmp_dir, "sources", repo)
+        print(f"cloning repo")
+        repo = pygit2.clone_repository(url=f"https://github.com/{owner}/{repo}", path=repo_path)
+        print(f"cloning repo done")
+        tags_regex = re.compile('^refs/tags/(.*)')
+        tags = list(map( # TODO replace by a single for loop
+            lambda x: x.group(0),
+            filter(
+                lambda r: r is not None,
+                map(
+                    lambda r: tags_regex.match(r),
+                    repo.references
+                )
+            )
+        ))
+
         tag_candidates = []
-        for tag_info in tags:
-            if version in tag_info["name"]:
-                tag_candidates.append(tag_info)
+        for tag_name in tags:
+            if version in tag_name:
+                tag_candidates.append(tag_name)
 
         #  TODO: parse the code of the package to find the real real version
         # Idea: we can grep the project files for the version, the, git biscect until we have a file with the same version?
@@ -127,11 +137,8 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
             target_tag = tag
 
         if target_tag is None:
-            return False, "Could not find a suitable tag on GitHub"
-
-        repo_path = os.path.join(tmp_dir, "sources", repo)
-        # Do we need to use pygit2 here instead? probably to reduce risks of code execution here
-        subprocess.run(["git", "clone", "-b", target_tag["name"], f"https://github.com/{owner}/{repo}", repo_path])
+            return False, "Could not find a suitable tag in repository"
+        repo.checkout(target_tag)
         # with a GH release/tag
         # by finding the commit setting the version
         # cool we have the version, let's compare files that exist
