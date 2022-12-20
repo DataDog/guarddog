@@ -76,7 +76,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     Args:
         path (str): path to requirements.txt file
     """
-    rv = None
+    return_value = None
     rule_param = _get_rule_pram(rules, exclude_rules)
     scanner = get_scanner(ecosystem, True)
     if scanner is None:
@@ -91,16 +91,16 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
 
     if output_format == "json":
         import json as js
-        rv = js.dumps(results)
+        return_value = js.dumps(results)
 
     if output_format == "sarif":
-        rv = report_verify_sarif(path, list(ALL_RULES), results, ecosystem)
+        return_value = report_verify_sarif(path, list(ALL_RULES), results, ecosystem)
 
-    print(rv)
+    print(return_value)
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
 
-    return rv  # this is mostly for testing
+    return return_value  # this is mostly for testing
 
 
 def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):

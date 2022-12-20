@@ -8,6 +8,10 @@ from guarddog.ecosystems import ECOSYSTEM
 
 
 def build_rules_help_list() -> dict:
+    """
+    Builds a dict with the names of all available rules and their documentation
+    @return: dict[name_of_rule, rule_description]
+    """
     rules_documentation = {}
     for ecosystem in ECOSYSTEM:
         rules = get_metadata_detectors(ecosystem)
