@@ -10,14 +10,10 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):
-    """
-    Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 1000 packages.
+    """This heuristic looks for typosquatting attacks.
+    It detects if a package name is a typosquat of one of the top 1000 packages.
     Checks for distance one Levenshtein, one-off character swaps, permutations
-    around hyphens, and substrings.
-
-    Attributes:
-        popular_packages (list): list of top 5000 downloaded packages from PyPI
-    """
+    around hyphens, and substrings."""
 
     RULE_NAME = "typosquatting"
     MESSAGE_TEMPLATE = "This package closely ressembles the following package names, and might be a typosquatting " \
