@@ -181,8 +181,11 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
 
         tag_candidates = []
         for tag_name in tags:
-            if version in tag_name:
+            if tag_name.endswith(version):
                 tag_candidates.append(tag_name)
+
+        if len(tag_candidates) == 0:
+            return False, "Could not find any suitable tag in repository"
 
         # TODO: parse the code of the package to find the real real version Idea: we can grep the project files for
         #  the version, the, git biscect until we have a file with the same version? will not work if main has not
@@ -198,8 +201,7 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
             raise Exception("something went wrong when opening the package")
         base_path = os.path.join(path, base_dir_name)
 
-        if len(tag_candidates) == 0:
-            return False, "Could not find any suitable tag in repository"
+
 
         target_tag = None
         # best candidate should have the closest
