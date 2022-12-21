@@ -17,7 +17,7 @@ GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/)(?:[\w-]+)'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
 
 
-def extract_owner_and_repo(url) -> Tuple[str, str]:
+def extract_owner_and_repo(url) -> Tuple[Optional[str], Optional[str]]:
     match = re.search(GH_REPO_OWNER_REGEX, url)
     if match:
         owner = match.group(1)
@@ -26,7 +26,14 @@ def extract_owner_and_repo(url) -> Tuple[str, str]:
     return None, None
 
 
-def find_best_github_candidate(candidates, name):
+def find_best_github_candidate(cand, name):
+    candidates, best_github_candidate = cand
+    # if the project url is a GitHub repository, we should follow this as an instruction. Users will click on it
+    if best_github_candidate is not None:
+        best_github_candidate = best_github_candidate.replace("http://", "https://")
+        url = urllib3.util.parse_url(best_github_candidate)
+        if url.host == "github.com":
+            return best_github_candidate
     clean_candidates = []
     for entry in candidates:
         # let's do some cleanup
@@ -76,8 +83,9 @@ def get_file_hash(path):
         return hash_object.hexdigest(), str(file_contents).strip().splitlines()
 
 
-def find_github_candidates(package_info) -> set[str]:
+def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
     infos = package_info["info"]
+    project_url = package_info["info"]["project_url"]
     github_urls = set()
     for dict_path in dict_generator(infos):
         leaf = dict_path[-1]
@@ -87,7 +95,10 @@ def find_github_candidates(package_info) -> set[str]:
         if len(res) > 0:
             for cd in res:
                 github_urls.add(cd.strip())
-    return github_urls
+    best = None
+    if project_url in github_urls:
+        best = project_url
+    return github_urls, best
 
 
 def exclude_result(file_name, repo_root, pkg_root):
@@ -157,12 +168,12 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, str]:
         # let's extract a source repository (GitHub only for now) if we can
-        github_urls = find_github_candidates(package_info)
+        github_urls, best_github_candidate = find_github_candidates(package_info)
         if len(github_urls) == 0:
             return False, "Could not find any GitHub url in the project's description"
         # now, let's find the right url
-        # TODO: if homepage is a github repo, let's use that directly
-        github_url = find_best_github_candidate(github_urls, name)
+
+        github_url = find_best_github_candidate((github_urls, best_github_candidate), name)
 
         if github_url is None:
             return False, "Could not find a good GitHub url in the project's description"
@@ -188,7 +199,7 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
             target_tag = tag
 
         # Idea: parse the code of the package to find the real version - we can grep the project files for
-        #  the version, the, git biscect until we have a file with the same version? will not work if main has not
+        #  the version, git biscect until we have a file with the same version? will not work if main has not
         #  been bumped yet in version so tags and releases are out only solutions here print(tag_candidates)
         #  Well, that works if we run integrity check for multiple commits
 
