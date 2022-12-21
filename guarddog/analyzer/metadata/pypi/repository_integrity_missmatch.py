@@ -3,43 +3,18 @@
 Detects if a package contains an empty description
 """
 import configparser
-import difflib
 import hashlib
 import os
 import re
-from typing import Optional, Set, Any
+from typing import Optional
 
 import pygit2
-from semantic_version import Version
+import urllib3.util
 
 from guarddog.analyzer.metadata.repository_integrity_missmatch import IntegrityMissmatch
 
-GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/){2}'
+GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/)(?:[\w-]+)'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
-
-
-# eventually, GuardDog core should be doing the job of selecting a single version to scan
-def parse_version(raw):
-    try:
-        v = Version.coerce(raw)
-        return {
-            "version": v,
-            "raw": raw
-        }
-    except Exception:
-        return {
-            "version": Version("0.0.0"),
-            "raw": raw
-        }
-
-
-def find_version(package_info):
-    all_versions = list(map(
-        parse_version,
-        list(package_info["releases"].keys())
-    ))
-    version = max(all_versions, key=lambda x: x["version"])
-    return version["raw"]
 
 
 def extract_owner_and_repo(url):
@@ -49,6 +24,27 @@ def extract_owner_and_repo(url):
         repo = match.group(2)
         return owner, repo
     return None, None
+
+
+def find_best_github_candidate(candidates, name):
+    clean_candidates = []
+    for entry in candidates:
+        # let's do some cleanup
+        url = urllib3.util.parse_url(entry)
+        if url.host != "github.com":
+            continue
+        if url.scheme == "http":
+            entry = entry.replace("http://", "https://")
+        clean_candidates.append(entry)
+    for entry in clean_candidates:
+        if f"/{name}" in entry:
+            return entry
+    # solution 1 did not work, let's be a bit more aggressive
+    for entry in clean_candidates:
+        owner, repo = extract_owner_and_repo(entry)
+        if repo is not None and repo in name:  # TODO: replace by if two strings have a Levenstein distance < X% of string length
+            return entry
+    return None
 
 
 def dict_generator(indict, pre=None):
@@ -138,6 +134,21 @@ def find_missmatch_for_tag(repo, tag, base_path, repo_path):
     return missmatch
 
 
+def find_suitable_tags(repo, version):
+    tags_regex = re.compile('^refs/tags/(.*)')
+    tags = []
+    for ref in repo.references:
+        match = tags_regex.match(ref)
+        if match is not None:
+            tags.append(match.group(0))
+
+    tag_candidates = []
+    for tag_name in tags:
+        if tag_name.endswith(version):
+            tag_candidates.append(tag_name)
+    return tag_candidates
+
+
 # Note: we should have the GitHub related logic factored out as we will need it when we check for signed commits
 class PypiIntegrityMissmatch(IntegrityMissmatch):
     """This package contains files that have been tampered with between the source repository and the package CDN"""
@@ -150,49 +161,37 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         if len(github_urls) == 0:
             return False, "Could not find any GitHub url in the project's description"
         # now, let's find the right url
-        github_url = None
-        for entry in github_urls:
-            if f"/{name}" in entry:
-                github_url = entry
-                break
+        github_url = find_best_github_candidate(github_urls, name)
 
         if github_url is None:
             return False, "Could not find a good GitHub url in the project's description"
 
         # ok, now let's try to find the version! (I need to know which version we are scanning)
         if version is None:
-            version = find_version(package_info)
+            version = package_info["info"]["version"]
         if version is None:
             raise Exception("Could not find suitable version to scan")
         tmp_dir = os.path.dirname(path)
 
-        owner, repo = extract_owner_and_repo(github_url)
-        if owner is None or repo is None:
-            raise Exception(f"Could not parse url {github_url}")
+        repo_path = os.path.join(tmp_dir, "sources", name)
+        repo = pygit2.clone_repository(url=github_url, path=repo_path)
 
-        repo_path = os.path.join(tmp_dir, "sources", repo)
-        repo = pygit2.clone_repository(url=f"https://github.com/{owner}/{repo}", path=repo_path)
-        tags_regex = re.compile('^refs/tags/(.*)')
-        tags = []
-        for ref in repo.references:
-            match = tags_regex.match(ref)
-            if match is not None:
-                tags.append(match.group(0))
-
-        tag_candidates = []
-        for tag_name in tags:
-            if tag_name.endswith(version):
-                tag_candidates.append(tag_name)
+        tag_candidates = find_suitable_tags(repo, version)
 
         if len(tag_candidates) == 0:
             return False, "Could not find any suitable tag in repository"
 
-        # TODO: parse the code of the package to find the real real version Idea: we can grep the project files for
+        target_tag = None
+        # TODO: this one is a bit weak. let's find something stronger - maybe use the closest string?
+        for tag in tag_candidates:
+            target_tag = tag
+
+        # Idea: parse the code of the package to find the real version - we can grep the project files for
         #  the version, the, git biscect until we have a file with the same version? will not work if main has not
         #  been bumped yet in version so tags and releases are out only solutions here print(tag_candidates)
         #  Well, that works if we run integrity check for multiple commits
 
-        #  should be good, but let's open the sources
+        #  should be good, let's open the sources
         base_dir_name = None
         for entry in os.listdir(path):
             if entry.lower().startswith(name.lower()):
@@ -200,13 +199,6 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         if base_dir_name is None or base_dir_name == "sources":  # I am not sure how we can get there
             raise Exception("something went wrong when opening the package")
         base_path = os.path.join(path, base_dir_name)
-
-
-
-        target_tag = None
-        # best candidate should have the closest
-        for tag in tag_candidates:  # FIXME: for pyaml we scan 6.0 instead of 6.0b1 - there must be a way
-            target_tag = tag
 
         missmatch = find_missmatch_for_tag(repo, target_tag, base_path, repo_path)
         message = "\n".join(map(

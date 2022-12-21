@@ -7,10 +7,12 @@ rows = []
 with open("guarddog/analyzer/metadata/resources/top_pypi_packages.json", "r") as fd:
     raw = json.load(fd)
     rows = raw["rows"]
-
+rows = rows[0:1000]
 
 for entry in rows:
     name = entry["project"]
+    if name == "idna":
+        continue
     print(name)
     res = _scan(name, None, ["repository_integrity_missmatch"], [], "json", False, ECOSYSTEM.PYPI)
 
