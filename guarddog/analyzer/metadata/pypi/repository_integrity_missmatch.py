@@ -6,7 +6,7 @@ import configparser
 import hashlib
 import os
 import re
-from typing import Optional
+from typing import Optional, Tuple
 
 import pygit2
 import urllib3.util
@@ -17,7 +17,7 @@ GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/)(?:[\w-]+)'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
 
 
-def extract_owner_and_repo(url):
+def extract_owner_and_repo(url) -> Tuple[str, str]:
     match = re.search(GH_REPO_OWNER_REGEX, url)
     if match:
         owner = match.group(1)
@@ -37,12 +37,12 @@ def find_best_github_candidate(candidates, name):
             entry = entry.replace("http://", "https://")
         clean_candidates.append(entry)
     for entry in clean_candidates:
-        if f"/{name}" in entry:
+        if f"/{name.lower()}" in entry.lower():
             return entry
     # solution 1 did not work, let's be a bit more aggressive
     for entry in clean_candidates:
         owner, repo = extract_owner_and_repo(entry)
-        if repo is not None and repo in name:  # TODO: replace by if two strings have a Levenstein distance < X% of string length
+        if repo is not None and (repo.lower() in name.lower() or name.lower() in repo.lower()):  # TODO: replace by if two strings have a Levenstein distance < X% of string length
             return entry
     return None
 
@@ -161,6 +161,7 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         if len(github_urls) == 0:
             return False, "Could not find any GitHub url in the project's description"
         # now, let's find the right url
+        # TODO: if homepage is a github repo, let's use that directly
         github_url = find_best_github_candidate(github_urls, name)
 
         if github_url is None:

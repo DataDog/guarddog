@@ -14,13 +14,15 @@ with open(os.path.join(dir_name, "../../../guarddog/analyzer/metadata/resources/
         )
     )
 ALL_INFO = {}
+i = 0
+l = len(PACKAGES)
 for name in PACKAGES:
+    i += 1
     try:
         ALL_INFO[name] = get_package_info(name)
-        print(name, "ok")
+        print(name, "ok", i, "/", l)
     except Exception:
-        print(name, "nok")
-    sleep(1)
+        print(name, "nok", i, "/", l)
 
 with open(os.path.join(dir_name, 'all_info.json'), "w") as file:
     json.dump(ALL_INFO, file)
