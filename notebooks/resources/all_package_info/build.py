@@ -1,8 +1,7 @@
+import json
 import os
-from time import sleep
 
 from guarddog.utils.package_info import get_package_info
-import json
 
 dir_name = os.path.dirname(__file__)
 with open(os.path.join(dir_name, "../../../guarddog/analyzer/metadata/resources/top_pypi_packages.json"), "r") as fd:
