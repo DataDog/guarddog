@@ -8,7 +8,7 @@ import os
 import re
 from typing import Optional, Tuple
 
-import pygit2
+import pygit2  # type: ignore
 import urllib3.util
 
 from guarddog.analyzer.metadata.repository_integrity_missmatch import IntegrityMissmatch
@@ -50,7 +50,8 @@ def find_best_github_candidate(cand, name):
     for entry in clean_candidates:
         owner, repo = extract_owner_and_repo(entry)
         if repo is not None and (
-                repo.lower() in name.lower() or name.lower() in repo.lower()):  # TODO: replace by if two strings have a Levenstein distance < X% of string length
+                # Idea: replace by if two strings have a Levenshtein distance < X% of string length
+                repo.lower() in name.lower() or name.lower() in repo.lower()):
             return entry
     return None
 
@@ -181,6 +182,10 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, str]:
+        if name is None:
+            raise Exception("Detector needs the name of the package")
+        if path is None:
+            raise Exception("Detector needs the path of the package")
         # let's extract a source repository (GitHub only for now) if we can
         github_urls, best_github_candidate = find_github_candidates(package_info)
         if len(github_urls) == 0:
@@ -198,6 +203,8 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
         if version is None:
             raise Exception("Could not find suitable version to scan")
         tmp_dir = os.path.dirname(path)
+        if tmp_dir is None:
+            raise Exception("no current scanning directory")
 
         repo_path = os.path.join(tmp_dir, "sources", name)
         repo = pygit2.clone_repository(url=github_url, path=repo_path)
