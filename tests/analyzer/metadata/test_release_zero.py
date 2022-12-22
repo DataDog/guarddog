@@ -7,7 +7,6 @@ import pytest
 
 from guarddog.analyzer.metadata.npm import NPMReleaseZeroDetector
 from guarddog.analyzer.metadata.pypi import PypiReleaseZeroDetector
-from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
 from tests.analyzer.metadata.resources.sample_project_info import (
     PACKAGE_INFO,
     generate_project_info,
