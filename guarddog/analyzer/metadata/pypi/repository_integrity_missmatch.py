@@ -49,7 +49,8 @@ def find_best_github_candidate(cand, name):
     # solution 1 did not work, let's be a bit more aggressive
     for entry in clean_candidates:
         owner, repo = extract_owner_and_repo(entry)
-        if repo is not None and (repo.lower() in name.lower() or name.lower() in repo.lower()):  # TODO: replace by if two strings have a Levenstein distance < X% of string length
+        if repo is not None and (
+                repo.lower() in name.lower() or name.lower() in repo.lower()):  # TODO: replace by if two strings have a Levenstein distance < X% of string length
             return entry
     return None
 
@@ -83,9 +84,18 @@ def get_file_hash(path):
         return hash_object.hexdigest(), str(file_contents).strip().splitlines()
 
 
+def _ensure_proper_url(url):
+    parsed = urllib3.util.parse_url(url)
+    if parsed.scheme is None:
+        url = f"https://{url}"
+    return url
+
+
 def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
     infos = package_info["info"]
-    project_url = package_info["info"]["project_url"]
+    homepage = None
+    if "Homepage" in package_info["info"]["project_urls"]:
+        homepage = package_info["info"]["project_urls"]["Homepage"]
     github_urls = set()
     for dict_path in dict_generator(infos):
         leaf = dict_path[-1]
@@ -94,10 +104,10 @@ def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
         res = re.findall(GH_REPO_REGEX, leaf)
         if len(res) > 0:
             for cd in res:
-                github_urls.add(cd.strip())
+                github_urls.add(_ensure_proper_url(cd.strip()))
     best = None
-    if project_url in github_urls:
-        best = project_url
+    if homepage in github_urls:
+        best = _ensure_proper_url(homepage)
     return github_urls, best
 
 
@@ -145,6 +155,14 @@ def find_missmatch_for_tag(repo, tag, base_path, repo_path):
     return missmatch
 
 
+def find_suitable_tags_in_list(tags, version):
+    tag_candidates = []
+    for tag_name in tags:
+        if tag_name.endswith(version):
+            tag_candidates.append(tag_name)
+    return tag_candidates
+
+
 def find_suitable_tags(repo, version):
     tags_regex = re.compile('^refs/tags/(.*)')
     tags = []
@@ -153,11 +171,7 @@ def find_suitable_tags(repo, version):
         if match is not None:
             tags.append(match.group(0))
 
-    tag_candidates = []
-    for tag_name in tags:
-        if tag_name.endswith(version):
-            tag_candidates.append(tag_name)
-    return tag_candidates
+    return find_suitable_tags_in_list(tags, version)
 
 
 # Note: we should have the GitHub related logic factored out as we will need it when we check for signed commits
