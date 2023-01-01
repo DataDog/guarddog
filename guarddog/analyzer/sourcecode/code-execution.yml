@@ -1,7 +1,7 @@
 # Only searches in setup.py to reduce false positives!
 
 rules:
-  - id: code-execution
+  - id: code-execution in setup.py
     languages:
       - python
     message: 'setup.py file executing code'

@@ -4,6 +4,7 @@ import tempfile
 
 import requests
 import tarsafe  # type:ignore
+import zipfile
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import Scanner
@@ -42,9 +43,9 @@ class PackageScanner(Scanner):
             rules = set(rules)
 
         if os.path.exists(path):
-            if path.endswith('.tar.gz'):
+            if path.endswith('.tar.gz') or path.endswith('.whl') or path.endswith('.zip'):
                 with tempfile.TemporaryDirectory() as tmpdirname:
-                    tarsafe.open(path).extractall(tmpdirname)
+                    safe_extract(path, tmpdirname)
                     return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
             elif os.path.isdir(path):
                 return self.analyzer.analyze_sourcecode(path, rules=rules)
