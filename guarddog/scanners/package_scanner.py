@@ -3,8 +3,6 @@ import os
 import tempfile
 
 import requests
-import tarsafe  # type:ignore
-import zipfile
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.scanners.scanner import Scanner
