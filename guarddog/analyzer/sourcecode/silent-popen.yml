@@ -1,6 +1,6 @@
 rules:
 - id: silent_popen_binary_execution
-  pattern: subprocess.$FUNC(..., stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+  pattern: subprocess.$FUNC(..., stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, ...)
   message: subprocess called to a file while silencing stdout, stderr and stdin to /dev/null
   languages: 
     - python
