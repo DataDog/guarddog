@@ -26,8 +26,13 @@ def extract_owner_and_repo(url) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
-def find_best_github_candidate(cand, name):
-    candidates, best_github_candidate = cand
+def find_best_github_candidate(all_candidates_and_highlighted_link, name):
+    """
+    This method goes through multiple URLs and checks which one is the most suitable to be used as GitHub URL for
+    the project repository.
+    If the repository homepage is a GitHub URL, it is used in priority
+    """
+    candidates, best_github_candidate = all_candidates_and_highlighted_link
     # if the project url is a GitHub repository, we should follow this as an instruction. Users will click on it
     if best_github_candidate is not None:
         best_github_candidate = best_github_candidate.replace("http://", "https://")
@@ -57,6 +62,10 @@ def find_best_github_candidate(cand, name):
 
 
 def dict_generator(indict, pre=None):
+    """
+    This generator recursively go through an arbitrary dict
+    Each iteration will be an array containing the path of all leaves of the dict
+    """
     pre = pre[:] if pre else []
     if isinstance(indict, dict):
         for key, value in indict.items():
@@ -112,9 +121,18 @@ def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
     return github_urls, best
 
 
+EXCLUDED_EXTENSIONS = [".rst", ".md", ".txt"]
+
+
 def exclude_result(file_name, repo_root, pkg_root):
-    if file_name.endswith('.rst') or file_name.endswith('.md'):
-        return True
+    """
+    This method filters out some results that are known false positives:
+    * if the file is a documentation file (based on its extension)
+    * if the fil is an setup.cfg file with the egg_info claim present on Pypi and not on GitHub
+    """
+    for extension in EXCLUDED_EXTENSIONS:
+        if file_name.endswith(extension):
+            return True
     if file_name.endswith("setup.cfg"):
         repo_cfg = configparser.ConfigParser()
         repo_cfg.read(os.path.join(repo_root, file_name))
