@@ -1,0 +1,11 @@
+rules:
+  - id: serialize-environement
+    message: |
+      This package contains a call to `JSON.stringify(process.env)` which indicates that the whole set of environment
+      variables are serialized at some point. This can indicate that the package attempts to steal the environment
+      from the production host.
+    languages:
+      - javascript
+    severity: WARNING
+    patterns:
+      - pattern: JSON.stringify(process.env)
