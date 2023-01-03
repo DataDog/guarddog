@@ -4,7 +4,6 @@ import os
 import sys
 
 import pathos  # type: ignore
-import tarsafe  # type:ignore
 import tempfile
 from abc import abstractmethod
 
@@ -192,14 +191,14 @@ class PackageScanner(Scanner):
             rules = set(rules)
 
         if os.path.exists(path):
-            if path.endswith('.tar.gz'):
+            if path.endswith('.tar.gz') or path.endswith('.tgz') or path.endswith('.zip') or path.endswith('.whl'):
                 with tempfile.TemporaryDirectory() as tmpdirname:
-                    tarsafe.open(path).extractall(tmpdirname)
+                    safe_extract(path, tmpdirname)
                     return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
             elif os.path.isdir(path):
                 return self.analyzer.analyze_sourcecode(path, rules=rules)
             else:
-                raise Exception(f"Path {path} is not a directory nor a tar.gz archive.")
+                raise Exception(f"Path {path} is not a directory nor an archive type supported by GuardDog.")
         raise Exception(f"Path {path} does not exist.")
 
     @abstractmethod

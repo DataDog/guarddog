@@ -76,6 +76,7 @@ GuardDog comes with 2 types of heuristics:
 |                    [Unusual domain extension](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/shady-links.yml)                     |                                      Usage of a domain name with an extension frequently used by malware (e.g. `.xyz` or `.top`)                                      |
 |        [Dynamic execution of hidden data from an image](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/steganography.yml)         |                                           The package uses steganography to extract a payload from an image and execute it                                            |
 |               [Use of a common obfuscation method](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/obfuscation.yml)                |                            The package uses an obfuscation method commonly used by malware, such as running `eval` on hexadecimal strings                             |
+|           [Silent execution of a process](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/silent-process-execution.yml)            |                                                     The package spawns a subprocess without capturing its output                                                      |
 
 ### Package metadata heuristics
 
