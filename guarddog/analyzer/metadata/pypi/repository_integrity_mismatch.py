@@ -11,7 +11,7 @@ from typing import Optional, Tuple
 import pygit2  # type: ignore
 import urllib3.util
 
-from guarddog.analyzer.metadata.repository_integrity_missmatch import IntegrityMissmatch
+from guarddog.analyzer.metadata.repository_integrity_mismatch import IntegrityMismatch
 
 GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/)(?:[\w-]+)'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
@@ -145,9 +145,9 @@ def exclude_result(file_name, repo_root, pkg_root):
     return False
 
 
-def find_missmatch_for_tag(repo, tag, base_path, repo_path):
+def find_mismatch_for_tag(repo, tag, base_path, repo_path):
     repo.checkout(tag)
-    missmatch = []
+    mismatch = []
     for root, dirs, files in os.walk(base_path):
         relative_path = os.path.relpath(root, base_path)
         repo_root = os.path.join(repo_path, relative_path)
@@ -170,8 +170,8 @@ def find_missmatch_for_tag(repo, tag, base_path, repo_path):
                     "repo_sha256": repo_hash,
                     "pkg_sha256": pkg_hash
                 }
-                missmatch.append(res)
-    return missmatch
+                mismatch.append(res)
+    return mismatch
 
 
 def find_suitable_tags_in_list(tags, version):
@@ -194,9 +194,9 @@ def find_suitable_tags(repo, version):
 
 
 # Note: we should have the GitHub related logic factored out as we will need it when we check for signed commits
-class PypiIntegrityMissmatch(IntegrityMissmatch):
+class PypiIntegrityMismatch(IntegrityMismatch):
     """This package contains files that have been tampered with between the source repository and the package CDN"""
-    RULE_NAME = "repository_integrity_missmatch"
+    RULE_NAME = "repository_integrity_mismatch"
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, str]:
@@ -251,10 +251,10 @@ class PypiIntegrityMissmatch(IntegrityMissmatch):
             raise Exception("something went wrong when opening the package")
         base_path = os.path.join(path, base_dir_name)
 
-        missmatch = find_missmatch_for_tag(repo, target_tag, base_path, repo_path)
+        mismatch = find_mismatch_for_tag(repo, target_tag, base_path, repo_path)
         message = "\n".join(map(
             lambda x: "* " + x["file"],
-            missmatch
+            mismatch
         ))
-        return len(missmatch) > 0, f"Some files present in the package are different from the ones on GitHub for " \
-                                   f"the same version of the package: \n{message}"
+        return len(mismatch) > 0, f"Some files present in the package are different from the ones on GitHub for " \
+                                  f"the same version of the package: \n{message}"
