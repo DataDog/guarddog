@@ -194,8 +194,17 @@ def find_suitable_tags(repo, version):
 
 
 # Note: we should have the GitHub related logic factored out as we will need it when we check for signed commits
-class PypiIntegrityMismatch(IntegrityMismatch):
-    """This package contains files that have been tampered with between the source repository and the package CDN"""
+class PypiIntegrityMismatchDetector(IntegrityMismatch):
+    """
+    This heuristic compares source code available on the package source code repository (e.g. GitHub), and source code
+    published on PyPI. If a file is on both sides but has a different content, this heuristic will flag the package.
+
+    This helps identify packages whose release artifacts were modified directly on PyPI.
+
+    Current gaps:
+    * Does not check for extraneous files in the release artifacts
+    * Does not run it parallel, so can be slow for large code bases
+    """
     RULE_NAME = "repository_integrity_mismatch"
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
