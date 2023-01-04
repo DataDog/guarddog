@@ -1,0 +1,46 @@
+rules:
+- id: npm-silent-process-execution
+  message: silent process execution
+  patterns:
+    - pattern-either:
+      - pattern-inside: |
+          $CP = require('child_process')
+          ...
+      - pattern-inside: |
+          import * as $CP from 'child_process'
+          ...
+      - pattern-inside: |
+          import $CP from 'child_process'
+          ...
+      - pattern-inside: |
+          $EXEC = require('child_process').exec
+          ...
+      - pattern-inside: |
+          $EXECSYNC = require('child_process').execSync
+          ...
+      - pattern-inside: |
+          $SPAWN = require('child_process').spawn
+          ...
+      - pattern-inside: |
+          $SPAWNSYNC = require('child_process').spawnSync
+          ...
+    - pattern-either:
+      - pattern: |
+          $CP.exec($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+      - pattern: |
+          $CP.execSync($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+      - pattern: |
+          $CP.spawn($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+      - pattern: |
+          $CP.spawnSync($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+      - pattern: |
+          $EXEC($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+      - pattern: |
+          $EXECSYNC($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+      - pattern: |
+          $SPAWN($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+      - pattern: |
+          $SPAWNSYNC($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+  languages:
+    - javascript
+  severity: WARNING
