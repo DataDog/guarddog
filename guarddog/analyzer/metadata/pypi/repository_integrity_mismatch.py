@@ -254,7 +254,7 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
         #  should be good, let's open the sources
         base_dir_name = None
         for entry in os.listdir(path):
-            if entry.lower().startswith(name.lower()):
+            if entry.lower().startswith(name.lower().replace('-', '_')) or entry.lower().startswith(name.lower()):
                 base_dir_name = entry
         if base_dir_name is None or base_dir_name == "sources":  # I am not sure how we can get there
             raise Exception("something went wrong when opening the package")
