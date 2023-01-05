@@ -36,6 +36,7 @@ class TestTyposquatting:
         ("twetnacl", "tweetnacl"),
         ("jest-watchers", "jest-watcher"),
         ("shpk", "sshpk"),
+        ("requests", "request")
     ]
 
     negative_cases = ["hello-world", "foo", "bar"]
@@ -49,7 +50,7 @@ class TestTyposquatting:
 
     @pytest.mark.parametrize("typo_name, real_name", npm_typosquats)
     def test_npm_typosquats(self, typo_name, real_name):
-        project_info = generate_project_info("name", typo_name)
+        project_info = {"name": typo_name}
         matches, message = self.npm_detector.detect(project_info)
         assert matches and real_name in message
 

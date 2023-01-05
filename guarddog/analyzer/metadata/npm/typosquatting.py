@@ -37,7 +37,7 @@ class NPMTyposquatDetector(TyposquatDetector):
             @param **kwargs:
         """
 
-        similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
+        similar_package_names = self.get_typosquatted_package(package_info["name"])
         if len(similar_package_names) > 0:
             return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(similar_package_names)
         return False, None
