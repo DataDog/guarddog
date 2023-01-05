@@ -6,7 +6,7 @@ from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 
 
 class NPMTyposquatDetector(TyposquatDetector):
-    """Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 1000 packages.
+    """Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 5000 packages.
     Checks for distance one Levenshtein, one-off character swaps, permutations
     around hyphens, and substrings.
 
