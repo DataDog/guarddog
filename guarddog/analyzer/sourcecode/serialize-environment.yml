@@ -8,7 +8,8 @@ rules:
       - javascript
     severity: WARNING
     patterns:
-      - pattern: JSON.stringify(process.env)
-      - pattern: JSON.stringify(process.['env'])
-      - pattern: JSON.stringify(process.["env"])
-      - pattern: JSON.stringify(process.[`env`])
+      - pattern-either:
+        - pattern: JSON.stringify(process.env)
+        - pattern: JSON.stringify(process["env"])
+        - pattern: JSON.stringify(process['env'])
+        - pattern: JSON.stringify(process[`env`])
