@@ -9,3 +9,6 @@ rules:
     severity: WARNING
     patterns:
       - pattern: JSON.stringify(process.env)
+      - pattern: JSON.stringify(process.['env'])
+      - pattern: JSON.stringify(process.["env"])
+      - pattern: JSON.stringify(process.[`env`])
