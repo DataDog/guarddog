@@ -2,13 +2,15 @@ from guarddog.analyzer.metadata.npm.empty_information import NPMEmptyInfoDetecto
 from guarddog.analyzer.metadata.npm.potentially_compromised_email_domain import \
     NPMPotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.npm.release_zero import NPMReleaseZeroDetector
+from guarddog.analyzer.metadata.npm.typosquatting import NPMTyposquatDetector
 
 NPM_METADATA_RULES = {}
 
 classes = [
     NPMEmptyInfoDetector,
     NPMReleaseZeroDetector,
-    NPMPotentiallyCompromisedEmailDomainDetector
+    NPMPotentiallyCompromisedEmailDomainDetector,
+    NPMTyposquatDetector
 ]
 
 for cls in classes:
