@@ -109,7 +109,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
     Args:
         identifier (str): name or path to the package
         version (str): version of the package (ex. 1.0.0), defaults to most recent
-        rules (str): specific rules to run, defaults to all
+        rules (list[str]): specific rules to run, defaults to all
     """
 
     rule_param = _get_rule_pram(rules, exclude_rules)
@@ -130,7 +130,8 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
 
     if output_format == "json":
         import json as js
-        print(js.dumps(results))
+        # print(js.dumps(results))
+        return js.dumps(results)
     else:
         print_scan_results(results, identifier)
 

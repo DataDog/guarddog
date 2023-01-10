@@ -18,7 +18,8 @@ class EmptyInfoDetector(Detector):
     RULE_NAME = "empty_information"
 
     @abstractmethod
-    def detect(self, package_info, path: Optional[str] = None) -> tuple[bool, str]:
+    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
+               version: Optional[str] = None) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package has an empty description
@@ -29,5 +30,6 @@ class EmptyInfoDetector(Detector):
 
         Returns:
             bool: True if package description is empty
+            @param **kwargs:
         """
         pass

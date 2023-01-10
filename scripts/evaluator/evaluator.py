@@ -129,7 +129,7 @@ class Evaluator:
         for name in package_names:
             package_path = os.path.join(path, name)
             package_info = {"info": {"name": name}}
-            package_results = self.analyzer.analyze(package_path, package_info, rules)["results"]
+            package_results = self.analyzer.analyze(package_path, package_info, rules, name)["results"]
             scan_results[name] = package_results
 
             progress_bar.update()

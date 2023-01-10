@@ -2,6 +2,7 @@ from guarddog.analyzer.metadata.pypi.empty_information import PypiEmptyInfoDetec
 from guarddog.analyzer.metadata.pypi.potentially_compromised_email_domain import \
     PypiPotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.pypi.release_zero import PypiReleaseZeroDetector
+from guarddog.analyzer.metadata.pypi.repository_integrity_mismatch import PypiIntegrityMismatchDetector
 from guarddog.analyzer.metadata.pypi.typosquatting import PypiTyposquatDetector
 
 PYPI_METADATA_RULES = {}
@@ -10,7 +11,8 @@ classes = [
     PypiEmptyInfoDetector,
     PypiReleaseZeroDetector,
     PypiTyposquatDetector,
-    PypiPotentiallyCompromisedEmailDomainDetector
+    PypiPotentiallyCompromisedEmailDomainDetector,
+    PypiIntegrityMismatchDetector
 ]
 
 for cls in classes:

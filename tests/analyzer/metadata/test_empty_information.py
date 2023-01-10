@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
 from guarddog.analyzer.metadata.npm import NPMEmptyInfoDetector
 from guarddog.analyzer.metadata.pypi import PypiEmptyInfoDetector
 from tests.analyzer.metadata.resources.sample_project_info import (
