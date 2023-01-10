@@ -1,0 +1,16 @@
+rules:
+  - id: serialize-environment
+    message: |
+      This package contains a call to `JSON.stringify(process.env)` which indicates that the whole set of environment
+      variables are serialized at some point. This can indicate that the package attempts to steal the environment
+      from the production host.
+    languages:
+      - javascript
+    severity: WARNING
+    # Sample in the wild: https://www.mend.io/wp-content/media/2022/02/Mend-npm-Threat-Repot.pdf
+    patterns:
+      - pattern-either:
+        - pattern: JSON.stringify(process.env)
+        - pattern: JSON.stringify(process["env"])
+        - pattern: JSON.stringify(process['env'])
+        - pattern: JSON.stringify(process[`env`])
