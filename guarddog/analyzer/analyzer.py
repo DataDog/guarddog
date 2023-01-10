@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Optional
 
 from semgrep.semgrep_main import invoke_semgrep  # type: ignore
 
@@ -57,7 +58,7 @@ class Analyzer:
             ".semgrep_logs",
         ]
 
-    def analyze(self, path, info=None, rules=None) -> dict:
+    def analyze(self, path, info=None, rules=None, name: Optional[str] = None, version: Optional[str] = None) -> dict:
         """
         Analyzes a package in the given path
 
@@ -92,7 +93,7 @@ class Analyzer:
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
 
-        metadata_results = self.analyze_metadata(path, info, metadata_rules)
+        metadata_results = self.analyze_metadata(path, info, metadata_rules, name, version)
         sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
 
         # Concatenate dictionaries together
@@ -102,7 +103,8 @@ class Analyzer:
 
         return {"issues": issues, "errors": errors, "results": results, "path": path}
 
-    def analyze_metadata(self, path: str, info, rules=None) -> dict:
+    def analyze_metadata(self, path: str, info, rules=None, name: Optional[str] = None,
+                         version: Optional[str] = None) -> dict:
         """
         Analyzes the metadata of a given package
 
@@ -122,7 +124,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info, path)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
                 if rule_matches:
                     issues += 1
                     results[rule] = message

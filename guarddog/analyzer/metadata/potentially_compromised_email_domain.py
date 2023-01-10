@@ -53,7 +53,8 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
 
         return creation_dates, True
 
-    def detect(self, package_info, path: Optional[str] = None) -> tuple[bool, str]:
+    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
+               version: Optional[str] = None) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package's email domain might have been compromised

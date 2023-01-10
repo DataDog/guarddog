@@ -211,7 +211,7 @@ class PackageScanner(Scanner):
 
         package_info = self.download_and_get_package_info(directory, name, version)
 
-        results = self.analyzer.analyze(file_path, package_info, rules)
+        results = self.analyzer.analyze(file_path, package_info, rules, name, version)
         if write_package_info:
             suffix = f"{name}-{version}" if version is not None else name
             with open(os.path.join(results["path"], f'package_info-{suffix}.json'), "w") as file:

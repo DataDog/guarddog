@@ -52,6 +52,8 @@ setuptools = "^65.6.3"
 tarsafe = "^0.0.4"
 semantic-version = "^2.10.0"
 pyyaml = "^6.0"
+pygit2 = "^1.11.1"
+configparser = "^5.3.0"
     
 [tool.poetry.dev-dependencies]
 

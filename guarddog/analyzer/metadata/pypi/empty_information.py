@@ -10,5 +10,6 @@ MESSAGE = "This package has an empty description on PyPi"
 
 
 class PypiEmptyInfoDetector(EmptyInfoDetector):
-    def detect(self, package_info, path: Optional[str] = None) -> tuple[bool, str]:
+    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
+               version: Optional[str] = None) -> tuple[bool, str]:
         return len(package_info["info"]["description"].strip()) == 0, EmptyInfoDetector.MESSAGE_TEMPLATE % "PyPI"
