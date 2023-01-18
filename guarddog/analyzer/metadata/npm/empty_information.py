@@ -13,7 +13,7 @@ MESSAGE = "This package has an empty description on PyPi"
 class NPMEmptyInfoDetector(EmptyInfoDetector):
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+               version: Optional[str] = None, utils_bundle=None) -> tuple[bool, str]:
         if path is None:
             raise TypeError("path must be a string")
         package_path = os.path.join(path, "package")

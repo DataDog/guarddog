@@ -14,5 +14,5 @@ class IntegrityMismatch(Detector):
 
     @abstractmethod
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+               version: Optional[str] = None, utils_bundle=None) -> tuple[bool, str]:
         pass

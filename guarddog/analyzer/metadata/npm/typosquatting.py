@@ -23,7 +23,7 @@ class NPMTyposquatDetector(TyposquatDetector):
         return list(map(lambda x: x["project"], top_packages_data))
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, Optional[str]]:
+               version: Optional[str] = None, utils_bundle=None) -> tuple[bool, Optional[str]]:
         """
         Uses a package's information from PyPI's JSON API to determine the
         package is attempting a typosquatting attack
@@ -35,6 +35,7 @@ class NPMTyposquatDetector(TyposquatDetector):
         Returns:
             list[str]: names of packages that <package_name> could be
             typosquatting from
+            @param utils_bundle:
             @param **kwargs:
         """
 

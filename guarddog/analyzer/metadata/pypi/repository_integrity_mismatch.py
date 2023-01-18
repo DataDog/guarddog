@@ -208,7 +208,7 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
     RULE_NAME = "repository_integrity_mismatch"
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+               version: Optional[str] = None, utils_bundle=None) -> tuple[bool, str]:
         if name is None:
             raise Exception("Detector needs the name of the package")
         if path is None:

@@ -5,6 +5,7 @@ from typing import Optional
 from semgrep.semgrep_main import invoke_semgrep  # type: ignore
 
 from guarddog.analyzer.metadata import get_metadata_detectors
+from guarddog.analyzer.metadata.utils import get_util_bundle
 from guarddog.ecosystems import ECOSYSTEM
 
 
@@ -38,6 +39,7 @@ class Analyzer:
 
         # Rules and associated detectors
         self.metadata_detectors = get_metadata_detectors(ecosystem)
+        self.metadata_detectors_utils = get_util_bundle(ecosystem)
 
         self.metadata_ruleset = self.metadata_detectors.keys()
         self.sourcecode_ruleset = SEMGREP_RULE_NAMES
@@ -124,7 +126,8 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
+                rule_matches, message = self.metadata_detectors[rule].detect(package_info=info, path=path, name=name,
+                                                                             version=version)
                 if rule_matches:
                     issues += 1
                     results[rule] = message
