@@ -90,7 +90,7 @@ class RepositoryCloner:
 
     def clone(self, package_path: str):
         # let's ensure we have a real url to clone here
-        if self.pygit2_repo is not None or self.clone_url is not None:
+        if self.pygit2_repo is not None or self.clone_error is not None:
             # we have already (attempted to) clone(d) this repo
             return
         if self.clone_url is None:
