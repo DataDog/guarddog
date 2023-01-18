@@ -31,7 +31,7 @@ class RepositoryCloner:
     def __init__(self, package_info, name) -> None:
         self.name = name
         self.package_info = package_info
-        urls, preferred = self.find_repository_urls(package_info)
+        urls, preferred = self.find_repository_urls()
         self.urls = urls
         self.preferred = preferred
 
@@ -41,7 +41,7 @@ class RepositoryCloner:
         self.pygit2_repo = None
 
     @abc.abstractmethod
-    def find_repository_urls(self, package_info) -> Tuple[set[str], Optional[str]]:
+    def find_repository_urls(self) -> Tuple[set[str], Optional[str]]:
         """
         Finds GitHub repository URLs based on package_infos
         If there is a preferred candidate identified as the repository URL by the metadata, it is returned as the
@@ -56,6 +56,9 @@ class RepositoryCloner:
         the project repository.
         If the repository homepage is a GitHub URL, it is used in priority
         """
+        if self.clone_url is not None:
+            # we already have a target url
+            return
         # if the project url is a GitHub repository, we should follow this as an instruction. Users will click on it
         if self.preferred is not None:
             best_github_candidate = self.preferred.replace("http://", "https://")
@@ -87,6 +90,9 @@ class RepositoryCloner:
 
     def clone(self, package_path: str):
         # let's ensure we have a real url to clone here
+        if self.pygit2_repo is not None or self.clone_url is not None:
+            # we have already (attempted to) clone(d) this repo
+            return
         if self.clone_url is None:
             self.find_best_github_candidate()
         if self.clone_url is None:

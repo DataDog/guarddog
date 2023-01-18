@@ -1,6 +1,8 @@
 from copy import deepcopy
 
 from guarddog.analyzer.metadata.pypi import PypiIntegrityMismatchDetector
+from guarddog.analyzer.metadata.utils import get_util_bundle
+from guarddog.ecosystems import ECOSYSTEM
 from tests.analyzer.metadata.resources.sample_project_info import PACKAGE_INFO
 
 
@@ -9,7 +11,13 @@ def test_no_github_links():
     current_info["info"]["home_page"] = ""
     current_info["info"]["project_urls"]["Homepage"] = ""
     detector = PypiIntegrityMismatchDetector()
-    match, message = detector.detect(current_info, path="", name="")
+    match, message = detector.detect(current_info, path="", name="",
+                                     utils_bundle=get_util_bundle(
+                                         ecosystem=ECOSYSTEM.PYPI,
+                                         package_info=current_info,
+                                         name=""
+                                     )
+                                     )
     assert not match
     assert message == "Could not find any GitHub url in the project's description"
 
@@ -20,6 +28,15 @@ def test_no_good_github_links():
     current_info["info"]["project_urls"]["Homepage"] = ""
     current_info["info"]["summary"] = "https://github.com/pypa/sampleproject"
     detector = PypiIntegrityMismatchDetector()
-    match, message = detector.detect(current_info, path="", name="mypackage")
+    match, message = detector.detect(
+        current_info,
+        path="",
+        name="mypackage",
+        utils_bundle=get_util_bundle(
+            ecosystem=ECOSYSTEM.PYPI,
+            package_info=current_info,
+            name="mypackage"
+        )
+    )
     assert not match
     assert message == "Could not find a good GitHub url in the project's description"

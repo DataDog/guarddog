@@ -27,11 +27,11 @@ def dict_generator(indict, pre=None):
 
 class PypiRepositoryCloner(RepositoryCloner):
 
-    def find_repository_urls(self, package_info) -> Tuple[set[str], Optional[str]]:
+    def find_repository_urls(self) -> Tuple[set[str], Optional[str]]:
         infos = self.package_info["info"]
         homepage = None
-        if "Homepage" in package_info["info"]["project_urls"]:
-            homepage = package_info["info"]["project_urls"]["Homepage"]
+        if "Homepage" in self.package_info["info"]["project_urls"]:
+            homepage = ensure_proper_url(self.package_info["info"]["project_urls"]["Homepage"].strip())
         github_urls = set()
         for dict_path in dict_generator(infos):
             leaf = dict_path[-1]
@@ -43,5 +43,5 @@ class PypiRepositoryCloner(RepositoryCloner):
                     github_urls.add(ensure_proper_url(cd.strip()))
         best = None
         if homepage in github_urls:
-            best = ensure_proper_url(homepage)
+            best = homepage
         return github_urls, best

@@ -39,7 +39,6 @@ class Analyzer:
 
         # Rules and associated detectors
         self.metadata_detectors = get_metadata_detectors(ecosystem)
-        self.metadata_detectors_utils = get_util_bundle(ecosystem)
 
         self.metadata_ruleset = self.metadata_detectors.keys()
         self.sourcecode_ruleset = SEMGREP_RULE_NAMES
@@ -123,11 +122,17 @@ class Analyzer:
         results = {}
         errors = {}
         issues = 0
+        utils_bundle = get_util_bundle(self.ecosystem, info, name)
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(package_info=info, path=path, name=name,
-                                                                             version=version)
+                rule_matches, message = self.metadata_detectors[rule].detect(
+                    package_info=info,
+                    path=path,
+                    name=name,
+                    version=version,
+                    utils_bundle=utils_bundle
+                )
                 if rule_matches:
                     issues += 1
                     results[rule] = message
