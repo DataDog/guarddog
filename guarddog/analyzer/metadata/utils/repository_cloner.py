@@ -26,6 +26,15 @@ def extract_owner_and_repo(url) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
+def ensure_cloner_use(name, path, utils_bundle):
+    if name is None:
+        raise Exception("Detector needs the name of the package")
+    if path is None:
+        raise Exception("Detector needs the path of the package")
+    if utils_bundle is None or utils_bundle.repository_cloner is None:
+        raise Exception("Detector needs a repository_cloner")
+
+
 class RepositoryCloner:
 
     def __init__(self, package_info, name) -> None:

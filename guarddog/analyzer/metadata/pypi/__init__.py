@@ -1,3 +1,4 @@
+from guarddog.analyzer.metadata.invalid_repository_link import InvalidRepository
 from guarddog.analyzer.metadata.pypi.empty_information import PypiEmptyInfoDetector
 from guarddog.analyzer.metadata.pypi.potentially_compromised_email_domain import \
     PypiPotentiallyCompromisedEmailDomainDetector
@@ -12,7 +13,8 @@ classes = [
     PypiReleaseZeroDetector,
     PypiTyposquatDetector,
     PypiPotentiallyCompromisedEmailDomainDetector,
-    PypiIntegrityMismatchDetector
+    PypiIntegrityMismatchDetector,
+    InvalidRepository
 ]
 
 for cls in classes:

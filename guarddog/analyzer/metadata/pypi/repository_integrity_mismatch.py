@@ -11,7 +11,7 @@ from typing import Optional, Tuple
 import pygit2  # type: ignore
 
 from guarddog.analyzer.metadata.repository_integrity_mismatch import IntegrityMismatch
-from guarddog.analyzer.metadata.utils.repository_cloner import RepositoryCloner
+from guarddog.analyzer.metadata.utils.repository_cloner import RepositoryCloner, ensure_cloner_use
 
 
 def get_file_hash(path):
@@ -114,12 +114,7 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None, utils_bundle=None) -> tuple[bool, str]:
-        if name is None:
-            raise Exception("Detector needs the name of the package")
-        if path is None:
-            raise Exception("Detector needs the path of the package")
-        if utils_bundle is None or utils_bundle.repository_cloner is None:
-            raise Exception("Detector needs a repository_cloner")
+        ensure_cloner_use(name, path, utils_bundle)
 
         cloner = utils_bundle.repository_cloner  # type: RepositoryCloner
         if len(cloner.urls) == 0:
