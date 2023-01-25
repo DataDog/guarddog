@@ -1,6 +1,10 @@
-![GuardDog Banner](docs/images/banner.png)
+# GuardDog
 
 [![Test](https://github.com/DataDog/guarddog/actions/workflows/test.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/test.yml) [![Static analysis](https://github.com/DataDog/guarddog/actions/workflows/semgrep.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/semgrep.yml)
+
+<p align="center">
+  <img src="./docs/images/logo.png" alt="GuardDog" width="300" />
+</p>
 
 GuardDog is a CLI tool that allows to identify malicious PyPI packages. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
 
