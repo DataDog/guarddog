@@ -1,5 +1,5 @@
 rules:
-  - id: serialize-environment
+  - id: npm-serialize-environment
     message: |
       This package contains a call to `JSON.stringify(process.env)` which indicates that the whole set of environment
       variables are serialized at some point. This can indicate that the package attempts to steal the environment
