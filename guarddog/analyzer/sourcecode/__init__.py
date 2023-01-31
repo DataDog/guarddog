@@ -26,5 +26,5 @@ for file_name in rule_file_names:
                 match(lang):
                     case "python":
                         SOURCECODE_RULES[ECOSYSTEM.PYPI].add(rule["id"])
-                    case "javascript" | "typescript":
+                    case "javascript" | "typescript" | "json":
                         SOURCECODE_RULES[ECOSYSTEM.NPM].add(rule["id"])
