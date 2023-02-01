@@ -11,5 +11,5 @@ class NPMReleaseZeroDetector(ReleaseZeroDetector):
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, str]:
-        return package_info["dist-tags"]["latest"] in ["0.0.0", "0.0", "0"],\
+        return package_info["dist-tags"]["latest"] in ["0.0.0", "0.0", "0"], \
             ReleaseZeroDetector.MESSAGE_TEMPLATE % package_info["dist-tags"]["latest"]
