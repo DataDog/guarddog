@@ -101,6 +101,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     if output_format == "sarif":
         return_value = report_verify_sarif(path, list(ALL_RULES), results, ecosystem)
 
+    print(return_value)
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
 
