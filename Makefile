@@ -1,4 +1,4 @@
-.PHONY: test test-semgrep-rules test-metadata-rules test-core
+.PHONY: test test-semgrep-rules test-metadata-rules test-core docs
 
 test: test-semgrep-rules test-metadata-rules test-core coverage-report
 
@@ -21,3 +21,6 @@ test-core:
 coverage-report:
 	coverage combine .coverage_metadata .coverage_core
 	coverage report
+
+docs:
+	python scripts/generate-rules-docs.py README.md

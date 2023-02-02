@@ -2,7 +2,9 @@ rules:
   - id: cmd-overwrite
     languages:
       - python
-    message: Standard pip command overwritten in setup.py
+    message: This package is overwriting the 'install' command in setup.py
+    metadata:
+      description: Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed
     patterns:
       - pattern-either:
           - pattern: |

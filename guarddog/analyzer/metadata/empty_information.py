@@ -1,7 +1,3 @@
-""" Empty Information Detector
-
-Detects if a package contains an empty description
-"""
 from abc import abstractmethod
 from typing import Optional
 
@@ -15,7 +11,12 @@ class EmptyInfoDetector(Detector):
     Such situation might be the marker of a low quality package."""
 
     MESSAGE_TEMPLATE = "This package has an empty description on %s"
-    RULE_NAME = "empty_information"
+
+    def __init__(self):
+        super().__init__(
+            name="empty_information",
+            description="Identify packages with an empty description field"
+        )
 
     @abstractmethod
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,

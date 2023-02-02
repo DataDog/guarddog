@@ -1,7 +1,8 @@
 import hashlib
 import json
-import yaml
 import os.path
+
+import yaml
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM

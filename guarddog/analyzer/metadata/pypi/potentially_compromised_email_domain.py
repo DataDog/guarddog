@@ -5,6 +5,7 @@ Detects if a maintainer's email domain might have been compromised.
 
 from datetime import datetime
 from typing import Optional
+
 from dateutil import parser
 from packaging import version
 
@@ -12,10 +13,8 @@ from guarddog.analyzer.metadata.potentially_compromised_email_domain import Pote
 
 
 class PypiPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailDomainDetector):
-
     def __init__(self):
-        super().__init__()
-        self.ecosystem = "Pypi"
+        super().__init__("pypi")
 
     def get_email_addresses(self, package_info: dict) -> list[str]:
         author_email = package_info["info"]["author_email"]

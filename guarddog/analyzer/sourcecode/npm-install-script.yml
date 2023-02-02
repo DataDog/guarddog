@@ -1,22 +1,24 @@
 rules:
-- id: npm-install-script
-  message: The package.json has a script automatically running when the package is installed
-  patterns:
-  - pattern-inside: |
-        "scripts": {...}
-  - pattern-either:
-    - pattern: |
-        "preinstall": "..."
-    - pattern: |
-        "install": "..."
-    - pattern: |
-        "postinstall": "..."
-    - pattern: |
-        "prepare": "..."
-  languages:
-    - json
-  paths:
-    include:
-      - "*/package.json"
-      - "*/npm-install-script.json" # unit test
-  severity: WARNING
+  - id: npm-install-script
+    message: The package.json has a script automatically running when the package is installed
+    metadata:
+      description: Identify when a package has a pre or post-install script automatically running commands
+    patterns:
+      - pattern-inside: |
+          "scripts": {...}
+      - pattern-either:
+          - pattern: |
+              "preinstall": "..."
+          - pattern: |
+              "install": "..."
+          - pattern: |
+              "postinstall": "..."
+          - pattern: |
+              "prepare": "..."
+    languages:
+      - json
+    paths:
+      include:
+        - "*/package.json"
+        - "*/npm-install-script.json" # unit test
+    severity: WARNING

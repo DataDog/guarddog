@@ -7,18 +7,15 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):
-    """This heuristic looks for typosquatting attacks.
-    It detects if a package name is a typosquat of one of the top 1000 packages.
-    Checks for distance one Levenshtein, one-off character swaps, permutations
-    around hyphens, and substrings."""
-
-    RULE_NAME = "typosquatting"
     MESSAGE_TEMPLATE = "This package closely ressembles the following package names, and might be a typosquatting " \
                        "attempt: %s"
 
     def __init__(self) -> None:
         self.popular_packages = self._get_top_packages()  # Find top PyPI packages
-        super().__init__()  # Call constructor
+        super().__init__(
+            name="typosquatting",
+            description="Identify packages that are named closely to an highly popular package"
+        )
 
     @abc.abstractmethod
     def _get_top_packages(self) -> list:

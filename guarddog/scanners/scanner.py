@@ -2,11 +2,10 @@ import functools
 import json
 import os
 import sys
-
-import pathos  # type: ignore
 import tempfile
 from abc import abstractmethod
 
+import pathos  # type: ignore
 import requests
 
 from guarddog.utils.archives import safe_extract

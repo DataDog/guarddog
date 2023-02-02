@@ -12,10 +12,8 @@ from guarddog.analyzer.metadata.potentially_compromised_email_domain import Pote
 
 
 class NPMPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailDomainDetector):
-
     def __init__(self):
-        super().__init__()
-        self.ecosystem = "npm"
+        super().__init__("npm")
 
     def get_email_addresses(self, package_info: dict) -> list[str]:
         return list(map(lambda x: x["email"], package_info["maintainers"]))

@@ -15,6 +15,6 @@ classes = [
     PypiIntegrityMismatchDetector
 ]
 
-for cls in classes:
-    parent = cls.__base__
-    PYPI_METADATA_RULES[parent.RULE_NAME] = cls()  # type: ignore
+for detectorClass in classes:
+    detectorInstance = detectorClass()  # type: ignore
+    PYPI_METADATA_RULES[detectorInstance.get_name()] = detectorInstance

@@ -8,6 +8,7 @@ import sys
 from typing import cast, Optional
 
 import click
+from prettytable import PrettyTable
 from termcolor import colored
 
 from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES
@@ -140,15 +141,19 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
 
 
 def _list_rules(ecosystem):
-    metadata_detectors = get_metadata_detectors(ecosystem)
-    if len(SOURCECODE_RULES[ecosystem]) > 0:
-        print("Available source code rules:")
-        for rule in SOURCECODE_RULES[ecosystem]:
-            print(f"\t{rule}")
-    if len(metadata_detectors.keys()) > 0:
-        print("Available metadata detectors:")
-        for detector in metadata_detectors.keys():
-            print(f"\t{detector}")
+    table = PrettyTable()
+    table.align = "l"
+    table.field_names = ["Rule type", "Rule name", "Description"]
+
+    for rule in SOURCECODE_RULES[ecosystem]:
+        table.add_row(["Source code", rule['id'], rule.get('metadata', {}).get('description')])
+
+    metadata_rules = get_metadata_detectors(ecosystem)
+    for ruleName in metadata_rules:
+        rule = metadata_rules[ruleName]
+        table.add_row(["Package metadata", rule.get_name(), rule.get_description()])
+
+    print(table)
 
 
 @cli.group

@@ -67,30 +67,57 @@ GuardDog comes with 2 types of heuristics:
 
 * [**Package metadata heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata): Python heuristics running against the package metadata on PyPI.
 
-### Source code heuristics
+<!-- BEGIN_RULE_LIST -->
+### PyPI
+
+Source code heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| obfuscation | Identify when a package uses a common obfuscation method often used by malware |
+| exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
+| download-executable | Identify when a package downloads and makes executable a remote binary |
+| exec-base64 | Identify when a package dynamically executes base64-encoded code |
+| silent-process-execution | Identify when a package silently executes an executable |
+| steganography | Identify when a package retrieves hidden data from an image and executes it |
+| code-execution | Identify when an OS command is executed in the setup.py file |
+| cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
+
+Metadata heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| empty_information | Identify packages with an empty description field |
+| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
+| typosquatting | Identify packages that are named closely to an highly popular package |
+| potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
+| repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
 
 
-|                                                                         **Heuristic**                                                                         |                                                                            **Description**                                                                            |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                       [Command overwrite](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/cmd-overwrite.yml)                       | The `install` command is overwritten in the `setup.py` file, indicating that a system command is automatically run when installing the package through `pip install`. |
-|            [Dynamic execution of base64-encoded data](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/exec-base64.yml)             |                                          A base64-encoded string ends up being executed by a function like `exec` or `eval`                                           |
-|            [Download of an executable to disk](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/download-executable.yml)            |                                          Data coming from an HTTP response ends up being written to disk and made executable                                          |
-| [Exfiltration of sensitive data to a remote server](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/exfiltrate-sensitive-data.yml) |                                            Sensitive data from the environment ends up being sent through an HTTP request                                             |
-|                 [Code execution in `setup.py`](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/code-execution.yml)                 |                                                 Code in `setup.py` executes code dynamically or starts a new process                                                  |
-|                    [Unusual domain extension](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/shady-links.yml)                     |                                      Usage of a domain name with an extension frequently used by malware (e.g. `.xyz` or `.top`)                                      |
-|        [Dynamic execution of hidden data from an image](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/steganography.yml)         |                                           The package uses steganography to extract a payload from an image and execute it                                            |
-|               [Use of a common obfuscation method](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/obfuscation.yml)                |                            The package uses an obfuscation method commonly used by malware, such as running `eval` on hexadecimal strings                             |
-|           [Silent execution of a process](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/silent-process-execution.yml)            |                                                     The package spawns a subprocess without capturing its output                                                      |
+### npm
 
-### Package metadata heuristics
+Source code heuristics:
 
-|                                  **Heuristic**                                  |                                                                                                                                                                                                   **Description**                                                                                                                                                                                                   |
-|:-------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                                  Typosquatting                                  |                                                                                                                                                                             Package has a name close to one of the top 5k PyPI packages                                                                                                                                                                             |
-|                Potentially compromised maintainer e-mail domain                 | Maintainer e-mail address is associated to a domain that was re-registered later than the last package release. This can be an indicator that this is a custom domain that expired, and was leveraged by an attacker to compromise the package owner's PyPI account. See [here](https://therecord.media/thousands-of-npm-accounts-use-email-addresses-with-expired-domains) for a description of the issue for npm. |
-|                            Empty package description                            |                                                                                                                                                                                      Package has an empty description of PyPI                                                                                                                                                                                       |
-|                                  Release 0.0.0                                  |                                                                                                                                                                               Package has its latest release set to `0.0.0` or `0.0`                                                                                                                                                                                |
-| Source code discrepancy between repository and release artifact  (experimental) |                                                                                                         The release artifact (e.g. PyPI package archive) has at least one file that differs from the original GitHub repository. This can indicate that the package release artifacts have been backdoored                                                                                                          |
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| npm-serialize-environment | Identify when a package serializes 'process.env' to exfiltrate environment variables |
+| npm-silent-process-execution | Identify when a package silently executes an executable |
+| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
+| npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
+
+Metadata heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| empty_information | Identify packages with an empty description field |
+| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
+| potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
+| typosquatting | Identify packages that are named closely to an highly popular package |
+
+
+<!-- END_RULE_LIST -->
 
 ## Development
 

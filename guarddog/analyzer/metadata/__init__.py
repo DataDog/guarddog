@@ -5,7 +5,7 @@ from guarddog.ecosystems import ECOSYSTEM
 
 
 def get_metadata_detectors(ecosystem: ECOSYSTEM) -> dict[str, Detector]:
-    match(ecosystem):
+    match (ecosystem):
         case ECOSYSTEM.PYPI:
             return PYPI_METADATA_RULES
         case ECOSYSTEM.NPM:
