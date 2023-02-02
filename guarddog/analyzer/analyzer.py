@@ -2,7 +2,8 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from semgrep.semgrep_main import invoke_semgrep  # type: ignore
+from semgrep import semgrep_main  # type: ignore
+from semgrep import settings as semgrep_settings  # type: ignore
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
@@ -154,7 +155,7 @@ class Analyzer:
         if rules is None:
             # No rule specified, run all rules
             try:
-                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude,
+                response = semgrep_main.invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude,
                                           no_git_ignore=True)
                 rule_results = self._format_semgrep_response(response, targetpath=targetpath)
                 issues += len(rule_results)
@@ -165,7 +166,7 @@ class Analyzer:
         else:
             for rule in rules:
                 try:
-                    response = invoke_semgrep(
+                    response = semgrep_main.invoke_semgrep(
                         Path(os.path.join(self.sourcecode_path, rule + ".yml")),
                         [targetpath],
                         exclude=self.exclude,
