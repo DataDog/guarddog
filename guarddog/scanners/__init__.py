@@ -1,9 +1,9 @@
-from .pypi_package_scanner import PypiPackageScanner
-from .pypi_project_scanner import PypiRequirementsScanner
+from typing import Optional
+
 from .npm_package_scanner import NPMPackageScanner
 from .npm_project_scanner import NPMRequirementsScanner
-
-from typing import Optional
+from .pypi_package_scanner import PypiPackageScanner
+from .pypi_project_scanner import PypiRequirementsScanner
 from .scanner import Scanner
 from ..ecosystems import ECOSYSTEM
 

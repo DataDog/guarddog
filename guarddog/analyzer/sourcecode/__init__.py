@@ -1,5 +1,6 @@
 import os
 import pathlib
+
 import yaml
 from yaml.loader import SafeLoader
 
@@ -14,17 +15,17 @@ rule_file_names = list(
 )
 
 SOURCECODE_RULES = {
-    ECOSYSTEM.PYPI: set(),
-    ECOSYSTEM.NPM: set()
-}  # type: dict[ECOSYSTEM, set[str]]
+    ECOSYSTEM.PYPI: list(),
+    ECOSYSTEM.NPM: list()
+}  # type: dict[ECOSYSTEM, list[dict]]
 
 for file_name in rule_file_names:
     with open(os.path.join(current_dir, file_name), "r") as fd:
         data = yaml.load(fd, Loader=SafeLoader)
         for rule in data["rules"]:
             for lang in rule["languages"]:
-                match(lang):
+                match lang:
                     case "python":
-                        SOURCECODE_RULES[ECOSYSTEM.PYPI].add(rule["id"])
+                        SOURCECODE_RULES[ECOSYSTEM.PYPI].append(rule)
                     case "javascript" | "typescript" | "json":
-                        SOURCECODE_RULES[ECOSYSTEM.NPM].add(rule["id"])
+                        SOURCECODE_RULES[ECOSYSTEM.NPM].append(rule)

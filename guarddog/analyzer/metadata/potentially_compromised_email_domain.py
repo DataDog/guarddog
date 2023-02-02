@@ -1,7 +1,3 @@
-""" Compromised Email Detector
-
-Detects if a maintainer's email domain might have been compromised.
-"""
 from abc import abstractmethod
 from datetime import datetime
 from typing import Optional
@@ -12,13 +8,14 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class PotentiallyCompromisedEmailDomainDetector(Detector):
-    """This heuristic detects whether the maintainer email address has an outdated domain that anyone could acquire.
-    This could lead to the package being overtaken by malicious actors."""
-    RULE_NAME = "potentially_compromised_email_domain"
-
-    def __init__(self):
-        super().__init__()
-        self.ecosystem = ""
+    # The name of the rule is dependent on the ecosystem and is provided by the implementing subclasses
+    def __init__(self, ecosystem: str):
+        super().__init__(
+            name="potentially_compromised_email_domain",
+            description="Identify when a package maintainer e-mail domain (and therefore package manager account) "
+                        "might have been compromised",
+        )
+        self.ecosystem = ecosystem
 
     def _get_domain_creation_date(self, email_domain) -> tuple[Optional[datetime], bool]:
         """

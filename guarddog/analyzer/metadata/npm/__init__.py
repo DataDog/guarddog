@@ -13,6 +13,6 @@ classes = [
     NPMTyposquatDetector
 ]
 
-for cls in classes:
-    parent = cls.__base__
-    NPM_METADATA_RULES[parent.RULE_NAME] = cls()  # type: ignore
+for detectorClass in classes:
+    detectorInstance = detectorClass()  # type: ignore
+    NPM_METADATA_RULES[detectorInstance.get_name()] = detectorInstance
