@@ -1,22 +1,19 @@
 import concurrent.futures
-import functools
 import json
-import logging
-import multiprocessing
 import os
-import threading
-from pathlib import Path
-
-import semgrep.settings
 import sys
 import tempfile
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-import pathos  # type: ignore
+
 import requests
 
 from guarddog.utils.archives import safe_extract
+
+
+def noop(arg: typing.Any) -> None:
+    pass
 
 
 class Scanner:
@@ -24,7 +21,7 @@ class Scanner:
         pass
 
     @abstractmethod
-    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = None):
+    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop):
         pass
 
 
@@ -52,7 +49,7 @@ class ProjectScanner(Scanner):
             exit(1)
         return (user, personal_access_token)
 
-    def scan_requirements(self, requirements: str, rules=None, callback: typing.Callable[[dict], None] = None) -> dict:
+    def scan_requirements(self, requirements: str, rules=None, callback: typing.Callable[[dict], None] = noop) -> dict:
         """
         Reads the requirements.txt file and scans each possible
         dependency and version
@@ -93,17 +90,19 @@ class ProjectScanner(Scanner):
         # https://github.com/returntocorp/semgrep/issues/7102
         with ThreadPoolExecutor(max_workers=1) as pool:
             try:
-                futures = []
+                futures: typing.List[concurrent.futures.Future] = []
                 for dependency, versions in dependencies.items():
                     assert versions is None or len(versions) > 0
                     if versions is None:
                         # this will cause scan_remote to use the latest version
                         futures.append(pool.submit(scan_single_dependency, dependency, None))
                     else:
-                        futures.extend(map(lambda version: pool.submit(scan_single_dependency, dependency, version), versions))
+                        futures.extend(map(
+                            lambda version: pool.submit(scan_single_dependency, dependency, version),
+                            versions
+                        ))
 
                 results = []
-                remaining = len(futures)
                 for future in concurrent.futures.as_completed(futures):
                     result = future.result()
                     if callback is not None:
@@ -114,7 +113,7 @@ class ProjectScanner(Scanner):
                 sys.stderr.flush()
                 pool.shutdown(wait=False, cancel_futures=True)
 
-        return results
+        return results  # type: ignore
 
     def scan_remote(self, url: str, branch: str, requirements_name: str) -> dict:
         """
@@ -154,7 +153,7 @@ class ProjectScanner(Scanner):
             sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)
 
-    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = None):
+    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop):
         """
         Scans a local requirements.txt file
 
@@ -203,7 +202,7 @@ class PackageScanner(Scanner):
         super().__init__()
         self.analyzer = analyzer
 
-    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = None) -> dict:
+    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop) -> dict:
         """
         Scans local package
 

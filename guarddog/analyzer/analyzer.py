@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 from semgrep import semgrep_main  # type: ignore
-from semgrep import settings as semgrep_settings  # type: ignore
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
@@ -156,7 +155,7 @@ class Analyzer:
             # No rule specified, run all rules
             try:
                 response = semgrep_main.invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude,
-                                          no_git_ignore=True)
+                                                       no_git_ignore=True)
                 rule_results = self._format_semgrep_response(response, targetpath=targetpath)
                 issues += len(rule_results)
 

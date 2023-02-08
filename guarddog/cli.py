@@ -91,7 +91,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
             print_scan_results(result.get('result'), identifier)
 
         if len(result.get('errors', [])) > 0:
-            print_errors(result.get('error', identifier))
+            print_errors(result.get('error'), identifier)
 
     results = scanner.scan_local(path, rule_param, display_result)
     if output_format == "json":
@@ -103,7 +103,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
 
     if output_format is not None:
         print(return_value)
-        
+
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
 
@@ -242,7 +242,6 @@ def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_
 
 # Pretty prints scan results for the console
 def print_scan_results(results, identifier):
-
     num_issues = results.get('issues')
     errors = results.get('errors', [])
 
@@ -281,6 +280,7 @@ def print_errors(errors, identifier):
     for rule in errors:
         print(f'* {rule}: {errors[rule]}')
     print()
+
 
 def format_code_line_for_output(code):
     return '    ' + colored(code.strip().replace('\n', '\n    ').replace('\t', '  '), None, 'on_red', attrs=['bold'])
