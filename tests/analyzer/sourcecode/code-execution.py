@@ -174,3 +174,6 @@ __import__('builtins').exec(__import__('builtins').compile(__import__('base64').
 from builtins import *;
 # ruleid: code-execution
 OOO0O0OOOOO000oOo0oOoOo0,llIIlIlllllIlIlIlll,Oo000O0OO0oO0oO00oO0oO0O,WXWXXWWXXWXWXWWXXXWXXWX,XWWWWXXXXWWWWWXXWWX=(lambda SS2S222S22SS22S22S:SS2S222S22SS22S22S(__import__('\x7a\x6c\x69\x62'))),(lambda SS2S222S22SS22S22S:globals()['\x65\x76\x61\x6c'](globals()['\x63\x6f\x6d\x70\x69\x6c\x65'](globals()['\x73\x74\x72'])))
+
+# ok: code-execution
+errno = subprocess.call([sys.executable, "tests.py"])
