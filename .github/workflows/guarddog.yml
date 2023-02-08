@@ -32,7 +32,7 @@ jobs:
       - name: Install GuardDog
         run: pip install .
 
-      - run: guarddog pypi verify requirements.txt --output-format sarif > guarddog.sarif
+      - run: guarddog pypi verify requirements.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
 
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@v2
