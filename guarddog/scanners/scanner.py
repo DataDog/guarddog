@@ -4,6 +4,10 @@ import json
 import logging
 import multiprocessing
 import os
+import threading
+from pathlib import Path
+
+import semgrep.settings
 import sys
 import tempfile
 import typing
@@ -82,9 +86,38 @@ class ProjectScanner(Scanner):
                 'result': result
             }
 
-        dependencies = self.parse_requirements(requirements)
+        def hook(function, pre_function, post_function):
+            @functools.wraps(function)
+            def run(*args, **kwargs):
+                pre_function(*args, **kwargs)
+                return_value =  function(*args, **kwargs)
+                post_function()
+                return return_value
+            return run
 
-        with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as pool:
+        write_lock = threading.Lock()
+
+        def hooked_open(path: Path, mode='r', buffering=-1, encoding=None, errors=None, newline=None):
+            if str(path).endswith("/.semgrep/settings.yml"):
+                #sys.stdout.write("Acquiring write lock\n")
+                #sys.stdout.flush()
+                write_lock.acquire()
+                #sys.stdout.write("Got write lock\n")
+                #sys.stdout.flush()
+
+        def post_open():
+            try:
+                #sys.stdout.write("Releasing lock\n")
+                #sys.stdout.flush()
+                write_lock.release()
+            except:
+                pass
+
+        semgrep.settings.Path.open = hook(semgrep.settings.Path.open, hooked_open, post_open)
+        dependencies = self.parse_requirements(requirements)
+        MAX_WORKERS=multiprocessing.cpu_count()
+        print(f"[DEBUG] Using {MAX_WORKERS} worker")
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
             try:
                 futures = []
                 for dependency, versions in dependencies.items():
@@ -96,11 +129,14 @@ class ProjectScanner(Scanner):
                         futures.extend(map(lambda version: pool.submit(scan_single_dependency, dependency, version), versions))
 
                 results = []
+                remaining = len(futures)
                 for future in concurrent.futures.as_completed(futures):
                     result = future.result()
                     if callback is not None:
                         callback(result)
                     results.append(result)
+                    remaining -= 1
+                    print(f"[DEBUG] Remaining {remaining} futures to resolve")
             except KeyboardInterrupt:
                 sys.stderr.write("Received keyboard interrupt, cancelling scan\n")
                 sys.stderr.flush()
