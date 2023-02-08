@@ -86,38 +86,12 @@ class ProjectScanner(Scanner):
                 'result': result
             }
 
-        def hook(function, pre_function, post_function):
-            @functools.wraps(function)
-            def run(*args, **kwargs):
-                pre_function(*args, **kwargs)
-                return_value =  function(*args, **kwargs)
-                post_function()
-                return return_value
-            return run
-
-        write_lock = threading.Lock()
-
-        def hooked_open(path: Path, mode='r', buffering=-1, encoding=None, errors=None, newline=None):
-            if str(path).endswith("/.semgrep/settings.yml"):
-                #sys.stdout.write("Acquiring write lock\n")
-                #sys.stdout.flush()
-                write_lock.acquire()
-                #sys.stdout.write("Got write lock\n")
-                #sys.stdout.flush()
-
-        def post_open():
-            try:
-                #sys.stdout.write("Releasing lock\n")
-                #sys.stdout.flush()
-                write_lock.release()
-            except:
-                pass
-
-        semgrep.settings.Path.open = hook(semgrep.settings.Path.open, hooked_open, post_open)
         dependencies = self.parse_requirements(requirements)
-        MAX_WORKERS=multiprocessing.cpu_count()
-        print(f"[DEBUG] Using {MAX_WORKERS} worker")
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+
+        # NOTE: After implementing parallel processing, we identified that Semgrep is unfortunately not thread-safe.
+        # We need to keep a parallelism of 1 (i.e., no parallelism) until the issue below is solved
+        # https://github.com/returntocorp/semgrep/issues/7102
+        with ThreadPoolExecutor(max_workers=1) as pool:
             try:
                 futures = []
                 for dependency, versions in dependencies.items():
@@ -135,8 +109,6 @@ class ProjectScanner(Scanner):
                     if callback is not None:
                         callback(result)
                     results.append(result)
-                    remaining -= 1
-                    print(f"[DEBUG] Remaining {remaining} futures to resolve")
             except KeyboardInterrupt:
                 sys.stderr.write("Received keyboard interrupt, cancelling scan\n")
                 sys.stderr.flush()
