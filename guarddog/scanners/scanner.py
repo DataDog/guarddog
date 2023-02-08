@@ -1,5 +1,6 @@
 import concurrent.futures
 import json
+import multiprocessing
 import os
 import sys
 import tempfile
@@ -85,10 +86,7 @@ class ProjectScanner(Scanner):
 
         dependencies = self.parse_requirements(requirements)
 
-        # NOTE: After implementing parallel processing, we identified that Semgrep is unfortunately not thread-safe.
-        # We need to keep a parallelism of 1 (i.e., no parallelism) until the issue below is solved
-        # https://github.com/returntocorp/semgrep/issues/7102
-        with ThreadPoolExecutor(max_workers=1) as pool:
+        with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as pool:
             try:
                 futures: typing.List[concurrent.futures.Future] = []
                 for dependency, versions in dependencies.items():
