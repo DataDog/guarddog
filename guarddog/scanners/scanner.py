@@ -86,7 +86,12 @@ class ProjectScanner(Scanner):
 
         dependencies = self.parse_requirements(requirements)
 
-        with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as pool:
+        num_workers = multiprocessing.cpu_count()
+        if os.environ.get("GUARDDOG_PARALLELISM") is not None:
+            num_workers = int(os.environ["GUARDDOG_PARALLELISIM"])
+
+        print(f"Scanning using at most {num_workers} parallel worker threads")
+        with ThreadPoolExecutor(max_workers=num_workers) as pool:
             try:
                 futures: typing.List[concurrent.futures.Future] = []
                 for dependency, versions in dependencies.items():
