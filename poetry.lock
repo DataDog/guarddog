@@ -261,19 +261,14 @@ python-versions = "*"
 
 [[package]]
 name = "packaging"
-version = "23.0"
+version = "21.3"
 description = "Core utilities for Python packages"
 category = "main"
 optional = false
-python-versions = ">=3.7"
-
-[[package]]
-name = "parsy"
-version = "2.0"
-description = "easy-to-use parser combinators, for parsing in pure Python"
-category = "main"
-optional = false
 python-versions = ">=3.6"
+
+[package.dependencies]
+pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "pathos"
@@ -557,14 +552,14 @@ doc = ["Sphinx", "sphinx-rtd-theme"]
 
 [[package]]
 name = "semgrep"
-version = "1.9.0"
+version = "0.112.1"
 description = "Lightweight static analysis for many languages. Find bug variants with patterns that look like source code."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-attrs = ">=21.3"
+attrs = ">=21.3,<22.0"
 boltons = ">=21.0,<22.0"
 click = ">=8.1,<9.0"
 click-option-group = ">=0.5,<1.0"
@@ -572,13 +567,11 @@ colorama = ">=0.4.0,<0.5.0"
 defusedxml = ">=0.7.1,<0.8.0"
 glom = ">=22.1,<23.0"
 jsonschema = ">=4.6,<5.0"
-packaging = ">=21.0"
-parsy = ">=2.0,<3.0"
+packaging = ">=21.0,<22.0"
 peewee = ">=3.14,<4.0"
 python-lsp-jsonrpc = ">=1.0.0,<1.1.0"
 requests = ">=2.22,<3.0"
 "ruamel.yaml" = ">=0.16.0,<0.18"
-tomli = ">=2.0.1,<2.1.0"
 tqdm = ">=4.46,<5.0"
 typing-extensions = ">=4.2,<5.0"
 urllib3 = ">=1.26,<2.0"
@@ -716,7 +709,7 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<4"
-content-hash = "5d2ef2110377a9142f18ba8e76712a128502f9b71cd5f6c2c203f91d6aa9e027"
+content-hash = "1c19fa6114074daced0a469a292843d8d02b6ed69a5a3656142d6e2bd939b848"
 
 [metadata.files]
 attrs = [
@@ -889,12 +882,8 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
 packaging = [
-    {file = "packaging-23.0-py3-none-any.whl", hash = "sha256:714ac14496c3e68c99c29b00845f7a2b85f3bb6f1078fd9f72fd20f0570002b2"},
-    {file = "packaging-23.0.tar.gz", hash = "sha256:b6ad297f8907de0fa2fe1ccbd26fdaf387f5f47c7275fedf8cce89f99446cf97"},
-]
-parsy = [
-    {file = "parsy-2.0-py2.py3-none-any.whl", hash = "sha256:214a0b3f2cdaf671e73654e50193c3bdf23b0c93a6a192d3f95bc6c9f67a38f3"},
-    {file = "parsy-2.0.tar.gz", hash = "sha256:7fd36ce0ebb0b80d969d39975038172de95ba212d9f0e1e73d8d51bf284f4524"},
+    {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
+    {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
 pathos = [
     {file = "pathos-0.2.9-py2-none-any.whl", hash = "sha256:6a6ddb514ce2719f63fb88d5ec4f4490e436b636b54f1102d952c9f7c52f18e2"},
@@ -1131,10 +1120,10 @@ semantic-version = [
     {file = "semantic_version-2.10.0.tar.gz", hash = "sha256:bdabb6d336998cbb378d4b9db3a4b56a1e3235701dc05ea2690d9a997ed5041c"},
 ]
 semgrep = [
-    {file = "semgrep-1.9.0-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:cf1fef19f3751fef8534093912152d3df299590283c953ad049cc331f44fcc50"},
-    {file = "semgrep-1.9.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:6a8751905347d9cf0774f5fe782655c1c655309c2bb18cd433eb5957d60746c7"},
-    {file = "semgrep-1.9.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:d8419719fbbd52f716ffa6e41463bcf88364c05e2e2d52b0f587d35fca4c917c"},
-    {file = "semgrep-1.9.0.tar.gz", hash = "sha256:7435d1919ab30d5106b63b97dc8323fbc64595a2807bee1727ed2f5f74289616"},
+    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:2a62bc6321d371dadc41df2c68678e87df807ddfa3d1faafb40bd0998abfe503"},
+    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:b690a84cbaa6a4670ff6c11a674818b8ad99736e89520a3c47d1542cc45e6d05"},
+    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:bc2437f12e41ac5e28a303e463098565a3d948c7744f6745bdb0fea341ccdae1"},
+    {file = "semgrep-0.112.1.tar.gz", hash = "sha256:2140a0fd16f3ac0a0e330980613ba65fe58faea7808a965e219c4199bab96102"},
 ]
 setuptools = [
     {file = "setuptools-65.7.0-py3-none-any.whl", hash = "sha256:8ab4f1dbf2b4a65f7eec5ad0c620e84c34111a68d3349833494b9088212214dd"},
