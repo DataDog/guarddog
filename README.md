@@ -119,6 +119,60 @@ Metadata heuristics:
 
 <!-- END_RULE_LIST -->
 
+## Running GuardDog in a GitHub Action
+
+The easiest way to integrate GuardDog in your CI pipeline is to leverage the SARIF output format, and upload it to GitHub's [code scanning](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning) feature.
+
+Using this, you get:
+* Automated comments to your pull requests based on the GuardDog scan output
+* Built-in false positive management directly in the GitHub UI
+
+
+Sample GitHub Action using GuardDog:
+
+```yaml
+name: GuardDog
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  guarddog:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    name: Scan dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install GuardDog
+        run: pip install guarddog
+
+      - run: guarddog pypi verify requirements.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
+
+      - name: Upload SARIF file to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          category: guarddog-builtin
+          sarif_file: guarddog.sarif
+```
+
+
 ## Development
 
 ### Running a local version of GuardDog
