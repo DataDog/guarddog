@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from datetime import datetime, timedelta
 from typing import Optional
@@ -7,6 +8,9 @@ import requests
 from packaging.utils import canonicalize_name
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
+
+
+log = logging.getLogger("guarddog")
 
 
 class PypiTyposquatDetector(TyposquatDetector):
@@ -77,7 +81,7 @@ class PypiTyposquatDetector(TyposquatDetector):
             typosquatting from
             @param **kwargs:
         """
-
+        log.debug(f"Running typosquatting heuristic on PyPI package {name}")
         similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
         if len(similar_package_names) > 0:
             return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(similar_package_names)

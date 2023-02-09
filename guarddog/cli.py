@@ -131,6 +131,21 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     return return_value  # this is mostly for testing
 
 
+def is_local_target(identifier: str) -> bool:
+    """
+    @param identifier:  The name/path of the package as passed to "guarddog ecosystem scan"
+    @return:            Whether the identifier should be consider a local path
+    """
+    if identifier.startswith("/") or identifier.startswith("./"):
+        return True
+
+    # If this looks like an archive, consider it as a local target if the target exists on the local filesystem
+    if identifier.endswith(".tar.gz") or identifier.endswith(".zip") or identifier.endswith(".whl"):
+        return os.path.exists(identifier)
+
+    return False
+
+
 def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):
     """Scan a package
 
@@ -146,7 +161,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         exit(1)
     results = {}
-    if os.path.exists(identifier):
+    if is_local_target(identifier):
         results = scanner.scan_local(identifier, rule_param)
     else:
         try:
