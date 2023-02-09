@@ -136,7 +136,7 @@ def is_local_target(identifier: str) -> bool:
     @param identifier:  The name/path of the package as passed to "guarddog ecosystem scan"
     @return:            Whether the identifier should be consider a local path
     """
-    if identifier.startswith("/") or identifier.startswith("./"):
+    if identifier.startswith("/") or identifier.startswith("./") or identifier.startswith("../"):
         return True
 
     # If this looks like an archive, consider it as a local target if the target exists on the local filesystem
