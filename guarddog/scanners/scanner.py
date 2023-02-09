@@ -1,5 +1,6 @@
 import concurrent.futures
 import json
+import logging
 import multiprocessing
 import os
 import sys
@@ -11,6 +12,8 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from guarddog.utils.archives import safe_extract
+
+log = logging.getLogger("guarddog")
 
 
 def noop(arg: typing.Any) -> None:
@@ -77,6 +80,7 @@ class ProjectScanner(Scanner):
         """
 
         def scan_single_dependency(dependency, version):
+            log.debug(f"Scanning {dependency} version {version}")
             result = self.package_scanner.scan_remote(dependency, version, rules)
             return {
                 'dependency': dependency,
@@ -91,6 +95,7 @@ class ProjectScanner(Scanner):
             num_workers = int(os.environ["GUARDDOG_PARALLELISIM"])
 
         sys.stderr.write(f"Scanning using at most {num_workers} parallel worker threads\n")
+        sys.stderr.flush()
         with ThreadPoolExecutor(max_workers=num_workers) as pool:
             try:
                 futures: typing.List[concurrent.futures.Future] = []
@@ -112,8 +117,7 @@ class ProjectScanner(Scanner):
                         callback(result)
                     results.append(result)
             except KeyboardInterrupt:
-                sys.stderr.write("Received keyboard interrupt, cancelling scan\n")
-                sys.stderr.flush()
+                log.warning("Received keyboard interrupt, cancelling scan\n")
                 pool.shutdown(wait=False, cancel_futures=True)
 
         return results  # type: ignore
@@ -290,6 +294,7 @@ class PackageScanner(Scanner):
             target_path (str): path to unzip compressed file
         """
 
+        log.debug(f"Downloading package archive from {url} into {target_path}")
         response = requests.get(url, stream=True)
 
         with open(archive_path, "wb") as f:
@@ -298,4 +303,5 @@ class PackageScanner(Scanner):
         try:
             safe_extract(archive_path, target_path)
         finally:
+            log.debug(f"Removing temporary archive file {archive_path}")
             os.remove(archive_path)

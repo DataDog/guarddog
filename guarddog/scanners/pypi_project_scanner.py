@@ -1,3 +1,4 @@
+import logging
 import re
 import sys
 
@@ -6,6 +7,8 @@ import requests
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
+
+log = logging.getLogger("guarddog")
 
 
 class PypiRequirementsScanner(ProjectScanner):
@@ -67,6 +70,7 @@ class PypiRequirementsScanner(ProjectScanner):
 
         def versions(package_name):
             url = "https://pypi.org/pypi/%s/json" % (package_name,)
+            log.debug(f"Retrieving PyPI package metadata information from {url}")
             data = requests.get(url).json()
             versions = sorted(data["releases"].keys(), reverse=True)
             return versions

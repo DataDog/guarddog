@@ -1,4 +1,5 @@
 import json
+import logging
 
 import requests
 from semantic_version import NpmSpec, Version  # type:ignore
@@ -6,15 +7,20 @@ from semantic_version import NpmSpec, Version  # type:ignore
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
 
+log = logging.getLogger("guarddog")
+
 
 def find_all_versions(package_name: str, semver_range: str) -> set[str]:
     url = f"https://registry.npmjs.org/{package_name}"
+    log.debug(f"Retrieving npm package metadata from {url}")
     response = requests.get(url)
     if response.status_code != 200:
+        log.debug(f"No version available, status code {response.status_code}")
         return set()
 
     data = response.json()
     versions = list(data["versions"].keys())
+    log.debug(f"Retrieved versions {', '.join(versions)}")
     result = set()
     try:
         npm_spec = NpmSpec(semver_range)

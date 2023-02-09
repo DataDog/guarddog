@@ -3,6 +3,7 @@
 CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
+import logging
 import os
 import sys
 from typing import cast, Optional
@@ -23,6 +24,14 @@ ALL_RULES = \
     set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) \
     | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
+
+AVAILABLE_LOG_LEVELS = {
+    logging.DEBUG,
+    logging.INFO,
+    logging.WARN,
+    logging.ERROR
+}
+AVAILABLE_LOG_LEVELS_NAMES = list(map(lambda level: logging.getLevelName(level), AVAILABLE_LOG_LEVELS))
 
 
 def common_options(fn):
@@ -45,8 +54,15 @@ def scan_options(fn):
     return fn
 
 
+def logging_options(fn):
+    fn = click.option("--log-level", default="INFO",
+                      type=click.Choice(AVAILABLE_LOG_LEVELS_NAMES, case_sensitive=False))(fn)
+    return fn
+
+
 @click.group
-def cli():
+@logging_options
+def cli(log_level):
     """
     GuardDog cli tool to detect malware in package ecosystems
 
@@ -56,6 +72,11 @@ def cli():
 
     Use --help for the detail of all commands and subcommands
     """
+    logger = logging.getLogger('guarddog')
+    logger.setLevel(logging.getLevelName(log_level))
+    stdoutHandler = logging.StreamHandler(stream=sys.stdout)
+    stdoutHandler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    logger.addHandler(stdoutHandler)
     pass
 
 

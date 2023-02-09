@@ -1,4 +1,8 @@
+import logging
+
 import requests
+
+log = logging.getLogger("guarddog")
 
 
 def get_package_info(name: str) -> dict:
@@ -16,6 +20,7 @@ def get_package_info(name: str) -> dict:
     """
 
     url = "https://pypi.org/pypi/%s/json" % (name,)
+    log.debug(f"Retrieving PyPI package metadata from {url}")
     response = requests.get(url)
 
     # Check if package file exists
