@@ -4,6 +4,7 @@ Detects if a package contains an empty description
 """
 import configparser
 import hashlib
+import logging
 import os
 import re
 from typing import Optional, Tuple
@@ -15,6 +16,8 @@ from guarddog.analyzer.metadata.repository_integrity_mismatch import IntegrityMi
 
 GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/)(?:[\w-]+)'
 GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
+
+log = logging.getLogger("guarddog")
 
 
 def extract_owner_and_repo(url) -> Tuple[Optional[str], Optional[str]]:
@@ -213,6 +216,8 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
             raise Exception("Detector needs the name of the package")
         if path is None:
             raise Exception("Detector needs the path of the package")
+
+        log.debug(f"Running repository integrity mismatch heuristic on PyPI package {name} version {version}")
         # let's extract a source repository (GitHub only for now) if we can
         github_urls, best_github_candidate = find_github_candidates(package_info)
         if len(github_urls) == 0:
@@ -224,6 +229,7 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
         if github_url is None:
             return False, "Could not find a good GitHub url in the project's description"
 
+        log.debug(f"Using GitHub URL {github_url}")
         # ok, now let's try to find the version! (I need to know which version we are scanning)
         if version is None:
             version = package_info["info"]["version"]
