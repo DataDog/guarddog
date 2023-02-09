@@ -6,9 +6,9 @@
   <img src="./docs/images/logo.png" alt="GuardDog" width="300" />
 </p>
 
-GuardDog is a CLI tool that allows to identify malicious PyPI packages. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
+GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
 
-GuardDog can be used to scan local or remote PyPI packages using any of the available [heuristics](#heuristics).
+GuardDog can be used to scan local or remote PyPI and npm packages using any of the available [heuristics](#heuristics).
 
 ![GuardDog demo usage](docs/images/demo.png)
 
@@ -68,7 +68,7 @@ GuardDog comes with 2 types of heuristics:
 
 * [**Source code heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/sourcecode): Semgrep rules running against the package source code.
 
-* [**Package metadata heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata): Python heuristics running against the package metadata on PyPI.
+* [**Package metadata heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata): Python or Javascript heuristics running against the package metadata on PyPI or npm.
 
 <!-- BEGIN_RULE_LIST -->
 ### PyPI
@@ -213,14 +213,6 @@ and the linter with
 flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data
 flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
-
-### Adding new source code heuristics
-
-TBD
-
-### Adding new package metadata heuristics
-
-TBD
 
 ## Acknowledgments
 
