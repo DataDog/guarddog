@@ -362,14 +362,14 @@ files = [
 
 [[package]]
 name = "jsonschema"
-version = "4.9.1"
+version = "4.17.3"
 description = "An implementation of JSON Schema validation for Python"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "jsonschema-4.9.1-py3-none-any.whl", hash = "sha256:8ebad55894c002585271af2d327d99339ef566fb085d9129b69e2623867c4106"},
-    {file = "jsonschema-4.9.1.tar.gz", hash = "sha256:408c4c8ed0dede3b268f7a441784f74206380b04f93eb2d537c7befb3df3099f"},
+    {file = "jsonschema-4.17.3-py3-none-any.whl", hash = "sha256:a870ad254da1a8ca84b6a2905cac29d265f805acc57af304784962a2aa6508f6"},
+    {file = "jsonschema-4.17.3.tar.gz", hash = "sha256:0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d"},
 ]
 
 [package.dependencies]
@@ -1237,4 +1237,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "be534099d906385de7599ee098a164c6610874b88287541908f4196115d3f9fc"
+content-hash = "075478c3dae0caf3288238072b0ff32a2487d076ba58f99b462470b7753a776f"
