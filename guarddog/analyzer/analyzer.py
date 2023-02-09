@@ -1,8 +1,9 @@
 import json
+import logging
 import os
 import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Iterable
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
@@ -15,13 +16,15 @@ def get_rules(file_extension, path):
 SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
 
+log = logging.getLogger("guarddog")
+
 
 class Analyzer:
     """
     Analyzes a local directory for threats found by source code or metadata rules
 
     Attributes:
-        sourcecode_path (str): path to source code rules
+        sourcecode_rules_path (str): path to source code rules
         ecosystem (str): name of the current ecosystem
         metadata_ruleset (list): list of metadata rule names
         sourcecode_ruleset (list): list of source code rule names
@@ -32,7 +35,7 @@ class Analyzer:
     """
 
     def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
-        self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
+        self.sourcecode_rules_path = os.path.join(os.path.dirname(__file__), "sourcecode")
 
         self.ecosystem = ecosystem
 
@@ -87,13 +90,18 @@ class Analyzer:
 
             for rule in rules:
                 if rule in self.sourcecode_ruleset:
+                    log.debug(f"Using source code rule {rule}")
                     sourcecode_rules.add(rule)
                 elif rule in self.metadata_ruleset:
+                    log.debug(f"Using metadata rule {rule}")
                     metadata_rules.add(rule)
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
 
+        log.debug(f"Running metadata rules against package '{name}'")
         metadata_results = self.analyze_metadata(path, info, metadata_rules, name, version)
+
+        log.debug(f"Running source code rules against directory '{path}'")
         sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
 
         # Concatenate dictionaries together
@@ -124,6 +132,7 @@ class Analyzer:
 
         for rule in all_rules:
             try:
+                log.debug(f"Running rule {rule} against package '{name}'")
                 rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
                 if rule_matches:
                     issues += 1
@@ -146,39 +155,37 @@ class Analyzer:
         """
         targetpath = Path(path)
         all_rules = rules if rules is not None else self.sourcecode_ruleset
-
         results = {rule: {} for rule in all_rules}  # type: dict
         errors = {}
         issues = 0
 
+        rules_path: Iterable[str]
         if rules is None:
-            # No rule specified, run all rules
-            try:
-                response = self._invoke_semgrep(target=path, rules=self.sourcecode_path)
-                rule_results = self._format_semgrep_response(response, targetpath=targetpath)
-                issues += len(rule_results)
-
-                results = results | rule_results
-            except Exception as e:
-                errors["rules-all"] = f"failed to run rule: {str(e)}"
+            log.debug(f"No rules specified using full rules directory {self.sourcecode_rules_path}")
+            rules_path = {self.sourcecode_rules_path}
         else:
-            for rule in rules:
-                try:
-                    response = self._invoke_semgrep(target=path,
-                                                    rules=os.path.join(self.sourcecode_path, rule + ".yml"))
-                    rule_results = self._format_semgrep_response(response, rule=rule, targetpath=targetpath)
-                    issues += len(rule_results)
+            rules_path = map(
+                lambda rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yml"),
+                rules
+            )
 
-                    results = results | rule_results
-                except Exception as e:
-                    errors[rule] = f"failed to run rule {rule}: {str(e)}"
+        try:
+            log.debug(f"Running source code rules against {path}")
+            response = self._invoke_semgrep(target=path, rules=rules_path)
+            rule_results = self._format_semgrep_response(response, targetpath=targetpath)
+            issues += len(rule_results)
+
+            results = results | rule_results
+        except Exception as e:
+            errors["rules-all"] = f"failed to run rule: {str(e)}"
 
         return {"results": results, "errors": errors, "issues": issues}
 
-    def _invoke_semgrep(self, target: str, rules: str):
+    def _invoke_semgrep(self, target: str, rules: Iterable[str]):
         try:
             cmd = ["semgrep"]
-            cmd.extend(["--config", rules])
+            for rule in rules:
+                cmd.extend(["--config", rule])
 
             for excluded in self.exclude:
                 cmd.append(f"--exclude='{excluded}'")
@@ -186,6 +193,7 @@ class Analyzer:
             cmd.append("--json")
             cmd.append("--quiet")
             cmd.append(target)
+            log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
             result = subprocess.run(cmd, capture_output=True, check=True, encoding="utf-8")
             return json.loads(str(result.stdout))
         except FileNotFoundError:

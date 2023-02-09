@@ -56,6 +56,9 @@ guarddog pypi scan requests --output-format=json
 
 # All the commands also work on npm
 guarddog npm scan express
+
+# Run in debug mode
+guarddog --log-level debug npm scan express
 ```
 
 

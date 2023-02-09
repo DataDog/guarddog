@@ -1,3 +1,4 @@
+import logging
 import os
 import pathlib
 from urllib.parse import urlparse
@@ -7,6 +8,8 @@ import requests
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
+
+log = logging.getLogger("guarddog")
 
 
 class NPMPackageScanner(PackageScanner):
@@ -25,6 +28,7 @@ class NPMPackageScanner(PackageScanner):
             raise Exception("Git targets are not yet supported for npm")
 
         url = f"https://registry.npmjs.org/{package_name}"
+        log.debug(f"Downloading NPM package from {url}")
         response = requests.get(url)
 
         if response.status_code != 200:
