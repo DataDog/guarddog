@@ -1,8 +1,8 @@
+import json
 import os
+import subprocess
 from pathlib import Path
 from typing import Optional
-
-from semgrep.semgrep_main import invoke_semgrep  # type: ignore
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
@@ -154,8 +154,7 @@ class Analyzer:
         if rules is None:
             # No rule specified, run all rules
             try:
-                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude,
-                                          no_git_ignore=True)
+                response = self._invoke_semgrep(target=path, rules=self.sourcecode_path)
                 rule_results = self._format_semgrep_response(response, targetpath=targetpath)
                 issues += len(rule_results)
 
@@ -165,12 +164,8 @@ class Analyzer:
         else:
             for rule in rules:
                 try:
-                    response = invoke_semgrep(
-                        Path(os.path.join(self.sourcecode_path, rule + ".yml")),
-                        [targetpath],
-                        exclude=self.exclude,
-                        no_git_ignore=True,
-                    )
+                    response = self._invoke_semgrep(target=path,
+                                                    rules=os.path.join(self.sourcecode_path, rule + ".yml"))
                     rule_results = self._format_semgrep_response(response, rule=rule, targetpath=targetpath)
                     issues += len(rule_results)
 
@@ -179,6 +174,33 @@ class Analyzer:
                     errors[rule] = f"failed to run rule {rule}: {str(e)}"
 
         return {"results": results, "errors": errors, "issues": issues}
+
+    def _invoke_semgrep(self, target: str, rules: str):
+        try:
+            cmd = ["semgrep"]
+            cmd.extend(["--config", rules])
+
+            for excluded in self.exclude:
+                cmd.append(f"--exclude='{excluded}'")
+            cmd.append("--no-git-ignore")
+            cmd.append("--json")
+            cmd.append("--quiet")
+            cmd.append(target)
+            result = subprocess.run(cmd, capture_output=True, check=True, encoding="utf-8")
+            return json.loads(str(result.stdout))
+        except FileNotFoundError:
+            raise Exception("unable to find semgrep binary")
+        except subprocess.CalledProcessError as e:
+            error_message = f"""
+An error occurred when running Semgrep.
+
+command: {" ".join(e.cmd)}
+status code: {e.returncode}
+output: {e.output}
+"""
+            raise Exception(error_message)
+        except json.JSONDecodeError as e:
+            raise Exception("unable to parse semgrep JSON output: " + str(e))
 
     def _format_semgrep_response(self, response, rule=None, targetpath=None):
         """

@@ -83,13 +83,17 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     if scanner is None:
         sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
         exit(1)
-    results = scanner.scan_local(path, rule_param)
-    for result in results:
+
+    def display_result(result: dict) -> None:
         identifier = result['dependency'] if result['version'] is None \
             else f"{result['dependency']} version {result['version']}"
         if output_format is None:
             print_scan_results(result.get('result'), identifier)
 
+        if len(result.get('errors', [])) > 0:
+            print_errors(result.get('error'), identifier)
+
+    results = scanner.scan_local(path, rule_param, display_result)
     if output_format == "json":
         import json as js
         return_value = js.dumps(results)
@@ -97,7 +101,9 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
     if output_format == "sarif":
         return_value = report_verify_sarif(path, list(ALL_RULES), results, ecosystem)
 
-    print(return_value)
+    if output_format is not None:
+        print(return_value)
+
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
 
@@ -237,31 +243,43 @@ def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_
 # Pretty prints scan results for the console
 def print_scan_results(results, identifier):
     num_issues = results.get('issues')
+    errors = results.get('errors', [])
 
     if num_issues == 0:
         print("Found " + colored('0 potentially malicious indicators', 'green',
                                  attrs=['bold']) + " scanning " + colored(identifier, None, attrs=['bold']))
         print()
-        return
+    else:
+        print("Found " + colored(str(num_issues) + ' potentially malicious indicators', 'red',
+                                 attrs=['bold']) + " in " + colored(identifier, None, attrs=['bold']))
+        print()
 
-    print("Found " + colored(str(num_issues) + ' potentially malicious indicators', 'red',
-                             attrs=['bold']) + " in " + colored(identifier, None, attrs=['bold']))
+        findings = results.get('results', [])
+        for finding in findings:
+            description = findings[finding]
+            if type(description) == str:  # package metadata
+                print(colored(finding, None, attrs=['bold']) + ': ' + description)
+                print()
+            elif type(description) == list:  # semgrep rule result:
+                source_code_findings = description
+                print(colored(finding, None,
+                              attrs=['bold']) + ': found ' + str(len(source_code_findings)) + ' source code matches')
+                for finding in source_code_findings:
+                    print('  * ' + finding['message']
+                          + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
+                print()
+
+    if len(errors) > 0:
+        print_errors(errors, identifier)
+        print('\n')
+
+
+def print_errors(errors, identifier):
+    print(colored("Some rules failed to run while scanning " + identifier + ":", "yellow"))
     print()
-
-    results = results.get('results', [])
-    for finding in results:
-        description = results[finding]
-        if type(description) == str:  # package metadata
-            print(colored(finding, None, attrs=['bold']) + ': ' + description)
-            print()
-        elif type(description) == list:  # semgrep rule result:
-            source_code_findings = description
-            print(colored(finding, None,
-                          attrs=['bold']) + ': found ' + str(len(source_code_findings)) + ' source code matches')
-            for finding in source_code_findings:
-                print('  * ' + finding['message']
-                      + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
-            print()
+    for rule in errors:
+        print(f'* {rule}: {errors[rule]}')
+    print()
 
 
 def format_code_line_for_output(code):
