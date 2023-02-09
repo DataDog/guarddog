@@ -94,7 +94,8 @@ class ProjectScanner(Scanner):
         if os.environ.get("GUARDDOG_PARALLELISM") is not None:
             num_workers = int(os.environ["GUARDDOG_PARALLELISIM"])
 
-        log.info(f"Scanning using at most {num_workers} parallel worker threads\n")
+        sys.stderr.write(f"Scanning using at most {num_workers} parallel worker threads\n")
+        sys.stderr.flush()
         with ThreadPoolExecutor(max_workers=num_workers) as pool:
             try:
                 futures: typing.List[concurrent.futures.Future] = []
