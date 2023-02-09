@@ -19,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -26,11 +28,12 @@ jobs:
           python-version: "3.10"
 
       - name: Install GuardDog
-        run: pip install .
+        run: pip install guarddog
 
       - name: Identify updated or new dependencies
         run: |
-          diff --changed-group-format='%>' --unchanged-group-format='' <(git show "${GITHUB_BASE_REF}:requirements.txt") requirements.txt > new-dependencies.txt
+          diff --changed-group-format='%>' --unchanged-group-format='' <(git show "origin/${GITHUB_BASE_REF}:requirements.txt") requirements.txt > new-dependencies.txt || true
+          cat new-dependencies.txt
 
       - run: guarddog pypi verify new-dependencies.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
 
