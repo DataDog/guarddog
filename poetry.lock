@@ -448,22 +448,21 @@ pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "pathos"
-version = "0.2.9"
+version = "0.3.0"
 description = "parallel graph management and execution in heterogeneous computing"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*"
+python-versions = ">=3.7"
 files = [
-    {file = "pathos-0.2.9-py2-none-any.whl", hash = "sha256:6a6ddb514ce2719f63fb88d5ec4f4490e436b636b54f1102d952c9f7c52f18e2"},
-    {file = "pathos-0.2.9-py3-none-any.whl", hash = "sha256:1c44373d8692897d5d15a8aa3b3a442ddc0814c5e848f4ff0ded5491f34b1dac"},
-    {file = "pathos-0.2.9.tar.gz", hash = "sha256:a8dbddcd3d9af32ada7c6dc088d845588c513a29a0ba19ab9f64c5cd83692934"},
+    {file = "pathos-0.3.0-py3-none-any.whl", hash = "sha256:b1f5a79b1c79a594330d451832642ee5bb61dd77dc75ba9e5c72087c77e8994c"},
+    {file = "pathos-0.3.0.tar.gz", hash = "sha256:24fa8db51fbd9284da8e191794097c4bb2aa3fce411090e57af6385e61b97e09"},
 ]
 
 [package.dependencies]
-dill = ">=0.3.5.1"
-multiprocess = ">=0.70.13"
-pox = ">=0.3.1"
-ppft = ">=1.7.6.5"
+dill = ">=0.3.6"
+multiprocess = ">=0.70.14"
+pox = ">=0.3.2"
+ppft = ">=1.7.6.6"
 
 [[package]]
 name = "pathspec"
@@ -1237,4 +1236,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "d2bd7a63feeb667e7e36b646d97fdbc24929a49e77f27b45c3d1b95b6017a8a6"
+content-hash = "c46ffcbd59bee2228ddf42c444704cece762bb26209f9fc9b013dcacb3c61eae"
