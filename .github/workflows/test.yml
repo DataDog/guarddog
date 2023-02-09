@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - v*
   pull_request:
     branches:
       - main
+      - v*
 
 permissions:
   contents: read
@@ -25,6 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r requirements-dev.txt
       - name: Type check with mypy
         run: make type-check
 
@@ -40,6 +43,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r requirements-dev.txt
       - name: Lint with flake8
         run: make lint
 
@@ -56,12 +60,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install -r requirements-dev.txt
     - name: Semgrep rules unit tests
       run: make test-semgrep-rules
     - name: Python unit tests
       run: make test-metadata-rules
     - name: Core unit tests
       run: make test-core
+    - name: Report coverage
+      run: make coverage-report
+
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -81,13 +89,17 @@ jobs:
           pip install .
 
       - name: Run GuardDog against a remote package
-        run: guarddog scan requests
+        run: guarddog pypi scan requests
+
+      - name: Run GuardDog against a remote package
+        run: guarddog npm scan express
 
       - name: Run GuardDog against a local requirements.txt file
         run: >
           echo -e "requests\npywin32" > requirements.txt
-          guarddog verify ./requirements.txt
-  
+          guarddog pypi verify ./requirements.txt
+          guarddog npm verify ./tests/core/resources/package.json
+
   docker-build:
     runs-on: ubuntu-latest
     permissions:

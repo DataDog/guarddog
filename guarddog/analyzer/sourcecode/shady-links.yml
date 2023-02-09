@@ -1,15 +1,18 @@
 # TODO: Detects these links well, but lots of legitimate packages seem to use these domain extensions
 rules:
   - id: shady-links
-    message: "Detected a link to a domain with a suspicious extension"
+    message: This package contains an URL to a domain with a suspicious extension
+    metadata:
+      description: Identify when a package contains an URL to a domain with a suspicious extension
     patterns:
       # Semgrep not robust enough to ignore comments in lists
-      - pattern-not-regex: \# .* 
+      - pattern-not-regex: \# .*
       # TODO: make a rule for long comments
       - pattern-either:
-        - pattern-regex: (http[s]?:\/\/bit\.ly.*)$
-        - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream))$
-        - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
+          - pattern-regex: (http[s]?:\/\/bit\.ly.*)$
+          - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream))$
+          - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
     languages:
       - python
+      - javascript
     severity: WARNING

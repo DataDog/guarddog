@@ -1,0 +1,16 @@
+rules:
+  - id: npm-exec-base64
+    message: |
+      This package contains a call to the `eval` function with a `base64` encoded string as argument.
+      This is a common method used to hide a malicious payload in a module as static analysis will not decode the
+      string.
+    metadata:
+      description: Identify when a package dynamically executes code through 'eval'
+    languages:
+      - javascript
+    severity: WARNING
+    patterns:
+      - pattern-not: eval('...')
+      - pattern-not: eval("...")
+      - pattern-not: eval(`...`)
+      - pattern: eval(atob(...))

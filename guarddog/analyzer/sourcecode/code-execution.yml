@@ -4,110 +4,112 @@ rules:
   - id: code-execution
     languages:
       - python
-    message: 'setup.py file executing code'
+    message: This package is executing OS commands in the setup.py file
+    metadata:
+      description: Identify when an OS command is executed in the setup.py file
     patterns:
       # exec argument must be hardcoded string
       - pattern-either:
-        - patterns:
-          - pattern: exec("...", ...)
-          - pattern: exec($ARG1, ...)
-        - patterns:
-          - pattern: exec("...". ...)
-          - pattern: exec($ARG1. ..., ...)
-        - patterns:
-          - pattern: exec("..." + ...)
-          - pattern: exec($ARG1 + ..., ...)
+          - patterns:
+              - pattern: exec("...", ...)
+              - pattern: exec($ARG1, ...)
+          - patterns:
+              - pattern: exec("...". ...)
+              - pattern: exec($ARG1. ..., ...)
+          - patterns:
+              - pattern: exec("..." + ...)
+              - pattern: exec($ARG1 + ..., ...)
 
-        # subprocess module
-        - pattern: subprocess.getoutput($ARG1, ...)
-        - pattern: getoutput($ARG1, ...)
-        - pattern: subprocess.getoutput([..., "$ARG1", ...], ...)
-        - pattern: getoutput([..., "$ARG1", ...], ...)
+          # subprocess module
+          - pattern: subprocess.getoutput($ARG1, ...)
+          - pattern: getoutput($ARG1, ...)
+          - pattern: subprocess.getoutput([..., "$ARG1", ...], ...)
+          - pattern: getoutput([..., "$ARG1", ...], ...)
 
-        - pattern: subprocess.call($ARG1, ...)
-        - pattern: call($ARG1, ...)
-        - pattern: subprocess.call([..., "$ARG1", ...], ...)
-        - pattern: call([..., "$ARG1", ...], ...)
+          - pattern: subprocess.call($ARG1, ...)
+          - pattern: call($ARG1, ...)
+          - pattern: subprocess.call([..., "$ARG1", ...], ...)
+          - pattern: call([..., "$ARG1", ...], ...)
 
-        - pattern: subprocess.check_output($ARG1, ...)
-        - pattern: check_output($ARG1, ...)
-        - pattern: subprocess.check_output([..., "$ARG1", ...], ...)
-        - pattern: check_output([..., "$ARG1", ...], ...)
+          - pattern: subprocess.check_output($ARG1, ...)
+          - pattern: check_output($ARG1, ...)
+          - pattern: subprocess.check_output([..., "$ARG1", ...], ...)
+          - pattern: check_output([..., "$ARG1", ...], ...)
 
-        - pattern: subprocess.run($ARG1, ...)
-        - pattern: run($ARG1, ...)
-        - pattern: subprocess.run([..., "$ARG1", ...], ...)
-        - pattern: run([..., "$ARG1", ...], ...)
+          - pattern: subprocess.run($ARG1, ...)
+          - pattern: run($ARG1, ...)
+          - pattern: subprocess.run([..., "$ARG1", ...], ...)
+          - pattern: run([..., "$ARG1", ...], ...)
 
-        # eval, allow checking for version
-        - patterns:
+          # eval, allow checking for version
+          - patterns:
+              - pattern-either:
+                  - pattern: eval($ARG1. ..., ...)
+                  - pattern: eval($ARG1, ...)
+                  - pattern: eval($ARG1 + ..., ...)
+              - pattern-either:
+                  - patterns:
+                      - pattern: $EVAL;
+                      - pattern-not: eval(<...$LINE...>, ...)
+                      - pattern-not-inside: |
+                          if $LINE.startswith(...):
+                              ...
+                  - patterns:
+                      - pattern: |
+                          if $LINE.startswith($STR):
+                              ...
+                              eval(<...$LINE...>, ...)
+                      - metavariable-pattern:
+                          metavariable: $STR
+                          patterns:
+                            - pattern-not-regex: version
+
+          # popen functions
+          - pattern: subprocess.Popen("$ARG1", ...)
+          - pattern: subprocess.Popen([..., "$ARG1", ...], ...)
+          - pattern: os.popen("$ARG1", ...)
+          - pattern: os.popen([..., "$ARG1", ...], ...)
+          - pattern: Popen("$ARG1", ...)
+          - pattern: Popen([..., "$ARG1", ...], ...)
+          - pattern: popen("$ARG1", ...)
+          - pattern: popen([..., "$ARG1", ...], ...)
+
+          # miscellaneous
+          - pattern: os.system($ARG1, ...)
+          - pattern: system($ARG1, ...)
+          - pattern: execfile($ARG1, ...)
+          - pattern: command.run($ARG1, ...)
+          - pattern: os.execl($ARG1, ...)
+          - pattern: os.execle($ARG1, ...)
+          - pattern: os.execlp($ARG1, ...)
+          - pattern: os.execlpe($ARG1, ...)
+          - pattern: os.execv($ARG1, ...)
+          - pattern: os.execve($ARG1, ...)
+          - pattern: os.execvp($ARG1, ...)
+          - pattern: os.execvpe($ARG1, ...)
+          - pattern: os.spawnl($ARG1, ...)
+          - pattern: os.spawnle($ARG1, ...)
+          - pattern: os.spawnlp($ARG1, ...)
+          - pattern: os.spawnlpe($ARG1, ...)
+          - pattern: os.spawnv($ARG1, ...)
+          - pattern: os.spawnve($ARG1, ...)
+          - pattern: os.spawnvp($ARG1, ...)
+          - pattern: os.spawnvpe($ARG1, ...)
+          - pattern: os.posix_spawn($ARG1, ...)
+          - pattern: os.posix_spawnp($ARG1, ...)
+
+          # Usage of builtins + base64 decode
+          - pattern: __import__('builtins').exec($ARG1)
+
+          # Usage of globals to call eval
           - pattern-either:
-            - pattern: eval($ARG1. ..., ...)
-            - pattern: eval($ARG1, ...)
-            - pattern: eval($ARG1 + ..., ...)
-          - pattern-either:
-            - patterns:
-              - pattern: $EVAL;
-              - pattern-not: eval(<...$LINE...>, ...)
-              - pattern-not-inside: |
-                  if $LINE.startswith(...):
-                      ...
-            - patterns:
-              - pattern: |
-                  if $LINE.startswith($STR):
-                      ...
-                      eval(<...$LINE...>, ...)
-              - metavariable-pattern:
-                  metavariable: $STR
-                  patterns:
-                    - pattern-not-regex: version
-
-        # popen functions
-        - pattern: subprocess.Popen("$ARG1", ...)
-        - pattern: subprocess.Popen([..., "$ARG1", ...], ...)
-        - pattern: os.popen("$ARG1", ...)
-        - pattern: os.popen([..., "$ARG1", ...], ...)
-        - pattern: Popen("$ARG1", ...)
-        - pattern: Popen([..., "$ARG1", ...], ...)
-        - pattern: popen("$ARG1", ...)
-        - pattern: popen([..., "$ARG1", ...], ...)
-
-        # miscellaneous
-        - pattern: os.system($ARG1, ...)
-        - pattern: system($ARG1, ...)
-        - pattern: execfile($ARG1, ...)
-        - pattern: command.run($ARG1, ...)
-        - pattern: os.execl($ARG1, ...)
-        - pattern: os.execle($ARG1, ...)
-        - pattern: os.execlp($ARG1, ...)
-        - pattern: os.execlpe($ARG1, ...)
-        - pattern: os.execv($ARG1, ...)
-        - pattern: os.execve($ARG1, ...)
-        - pattern: os.execvp($ARG1, ...)
-        - pattern: os.execvpe($ARG1, ...)
-        - pattern: os.spawnl($ARG1, ...)
-        - pattern: os.spawnle($ARG1, ...)
-        - pattern: os.spawnlp($ARG1, ...)
-        - pattern: os.spawnlpe($ARG1, ...)
-        - pattern: os.spawnv($ARG1, ...)
-        - pattern: os.spawnve($ARG1, ...)
-        - pattern: os.spawnvp($ARG1, ...)
-        - pattern: os.spawnvpe($ARG1, ...)
-        - pattern: os.posix_spawn($ARG1, ...)
-        - pattern: os.posix_spawnp($ARG1, ...)
-
-        # Usage of builtins + base64 decode
-        - pattern: __import__('builtins').exec($ARG1)
-
-        # Usage of globals to call eval
-        - pattern-either:
-            - pattern: globals()['eval']($ARG1)
-            - pattern: globals()['\x65\x76\x61\x6c']($ARG1) # that's "eval" in hexadecimal
+              - pattern: globals()['eval']($ARG1)
+              - pattern: globals()['\x65\x76\x61\x6c']($ARG1) # that's "eval" in hexadecimal
 
       - metavariable-pattern:
           metavariable: $ARG1
           patterns:
-            - pattern-not-regex: (setup.py|twine|git|brew|gpg|freeze|docker|pycodestyle|libffi|coverage|pre_commit|pkg-config|cmake|pandoc|unittest)
+            - pattern-not-regex: (setup.py|twine|git|brew|gpg|freeze|docker|pycodestyle|libffi|coverage|pre_commit|pkg-config|cmake|pandoc|unittest|sys.executable)
     paths:
       include:
         - "*/setup.py"

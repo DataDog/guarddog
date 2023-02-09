@@ -1,0 +1,103 @@
+rules:
+  - id: npm-silent-process-execution
+    message: This package is silently executing another executable
+    metadata:
+      description: Identify when a package silently executes an executable
+    patterns:
+      - pattern-either:
+          # Including child_process directly
+          - pattern-inside: |
+              $CP = require('child_process')
+              ...
+          - pattern-inside: |
+              $CP = require('node:child_process')
+              ...
+          - pattern-inside: |
+              import * as $CP from 'child_process'
+              ...
+          - pattern-inside: |
+              import * as $CP from 'node:child_process'
+              ...
+          - pattern-inside: |
+              import $CP from 'child_process'
+              ...
+          - pattern-inside: |
+              import $CP from 'node:child_process'
+              ...
+
+          # "exec"
+          - pattern-inside: |
+              $EXEC = require('child_process').exec
+              ...
+          - pattern-inside: |
+              $EXEC = require('node:child_process').exec
+              ...
+          - pattern-inside: |
+              import { exec } from 'child_process'
+              ...
+          - pattern-inside: |
+              import { exec } from 'node:child_process'
+              ...
+
+          # "execSync"
+          - pattern-inside: |
+              $EXECSYNC = require('child_process').execSync
+              ...
+          - pattern-inside: |
+              $EXECSYNC = require('node:child_process').execSync
+              ...
+          - pattern-inside: |
+              import { execSync } from 'child_process'
+              ...
+          - pattern-inside: |
+              import { execSync } from 'node:child_process'
+              ...
+
+          # "spawn"
+          - pattern-inside: |
+              $SPAWN = require('child_process').spawn
+              ...
+          - pattern-inside: |
+              $SPAWN = require('node:child_process').spawn
+              ...
+          - pattern-inside: |
+              import { spawn } from 'child_process'
+              ...
+          - pattern-inside: |
+              import { spawn } from 'node:child_process'
+              ...
+
+          # "spawnSync"
+          - pattern-inside: |
+              $SPAWNSYNC = require('child_process').spawnSync
+              ...
+          - pattern-inside: |
+              $SPAWNSYNC = require('node:child_process').spawnSync
+              ...
+          - pattern-inside: |
+              import { spawnSync } from 'child_process'
+              ...
+          - pattern-inside: |
+              import { spawnSync } from 'node:child_process'
+              ...
+
+      - pattern-either:
+          - pattern: |
+              $CP.exec($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+          - pattern: |
+              $CP.execSync($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+          - pattern: |
+              $CP.spawn($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+          - pattern: |
+              $CP.spawnSync($CMD, $ARGS,  { detached: true, stdio: 'ignore' })
+          - pattern: |
+              $EXEC($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+          - pattern: |
+              $EXECSYNC($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+          - pattern: |
+              $SPAWN($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+          - pattern: |
+              $SPAWNSYNC($CMD, $ARGS, { detached: true, stdio: 'ignore' })
+    languages:
+      - javascript
+    severity: WARNING
