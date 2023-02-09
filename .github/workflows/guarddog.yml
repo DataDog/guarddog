@@ -1,10 +1,6 @@
 name: GuardDog
 
 on:
-  push:
-    branches:
-      - main
-      - v*
   pull_request:
     branches:
       - main
@@ -18,7 +14,7 @@ jobs:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-    name: Scan dependencies
+    name: Scan new dependencies
     runs-on: ubuntu-latest
 
     steps:
@@ -32,7 +28,11 @@ jobs:
       - name: Install GuardDog
         run: pip install .
 
-      - run: guarddog pypi verify requirements.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
+      - name: Identify updated or new dependencies
+        run: |
+          diff --changed-group-format='%>' --unchanged-group-format='' <(git show "${GITHUB_BASE_REF}:requirements.txt") requirements.txt > new-dependencies.txt
+
+      - run: guarddog pypi verify new-dependencies.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
 
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@v2
