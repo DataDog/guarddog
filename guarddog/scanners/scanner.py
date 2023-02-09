@@ -1,14 +1,20 @@
-import functools
+import concurrent.futures
 import json
+import multiprocessing
 import os
 import sys
 import tempfile
+import typing
 from abc import abstractmethod
+from concurrent.futures import ThreadPoolExecutor
 
-import pathos  # type: ignore
 import requests
 
 from guarddog.utils.archives import safe_extract
+
+
+def noop(arg: typing.Any) -> None:
+    pass
 
 
 class Scanner:
@@ -16,7 +22,7 @@ class Scanner:
         pass
 
     @abstractmethod
-    def scan_local(self, path, rules=None):
+    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop):
         pass
 
 
@@ -44,13 +50,15 @@ class ProjectScanner(Scanner):
             exit(1)
         return (user, personal_access_token)
 
-    def scan_requirements(self, requirements: str, rules=None) -> dict:
+    def scan_requirements(self, requirements: str, rules=None, callback: typing.Callable[[dict], None] = noop) -> dict:
         """
         Reads the requirements.txt file and scans each possible
         dependency and version
 
         Args:
             requirements (str): contents of requirements.txt file
+            rules: list of rules to apply
+            callback: callback to call for each result
 
         Returns:
             dict: mapping of dependencies to scan results
@@ -68,23 +76,47 @@ class ProjectScanner(Scanner):
             }
         """
 
-        def get_package_results_helper(dependency, version):
+        def scan_single_dependency(dependency, version):
             result = self.package_scanner.scan_remote(dependency, version, rules)
-            return {'dependency': dependency, 'version': version, 'result': result}
+            return {
+                'dependency': dependency,
+                'version': version,
+                'result': result
+            }
 
-        get_package_results = functools.partial(get_package_results_helper)
         dependencies = self.parse_requirements(requirements)
-        params = []
-        for dependency, versions in dependencies.items():
-            if versions is None:
-                params.append((dependency, None))  # this will cause scan_remote to use the latest version
-            else:
-                for version in versions:
-                    params.append((dependency, version))
-        pool = pathos.helpers.mp.Pool()
-        project_results = pool.starmap(get_package_results, params)
 
-        return project_results
+        num_workers = multiprocessing.cpu_count()
+        if os.environ.get("GUARDDOG_PARALLELISM") is not None:
+            num_workers = int(os.environ["GUARDDOG_PARALLELISIM"])
+
+        sys.stderr.write(f"Scanning using at most {num_workers} parallel worker threads\n")
+        with ThreadPoolExecutor(max_workers=num_workers) as pool:
+            try:
+                futures: typing.List[concurrent.futures.Future] = []
+                for dependency, versions in dependencies.items():
+                    assert versions is None or len(versions) > 0
+                    if versions is None:
+                        # this will cause scan_remote to use the latest version
+                        futures.append(pool.submit(scan_single_dependency, dependency, None))
+                    else:
+                        futures.extend(map(
+                            lambda version: pool.submit(scan_single_dependency, dependency, version),
+                            versions
+                        ))
+
+                results = []
+                for future in concurrent.futures.as_completed(futures):
+                    result = future.result()
+                    if callback is not None:
+                        callback(result)
+                    results.append(result)
+            except KeyboardInterrupt:
+                sys.stderr.write("Received keyboard interrupt, cancelling scan\n")
+                sys.stderr.flush()
+                pool.shutdown(wait=False, cancel_futures=True)
+
+        return results  # type: ignore
 
     def scan_remote(self, url: str, branch: str, requirements_name: str) -> dict:
         """
@@ -124,12 +156,14 @@ class ProjectScanner(Scanner):
             sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)
 
-    def scan_local(self, path, rules=None):
+    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop):
         """
         Scans a local requirements.txt file
 
         Args:
             path (str): path to requirements.txt file
+            rules: list of rules to apply
+            callback: callback to call for each result
 
         Returns:
             dict: mapping of dependencies to scan results
@@ -149,7 +183,7 @@ class ProjectScanner(Scanner):
 
         try:
             with open(path, "r") as f:
-                return self.scan_requirements(f.read(), rules)
+                return self.scan_requirements(f.read(), rules, callback)
         except Exception as e:
             sys.stdout.write(f"Received {e}")
             sys.exit(255)
@@ -171,7 +205,7 @@ class PackageScanner(Scanner):
         super().__init__()
         self.analyzer = analyzer
 
-    def scan_local(self, path, rules=None) -> dict:
+    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop) -> dict:
         """
         Scans local package
 
@@ -184,6 +218,8 @@ class PackageScanner(Scanner):
 
         Returns:
             dict: Analyzer output with rules to results mapping
+            rules: rules to apply
+            callback: callback to call for each result
         """
 
         if rules is not None:
