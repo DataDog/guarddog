@@ -2,7 +2,6 @@
 
 Detects if a maintainer's email domain might have been compromised.
 """
-
 from datetime import datetime
 from typing import Optional
 
