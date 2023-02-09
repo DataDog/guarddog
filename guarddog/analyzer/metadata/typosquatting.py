@@ -1,70 +1,25 @@
-import json
-import os
-from datetime import datetime, timedelta
+import abc
 from itertools import permutations
-from typing import Optional
+
 from packaging.utils import canonicalize_name
-import requests
 
 from guarddog.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):
-    """
-    Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 1000 packages.
-    Checks for distance one Levenshtein, one-off character swaps, permutations
-    around hyphens, and substrings.
-
-    Attributes:
-        popular_packages (list): list of top 5000 downloaded packages from PyPI
-    """
+    MESSAGE_TEMPLATE = "This package closely ressembles the following package names, and might be a typosquatting " \
+                       "attempt: %s"
 
     def __init__(self) -> None:
         self.popular_packages = self._get_top_packages()  # Find top PyPI packages
-        super().__init__()  # Call constructor
+        super().__init__(
+            name="typosquatting",
+            description="Identify packages that are named closely to an highly popular package"
+        )
 
+    @abc.abstractmethod
     def _get_top_packages(self) -> list:
-        """
-        Gets the package information of the top 5000 most downloaded PyPI packages
-
-        Returns:
-            list: list of package data in the format:
-                [
-                    ...
-                    {
-                        download_count: ...
-                        project: <package-name>
-                    }
-                    ...
-                ]
-        """
-
-        popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
-
-        top_packages_filename = "top_pypi_packages.json"
-        resources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "resources"))
-        top_packages_path = os.path.join(resources_dir, top_packages_filename)
-
-        top_packages_information = None
-
-        if top_packages_filename in os.listdir(resources_dir):
-            update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
-
-            if datetime.now() - update_time <= timedelta(days=30):
-                top_packages_file = open(top_packages_path, "r")
-                top_packages_information = json.load(top_packages_file)["rows"]
-
-        if top_packages_information is None:
-            response = requests.get(popular_packages_url).json()
-            with open(top_packages_path, "w+") as f:
-                json.dump(response, f, ensure_ascii=False, indent=4)
-
-            top_packages_information = response["rows"]
-
-        def get_safe_name(package):
-            return canonicalize_name(package["project"])
-
-        return list(map(get_safe_name, top_packages_information))
+        pass
 
     def _is_distance_one_Levenshtein(self, name1, name2) -> bool:
         """
@@ -84,19 +39,19 @@ class TyposquatDetector(Detector):
         # Addition to name2
         if len(name1) > len(name2):
             for i in range(len(name1)):
-                if name1[:i] + name1[i + 1 :] == name2:
+                if name1[:i] + name1[i + 1:] == name2:
                     return True
 
         # Addition to name1
         elif len(name2) > len(name1):
             for i in range(len(name2)):
-                if name2[:i] + name2[i + 1 :] == name1:
+                if name2[:i] + name2[i + 1:] == name1:
                     return True
 
         # Edit character
         else:
             for i in range(len(name1)):
-                if name1[:i] + name1[i + 1 :] == name2[:i] + name2[i + 1 :]:
+                if name1[:i] + name1[i + 1:] == name2[:i] + name2[i + 1:]:
                     return True
 
         return False
@@ -115,7 +70,7 @@ class TyposquatDetector(Detector):
 
         if len(name1) == len(name2):
             for i in range(len(name1) - 1):
-                swapped_name1 = name1[:i] + name1[i + 1] + name1[i] + name1[i + 2 :]
+                swapped_name1 = name1[:i] + name1[i + 1] + name1[i] + name1[i + 2:]
                 if swapped_name1 == name2:
                     return True
 
@@ -185,8 +140,8 @@ class TyposquatDetector(Detector):
                 continue
 
             # Get form when replacing or removing py/python term
-            replaced_form = terms[:i] + [confused_term] + terms[i + 1 :]
-            removed_form = terms[:i] + terms[i + 1 :]
+            replaced_form = terms[:i] + [confused_term] + terms[i + 1:]
+            removed_form = terms[:i] + terms[i + 1:]
 
             for form in (replaced_form, removed_form):
                 confused_forms.append("-".join(form))
@@ -229,23 +184,3 @@ class TyposquatDetector(Detector):
                     typosquatted.add(popular_package)
 
         return list(typosquatted)
-
-    def detect(self, package_info) -> tuple[bool, Optional[str]]:
-        """
-        Uses a package's information from PyPI's JSON API to determine the
-        package is attempting a typosquatting attack
-
-        Args:
-            package_info (dict): dictionary representation of PyPI's JSON
-                output
-
-        Returns:
-            list[str]: names of packages that <package_name> could be
-            typosquatting from
-        """
-        similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
-        if len(similar_package_names) > 0:
-            return True, "This package closely resembles the following package names, and might be a typosquatting " \
-                         "attempt: " + ", ".join(similar_package_names)
-
-        return False, None

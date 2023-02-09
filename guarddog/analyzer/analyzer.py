@@ -1,12 +1,22 @@
+import json
+import logging
 import os
+import subprocess
 from pathlib import Path
+from typing import Optional, Iterable
 
-from semgrep.semgrep_main import invoke_semgrep  # type: ignore
+from guarddog.analyzer.metadata import get_metadata_detectors
+from guarddog.ecosystems import ECOSYSTEM
 
-from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
-from guarddog.analyzer.metadata.empty_information import EmptyInfoDetector
-from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
-from guarddog.analyzer.metadata.release_zero import ReleaseZeroDetector
+
+def get_rules(file_extension, path):
+    return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
+
+
+SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
+SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
+
+log = logging.getLogger("guarddog")
 
 
 class Analyzer:
@@ -14,9 +24,8 @@ class Analyzer:
     Analyzes a local directory for threats found by source code or metadata rules
 
     Attributes:
-        metadata_path (str): path to metadata rules
-        sourcecode_path (str): path to source code rules
-
+        sourcecode_rules_path (str): path to source code rules
+        ecosystem (str): name of the current ecosystem
         metadata_ruleset (list): list of metadata rule names
         sourcecode_ruleset (list): list of source code rule names
 
@@ -25,18 +34,16 @@ class Analyzer:
         metadata_detectors(list): list of metadata detectors
     """
 
-    def __init__(self) -> None:
-        self.metadata_path = os.path.join(os.path.dirname(__file__), "metadata")
-        self.sourcecode_path = os.path.join(os.path.dirname(__file__), "sourcecode")
+    def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
+        self.sourcecode_rules_path = os.path.join(os.path.dirname(__file__), "sourcecode")
 
-        # Define sourcecode and metadata rulesets
-        def get_rules(file_extension, path):
-            return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
+        self.ecosystem = ecosystem
 
-        self.metadata_ruleset = get_rules(".py", self.metadata_path)
-        self.sourcecode_ruleset = get_rules(".yml", self.sourcecode_path)
-        self.metadata_ruleset.remove("detector")
-        self.metadata_ruleset.remove("__init__")
+        # Rules and associated detectors
+        self.metadata_detectors = get_metadata_detectors(ecosystem)
+
+        self.metadata_ruleset = self.metadata_detectors.keys()
+        self.sourcecode_ruleset = SEMGREP_RULE_NAMES
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -54,15 +61,7 @@ class Analyzer:
             ".semgrep_logs",
         ]
 
-        # Rules and associated detectors
-        self.metadata_detectors = {
-            "typosquatting": TyposquatDetector(),
-            "potentially_compromised_email_domain": PotentiallyCompromisedEmailDomainDetector(),
-            "empty_information": EmptyInfoDetector(),
-            "release_zero": ReleaseZeroDetector()
-        }
-
-    def analyze(self, path, info=None, rules=None) -> dict:
+    def analyze(self, path, info=None, rules=None, name: Optional[str] = None, version: Optional[str] = None) -> dict:
         """
         Analyzes a package in the given path
 
@@ -91,13 +90,18 @@ class Analyzer:
 
             for rule in rules:
                 if rule in self.sourcecode_ruleset:
+                    log.debug(f"Using source code rule {rule}")
                     sourcecode_rules.add(rule)
                 elif rule in self.metadata_ruleset:
+                    log.debug(f"Using metadata rule {rule}")
                     metadata_rules.add(rule)
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
 
-        metadata_results = self.analyze_metadata(info, metadata_rules)
+        log.debug(f"Running metadata rules against package '{name}'")
+        metadata_results = self.analyze_metadata(path, info, metadata_rules, name, version)
+
+        log.debug(f"Running source code rules against directory '{path}'")
         sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
 
         # Concatenate dictionaries together
@@ -107,11 +111,13 @@ class Analyzer:
 
         return {"issues": issues, "errors": errors, "results": results, "path": path}
 
-    def analyze_metadata(self, info, rules=None) -> dict:
+    def analyze_metadata(self, path: str, info, rules=None, name: Optional[str] = None,
+                         version: Optional[str] = None) -> dict:
         """
         Analyzes the metadata of a given package
 
         Args:
+            path (str): path to package
             info (dict): package information given by PyPI Json API
             rules (set, optional): Set of metadata rules to analyze. Defaults to all rules.
 
@@ -126,7 +132,8 @@ class Analyzer:
 
         for rule in all_rules:
             try:
-                rule_matches, message = self.metadata_detectors[rule].detect(info)
+                log.debug(f"Running rule {rule} against package '{name}'")
+                rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
                 if rule_matches:
                     issues += 1
                     results[rule] = message
@@ -148,39 +155,60 @@ class Analyzer:
         """
         targetpath = Path(path)
         all_rules = rules if rules is not None else self.sourcecode_ruleset
-
         results = {rule: {} for rule in all_rules}  # type: dict
         errors = {}
         issues = 0
 
+        rules_path: Iterable[str]
         if rules is None:
-            # No rule specified, run all rules
-            try:
-                response = invoke_semgrep(Path(self.sourcecode_path), [targetpath], exclude=self.exclude,
-                                          no_git_ignore=True)
-                rule_results = self._format_semgrep_response(response, targetpath=targetpath)
-                issues += len(rule_results)
-
-                results = results | rule_results
-            except Exception as e:
-                errors["rules-all"] = f"failed to run rule: {str(e)}"
+            log.debug(f"No rules specified using full rules directory {self.sourcecode_rules_path}")
+            rules_path = {self.sourcecode_rules_path}
         else:
-            for rule in rules:
-                try:
-                    response = invoke_semgrep(
-                        Path(os.path.join(self.sourcecode_path, rule + ".yml")),
-                        [targetpath],
-                        exclude=self.exclude,
-                        no_git_ignore=True,
-                    )
-                    rule_results = self._format_semgrep_response(response, rule=rule, targetpath=targetpath)
-                    issues += len(rule_results)
+            rules_path = map(
+                lambda rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yml"),
+                rules
+            )
 
-                    results = results | rule_results
-                except Exception as e:
-                    errors[rule] = f"failed to run rule {rule}: {str(e)}"
+        try:
+            log.debug(f"Running source code rules against {path}")
+            response = self._invoke_semgrep(target=path, rules=rules_path)
+            rule_results = self._format_semgrep_response(response, targetpath=targetpath)
+            issues += len(rule_results)
+
+            results = results | rule_results
+        except Exception as e:
+            errors["rules-all"] = f"failed to run rule: {str(e)}"
 
         return {"results": results, "errors": errors, "issues": issues}
+
+    def _invoke_semgrep(self, target: str, rules: Iterable[str]):
+        try:
+            cmd = ["semgrep"]
+            for rule in rules:
+                cmd.extend(["--config", rule])
+
+            for excluded in self.exclude:
+                cmd.append(f"--exclude='{excluded}'")
+            cmd.append("--no-git-ignore")
+            cmd.append("--json")
+            cmd.append("--quiet")
+            cmd.append(target)
+            log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
+            result = subprocess.run(cmd, capture_output=True, check=True, encoding="utf-8")
+            return json.loads(str(result.stdout))
+        except FileNotFoundError:
+            raise Exception("unable to find semgrep binary")
+        except subprocess.CalledProcessError as e:
+            error_message = f"""
+An error occurred when running Semgrep.
+
+command: {" ".join(e.cmd)}
+status code: {e.returncode}
+output: {e.output}
+"""
+            raise Exception(error_message)
+        except json.JSONDecodeError as e:
+            raise Exception("unable to parse semgrep JSON output: " + str(e))
 
     def _format_semgrep_response(self, response, rule=None, targetpath=None):
         """

@@ -1,29 +1,21 @@
-""" Compromised Email Detector
-
-Detects if a maintainer's email domain might have been compromised.
-"""
-
+from abc import abstractmethod
 from datetime import datetime
 from typing import Optional
 
 import whois  # type: ignore
-from dateutil import parser
-from packaging import version
 
 from guarddog.analyzer.metadata.detector import Detector
 
 
 class PotentiallyCompromisedEmailDomainDetector(Detector):
-    """
-    Detector for compromised email domain attacks. Checks if the author's email domain was
-    reregistered before the most recent package released
-
-    Args:
-        Detector (_type_): _description_
-    """
-
-    def __init__(self) -> None:
-        super()
+    # The name of the rule is dependent on the ecosystem and is provided by the implementing subclasses
+    def __init__(self, ecosystem: str):
+        super().__init__(
+            name="potentially_compromised_email_domain",
+            description="Identify when a package maintainer e-mail domain (and therefore package manager account) "
+                        "might have been compromised",
+        )
+        self.ecosystem = ecosystem
 
     def _get_domain_creation_date(self, email_domain) -> tuple[Optional[datetime], bool]:
         """
@@ -58,32 +50,8 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
 
         return creation_dates, True
 
-    def _get_project_latest_release_date(self, releases) -> Optional[datetime]:
-        """
-        Gets the most recent release date of a Python project
-
-        Args:
-            releases (dict): PyPI JSON API's representation field
-
-        Returns:
-            datetime: creation date of the most recent in releases
-        """
-
-        sorted_versions = sorted(
-            releases.keys(), key=lambda r: version.parse(r), reverse=True
-        )
-        earlier_versions = sorted_versions[:-1]
-
-        for early_version in earlier_versions:
-            version_release = releases[early_version]
-
-            if len(version_release) > 0:  # if there's a distribution for the package
-                upload_time_text = version_release[0]["upload_time_iso_8601"]
-                release_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
-                return release_date
-        return None
-
-    def detect(self, package_info) -> tuple[bool, str]:
+    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
+               version: Optional[str] = None) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package's email domain might have been compromised
@@ -99,31 +67,39 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
             bool: True if email domain is compromised
         """
 
-        author_email = package_info["info"]["author_email"]
-        maintainer_email = package_info["info"]["maintainer_email"]
-        email = author_email or maintainer_email
+        emails = self.get_email_addresses(package_info)
 
-        releases = package_info["releases"]
-
-        if email is None or len(email) == 0:
+        if len(emails) == 0:
             # No e-mail is set for this package, hence no risk
             return False, "No e-mail found for this package"
 
-        sanitized_email = email.strip().replace(">", "").replace("<", "")
-        email_domain = sanitized_email.split("@")[-1]
+        latest_project_release = self.get_project_latest_release_date(package_info)
 
-        latest_project_release = self._get_project_latest_release_date(releases)
-        domain_creation_date, domain_exists = self._get_domain_creation_date(email_domain)
-        if not domain_exists:
-            return True, "The maintainer's email domain does not exist and can likely be registered by an attacker to" \
-                         " compromise the maintainer's PyPi account"
-        if domain_creation_date is None:
-            return False, "No e-mail domain creation date found"
-        if latest_project_release is None:
-            return False, "Could not find latest release date"
-        return latest_project_release < domain_creation_date, "The domain name of the maintainer's email address was" \
-                                                              " re-registered after the latest release of this " \
-                                                              "package. This can be an indicator that this is a" \
-                                                              " custom domain that expired, and was leveraged by" \
-                                                              " an attacker to compromise the package owner's PyPi" \
-                                                              " account."
+        has_issues = False
+        messages = []
+        for email in emails:
+            sanitized_email = email.strip().replace(">", "").replace("<", "")
+            email_domain = sanitized_email.split("@")[-1]
+            domain_creation_date, domain_exists = self._get_domain_creation_date(email_domain)
+
+            if not domain_exists:
+                has_issues = True
+                messages.append(f"The maintainer's email ({email}) domain does not exist and can likely be registered "
+                                f"by an attacker to compromise the maintainer's {self.ecosystem} account")
+            if domain_creation_date is None or latest_project_release is None:
+                continue
+            if latest_project_release < domain_creation_date:
+                has_issues = True
+                messages.append(f"The domain name of the maintainer's email address ({email}) was"" re-registered after"
+                                " the latest release of this ""package. This can be an indicator that this is a"""
+                                " custom domain that expired, and was leveraged by"" an attacker to compromise the"
+                                f" package owner's {self.ecosystem}"" account.")
+        return has_issues, "\n".join(messages)
+
+    @abstractmethod
+    def get_project_latest_release_date(self, package_info):
+        pass
+
+    @abstractmethod
+    def get_email_addresses(self, package_info):
+        pass

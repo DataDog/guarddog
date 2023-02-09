@@ -1,14 +1,16 @@
 rules:
   - id: obfuscation
-    message: "Detected common obfuscation method used by malware"
+    message: This package is using a common obfuscation method often used by malware
+    metadata:
+      description: Identify when a package uses a common obfuscation method often used by malware
     patterns:
       - pattern-either:
-        # evaluates to "eval"
-        - pattern: 'eval("\145\166\141\154")'
-        # evaluates to "eval"
-        - pattern: 'eval("\x65\x76\x61\x6c")'
-        # this naming is used by some obfuscators such as BlankOBF
-        - pattern: '_____=eval(...)'
+          # evaluates to "eval"
+          - pattern: 'eval("\145\166\141\154")'
+          # evaluates to "eval"
+          - pattern: 'eval("\x65\x76\x61\x6c")'
+          # this naming is used by some obfuscators such as BlankOBF
+          - pattern: '_____=eval(...)'
     languages:
       - python
     severity: WARNING

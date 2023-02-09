@@ -1,18 +1,17 @@
-import functools
-import os
+import logging
 import re
 import sys
-from typing import List
 
-import pathos  # type: ignore
 import pkg_resources
 import requests
 
-from guarddog.scanners.package_scanner import PackageScanner
-from guarddog.scanners.scanner import Scanner
+from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
+from guarddog.scanners.scanner import ProjectScanner
+
+log = logging.getLogger("guarddog")
 
 
-class RequirementsScanner(Scanner):
+class PypiRequirementsScanner(ProjectScanner):
     """
     Scans all packages in the requirements.txt file of a project
 
@@ -21,29 +20,9 @@ class RequirementsScanner(Scanner):
     """
 
     def __init__(self) -> None:
-        self.package_scanner = PackageScanner()
-        super(Scanner)
+        super().__init__(PypiPackageScanner())
 
-    def _authenticate_by_access_token(self) -> tuple[str, str]:
-        """
-        Gives Github authentication through access token
-
-        Returns:
-            tuple[str, str]: username, personal access token
-        """
-
-        user = os.getenv("GIT_USERNAME")
-        personal_access_token = os.getenv("GH_TOKEN")
-        if not user or not personal_access_token:
-            print(
-                """WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN
-                (generate a personal access token in Github settings > developer)
-                as environment variables before proceeding."""
-            )
-            exit(1)
-        return (user, personal_access_token)
-
-    def sanitize_requirements(self, requirements) -> list[str]:
+    def _sanitize_requirements(self, requirements: list[str]) -> list[str]:
         """
         Filters out non-requirement specifications from a requirements specification
 
@@ -68,7 +47,8 @@ class RequirementsScanner(Scanner):
 
         return sanitized_lines
 
-    def parse_requirements(self, requirements: List[str]) -> dict:
+    # FIXME: type return value properly to dict[str, set[str]]
+    def parse_requirements(self, raw_requirements: str) -> dict:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
@@ -86,14 +66,16 @@ class RequirementsScanner(Scanner):
                 ...
             }
         """
+        requirements = raw_requirements.splitlines()
 
         def versions(package_name):
             url = "https://pypi.org/pypi/%s/json" % (package_name,)
+            log.debug(f"Retrieving PyPI package metadata information from {url}")
             data = requests.get(url).json()
             versions = sorted(data["releases"].keys(), reverse=True)
             return versions
 
-        sanitized_requirements = self.sanitize_requirements(requirements)
+        sanitized_requirements = self._sanitize_requirements(requirements)
 
         dependencies = {}
 
@@ -162,112 +144,3 @@ class RequirementsScanner(Scanner):
             sys.stderr.write(f"Received error {str(e)}")
 
         return dependencies
-
-    def scan_requirements(self, requirements):
-        """
-        Reads the requirements.txt file and scans each possible
-        dependency and version
-
-        Args:
-            requirements (str): contents of requirements.txt file
-
-        Returns:
-            dict: mapping of dependencies to scan results
-
-            ex.
-            {
-                ....
-                <dependency-name>: {
-                        issues: ...,
-                        results: {
-                            ...
-                        }
-                    },
-                ...
-            }
-        """
-        def get_package_results_helper(dependency, version):
-            result = self.package_scanner.scan_remote(dependency, version)
-            return {'dependency': dependency, 'version': version, 'result': result}
-
-        get_package_results = functools.partial(get_package_results_helper)
-        dependencies = self.parse_requirements(requirements)
-        params = []
-        for dependency, versions in dependencies.items():
-            if versions is None:
-                params.append((dependency, None))  # this will cause scan_remote to use the latest version
-            else:
-                for version in versions:
-                    params.append((dependency, version))
-        pool = pathos.helpers.mp.Pool()
-        project_results = pool.starmap(get_package_results, params)
-
-        return project_results
-
-    def scan_local(self, path):
-        """
-        Scans a local requirements.txt file
-
-        Args:
-            path (str): path to requirements.txt file
-
-        Returns:
-            dict: mapping of dependencies to scan results
-
-            ex.
-            {
-                ....
-                <dependency-name>: {
-                        issues: ...,
-                        results: {
-                            ...
-                        }
-                    },
-                ...
-            }
-        """
-
-        try:
-            with open(path, "r") as f:
-                return self.scan_requirements(f.readlines())
-        except Exception as e:
-            sys.stdout.write(f"Received {e}")
-            sys.exit(255)
-
-    def scan_remote(self, url, branch, requirements_name="requirements.txt"):
-        """
-        Scans remote requirements.txt file
-
-        Args:
-            url (str): url of the Github repo
-            branch (str): branch containing requirements.txt
-            requirements_name (str, optional): name of requirements file.
-                Defaults to "requirements.txt".
-
-        Returns:
-            dict: mapping of dependencies to scan results
-
-            ex.
-            {
-                ....
-                <dependency-name>: {
-                        issues: ...,
-                        results: {
-                            ...
-                        }
-                    },
-                ...
-            }
-        """
-
-        token = self._authenticate_by_access_token()
-        githubusercontent_url = url.replace("github", "raw.githubusercontent")
-
-        req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"
-        resp = requests.get(url=req_url, auth=token)
-
-        if resp.status_code == 200:
-            return self.scan_requirements(resp.content.decode().splitlines())
-        else:
-            sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
-            sys.exit(255)

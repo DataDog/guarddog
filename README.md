@@ -1,6 +1,10 @@
-![GuardDog Banner](docs/images/banner.png)
+# GuardDog
 
 [![Test](https://github.com/DataDog/guarddog/actions/workflows/test.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/test.yml) [![Static analysis](https://github.com/DataDog/guarddog/actions/workflows/semgrep.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/semgrep.yml)
+
+<p align="center">
+  <img src="./docs/images/logo.png" alt="GuardDog" width="300" />
+</p>
 
 GuardDog is a CLI tool that allows to identify malicious PyPI packages. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
 
@@ -27,25 +31,34 @@ alias guarddog='docker run --rm ghcr.io/datadog/guarddog'
 
 ```sh
 # Scan the most recent version of the 'requests' package
-guarddog scan requests
+guarddog pypi scan requests
 
 # Scan a specific version of the 'requests' package
-guarddog scan requests --version 2.28.1
+guarddog pypi scan requests --version 2.28.1
 
 # Scan the 'request' package using 2 specific heuristics
-guarddog scan requests --rules exec-base64 --rules code-execution
+guarddog pypi scan requests --rules exec-base64 --rules code-execution
 
 # Scan the 'requests' package using all rules but one
-guarddog scan requests --exclude-rules exec-base64
+guarddog pypi scan requests --exclude-rules exec-base64
 
 # Scan a local package
-guarddog scan /tmp/triage.tar.gz
+guarddog pypi scan /tmp/triage.tar.gz
 
 # Scan every package referenced in a requirements.txt file of a local folder
-guarddog verify workspace/guarddog/requirements.txt
+guarddog pypi verify workspace/guarddog/requirements.txt
+
+# Scan every package referenced in a requirements.txt file and output a sarif file - works only for verify
+guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
 
 # Output JSON to standard output - works for every command
-guarddog scan requests --json
+guarddog pypi scan requests --output-format=json
+
+# All the commands also work on npm
+guarddog npm scan express
+
+# Run in debug mode
+guarddog --log-level debug npm scan express
 ```
 
 
@@ -57,28 +70,111 @@ GuardDog comes with 2 types of heuristics:
 
 * [**Package metadata heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata): Python heuristics running against the package metadata on PyPI.
 
-### Source code heuristics
+<!-- BEGIN_RULE_LIST -->
+### PyPI
+
+Source code heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| obfuscation | Identify when a package uses a common obfuscation method often used by malware |
+| exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
+| download-executable | Identify when a package downloads and makes executable a remote binary |
+| exec-base64 | Identify when a package dynamically executes base64-encoded code |
+| silent-process-execution | Identify when a package silently executes an executable |
+| steganography | Identify when a package retrieves hidden data from an image and executes it |
+| code-execution | Identify when an OS command is executed in the setup.py file |
+| cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
+
+Metadata heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| empty_information | Identify packages with an empty description field |
+| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
+| typosquatting | Identify packages that are named closely to an highly popular package |
+| potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
+| repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
 
 
-|                                                                         **Heuristic**                                                                         |                                                                            **Description**                                                                            |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                       [Command overwrite](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/cmd-overwrite.yml)                       | The `install` command is overwritten in the `setup.py` file, indicating that a system command is automatically run when installing the package through `pip install`. |
-|            [Dynamic execution of base64-encoded data](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/exec-base64.yml)             |                                          A base64-encoded string ends up being executed by a function like `exec` or `eval`                                           |
-|            [Download of an executable to disk](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/download-executable.yml)            |                                          Data coming from an HTTP response ends up being written to disk and made executable                                          |
-| [Exfiltration of sensitive data to a remote server](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/exfiltrate-sensitive-data.yml) |                                            Sensitive data from the environment ends up being sent through an HTTP request                                             |
-|                 [Code execution in `setup.py`](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/code-execution.yml)                 |                                                 Code in `setup.py` executes code dynamically or starts a new process                                                  |
-|                    [Unusual domain extension](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/shady-links.yml)                     |                                      Usage of a domain name with an extension frequently used by malware (e.g. `.xyz` or `.top`)                                      |
-|        [Dynamic execution of hidden data from an image](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/steganography.yml)         |                                           The package uses steganography to extract a payload from an image and execute it                                            |
-|               [Use of a common obfuscation method](https://github.com/DataDog/guarddog/blob/main/guarddog/analyzer/sourcecode/obfuscation.yml)                |                            The package uses an obfuscation method commonly used by malware, such as running `eval` on hexadecimal strings                             |
+### npm
 
-### Package metadata heuristics
+Source code heuristics:
 
-|                  **Heuristic**                   |                                                                                                                                                                                                   **Description**                                                                                                                                                                                                   |
-|:------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                  Typosquatting                   |                                                                                                                                                                             Package has a name close to one of the top 5k PyPI packages                                                                                                                                                                             |
-| Potentially compromised maintainer e-mail domain | Maintainer e-mail address is associated to a domain that was re-registered later than the last package release. This can be an indicator that this is a custom domain that expired, and was leveraged by an attacker to compromise the package owner's PyPI account. See [here](https://therecord.media/thousands-of-npm-accounts-use-email-addresses-with-expired-domains) for a description of the issue for npm. |
-|            Empty package description             |                                                                                                                                                                                      Package has an empty description of PyPI                                                                                                                                                                                       |
-|                  Release 0.0.0                   |                                                                                                                                                                               Package has its latest release set to `0.0.0` or `0.0`                                                                                                                                                                                |
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| npm-serialize-environment | Identify when a package serializes 'process.env' to exfiltrate environment variables |
+| npm-silent-process-execution | Identify when a package silently executes an executable |
+| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
+| npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
+
+Metadata heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| empty_information | Identify packages with an empty description field |
+| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
+| potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
+| typosquatting | Identify packages that are named closely to an highly popular package |
+
+
+<!-- END_RULE_LIST -->
+
+## Running GuardDog in a GitHub Action
+
+The easiest way to integrate GuardDog in your CI pipeline is to leverage the SARIF output format, and upload it to GitHub's [code scanning](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning) feature.
+
+Using this, you get:
+* Automated comments to your pull requests based on the GuardDog scan output
+* Built-in false positive management directly in the GitHub UI
+
+
+Sample GitHub Action using GuardDog:
+
+```yaml
+name: GuardDog
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  guarddog:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    name: Scan dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install GuardDog
+        run: pip install guarddog
+
+      - run: guarddog pypi verify requirements.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
+
+      - name: Upload SARIF file to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          category: guarddog-builtin
+          sarif_file: guarddog.sarif
+```
+
 
 ## Development
 
@@ -108,28 +204,15 @@ Running unit tests against package metadata heuristics: `make test-metadata-rule
 
 ### Code quality checks
 
-Type checking:
-
+Run the type checker with
 ```shell
-pip install mypy
-make type-check
+mypy --install-types --non-interactive guarddog
 ```
-
-Linting:
-
+and the linter with
 ```shell
-pip install flake8
-make lint
+flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data
+flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
-
-You can also use pre-commit hooks. Install them once using:
-
-```
-pip install pre-commit
-pre-commit install
-```
-
-This will cause `make lint` and `make type-check` to automatically run before each of your commits, failing early if your code has an issue that would fail on CI.
 
 ### Adding new source code heuristics
 
@@ -144,6 +227,7 @@ TBD
 Authors: 
 * [Ellen Wang](https://www.linkedin.com/in/ellen-wang-4bb5961a0/)
 * [Christophe Tafani-Dereeper](https://github.com/christophetd)
+* [Vladimir de Turckheim](https://www.linkedin.com/in/vladimirdeturckheim/)
 
 Inspiration: 
 * [What are Weak Links in the npm Supply Chain?](https://arxiv.org/pdf/2112.10165.pdf)

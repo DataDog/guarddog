@@ -1,0 +1,9 @@
+rules:
+  - id: silent-process-execution
+    message: This package is silently executing an external binary, redirecting stdout, stderr and stdin to /dev/null
+    metadata:
+      description: Identify when a package silently executes an executable
+    pattern: subprocess.$FUNC(..., stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, ...)
+    languages:
+      - python
+    severity: WARNING
