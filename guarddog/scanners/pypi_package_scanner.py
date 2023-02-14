@@ -1,4 +1,5 @@
 import os
+import typing
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
@@ -10,11 +11,11 @@ class PypiPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.PYPI))
 
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None):
-        self.download_package(package_name, directory, version)
-        return get_package_info(package_name)
+    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
+        extract_dir = self.download_package(package_name, directory, version)
+        return get_package_info(package_name), extract_dir
 
-    def download_package(self, package_name, directory, version=None) -> None:
+    def download_package(self, package_name, directory, version=None) -> str:
         """Downloads the PyPI distribution for a given package and version
 
         Args:
@@ -28,7 +29,7 @@ class PypiPackageScanner(PackageScanner):
             Exception: "Compressed file for package does not exist."
             Exception: "Error retrieving package: " + <error message>
         Returns:
-            None
+            Path where the package was extracted
         """
 
         data = get_package_info(package_name)
@@ -60,6 +61,7 @@ class PypiPackageScanner(PackageScanner):
                 unzippedpath = zippath.removesuffix(file_extension)
 
                 self.download_compressed(url, zippath, unzippedpath)
+                return unzippedpath
             else:
                 raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
         else:

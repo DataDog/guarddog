@@ -241,16 +241,16 @@ class PackageScanner(Scanner):
         raise Exception(f"Path {path} does not exist.")
 
     @abstractmethod
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> dict:
+    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
         raise NotImplementedError('download_and_get_package_info is not implemented')
 
     def _scan_remote(self, name, base_dir, version=None, rules=None, write_package_info=False):
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), base_dir)
-        file_path = os.path.join(directory, name)
 
+        file_path = None
         package_info = None
         try:
-            package_info = self.download_and_get_package_info(directory, name, version)
+            package_info, file_path = self.download_and_get_package_info(directory, name, version)
         except Exception as e:
             log.debug("Unable to download package, ignoring: " + str(e))
             return {'issues': 0, 'errors': {'download-package': str(e)}}
