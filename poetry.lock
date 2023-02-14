@@ -163,22 +163,23 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "click-option-group"
-version = "0.5.3"
+version = "0.5.5"
 description = "Option groups missing in Click"
 category = "main"
 optional = false
 python-versions = ">=3.6,<4"
 files = [
-    {file = "click-option-group-0.5.3.tar.gz", hash = "sha256:a6e924f3c46b657feb5b72679f7e930f8e5b224b766ab35c91ae4019b4e0615e"},
-    {file = "click_option_group-0.5.3-py3-none-any.whl", hash = "sha256:9653a2297357335d7325a1827e71ac1245d91c97d959346a7decabd4a52d5354"},
+    {file = "click-option-group-0.5.5.tar.gz", hash = "sha256:78ee474f07a0ca0ef6c0317bb3ebe79387aafb0c4a1e03b1d8b2b0be1e42fc78"},
+    {file = "click_option_group-0.5.5-py3-none-any.whl", hash = "sha256:0f8ca79bc9b1d6fcaafdbe194b17ba1a2dde44ddf19087235c3efed2ad288143"},
 ]
 
 [package.dependencies]
 Click = ">=7.0,<9"
 
 [package.extras]
-docs = ["Pallets-Sphinx-Themes", "m2r", "sphinx (>=2.3,<3)"]
-tests = ["coverage (<6)", "coveralls", "pytest", "pytest-cov"]
+docs = ["Pallets-Sphinx-Themes", "m2r2", "sphinx (>=3.0,<6)"]
+tests = ["pytest"]
+tests-cov = ["coverage (<6)", "coveralls", "pytest", "pytest-cov"]
 
 [[package]]
 name = "colorama"
@@ -1236,4 +1237,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "c46ffcbd59bee2228ddf42c444704cece762bb26209f9fc9b013dcacb3c61eae"
+content-hash = "460b516c9c1d589aca1802650759bdbe497fc835644238e04c188111d342ac58"
