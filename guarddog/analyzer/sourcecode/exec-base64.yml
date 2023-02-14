@@ -51,4 +51,5 @@ rules:
           - pattern: base64.b64decode("...")
           - pattern: base64.b64decode(...)
           - pattern: decode("...")
+          - pattern: __import__("base64").b64decode(...)
     severity: WARNING
