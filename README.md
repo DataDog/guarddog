@@ -96,6 +96,7 @@ Metadata heuristics:
 | typosquatting | Identify packages that are named closely to an highly popular package |
 | potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
 | repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
+| single_python_file | Identify packages that have only a single Python file |
 
 
 ### npm
