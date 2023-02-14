@@ -248,7 +248,12 @@ class PackageScanner(Scanner):
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), base_dir)
         file_path = os.path.join(directory, name)
 
-        package_info = self.download_and_get_package_info(directory, name, version)
+        package_info = None
+        try:
+            package_info = self.download_and_get_package_info(directory, name, version)
+        except Exception as e:
+            log.debug("Unable to download package, ignoring: " + str(e))
+            return {'issues': 0, 'errors': {'download-package': str(e)}}
 
         results = self.analyzer.analyze(file_path, package_info, rules, name, version)
         if write_package_info:
