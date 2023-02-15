@@ -6,16 +6,16 @@ import pytest
 from guarddog.analyzer.metadata.npm import NPMEmptyInfoDetector
 from guarddog.analyzer.metadata.pypi import PypiEmptyInfoDetector
 from tests.analyzer.metadata.resources.sample_project_info import (
-    PACKAGE_INFO,
-    generate_project_info,
+    PYPI_PACKAGE_INFO,
+    generate_pypi_project_info,
 )
 
 
 class TestEmptyInformation:
     pypi_detector = PypiEmptyInfoDetector()
     npm_detector = NPMEmptyInfoDetector()
-    nonempty_information = PACKAGE_INFO
-    empty_information = generate_project_info("description", "")
+    nonempty_information = PYPI_PACKAGE_INFO
+    empty_information = generate_pypi_project_info("description", "")
 
     @pytest.mark.parametrize("package_info", [empty_information])
     def test_empty(self, package_info):
