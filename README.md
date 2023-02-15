@@ -227,3 +227,5 @@ Authors:
 Inspiration: 
 * [What are Weak Links in the npm Supply Chain?](https://arxiv.org/pdf/2112.10165.pdf)
 * [A Survey on Common Threats in npm and PyPi Registries](https://arxiv.org/pdf/2108.09576.pdf)
+* [A Benchmark Comparison of Python Malware Detection Approaches](https://arxiv.org/pdf/2209.13288.pdf)
+* [Towards Measuring Supply Chain Attacks on Package Managers for Interpreted Languages](https://arxiv.org/pdf/2002.01139)
