@@ -92,3 +92,6 @@ exec(base64.b64decode(myMaliciousCode))
 """
 # ruleid: exec-base64
 res = command.run(["python", "-c", base64.b64decode("bar")])
+
+# ruleid: exec-base64
+exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('aW1wb...Hsncyc6c30pCg==')[0]))
