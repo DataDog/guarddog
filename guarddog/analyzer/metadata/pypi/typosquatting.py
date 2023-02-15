@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import requests
-from packaging.utils import canonicalize_name
+import packaging.utils
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 
@@ -62,7 +62,7 @@ class PypiTyposquatDetector(TyposquatDetector):
             top_packages_information = response["rows"]
 
         def get_safe_name(package):
-            return canonicalize_name(package["project"])
+            return packaging.utils.canonicalize_name(package["project"])
 
         return list(map(get_safe_name, top_packages_information))
 
@@ -82,7 +82,8 @@ class PypiTyposquatDetector(TyposquatDetector):
             @param **kwargs:
         """
         log.debug(f"Running typosquatting heuristic on PyPI package {name}")
-        similar_package_names = self.get_typosquatted_package(package_info["info"]["name"])
+        normalized_name = packaging.utils.canonicalize_name(package_info["info"]["name"])
+        similar_package_names = self.get_typosquatted_package(normalized_name)
         if len(similar_package_names) > 0:
             return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(similar_package_names)
         return False, None
