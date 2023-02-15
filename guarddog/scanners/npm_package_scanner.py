@@ -1,6 +1,7 @@
 import logging
 import os
 import pathlib
+import typing
 from urllib.parse import urlparse
 
 import requests
@@ -16,7 +17,7 @@ class NPMPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.NPM))
 
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> dict:
+    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
         git_target = None
         if urlparse(package_name).hostname is not None and package_name.endswith('.git'):
             git_target = package_name
@@ -44,8 +45,8 @@ class NPMPackageScanner(PackageScanner):
 
         tarball_url = details["dist"]["tarball"]
         file_extension = pathlib.Path(tarball_url).suffix
-        zippath = os.path.join(directory, package_name + file_extension)
+        zippath = os.path.join(directory, package_name.replace("/", "-") + file_extension)
         unzippedpath = zippath.removesuffix(file_extension)
         self.download_compressed(tarball_url, zippath, unzippedpath)
 
-        return data
+        return data, unzippedpath
