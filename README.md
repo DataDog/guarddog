@@ -27,6 +27,8 @@ docker pull ghcr.io/datadog/guarddog
 alias guarddog='docker run --rm ghcr.io/datadog/guarddog'
 ```
 
+*Note: On Windows, the only supported installation method is Docker.*
+
 ### Sample usage
 
 ```sh
