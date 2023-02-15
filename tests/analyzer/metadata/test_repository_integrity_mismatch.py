@@ -1,11 +1,11 @@
 from copy import deepcopy
 
 from guarddog.analyzer.metadata.pypi import PypiIntegrityMismatchDetector
-from tests.analyzer.metadata.resources.sample_project_info import PACKAGE_INFO
+from tests.analyzer.metadata.resources.sample_project_info import PYPI_PACKAGE_INFO
 
 
 def test_no_github_links():
-    current_info = deepcopy(PACKAGE_INFO)
+    current_info = deepcopy(PYPI_PACKAGE_INFO)
     current_info["info"]["home_page"] = ""
     current_info["info"]["project_urls"]["Homepage"] = ""
     detector = PypiIntegrityMismatchDetector()
@@ -15,7 +15,7 @@ def test_no_github_links():
 
 
 def test_no_good_github_links():
-    current_info = deepcopy(PACKAGE_INFO)
+    current_info = deepcopy(PYPI_PACKAGE_INFO)
     current_info["info"]["home_page"] = ""
     current_info["info"]["project_urls"]["Homepage"] = ""
     current_info["info"]["summary"] = "https://github.com/pypa/sampleproject"

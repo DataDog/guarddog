@@ -8,8 +8,8 @@ import pytest
 from guarddog.analyzer.metadata.npm import NPMReleaseZeroDetector
 from guarddog.analyzer.metadata.pypi import PypiReleaseZeroDetector
 from tests.analyzer.metadata.resources.sample_project_info import (
-    PACKAGE_INFO,
-    generate_project_info,
+    PYPI_PACKAGE_INFO,
+    generate_pypi_project_info,
 )
 
 with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
@@ -19,7 +19,7 @@ pypi_detector = PypiReleaseZeroDetector()
 npm_detector = NPMReleaseZeroDetector()
 
 class TestEmptyInformation:
-    zero_release = generate_project_info("version", "0.0.0")
+    zero_release = generate_pypi_project_info("version", "0.0.0")
     npm_zero_release = deepcopy(NPM_PACKAGE_INFO)
     npm_zero_release["dist-tags"]["latest"] = "0.0.0"
 
@@ -28,7 +28,7 @@ class TestEmptyInformation:
         matches, _ = detector.detect(info)
         assert matches
 
-    @pytest.mark.parametrize("info, detector", [(PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
+    @pytest.mark.parametrize("info, detector", [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
     def test_nonempty(self, info, detector):
         matches, _ = detector.detect(info)
         assert not matches

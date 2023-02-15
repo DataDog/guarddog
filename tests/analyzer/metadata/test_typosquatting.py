@@ -2,7 +2,7 @@ import pytest
 
 from guarddog.analyzer.metadata.npm import NPMTyposquatDetector
 from guarddog.analyzer.metadata.pypi import PypiTyposquatDetector
-from tests.analyzer.metadata.resources.sample_project_info import generate_project_info
+from tests.analyzer.metadata.resources.sample_project_info import generate_pypi_project_info, generate_npm_project_info
 
 
 class TestTyposquatting:
@@ -44,19 +44,19 @@ class TestTyposquatting:
 
     @pytest.mark.parametrize("typo_name, real_name", pypi_typosquats)
     def test_pypi_typosquats(self, typo_name, real_name):
-        project_info = generate_project_info("name", typo_name)
+        project_info = generate_pypi_project_info("name", typo_name)
         matches, message = self.pypi_detector.detect(project_info)
         assert matches and real_name in message
 
     @pytest.mark.parametrize("typo_name, real_name", npm_typosquats)
     def test_npm_typosquats(self, typo_name, real_name):
-        project_info = {"name": typo_name}
+        project_info = generate_npm_project_info("name", typo_name)
         matches, message = self.npm_detector.detect(project_info)
         assert matches and real_name in message
 
     @pytest.mark.parametrize("name", negative_cases + same_names)
     def test_nontyposquats(self, name):
-        project_info = generate_project_info("name", name)
+        project_info = generate_pypi_project_info("name", name)
         matches, _ = self.pypi_detector.detect(project_info)
         assert not matches
 
@@ -66,8 +66,9 @@ class TestTyposquatting:
 
         Regression test for https://github.com/DataDog/guarddog/issues/71
         """
-        result = self.pypi_detector.get_typosquatted_package("pdfminer.sid")
-        assert len(result) == 1
+        project_info = generate_pypi_project_info("name", "pdfminer.sid")
+        matches, _ = self.pypi_detector.detect(project_info)
+        assert matches
 
     def test_normalize_names(self):
         """
@@ -76,5 +77,14 @@ class TestTyposquatting:
 
         Regression test for https://github.com/DataDog/guarddog/issues/71
         """
-        result = self.pypi_detector.get_typosquatted_package("pdfminer...---___six")
-        assert len(result) == 0
+        project_info = generate_pypi_project_info("name", "pdfminer...---___six")
+        matches, _ = self.pypi_detector.detect(project_info)
+        assert not matches
+
+    def test_nontyposquat_npm_dots(self):
+        """
+        Regression test for https://github.com/DataDog/guarddog/issues/131
+        """
+        project_info = generate_npm_project_info("name", "lodash.pick")
+        matches, _ = self.npm_detector.detect(project_info)
+        assert not matches

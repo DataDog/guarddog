@@ -8,7 +8,7 @@ from _pytest.monkeypatch import MonkeyPatch
 
 from guarddog.analyzer.metadata.npm import NPMPotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.pypi import PypiPotentiallyCompromisedEmailDomainDetector
-from tests.analyzer.metadata.resources.sample_project_info import PACKAGE_INFO
+from tests.analyzer.metadata.resources.sample_project_info import PYPI_PACKAGE_INFO
 
 with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
     NPM_PACKAGE_INFO = json.load(file)
@@ -25,7 +25,7 @@ npm_detector = NPMPotentiallyCompromisedEmailDomainDetector()
 
 class TestCompromisedEmail:
 
-    @pytest.mark.parametrize("package_info, detector", [(PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
+    @pytest.mark.parametrize("package_info, detector", [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
     def test_compromised(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime.today())
@@ -34,7 +34,7 @@ class TestCompromisedEmail:
         compromised, _ = detector.detect(package_info)
         assert compromised
 
-    @pytest.mark.parametrize("package_info, detector", [(PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
+    @pytest.mark.parametrize("package_info, detector", [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
     def test_safe(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
@@ -49,5 +49,5 @@ class TestCompromisedEmail:
             raise whois.parser.PywhoisError('No match for "nope.com".')
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
-        compromised, _ = pypi_detector.detect(PACKAGE_INFO)
+        compromised, _ = pypi_detector.detect(PYPI_PACKAGE_INFO)
         assert compromised
