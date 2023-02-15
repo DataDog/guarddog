@@ -3,7 +3,7 @@ import logging
 import os
 import subprocess
 from pathlib import Path
-from typing import Optional, Iterable
+from typing import Optional, Iterable, List
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
@@ -159,15 +159,19 @@ class Analyzer:
         errors = {}
         issues = 0
 
-        rules_path: Iterable[str]
+        rules_path: List[str]
         if rules is None:
             log.debug(f"No rules specified using full rules directory {self.sourcecode_rules_path}")
-            rules_path = {self.sourcecode_rules_path}
+            rules_path = [self.sourcecode_rules_path]
         else:
-            rules_path = map(
+            rules_path = list(map(
                 lambda rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yml"),
                 rules
-            )
+            ))
+
+        if len(rules_path) == 0:
+            log.debug("No source code rules to run")
+            return {"results": {}, "errors": {}, "issues": 0}
 
         try:
             log.debug(f"Running source code rules against {path}")
