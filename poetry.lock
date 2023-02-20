@@ -382,6 +382,31 @@ format = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validat
 format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3986-validator (>0.1.0)", "uri-template", "webcolors (>=1.11)"]
 
 [[package]]
+name = "markdown-it-py"
+version = "2.1.0"
+description = "Python port of markdown-it. Markdown parsing, done right!"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "markdown-it-py-2.1.0.tar.gz", hash = "sha256:cf7e59fed14b5ae17c0006eff14a2d9a00ed5f3a846148153899a0224e2c07da"},
+    {file = "markdown_it_py-2.1.0-py3-none-any.whl", hash = "sha256:93de681e5c021a432c63147656fe21790bc01231e0cd2da73626f1aa3ac0fe27"},
+]
+
+[package.dependencies]
+mdurl = ">=0.1,<1.0"
+
+[package.extras]
+benchmarking = ["psutil", "pytest", "pytest-benchmark (>=3.2,<4.0)"]
+code-style = ["pre-commit (==2.6)"]
+compare = ["commonmark (>=0.9.1,<0.10.0)", "markdown (>=3.3.6,<3.4.0)", "mistletoe (>=0.8.1,<0.9.0)", "mistune (>=2.0.2,<2.1.0)", "panflute (>=2.1.3,<2.2.0)"]
+linkify = ["linkify-it-py (>=1.0,<2.0)"]
+plugins = ["mdit-py-plugins"]
+profiling = ["gprof2dot"]
+rtd = ["attrs", "myst-parser", "pyyaml", "sphinx", "sphinx-copybutton", "sphinx-design", "sphinx_book_theme"]
+testing = ["coverage", "pytest", "pytest-cov", "pytest-regressions"]
+
+[[package]]
 name = "mccabe"
 version = "0.7.0"
 description = "McCabe checker, plugin for flake8"
@@ -391,6 +416,18 @@ python-versions = ">=3.6"
 files = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
+]
+
+[[package]]
+name = "mdurl"
+version = "0.1.2"
+description = "Markdown URL utilities"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
+    {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
 ]
 
 [[package]]
@@ -646,6 +683,21 @@ files = [
 cffi = ">=1.9.1"
 
 [[package]]
+name = "pygments"
+version = "2.14.0"
+description = "Pygments is a syntax highlighting package written in Python."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "Pygments-2.14.0-py3-none-any.whl", hash = "sha256:fa7bd7bd2771287c0de303af8bfdfc731f51bd2c6a47ab69d117138893b82717"},
+    {file = "Pygments-2.14.0.tar.gz", hash = "sha256:b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297"},
+]
+
+[package.extras]
+plugins = ["importlib-metadata"]
+
+[[package]]
 name = "pyparsing"
 version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -883,6 +935,25 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
+name = "rich"
+version = "13.3.1"
+description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
+category = "main"
+optional = false
+python-versions = ">=3.7.0"
+files = [
+    {file = "rich-13.3.1-py3-none-any.whl", hash = "sha256:8aa57747f3fc3e977684f0176a88e789be314a99f99b43b75d1e9cb5dc6db9e9"},
+    {file = "rich-13.3.1.tar.gz", hash = "sha256:125d96d20c92b946b983d0d392b84ff945461e5a06d3867e9f9e575f8697b67f"},
+]
+
+[package.dependencies]
+markdown-it-py = ">=2.1.0,<3.0.0"
+pygments = ">=2.14.0,<3.0.0"
+
+[package.extras]
+jupyter = ["ipywidgets (>=7.5.1,<9)"]
+
+[[package]]
 name = "ruamel-yaml"
 version = "0.17.21"
 description = "ruamel.yaml is a YAML parser/emitter that supports roundtrip preservation of comments, seq/map flow style, and map key order"
@@ -963,20 +1034,20 @@ doc = ["Sphinx", "sphinx-rtd-theme"]
 
 [[package]]
 name = "semgrep"
-version = "0.112.1"
+version = "1.12.1"
 description = "Lightweight static analysis for many languages. Find bug variants with patterns that look like source code."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:2a62bc6321d371dadc41df2c68678e87df807ddfa3d1faafb40bd0998abfe503"},
-    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:b690a84cbaa6a4670ff6c11a674818b8ad99736e89520a3c47d1542cc45e6d05"},
-    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:bc2437f12e41ac5e28a303e463098565a3d948c7744f6745bdb0fea341ccdae1"},
-    {file = "semgrep-0.112.1.tar.gz", hash = "sha256:2140a0fd16f3ac0a0e330980613ba65fe58faea7808a965e219c4199bab96102"},
+    {file = "semgrep-1.12.1-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:78b1bad2acaba9b97420395ed22177907f7e0852fe25cbb1df39c583c496373d"},
+    {file = "semgrep-1.12.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:3173a923b87b8949334e1c49f12605685c8cd090a0794ed9c18d939607dc8a82"},
+    {file = "semgrep-1.12.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:3f693387ff49bfbafed6c4448ba0c7e0a8179ea60f5279ebb508bbb6cc0114ae"},
+    {file = "semgrep-1.12.1.tar.gz", hash = "sha256:49ff1012fb39dddd845e1d121488b0627b23d67b572055b5bb141e4bcea60327"},
 ]
 
 [package.dependencies]
-attrs = ">=21.3,<22.0"
+attrs = ">=21.3"
 boltons = ">=21.0,<22.0"
 click = ">=8.1,<9.0"
 click-option-group = ">=0.5,<1.0"
@@ -984,11 +1055,13 @@ colorama = ">=0.4.0,<0.5.0"
 defusedxml = ">=0.7.1,<0.8.0"
 glom = ">=22.1,<23.0"
 jsonschema = ">=4.6,<5.0"
-packaging = ">=21.0,<22.0"
+packaging = ">=21.0"
 peewee = ">=3.14,<4.0"
 python-lsp-jsonrpc = ">=1.0.0,<1.1.0"
 requests = ">=2.22,<3.0"
+rich = ">=12.6.0"
 "ruamel.yaml" = ">=0.16.0,<0.18"
+tomli = ">=2.0.1,<2.1.0"
 tqdm = ">=4.46,<5.0"
 typing-extensions = ">=4.2,<5.0"
 urllib3 = ">=1.26,<2.0"
@@ -1237,4 +1310,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "0007c07a405764a790566728a02b9d6d4510c4a103b41214a2ac769c661aa77a"
+content-hash = "4c348fcde4b741bb281f733834d1cf73729ea66a793c24cd05b2df3592bf0f06"
