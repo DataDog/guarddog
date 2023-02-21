@@ -307,6 +307,7 @@ class PackageScanner(Scanner):
 
         try:
             safe_extract(archive_path, target_path)
+            log.debug(f"Successfully extracted files to {target_path}")
         finally:
             log.debug(f"Removing temporary archive file {archive_path}")
             os.remove(archive_path)
