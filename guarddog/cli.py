@@ -33,6 +33,8 @@ AVAILABLE_LOG_LEVELS = {
 }
 AVAILABLE_LOG_LEVELS_NAMES = list(map(lambda level: logging.getLevelName(level), AVAILABLE_LOG_LEVELS))
 
+log = logging.getLogger('guarddog')
+
 
 def common_options(fn):
     fn = click.option("--exit-non-zero-on-finding", default=False, is_flag=True,
@@ -139,6 +141,9 @@ def is_local_target(identifier: str) -> bool:
     if identifier.startswith("/") or identifier.startswith("./") or identifier.startswith("../"):
         return True
 
+    if identifier == ".":
+        return True
+
     # If this looks like an archive, consider it as a local target if the target exists on the local filesystem
     if identifier.endswith(".tar.gz") or identifier.endswith(".zip") or identifier.endswith(".whl"):
         return os.path.exists(identifier)
@@ -162,8 +167,10 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
         exit(1)
     results = {}
     if is_local_target(identifier):
+        log.debug(f"Considering that '{identifier}' is a local target, scanning filesystem")
         results = scanner.scan_local(identifier, rule_param)
     else:
+        log.debug(f"Considering that '{identifier}' is a remote target")
         try:
             results = scanner.scan_remote(identifier, version, rule_param)
         except Exception as e:
