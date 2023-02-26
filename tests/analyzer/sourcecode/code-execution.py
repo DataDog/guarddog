@@ -98,15 +98,12 @@ docker_build = subprocess.Popen(
 
 def RunCustomCommand(command_list):
     print("Running command: %s" % command_list)
-    # ok: code-execution
+    # ruleid: code-execution
     p = subprocess.Popen(command_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
 # ok: code-execution
 subprocess.run(["python3", "-m", "pycodestyle", "."], env=env, check=True)
-
-# ok: code-execution
-p = subprocess.Popen([pkg_config, option, "libffi"])
 
 # ok: code-execution
 os.system("coverage report")
@@ -177,3 +174,14 @@ OOO0O0OOOOO000oOo0oOoOo0,llIIlIlllllIlIlIlll,Oo000O0OO0oO0oO00oO0oO0O,WXWXXWWXXW
 
 # ok: code-execution
 errno = subprocess.call([sys.executable, "tests.py"])
+
+
+
+"""
+https://github.com/DataDog/guarddog/issues/178
+"""
+# ruleid: code-execution
+subprocess.Popen('powershell -WindowStyle Hidden -EncodedCommand cABvAHc..', shell=False, creationflags=subprocess.CREATE_NO_WINDOW)
+
+# ruleid: code-execution
+os.popen("powershell foo", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
