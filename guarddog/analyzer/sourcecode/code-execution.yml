@@ -65,14 +65,14 @@ rules:
                             - pattern-not-regex: version
 
           # popen functions
-          - pattern: subprocess.Popen("$ARG1", ...)
-          - pattern: subprocess.Popen([..., "$ARG1", ...], ...)
-          - pattern: os.popen("$ARG1", ...)
-          - pattern: os.popen([..., "$ARG1", ...], ...)
-          - pattern: Popen("$ARG1", ...)
-          - pattern: Popen([..., "$ARG1", ...], ...)
-          - pattern: popen("$ARG1", ...)
-          - pattern: popen([..., "$ARG1", ...], ...)
+          - pattern: subprocess.Popen($ARG1, ...)
+          - pattern: subprocess.Popen([..., $ARG1, ...], ...)
+          - pattern: os.popen($ARG1, ...)
+          - pattern: os.popen([..., $ARG1, ...], ...)
+          - pattern: Popen($ARG1, ...)
+          - pattern: Popen([..., $ARG1, ...], ...)
+          - pattern: popen($ARG1, ...)
+          - pattern: popen([..., $ARG1, ...], ...)
 
           # miscellaneous
           - pattern: os.system($ARG1, ...)
