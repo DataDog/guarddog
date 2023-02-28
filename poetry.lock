@@ -1192,14 +1192,14 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "wcmatch"
-version = "8.4"
+version = "8.4.1"
 description = "Wildcard/glob file name matcher."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "wcmatch-8.4-py3-none-any.whl", hash = "sha256:dc7351e5a7f8bbf4c6828d51ad20c1770113f5f3fd3dfe2a03cfde2a63f03f98"},
-    {file = "wcmatch-8.4.tar.gz", hash = "sha256:ba4fc5558f8946bf1ffc7034b05b814d825d694112499c86035e0e4d398b6a67"},
+    {file = "wcmatch-8.4.1-py3-none-any.whl", hash = "sha256:3476cd107aba7b25ba1d59406938a47dc7eec6cfd0ad09ff77193f21a964dee7"},
+    {file = "wcmatch-8.4.1.tar.gz", hash = "sha256:b1f042a899ea4c458b7321da1b5e3331e3e0ec781583434de1301946ceadb943"},
 ]
 
 [package.dependencies]
@@ -1237,4 +1237,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "d6cf51d39a38f56db4d3e5f8acdcb44e57c4a476592342e48ac94661e5fbbdaf"
+content-hash = "4e3dd15c6bb5577161c0fad70f3a485b304fa72c2d0876c4c7dc65771a08995b"
