@@ -963,16 +963,16 @@ doc = ["Sphinx", "sphinx-rtd-theme"]
 
 [[package]]
 name = "semgrep"
-version = "0.112.1"
+version = "0.123.0"
 description = "Lightweight static analysis for many languages. Find bug variants with patterns that look like source code."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:2a62bc6321d371dadc41df2c68678e87df807ddfa3d1faafb40bd0998abfe503"},
-    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:b690a84cbaa6a4670ff6c11a674818b8ad99736e89520a3c47d1542cc45e6d05"},
-    {file = "semgrep-0.112.1-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:bc2437f12e41ac5e28a303e463098565a3d948c7744f6745bdb0fea341ccdae1"},
-    {file = "semgrep-0.112.1.tar.gz", hash = "sha256:2140a0fd16f3ac0a0e330980613ba65fe58faea7808a965e219c4199bab96102"},
+    {file = "semgrep-0.123.0-cp37.cp38.cp39.py37.py38.py39-none-any.whl", hash = "sha256:241d9c6342279a0d9eda0c63d66a49df9fd319843558676ec80251d8dc936936"},
+    {file = "semgrep-0.123.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_10_14_x86_64.whl", hash = "sha256:8d796877006cecb3da9c4c211a941c04ee605acf409fda435bea59bb011f7187"},
+    {file = "semgrep-0.123.0-cp37.cp38.cp39.py37.py38.py39-none-macosx_11_0_arm64.whl", hash = "sha256:993455e06867a02bf4a342c3c2d57f70a8df450a83dd80773d583e8bc0c56ea6"},
+    {file = "semgrep-0.123.0.tar.gz", hash = "sha256:cf10b567346df79aec18d9042a2ccc275f9404a6619836ed5fe95016470707f0"},
 ]
 
 [package.dependencies]
@@ -989,6 +989,7 @@ peewee = ">=3.14,<4.0"
 python-lsp-jsonrpc = ">=1.0.0,<1.1.0"
 requests = ">=2.22,<3.0"
 "ruamel.yaml" = ">=0.16.0,<0.18"
+tomli = ">=2.0.1,<2.1.0"
 tqdm = ">=4.46,<5.0"
 typing-extensions = ">=4.2,<5.0"
 urllib3 = ">=1.26,<2.0"
@@ -1237,4 +1238,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "cf37510a524a51b2491d48242ceb47614d9dfa6ecff19e6cc3b3c531c6ed32bb"
+content-hash = "9d30157c8b10e9517d88caa0f05aaf859d65bb68f56fa22de7f668ae944f00b1"
