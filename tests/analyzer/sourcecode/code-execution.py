@@ -185,3 +185,14 @@ subprocess.Popen('powershell -WindowStyle Hidden -EncodedCommand cABvAHc..', she
 
 # ruleid: code-execution
 os.popen("powershell foo", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+
+"""
+https://www.kroll.com/en/insights/publications/cyber/pypi-packages-deliver-python-remote-access-tools
+"""
+def run_file(path):
+	#pass
+	#os.system(path)
+	print("Running")
+    # ruleid: code-execution
+	p = subprocess.Popen(f"python {path}",shell=True,stdin=None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,close_fds=True)
+	out, err = p.communicate()
