@@ -180,8 +180,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
 
     if output_format == "json":
         import json as js
-        # print(js.dumps(results))
-        return js.dumps(results)
+        print(js.dumps(results))
     else:
         print_scan_results(results, identifier)
 
