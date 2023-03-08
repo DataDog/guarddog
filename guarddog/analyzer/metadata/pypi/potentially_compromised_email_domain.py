@@ -35,7 +35,7 @@ class PypiPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailD
         sorted_versions = sorted(
             releases.keys(), key=lambda r: version.parse(r), reverse=True
         )
-        earlier_versions = sorted_versions[:-1]
+        earlier_versions = sorted_versions[:-1] if len(sorted_versions) > 1 else sorted_versions
 
         for early_version in earlier_versions:
             version_release = releases[early_version]
