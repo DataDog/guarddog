@@ -107,7 +107,13 @@ def _ensure_proper_url(url):
 def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
     infos = package_info["info"]
     homepage = None
-    if "Homepage" in package_info["info"]["project_urls"]:
+
+    project_urls = infos.get("project_urls", {})
+    # In some cases, the "project_urls" key is set, but is set to None
+    if project_urls is None:
+        return set(), None
+
+    if "Homepage" in project_urls:
         homepage = package_info["info"]["project_urls"]["Homepage"]
     github_urls = set()
     for dict_path in dict_generator(infos):
