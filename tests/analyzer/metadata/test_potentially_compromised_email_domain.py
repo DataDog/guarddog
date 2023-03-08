@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+from copy import deepcopy
 from datetime import datetime
 
 import pytest
@@ -25,7 +26,8 @@ npm_detector = NPMPotentiallyCompromisedEmailDomainDetector()
 
 class TestCompromisedEmail:
 
-    @pytest.mark.parametrize("package_info, detector", [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
+    @pytest.mark.parametrize("package_info, detector",
+                             [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
     def test_compromised(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime.today())
@@ -34,7 +36,8 @@ class TestCompromisedEmail:
         compromised, _ = detector.detect(package_info)
         assert compromised
 
-    @pytest.mark.parametrize("package_info, detector", [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
+    @pytest.mark.parametrize("package_info, detector",
+                             [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
     def test_safe(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
@@ -51,3 +54,19 @@ class TestCompromisedEmail:
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised, _ = pypi_detector.detect(PYPI_PACKAGE_INFO)
         assert compromised
+
+    def test_single_package_version(self):
+        """
+        Regression test for https://github.com/DataDog/guarddog/issues/190
+        """
+        current_info = deepcopy(PYPI_PACKAGE_INFO)
+
+        current_info["releases"] = {"1.0": [{
+            "upload_time": "2023-03-06T00:41:25",
+            "upload_time_iso_8601": "2023-03-06T00:41:25.953817Z"
+        }]}
+        try:
+            pypi_detector.detect(current_info)
+            pass  # we expect no exception to be thrown
+        except Exception as e:
+            pytest.fail(f"Unexpected exception thrown: {e}")
