@@ -13,6 +13,9 @@ from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 log = logging.getLogger("guarddog")
 
 
+TOP_PACKAGES_CACHE_LOCATION = os.environ.get('GUARDDOG_TOP_PACKAGES_CACHE_LOCATION')
+
+
 class PypiTyposquatDetector(TyposquatDetector):
     """
     Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 1000 packages.
@@ -42,7 +45,10 @@ class PypiTyposquatDetector(TyposquatDetector):
         popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
 
         top_packages_filename = "top_pypi_packages.json"
-        resources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources"))
+        resources_dir = TOP_PACKAGES_CACHE_LOCATION
+        if resources_dir is None:
+            resources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources"))
+
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
 
         top_packages_information = None
