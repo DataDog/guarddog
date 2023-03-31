@@ -7,6 +7,12 @@ rules:
       description: Identify when a package downloads and makes executable a remote binary
     mode: taint
     pattern-sinks:
+      - pattern-either:
+          - pattern: |
+              $FILE = open(...)
+              ...
+              $FILE.write($REQUEST)
+          - pattern: open(...).write($REQUEST)
       - patterns:
           - pattern-either:
               - pattern: |
@@ -37,4 +43,5 @@ rules:
       - pattern: urlopen(...)
       - pattern: (...).getresponse(...)
       - pattern: getresponse(...)
+      - pattern: requests.$FUNC(...)
     severity: WARNING
