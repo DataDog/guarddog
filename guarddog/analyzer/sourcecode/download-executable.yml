@@ -13,27 +13,39 @@ rules:
               ...
               $FILE.write($REQUEST)
           - pattern: open(...).write($REQUEST)
+          - pattern: |
+              with open(...) as $FILE:
+                ...
+                $FILE.write($REQUEST)
       - patterns:
           - pattern-either:
               - pattern: |
-                  $FILE = open("$LOC", ...)
+                  $FILE = open($LOC, ...)
                   ...
                   $FILE.write($REQUEST)
                   ...
                   $CHANGE_PERMISSIONS
               - pattern: |
-                  with open("$LOC", ...) as $FILE:
+                  with open($LOC, ...) as $FILE:
                     ...
                     $FILE.write($REQUEST)
+                  ...
+                  $CHANGE_PERMISSIONS
+              - pattern: |
+                  open(...).write($REQUEST)
                   ...
                   $CHANGE_PERMISSIONS
           - metavariable-pattern:
               metavariable: $CHANGE_PERMISSIONS
               pattern-either:
                 - pattern: os.chmod("$LOC", 777)
+                - pattern: os.chmod($LOC, 777)
                 - pattern: os.chmod("$LOC", <...stat.S_IEXEC...>)
+                - pattern: os.chmod($LOC, <...stat.S_IEXEC...>)
                 - pattern: chmod("$LOC", 777)
+                - pattern: chmod($LOC, 777)
                 - pattern: chmod("$LOC", <...stat.S_IEXEC...>)
+                - pattern: chmod($LOC, <...stat.S_IEXEC...>)
     pattern-sources:
       - pattern: (...).send(...)
       - pattern: send(...)
