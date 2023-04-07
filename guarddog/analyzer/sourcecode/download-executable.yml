@@ -7,16 +7,6 @@ rules:
       description: Identify when a package downloads and makes executable a remote binary
     mode: taint
     pattern-sinks:
-      - pattern-either:
-          - pattern: |
-              $FILE = open(...)
-              ...
-              $FILE.write($REQUEST)
-          - pattern: open(...).write($REQUEST)
-          - pattern: |
-              with open(...) as $FILE:
-                ...
-                $FILE.write($REQUEST)
       - patterns:
           - pattern-either:
               - pattern: |
@@ -32,7 +22,7 @@ rules:
                   ...
                   $CHANGE_PERMISSIONS
               - pattern: |
-                  open(...).write($REQUEST)
+                  open($LOC, ...).write($REQUEST)
                   ...
                   $CHANGE_PERMISSIONS
           - metavariable-pattern:
@@ -46,6 +36,7 @@ rules:
                 - pattern: chmod($LOC, 777)
                 - pattern: chmod("$LOC", <...stat.S_IEXEC...>)
                 - pattern: chmod($LOC, <...stat.S_IEXEC...>)
+                - pattern: os.system(f"...{$LOC}...")
     pattern-sources:
       - pattern: (...).send(...)
       - pattern: send(...)
