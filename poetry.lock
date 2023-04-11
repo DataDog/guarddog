@@ -549,14 +549,13 @@ dill = ["dill (>=0.3.6)"]
 
 [[package]]
 name = "prettytable"
-version = "3.6.0"
+version = "3.7.0"
 description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "prettytable-3.6.0-py3-none-any.whl", hash = "sha256:3b767129491767a3a5108e6f305cbaa650f8020a7db5dfe994a2df7ef7bad0fe"},
-    {file = "prettytable-3.6.0.tar.gz", hash = "sha256:2e0026af955b4ea67b22122f310b90eae890738c08cb0458693a49b6221530ac"},
+    {file = "prettytable-3.7.0-py3-none-any.whl", hash = "sha256:f4aaf2ed6e6062a82fd2e6e5289bbbe705ec2788fe401a3a1f62a1cea55526d2"},
 ]
 
 [package.dependencies]
