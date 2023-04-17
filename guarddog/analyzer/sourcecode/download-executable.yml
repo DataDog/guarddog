@@ -10,24 +10,33 @@ rules:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $FILE = open("$LOC", ...)
+                  $FILE = open($LOC, ...)
                   ...
                   $FILE.write($REQUEST)
                   ...
                   $CHANGE_PERMISSIONS
               - pattern: |
-                  with open("$LOC", ...) as $FILE:
+                  with open($LOC, ...) as $FILE:
                     ...
                     $FILE.write($REQUEST)
+                  ...
+                  $CHANGE_PERMISSIONS
+              - pattern: |
+                  open($LOC, ...).write($REQUEST)
                   ...
                   $CHANGE_PERMISSIONS
           - metavariable-pattern:
               metavariable: $CHANGE_PERMISSIONS
               pattern-either:
                 - pattern: os.chmod("$LOC", 777)
+                - pattern: os.chmod($LOC, 777)
                 - pattern: os.chmod("$LOC", <...stat.S_IEXEC...>)
+                - pattern: os.chmod($LOC, <...stat.S_IEXEC...>)
                 - pattern: chmod("$LOC", 777)
+                - pattern: chmod($LOC, 777)
                 - pattern: chmod("$LOC", <...stat.S_IEXEC...>)
+                - pattern: chmod($LOC, <...stat.S_IEXEC...>)
+                - pattern: os.system(f"...{$LOC}...")
     pattern-sources:
       - pattern: (...).send(...)
       - pattern: send(...)
@@ -37,4 +46,5 @@ rules:
       - pattern: urlopen(...)
       - pattern: (...).getresponse(...)
       - pattern: getresponse(...)
+      - pattern: requests.$FUNC(...)
     severity: WARNING
