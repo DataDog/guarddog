@@ -2,13 +2,18 @@
 
 GITHUB_REPO="https://github.com/DataDog/malicious-software-packages-dataset.git"
 
-output_dir="$1"
-if [ -z "$output_dir" ]; then
-	echo "Please specify the output directory"
+if [ -z "$1" ] ; then
+	echo "Please specify an output directory"
 	exit 0
 fi
+output_dir="$(realpath -q "$1")"
+mkdir -p "${output_dir}"
 
-# Download ~954 malicious pypi packages
+# Download ~1000 malicious pypi packages
+echo "[+] Cloning repo"
 git clone ${GITHUB_REPO} /tmp/malicious-dataset
-mv /tmp/malicious-dataset/samples/pypi/ ${output_dir}
+cd /tmp/malicious-dataset/samples/pypi/ 
+
+echo "[+] Decrypting samples"
+/bin/sh extract.sh "${output_dir}"
 rm -rf /tmp/malicious-dataset
