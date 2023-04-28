@@ -15,5 +15,5 @@ COPY download_legit_pypi_package.sh /opt/
 RUN /bin/sh /opt/download_legit_pypi_package.sh /opt/legit_pypi_package/
 ENV LEGIT_PYPI_PACKAGE="/opt/legit_pypi_package/"
 
-COPY run_test.sh /tmp/
-ENTRYPOINT ["/bin/sh", "/tmp/run_test.sh"]
+COPY docker_run_test.sh /tmp/
+ENTRYPOINT ["/bin/sh", "docker_run_test.sh"]
