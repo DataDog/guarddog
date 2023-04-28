@@ -114,7 +114,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
             print_scan_results(result.get('result'), identifier)
 
         if len(result.get('errors', [])) > 0:
-          print_errors(result.get('error'), identifier)
+            print_errors(result.get('error'), identifier)
 
     results = scanner.scan_local(path, rule_param, display_result)
     if output_format == "json":

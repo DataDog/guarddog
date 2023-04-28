@@ -9,7 +9,7 @@ if [ -z "$output_dir" ]; then
 	exit 0
 fi
 
-# This url contains 5000 pypi packages but we'll only use the top 1000
-curl "${TOP_PYPI_PACKAGE}" | jq '.rows[].project' | tr -d "\"" | head -1000 > ${REQUIREMENT_FILE}
+# This url contains 5000 pypi packages but we'll only use the top 500
+curl "${TOP_PYPI_PACKAGE}" | jq '.rows[].project' | tr -d "\"" | head -500 | grep -Ev "(tensorflow|psycopg2)" > ${REQUIREMENT_FILE}
 pip download --no-cache-dir --no-deps -r ${REQUIREMENT_FILE} --dest $output_dir
 
