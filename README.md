@@ -47,6 +47,13 @@ guarddog pypi scan requests --exclude-rules exec-base64
 # Scan a local package
 guarddog pypi scan /tmp/triage.tar.gz
 
+# Scan a local directory, the packages need to be located in the root directory
+# For instance you have several pypi packages in ./samples/ like:
+# ./samples/package1.tar.gz ./samples/package2.zip ./samples/package3.whl 
+# FYI if a file not supported by guarddog is found you will get an error
+# Here is the command to scan a directory:
+guarddog pypi scan ./samples/
+
 # Scan every package referenced in a requirements.txt file of a local folder
 guarddog pypi verify workspace/guarddog/requirements.txt
 
@@ -204,6 +211,10 @@ Running all unit tests: `make test`
 Running unit tests against Semgrep rules: `make test-semgrep-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/sourcecode)). These use the standard methodology for [testing Semgrep rules](https://semgrep.dev/docs/writing-rules/testing-rules/).
 
 Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/metadata)).
+
+### Benchmarking
+
+You can run GuardDog on legitimate and malicious packages to determine false positives and false negatives. See [./tests/samples](./tests/samples)
 
 ### Code quality checks
 

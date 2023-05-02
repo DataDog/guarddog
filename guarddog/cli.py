@@ -169,6 +169,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
     if is_local_target(identifier):
         log.debug(f"Considering that '{identifier}' is a local target, scanning filesystem")
         if os.path.isdir(identifier):
+            log.debug(f"Considering that '{identifier}' as a local directory")
             for package in os.listdir(identifier):
                 results.append({'package': package} | scanner.scan_local(f"{identifier}/{package}", rule_param))
         else:
@@ -184,7 +185,12 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
 
     if output_format == "json":
         import json as js
-        print(js.dumps(results))
+        if len(results) == 1:
+            # return only a json like {} 
+            print(js.dumps(results[0]))
+        else:
+            # Return a list of result like [{},{}]
+            print(js.dumps(results))
     else:
         for result in results:
             print_scan_results(result, result['package'])
