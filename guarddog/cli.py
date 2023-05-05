@@ -186,7 +186,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
     if output_format == "json":
         import json as js
         if len(results) == 1:
-            # return only a json like {} 
+            # return only a json like {}
             print(js.dumps(results[0]))
         else:
             # Return a list of result like [{},{}]
