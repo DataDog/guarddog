@@ -238,14 +238,14 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "docker"
-version = "6.0.1"
+version = "6.1.1"
 description = "A Python library for the Docker Engine API."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "docker-6.0.1-py3-none-any.whl", hash = "sha256:dbcb3bd2fa80dca0788ed908218bf43972772009b881ed1e20dfc29a65e49782"},
-    {file = "docker-6.0.1.tar.gz", hash = "sha256:896c4282e5c7af5c45e8b683b0b0c33932974fe6e50fc6906a0a83616ab3da97"},
+    {file = "docker-6.1.1-py3-none-any.whl", hash = "sha256:8308b23d3d0982c74f7aa0a3abd774898c0c4fba006e9c3bde4f68354e470fe2"},
+    {file = "docker-6.1.1.tar.gz", hash = "sha256:5ec18b9c49d48ee145a5b5824bb126dc32fc77931e18444783fc07a7724badc0"},
 ]
 
 [package.dependencies]
@@ -1238,4 +1238,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "700ef42411b1f2fad81236a918465c64af3c2a2d267a02567410797b0abd44af"
+content-hash = "6bc7f08d6f69de563066201f3a3050365a20838003c1f218900a4609227cf400"
