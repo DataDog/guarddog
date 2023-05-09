@@ -5,6 +5,13 @@ to get a ratio of false positives and false negatives.
 
 ## Getting started
 
+### Install guarddog from your Github branch
+
+To test your latest change in guarddog, you can install it from your Github branch:
+```sh
+./local_install_guarddog.sh your_branch_name
+```
+
 ### Local test
 
 ```sh
