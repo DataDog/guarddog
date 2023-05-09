@@ -11,7 +11,7 @@ mkdir -p "${output_dir}"
 
 # Download ~1000 malicious pypi packages
 echo "[+] Cloning repo"
-git clone ${GITHUB_REPO} /tmp/malicious-dataset
+git clone --depth 1 ${GITHUB_REPO} /tmp/malicious-dataset
 cd /tmp/malicious-dataset/samples/pypi/ 
 
 echo "[+] Decrypting samples"

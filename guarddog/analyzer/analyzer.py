@@ -154,6 +154,8 @@ class Analyzer:
             dict[str]: map from each source code rule and their corresponding output
         """
         targetpath = Path(path)
+        all_rules = rules if rules is not None else self.sourcecode_ruleset
+        results = {rule: {} for rule in all_rules}  # type: dict
         errors = {}
         issues = 0
 
@@ -177,10 +179,11 @@ class Analyzer:
             rule_results = self._format_semgrep_response(response, targetpath=targetpath)
             issues += len(rule_results)
 
+            results = results | rule_results
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
-        return {"results": rule_results, "errors": errors, "issues": issues}
+        return {"results": results, "errors": errors, "issues": issues}
 
     def _invoke_semgrep(self, target: str, rules: Iterable[str]):
         try:
