@@ -165,14 +165,19 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
     if scanner is None:
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         exit(1)
-    results = {}
+    results = []
     if is_local_target(identifier):
         log.debug(f"Considering that '{identifier}' is a local target, scanning filesystem")
-        results = scanner.scan_local(identifier, rule_param)
+        if os.path.isdir(identifier):
+            log.debug(f"Considering that '{identifier}' as a local directory")
+            for package in os.listdir(identifier):
+                results.append({'package': package} | scanner.scan_local(f"{identifier}/{package}", rule_param))
+        else:
+            results.append({'package': identifier} | scanner.scan_local(identifier, rule_param))
     else:
         log.debug(f"Considering that '{identifier}' is a remote target")
         try:
-            results = scanner.scan_remote(identifier, version, rule_param)
+            results.append({'package': identifier} | scanner.scan_remote(identifier, version, rule_param))
         except Exception as e:
             sys.stderr.write("\n")
             sys.stderr.write(str(e))
@@ -180,12 +185,19 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
 
     if output_format == "json":
         import json as js
-        print(js.dumps(results))
+        if len(results) == 1:
+            # return only a json like {}
+            print(js.dumps(results[0]))
+        else:
+            # Return a list of result like [{},{}]
+            print(js.dumps(results))
     else:
-        print_scan_results(results, identifier)
+        for result in results:
+            print_scan_results(result, result['package'])
 
     if exit_non_zero_on_finding:
-        exit_with_status_code(results)
+        for result in results:
+            exit_with_status_code(result)
 
 
 def _list_rules(ecosystem):
