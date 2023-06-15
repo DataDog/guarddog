@@ -86,6 +86,7 @@ jobs:
 
       - name: Install GuardDog
         run: |
+          pip install -r requirements.txt -r requirements-dev.txt
           pip install .
 
       - name: Run GuardDog against a remote package
