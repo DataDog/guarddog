@@ -2,8 +2,9 @@ import json
 import logging
 import os
 import subprocess
+from collections import defaultdict
 from pathlib import Path
-from typing import Optional, Iterable, List
+from typing import Iterable, List, Optional
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
@@ -177,7 +178,7 @@ class Analyzer:
             log.debug(f"Running source code rules against {path}")
             response = self._invoke_semgrep(target=path, rules=rules_path)
             rule_results = self._format_semgrep_response(response, targetpath=targetpath)
-            issues += len(rule_results)
+            issues += sum(len(res) for res in rule_results.values())
 
             results = results | rule_results
         except Exception as e:
@@ -229,15 +230,18 @@ output: {e.output}
 
             {
                 ...
-                <rule-name>: {
-                    <path-to-code:line-num>: <dangerous-code>
+                <rule-name>: [
+                    {
+                        <path-to-code:line-num>: <dangerous-code>
+                        ...
+                    },
                     ...
-                },
+                ],
                 ...
             }
         """
 
-        results = {}
+        results = defaultdict(list)
 
         for result in response["results"]:
             rule_name = rule or result["check_id"].split(".")[-1]
@@ -251,13 +255,11 @@ output: {e.output}
             location = file_path + ":" + str(line)
             code = self.trim_code_snippet(code_snippet)
 
-            if rule_name not in result:
-                results[rule_name] = []
-                results[rule_name].append({
-                    'location': location,
-                    'code': code,
-                    'message': result["extra"]["message"]
-                })
+            results[rule_name].append({
+                'location': location,
+                'code': code,
+                'message': result["extra"]["message"]
+            })
 
         return results
 
