@@ -119,5 +119,3 @@ jobs:
           push: false
           build-args: |
             VERSION=${{ github.ref_name }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
