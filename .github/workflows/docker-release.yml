@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: datadog/guarddog
+  DOCKER_BUILDKIT: 1
 
 permissions:
   contents: read
