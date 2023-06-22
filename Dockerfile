@@ -1,6 +1,7 @@
 FROM python:3.10-alpine3.17 AS base
 LABEL org.opencontainers.image.source="https://github.com/DataDog/guarddog/"
 
+# automatically provided by buildkit
 ARG TARGETARCH
 
 RUN --mount=type=cache,mode=0755,id=apk-$TARGETARCH,target=/var/cache/apk \
