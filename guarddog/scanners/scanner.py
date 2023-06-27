@@ -234,9 +234,7 @@ class PackageScanner(Scanner):
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     safe_extract(path, tmpdirname)
                     return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
-            elif os.path.isdir(path):
-                return self.analyzer.analyze_sourcecode(path, rules=rules)
-            else:  # is a file
+            else:  # is a directory of a file
                 return self.analyzer.analyze_sourcecode(path, rules=rules)
         else:
             raise Exception(f"Path {path} does not exist.")
