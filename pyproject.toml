@@ -34,7 +34,7 @@ prettytable="^3.6.0"
 mypy = "^1.4.1"
 coverage = "^7.2.7"
 flake8 = ">=5.0.4,<7.0.0"
-pytest = "^7.1.2"
+pytest = "^7.4.0"
 setuptools = ">=65.6.3,<69.0.0"
 
 [tool.pytest.ini_options]
