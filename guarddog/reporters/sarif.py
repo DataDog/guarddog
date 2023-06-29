@@ -188,3 +188,51 @@ def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: 
     runs = get_run(results, driver)
     log = get_sarif_log([runs])
     return json.dumps(log, indent=2)
+
+
+
+def report_scan_sarif(rule_names: list[str], scan_results: list[dict],
+                        ecosystem: ECOSYSTEM) -> str:
+    rules_documentation = build_rules_help_list()
+    rules = list(map(
+        lambda s: get_rule(s, rules_documentation),
+        rule_names
+    ))
+    driver = get_driver(rules, ecosystem.value)
+    results = []
+
+    for entry in scan_results:
+        if entry["issues"] == 0:
+            continue
+
+        scan_result_details = entry["results"]
+        for rule_name, rule_records in scan_result_details.items():
+            for record in rule_records:
+                region = {
+                    "startLine": record["start"]["line"],
+                    "endLine": record["end"]["line"],
+                    "startColumn": record["start"]["col"],
+                    "endColumn": record["end"]["col"],
+                }
+                uri = record["path"]
+                physical_location = get_physical_location(uri, region)
+                location = get_location(physical_location)
+                package = entry["package"]
+
+                text = f"On package: {package} \n" + "\n".join(map(
+                    lambda x: x["message"],
+                    scan_result_details[rule_name]
+                )) if type(scan_result_details[rule_name]) == list else scan_result_details[rule_name]
+                key = f"{rule_name}-{text}"
+                partial_fingerprints = {
+                    f"guarddog/v1/{rule_name}": hashlib.sha256(key.encode('utf-8')).hexdigest()
+                }
+                result = get_result(rule_name,
+                                    [location],
+                                    text,
+                                    partial_fingerprints)
+                results.append(result)
+
+    runs = get_run(results, driver)
+    log = get_sarif_log([runs])
+    return json.dumps(log, indent=2)

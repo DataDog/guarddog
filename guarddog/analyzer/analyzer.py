@@ -257,6 +257,9 @@ output: {e.output}
 
             results[rule_name].append({
                 'location': location,
+                'start': result["start"],
+                'end': result["end"],
+                'path': result["path"],
                 'code': code,
                 'message': result["extra"]["message"]
             })

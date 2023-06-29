@@ -16,7 +16,7 @@ from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import SOURCECODE_RULES
 from guarddog.ecosystems import ECOSYSTEM
-from guarddog.reporters.sarif import report_verify_sarif
+from guarddog.reporters.sarif import report_verify_sarif, report_scan_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 
@@ -51,7 +51,7 @@ def verify_options(fn):
 
 
 def scan_options(fn):
-    fn = click.option("--output-format", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
+    fn = click.option("--output-format", default=None, type=click.Choice(["json", "sarif"], case_sensitive=False))(fn)
     fn = click.option("-v", "--version", default=None, help="Specify a version to scan")(fn)
     return fn
 
@@ -185,12 +185,13 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
 
     if output_format == "json":
         import json as js
-        if len(results) == 1:
-            # return only a json like {}
-            print(js.dumps(results[0]))
-        else:
-            # Return a list of result like [{},{}]
-            print(js.dumps(results))
+        return_value = js.dumps(results)
+
+    elif output_format == "sarif":
+        return_value = report_scan_sarif(list(ALL_RULES), results, ecosystem)
+
+    if output_format is not None:
+        print(return_value)
     else:
         for result in results:
             print_scan_results(result, result['package'])
