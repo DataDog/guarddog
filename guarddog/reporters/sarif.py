@@ -190,9 +190,8 @@ def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: 
     return json.dumps(log, indent=2)
 
 
-
 def report_scan_sarif(rule_names: list[str], scan_results: list[dict],
-                        ecosystem: ECOSYSTEM) -> str:
+                      ecosystem: ECOSYSTEM) -> str:
     rules_documentation = build_rules_help_list()
     rules = list(map(
         lambda s: get_rule(s, rules_documentation),
