@@ -57,8 +57,8 @@ class PypiTyposquatDetector(TyposquatDetector):
             update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
 
             if datetime.now() - update_time <= timedelta(days=30):
-                top_packages_file = open(top_packages_path, "r")
-                top_packages_information = json.load(top_packages_file)["rows"]
+                with open(top_packages_path, "r") as top_packages_file:
+                    top_packages_information = json.load(top_packages_file)["rows"]
 
         if top_packages_information is None:
             response = requests.get(popular_packages_url).json()
