@@ -16,7 +16,10 @@ class NPMPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailDo
         super().__init__("npm")
 
     def get_email_addresses(self, package_info: dict) -> list[str]:
-        return list(map(lambda x: x["email"], package_info["maintainers"]))
+        if package_info.get("maintainers"):
+            return list(map(lambda x: x["email"], package_info["maintainers"]))
+        else:
+            return []
 
     def get_project_latest_release_date(self, package_info) -> Optional[datetime]:
         """
