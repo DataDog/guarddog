@@ -21,8 +21,9 @@ def test_no_good_homepage_link():
         "Download": "UNKNOWN",
         "Homepage": "https://github.com/pypa/samplproject",
         },
+    current_info["info"]["summary"] = "https://github.com/pypa/sampleproject"
     detector = PypiIntegrityMismatchDetector()
-    match, message = detector.detect(current_info, name="sampleproject", path="")
+    match, message = detector.detect(current_info, name="mypackage", path="")
     assert not match
     assert message == "Could not find a good GitHub url in the project's description"
 
