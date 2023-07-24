@@ -7,6 +7,7 @@ import hashlib
 import logging
 import os
 import re
+import requests
 from typing import Optional, Tuple
 
 import pygit2  # type: ignore
@@ -36,6 +37,7 @@ def find_best_github_candidate(all_candidates_and_highlighted_link, name):
     If the repository homepage is a GitHub URL, it is used in priority
     """
     candidates, best_github_candidate = all_candidates_and_highlighted_link
+
     # if the project url is a GitHub repository, we should follow this as an instruction. Users will click on it
     if best_github_candidate is not None:
         best_github_candidate = best_github_candidate.replace("http://", "https://")
@@ -109,6 +111,7 @@ def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
     homepage = None
 
     project_urls = infos.get("project_urls", {})
+
     # In some cases, the "project_urls" key is set, but is set to None
     if project_urls is None:
         return set(), None
@@ -126,7 +129,11 @@ def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
                 github_urls.add(_ensure_proper_url(cd.strip()))
     best = None
     if homepage in github_urls:
-        best = _ensure_proper_url(homepage)
+        if homepage is not None and isinstance(homepage, str):
+            response = requests.get(homepage)
+            if response.status_code == 200:
+                best = _ensure_proper_url(homepage)
+
     return github_urls, best
 
 
@@ -246,7 +253,14 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
             raise Exception("no current scanning directory")
 
         repo_path = os.path.join(tmp_dir, "sources", name)
-        repo = pygit2.clone_repository(url=github_url, path=repo_path)
+        try:
+            repo = pygit2.clone_repository(url=github_url, path=repo_path)
+        except pygit2.GitError as git_error:
+            # Handle generic Git-related errors
+            raise Exception(f"Error while cloning repository {str(git_error)} with github url {github_url}")
+        except Exception as e:
+            # Catch any other unexpected exceptions
+            raise Exception(f"An unexpected error occured: {str(e)}.  github url {github_url}")
 
         tag_candidates = find_suitable_tags(repo, version)
 
