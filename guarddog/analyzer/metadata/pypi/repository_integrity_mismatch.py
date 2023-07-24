@@ -129,9 +129,10 @@ def find_github_candidates(package_info) -> Tuple[set[str], Optional[str]]:
                 github_urls.add(_ensure_proper_url(cd.strip()))
     best = None
     if homepage in github_urls:
-        response = requests.get(homepage)
-        if response.status_code == 200:
-            best = _ensure_proper_url(homepage)
+        if homepage is not None and isinstance(homepage, str):
+            response = requests.get(homepage)
+            if response.status_code == 200:
+                best = _ensure_proper_url(homepage)
 
     return github_urls, best
 
