@@ -255,9 +255,10 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
         try:
             repo = pygit2.clone_repository(url=github_url, path=repo_path)
         except pygit2.GitError as git_error:
-            #Handle generic Git-related errors
+            # Handle generic Git-related errors
             raise Exception(f"Error while cloning repository {str(git_error)} with github url {github_url}")
         except Exception as e:
+            # Catch any other unexpected exceptions
             raise Exception(f"An unexpected error occured: {str(e)}.  github url {github_url}")
 
         tag_candidates = find_suitable_tags(repo, version)
