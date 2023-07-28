@@ -1,0 +1,10 @@
+rules:
+  - id: clipboard-paste
+    languages:
+      - python
+    message: This package has a potential misuse of pyperclip.paste()
+    metadata:
+      description: Identify when the 'pyperclip.paste()' command is executed
+    patterns:
+      - pattern: pyperclip.paste()
+    severity: WARNING
