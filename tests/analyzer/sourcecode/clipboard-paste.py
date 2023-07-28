@@ -18,7 +18,7 @@ if re.search('^[13][a-km-zA-HJ-NP-21-9]{25, 34}$', clipboard_data):
 if re.search('^Ox[a-fA-FO-9](40)$', clipboard_data):
     pyperclip.copy(self.address_eth)
     # ruleid: clipboard-paste
-    pyperclip-paste()
+    pyperclip.paste()
 
 
 """ RULEID: Find and replace email addresses
