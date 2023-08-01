@@ -1,0 +1,14 @@
+rules:
+  - id: clipboard-access
+    languages:
+      - python
+    message: This package accesses the clipboard, which can indicate it's trying to steal sensitive data or overwrite cryptocurrency addresses
+    metadata:
+      description: Identify when a package reads or write data from the clipboard
+    patterns:
+      - pattern-either:
+        - pattern: pyperclip.paste()
+        - pattern: pyperclip.copy(...)
+        - pattern: pandas.read_clipboard(...)
+        - pattern: $VAR.to_clipboard(...)
+    severity: WARNING
