@@ -88,6 +88,7 @@ Source code heuristics:
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
 | obfuscation | Identify when a package uses a common obfuscation method often used by malware |
+| clipboard-access | Identify when a package reads or write data from the clipboard |
 | exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 | download-executable | Identify when a package downloads and makes executable a remote binary |
 | exec-base64 | Identify when a package dynamically executes base64-encoded code |
