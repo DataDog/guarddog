@@ -23,6 +23,8 @@ from guarddog.scanners.scanner import PackageScanner
 ALL_RULES = \
     set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) \
     | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
+NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | SEMGREP_RULE_NAMES
+PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
 EXIT_CODE_ISSUES_FOUND = 1
 
 AVAILABLE_LOG_LEVELS = {
@@ -39,9 +41,25 @@ log = logging.getLogger('guarddog')
 def common_options(fn):
     fn = click.option("--exit-non-zero-on-finding", default=False, is_flag=True,
                       help="Exit with a non-zero status code if at least one issue is identified")(fn)
+    fn = click.argument("target")(fn)
+    return fn
+
+
+def legacy_rules_options(fn):
     fn = click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
     fn = click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
-    fn = click.argument("target")(fn)
+    return fn
+
+
+def npm_options(fn):
+    fn = click.option("-r", "--rules", multiple=True, type=click.Choice(NPM_RULES, case_sensitive=False))(fn)
+    fn = click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(NPM_RULES, case_sensitive=False))(fn)
+    return fn
+
+
+def pypi_options(fn):
+    fn = click.option("-r", "--rules", multiple=True, type=click.Choice(PYPI_RULES, case_sensitive=False))(fn)
+    fn = click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(PYPI_RULES, case_sensitive=False))(fn)
     return fn
 
 
@@ -82,15 +100,24 @@ def cli(log_level):
     pass
 
 
-def _get_rule_pram(rules, exclude_rules):
+def _get_rule_param(rules, exclude_rules, ecosystem):
     rule_param = None
     if len(rules) > 0:
         rule_param = rules
+
     if len(exclude_rules) > 0:
-        rule_param = ALL_RULES - set(exclude_rules)
+        all_rules = SEMGREP_RULE_NAMES
+        if ecosystem == ECOSYSTEM.NPM:
+            all_rules |= set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
+        elif ecosystem == ECOSYSTEM.PYPI:
+            all_rules |= set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
+
+        rule_param = all_rules - set(exclude_rules)
+
         if len(rules) > 0:
             print("--rules and --exclude-rules cannot be used together")
             exit(1)
+
     return rule_param
 
 
@@ -101,7 +128,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
         path (str): path to requirements.txt file
     """
     return_value = None
-    rule_param = _get_rule_pram(rules, exclude_rules)
+    rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = get_scanner(ecosystem, True)
     if scanner is None:
         sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
@@ -122,7 +149,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
         return_value = js.dumps(results)
 
     if output_format == "sarif":
-        return_value = report_verify_sarif(path, list(ALL_RULES), results, ecosystem)
+        return_value = report_verify_sarif(path, list(rule_param), results, ecosystem)
 
     if output_format is not None:
         print(return_value)
@@ -160,7 +187,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
         rules (list[str]): specific rules to run, defaults to all
     """
 
-    rule_param = _get_rule_pram(rules, exclude_rules)
+    rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = cast(Optional[PackageScanner], get_scanner(ecosystem, False))
     if scanner is None:
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
@@ -233,6 +260,7 @@ def pypi(**kwargs):
 @npm.command("scan")
 @common_options
 @scan_options
+@npm_options
 def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Scan a given npm package
     """
@@ -242,6 +270,7 @@ def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero
 @npm.command("verify")
 @common_options
 @verify_options
+@npm_options
 def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given npm project
     """
@@ -251,6 +280,7 @@ def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_fin
 @pypi.command("scan")
 @common_options
 @scan_options
+@pypi_options
 def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Scan a given PyPI package
     """
@@ -260,6 +290,7 @@ def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zer
 @pypi.command("verify")
 @common_options
 @verify_options
+@pypi_options
 def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     """ Verify a given Pypi project
     """
@@ -283,6 +314,7 @@ def list_rules_npm():
 @cli.command("verify", deprecated=True)
 @common_options
 @verify_options
+@legacy_rules_options
 def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
@@ -290,6 +322,7 @@ def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding
 @cli.command("scan", deprecated=True)
 @common_options
 @scan_options
+@legacy_rules_options
 def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
     return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
 
