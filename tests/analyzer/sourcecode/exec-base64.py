@@ -7,7 +7,7 @@
         - Subprocess module
         - os module
         - Command module
-        
+
         Inner partitions:
             - Muliline executions with intermediate assignments
             - Including/excluding module name in function calls
