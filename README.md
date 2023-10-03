@@ -88,6 +88,7 @@ Source code heuristics:
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
 | obfuscation | Identify when a package uses a common obfuscation method often used by malware |
+| clipboard-access | Identify when a package reads or write data from the clipboard |
 | exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 | download-executable | Identify when a package downloads and makes executable a remote binary |
 | exec-base64 | Identify when a package dynamically executes base64-encoded code |
@@ -128,7 +129,7 @@ Metadata heuristics:
 | release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
 | potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
 | typosquatting | Identify packages that are named closely to an highly popular package |
-| direct_url_dependency | Identify packages with direct URL dependencies |
+| direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
 
 
 <!-- END_RULE_LIST -->
