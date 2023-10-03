@@ -49,7 +49,7 @@ guarddog pypi scan /tmp/triage.tar.gz
 
 # Scan a local directory, the packages need to be located in the root directory
 # For instance you have several pypi packages in ./samples/ like:
-# ./samples/package1.tar.gz ./samples/package2.zip ./samples/package3.whl 
+# ./samples/package1.tar.gz ./samples/package2.zip ./samples/package3.whl
 # FYI if a file not supported by guarddog is found you will get an error
 # Here is the command to scan a directory:
 guarddog pypi scan ./samples/
@@ -88,6 +88,7 @@ Source code heuristics:
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
 | obfuscation | Identify when a package uses a common obfuscation method often used by malware |
+| clipboard-access | Identify when a package reads or write data from the clipboard |
 | exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 | download-executable | Identify when a package downloads and makes executable a remote binary |
 | exec-base64 | Identify when a package dynamically executes base64-encoded code |
@@ -128,6 +129,7 @@ Metadata heuristics:
 | release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
 | potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
 | typosquatting | Identify packages that are named closely to an highly popular package |
+| direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
 
 
 <!-- END_RULE_LIST -->
@@ -230,12 +232,12 @@ flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analy
 
 ## Acknowledgments
 
-Authors: 
+Authors:
 * [Ellen Wang](https://www.linkedin.com/in/ellen-wang-4bb5961a0/)
 * [Christophe Tafani-Dereeper](https://github.com/christophetd)
 * [Vladimir de Turckheim](https://www.linkedin.com/in/vladimirdeturckheim/)
 
-Inspiration: 
+Inspiration:
 * [Backstabber’s Knife Collection: A Review of Open Source Software Supply Chain Attacks](https://arxiv.org/pdf/2005.09535)
 * [What are Weak Links in the npm Supply Chain?](https://arxiv.org/pdf/2112.10165.pdf)
 * [A Survey on Common Threats in npm and PyPi Registries](https://arxiv.org/pdf/2108.09576.pdf)

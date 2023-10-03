@@ -9,7 +9,7 @@
 """
 
 
-""" OK: Executing python files to extract version information 
+""" OK: Executing python files to extract version information
 """
 # ok: code-execution
 exec(open("vapory_git/version.py").read())  # loads __version__
@@ -134,7 +134,7 @@ popen("cd %s && git init " % TEST_MODULES_ROOT)
 subprocess.check_output(["git", "describe", "--tags"]).strip()
 
 
-""" RULEID: executing bash commands 
+""" RULEID: executing bash commands
 """
 # ruleid: code-execution
 os.system('start ' + filename)
