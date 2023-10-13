@@ -32,7 +32,7 @@ prettytable="^3.6.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^1.4.1"
-coverage = "^7.2.7"
+coverage = "^7.3.2"
 flake8 = ">=5.0.4,<7.0.0"
 pytest = "^7.4.0"
 setuptools = ">=65.6.3,<69.0.0"
