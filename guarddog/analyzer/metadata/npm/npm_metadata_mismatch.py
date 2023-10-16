@@ -38,7 +38,7 @@ class NPMMetadataMismatch(Detector):
         # Get NPM manifest for version
         version_info = package_info["versions"][version] 
 
-        diff: list[Diff] = {
+        diff: dict[str, Diff] = {
             field: difference_at_key(version_info, package_manifest, field, field_type)
             for field, field_type in MANIFEST_FIELDS_CHECKLIST.items()
         }
@@ -49,14 +49,14 @@ class NPMMetadataMismatch(Detector):
 PerItemDiff = tuple[str,str,str]
 Diff = list[PerItemDiff] 
 
-def diff_at_key_dict(version_at_key: dict[Any], manifest_at_key: dict[Any]) -> Diff:
+def diff_at_key_dict(version_at_key: dict[str,Any], manifest_at_key: dict[str,Any]) -> Diff:
     return [
         (key, version_at_key.get(key), manifest_at_key.get(key))
         for key in set(version_at_key.keys()).union(set(manifest_at_key.keys())) 
         if version_at_key.get(key) != manifest_at_key.get(key)
     ]
 
-def difference_at_key(version_info: dict[Any], package_manifest: dict[Any], key: str, key_type) -> Diff:
+def difference_at_key(version_info: dict[str,Any], package_manifest: dict[str,Any], key: str, key_type) -> Diff:
     version_at_key = version_info.get(key, key_type())
     manifest_at_key = package_manifest.get(key, key_type())
     if not(isinstance(version_at_key, key_type) and isinstance(manifest_at_key, key_type)):
@@ -68,7 +68,7 @@ def difference_at_key(version_info: dict[Any], package_manifest: dict[Any], key:
         return [(f"{key}", version_at_key, manifest_at_key)] if version_at_key != manifest_at_key else []
 
 
-def describe_diff(diff: Diff) -> str:
+def describe_diff(diff: dict[str,Diff]) -> str:
     """
     Creates a string of the form 
     Difference between manifest and package.json found:
