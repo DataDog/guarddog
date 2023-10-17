@@ -319,6 +319,7 @@ NPM_PACKAGE_INFO = {
         }
       ]
     },
+  
   },
   "bugs": {
     "url": "https://github.com/lodash/lodash/issues"
