@@ -7,6 +7,7 @@ from guarddog.analyzer.metadata.npm.typosquatting import NPMTyposquatDetector
 from guarddog.analyzer.metadata.npm.direct_url_dependency import (
     NPMDirectURLDependencyDetector,
 )
+from guarddog.analyzer.metadata.npm.npm_metadata_mismatch import NPMMetadataMismatch
 
 NPM_METADATA_RULES = {}
 
@@ -16,6 +17,7 @@ classes = [
     NPMPotentiallyCompromisedEmailDomainDetector,
     NPMTyposquatDetector,
     NPMDirectURLDependencyDetector,
+    NPMMetadataMismatch,
 ]
 
 for detectorClass in classes:
