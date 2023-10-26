@@ -130,6 +130,7 @@ Metadata heuristics:
 | potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
 | typosquatting | Identify packages that are named closely to an highly popular package |
 | direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
+| npm_confusion | Identify package versions which have meaningful differences between the content of their package.json and the package version metadata as returned by the NPM API. Specifically identifies differences between dependencies, scripts, and documentation locations. |
 
 
 <!-- END_RULE_LIST -->
