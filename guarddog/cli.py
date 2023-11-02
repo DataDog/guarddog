@@ -149,7 +149,8 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
         return_value = js.dumps(results)
 
     if output_format == "sarif":
-        return_value = report_verify_sarif(path, list(rule_param), results, ecosystem)
+        sarif_rules = PYPI_RULES if ecosystem == ECOSYSTEM.PYPI else NPM_RULES
+        return_value = report_verify_sarif(path, list(sarif_rules), results, ecosystem)
 
     if output_format is not None:
         print(return_value)
