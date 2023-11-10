@@ -12,7 +12,9 @@ rules:
     pattern-sinks:
       - pattern-either:
           - pattern-inside: exec(...)
+          - pattern: __import__("builtins").exec(...)
           - pattern-inside: eval(...)
+          - pattern: __import__("builtins").eval(...)
           - pattern-inside: subprocess.check_output(...)
           - pattern-inside: subprocess.run(...)
           - pattern-inside: subprocess.call(...)
