@@ -106,3 +106,15 @@ exec(''.join([y[0] for x in [x for x in base64.b64decode( ('TSUmPCwrKCEvLCQnLypN
 
 # ruleid: exec-base64
 exec(''.join(base64.b64decode("YWFh").decode()))
+
+
+# ruleid: exec-base64
+__import__("builtins").exec(
+    __import__("builtins").compile(
+        __import__("base64").b64decode(
+            "foo="
+        ),
+        "<string>",
+        "exec",
+    )
+)
