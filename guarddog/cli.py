@@ -224,8 +224,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
             print_scan_results(result, result['package'])
 
     if exit_non_zero_on_finding:
-        for result in results:
-            exit_with_status_code(result)
+        exit_with_status_code(results)
 
 
 def _list_rules(ecosystem):
@@ -376,6 +375,7 @@ def format_code_line_for_output(code):
 
 # Given the results, exit with the appropriate status code
 def exit_with_status_code(results):
-    num_issues = results.get('issues', 0)
-    if num_issues > 0:
-        exit(EXIT_CODE_ISSUES_FOUND)
+    for result in results:
+        num_issues = result.get('issues', 0)
+        if num_issues > 0:
+            exit(EXIT_CODE_ISSUES_FOUND)
