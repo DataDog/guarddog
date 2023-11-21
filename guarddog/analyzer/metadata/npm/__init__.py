@@ -8,6 +8,7 @@ from guarddog.analyzer.metadata.npm.direct_url_dependency import (
     NPMDirectURLDependencyDetector,
 )
 from guarddog.analyzer.metadata.npm.npm_metadata_mismatch import NPMMetadataMismatch
+from guarddog.analyzer.metadata.npm.npm_shrinkwrap_file import NPMShrinkwrapFile
 
 NPM_METADATA_RULES = {}
 
@@ -18,6 +19,7 @@ classes = [
     NPMTyposquatDetector,
     NPMDirectURLDependencyDetector,
     NPMMetadataMismatch,
+    NPMShrinkwrapFile,
 ]
 
 for detectorClass in classes:
