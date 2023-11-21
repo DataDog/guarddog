@@ -131,6 +131,7 @@ Metadata heuristics:
 | typosquatting | Identify packages that are named closely to an highly popular package |
 | direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
 | npm_metadata_mismatch | Identify packages which have mismatches between the npm pacakge manifest and the package info |
+| npm_shrinkwrap_file | Identify packages with a npm-shrinkwrap.json file which prevents end users from updating transitive dependencies. |
 
 
 <!-- END_RULE_LIST -->
