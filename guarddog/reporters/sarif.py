@@ -174,7 +174,7 @@ def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: 
             text = f"On package: {package} version: {version}\n" + "\n".join(map(
                 lambda x: x["message"],
                 scan_result_details[rule_name]
-            )) if type(scan_result_details[rule_name]) == list else scan_result_details[rule_name]
+            )) if isinstance(scan_result_details[rule_name], list) else scan_result_details[rule_name]
             key = f"{rule_name}-{text}"
             partial_fingerprints = {
                 f"guarddog/v1/{rule_name}": hashlib.sha256(key.encode('utf-8')).hexdigest()
