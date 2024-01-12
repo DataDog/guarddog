@@ -5,7 +5,7 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):
-    MESSAGE_TEMPLATE = "This package closely ressembles the following package names, and might be a typosquatting " \
+    MESSAGE_TEMPLATE = "This package closely resembles the following package names, and might be a typosquatting " \
                        "attempt: %s"
 
     def __init__(self) -> None:
