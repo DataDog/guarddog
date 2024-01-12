@@ -33,7 +33,7 @@ jobs:
       - run: guarddog pypi verify requirements.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
 
       - name: Upload SARIF file for GitHub code scanning
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           category: guarddog-builtin
           sarif_file: guarddog.sarif
