@@ -144,7 +144,7 @@ def exclude_result(file_name, repo_root, pkg_root):
     """
     This method filters out some results that are known false positives:
     * if the file is a documentation file (based on its extension)
-    * if the fil is an setup.cfg file with the egg_info claim present on Pypi and not on GitHub
+    * if the file is a setup.cfg file with the egg_info claim present on Pypi and not on GitHub
     """
     for extension in EXCLUDED_EXTENSIONS:
         if file_name.endswith(extension):
@@ -260,7 +260,7 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
             raise Exception(f"Error while cloning repository {str(git_error)} with github url {github_url}")
         except Exception as e:
             # Catch any other unexpected exceptions
-            raise Exception(f"An unexpected error occured: {str(e)}.  github url {github_url}")
+            raise Exception(f"An unexpected error occurred: {str(e)}.  github url {github_url}")
 
         tag_candidates = find_suitable_tags(repo, version)
 
@@ -273,7 +273,7 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
             target_tag = tag
 
         # Idea: parse the code of the package to find the real version - we can grep the project files for
-        #  the version, git biscect until we have a file with the same version? will not work if main has not
+        #  the version, git bisect until we have a file with the same version? will not work if main has not
         #  been bumped yet in version so tags and releases are out only solutions here print(tag_candidates)
         #  Well, that works if we run integrity check for multiple commits
 
