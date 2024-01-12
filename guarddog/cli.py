@@ -164,7 +164,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
 def is_local_target(identifier: str) -> bool:
     """
     @param identifier:  The name/path of the package as passed to "guarddog ecosystem scan"
-    @return:            Whether the identifier should be consider a local path
+    @return:            Whether the identifier should be considered a local path
     """
     if identifier.startswith("/") or identifier.startswith("./") or identifier.startswith("../"):
         return True

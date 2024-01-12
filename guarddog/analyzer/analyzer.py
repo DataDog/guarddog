@@ -223,7 +223,7 @@ output: {e.output}
             response (dict): response from Semgrep
             rule (str, optional): name of rule to format. Defaults to all rules.
             targetpath (str, optional): root directory of scan. Defaults to None.
-                Paths in formatted resonse will be rooted from targetpath.
+                Paths in formatted response will be rooted from targetpath.
 
         Returns:
             dict: formatted response in the form...
