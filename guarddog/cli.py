@@ -344,10 +344,10 @@ def print_scan_results(results, identifier):
         findings = results.get('results', [])
         for finding in findings:
             description = findings[finding]
-            if type(description) == str:  # package metadata
+            if isinstance(description, str):  # package metadata
                 print(colored(finding, None, attrs=['bold']) + ': ' + description)
                 print()
-            elif type(description) == list:  # semgrep rule result:
+            elif isinstance(description, list):  # semgrep rule result:
                 source_code_findings = description
                 print(colored(finding, None,
                               attrs=['bold']) + ': found ' + str(len(source_code_findings)) + ' source code matches')
