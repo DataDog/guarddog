@@ -27,19 +27,19 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: semgrep --config auto --sarif --output semgrep.sarif ./guarddog
       - run: semgrep --config .github/semgrep-rules --sarif --output semgrep-custom.sarif ./guarddog
 
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           category: semgrep-builtin
           sarif_file: semgrep.sarif
 
       - name: Upload SARIF file for custom Semgrep rules for GitHub Advanced Security Dashboard
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           category: semgrep-custom
           sarif_file: semgrep-custom.sarif
