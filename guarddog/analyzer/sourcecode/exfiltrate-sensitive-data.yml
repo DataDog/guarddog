@@ -11,6 +11,7 @@ rules:
       - pattern: getpass.getuser()
       - pattern: platform.node()
       - pattern: browser_cookie3.$BROWSER(...)
+      - pattern: os.getcwd()
       - patterns:
           - pattern-either:
               - pattern: open($FILE)
