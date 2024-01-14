@@ -36,7 +36,7 @@ class ProjectScanner(Scanner):
 
     def _authenticate_by_access_token(self) -> tuple[str, str]:
         """
-        Gives Github authentication through access token
+        Gives GitHub authentication through access token
 
         Returns:
             tuple[str, str]: username, personal access token
@@ -127,7 +127,7 @@ class ProjectScanner(Scanner):
         Scans remote requirements.txt file
 
         Args:
-            url (str): url of the Github repo
+            url (str): url of the GitHub repo
             branch (str): branch containing requirements.txt
             requirements_name (str, optional): name of requirements file.
                 Defaults to "requirements.txt".
@@ -229,16 +229,17 @@ class PackageScanner(Scanner):
         if rules is not None:
             rules = set(rules)
 
-        if os.path.exists(path):
-            if path.endswith('.tar.gz') or path.endswith('.tgz') or path.endswith('.zip') or path.endswith('.whl'):
-                with tempfile.TemporaryDirectory() as tmpdirname:
-                    safe_extract(path, tmpdirname)
-                    return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
-            elif os.path.isdir(path):
-                return self.analyzer.analyze_sourcecode(path, rules=rules)
-            else:
-                raise Exception(f"Path {path} is not a directory nor an archive type supported by GuardDog.")
-        raise Exception(f"Path {path} does not exist.")
+        if not os.path.exists(path):
+            raise Exception(f"Path {path} does not exist.")
+
+        if any(path.endswith(ext) for ext in ('.tar.gz', '.tgz', '.zip', '.whl')):
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                safe_extract(path, tmpdirname)
+                return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
+        elif os.path.isdir(path):
+            return self.analyzer.analyze_sourcecode(path, rules=rules)
+        else:
+            raise Exception(f"Path {path} is not a directory nor an archive type supported by GuardDog.")
 
     @abstractmethod
     def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
@@ -283,7 +284,7 @@ class PackageScanner(Scanner):
         Returns:
             dict: Analyzer output with rules to results mapping
         """
-        if (base_dir is not None):
+        if base_dir is not None:
             return self._scan_remote(name, base_dir, version, rules, write_package_info)
 
         with tempfile.TemporaryDirectory() as tmpdirname:
