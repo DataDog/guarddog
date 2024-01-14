@@ -51,8 +51,7 @@ class PypiPackageScanner(PackageScanner):
                 url = file["url"]
                 file_extension = ".tar.gz"
 
-            if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") \
-                    or file["filename"].endswith(".zip"):
+            if any(file["filename"].endswith(ext) for ext in (".egg", ".whl", ".zip")):
                 url = file["url"]
                 file_extension = ".zip"
 
