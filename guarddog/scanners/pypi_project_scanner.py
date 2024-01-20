@@ -54,7 +54,7 @@ class PypiRequirementsScanner(ProjectScanner):
         versions of each dependency
 
         Args:
-            requirements (List[str]): contents of requirements.txt file
+            raw_requirements (List[str]): contents of requirements.txt file
 
         Returns:
             dict: mapping of dependencies to valid versions
