@@ -55,7 +55,7 @@ class PypiPackageScanner(PackageScanner):
                 url = file["url"]
                 file_extension = ".zip"
 
-        if not url and not file_extension:
+        if not (url or file_extension):
             raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
 
         # Path to compressed package
