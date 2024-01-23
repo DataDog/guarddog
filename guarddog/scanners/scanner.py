@@ -236,10 +236,11 @@ class PackageScanner(Scanner):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 safe_extract(path, tmpdirname)
                 return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
-        elif os.path.isdir(path):
+
+        if os.path.isdir(path):
             return self.analyzer.analyze_sourcecode(path, rules=rules)
-        else:
-            raise Exception(f"Path {path} is not a directory nor an archive type supported by GuardDog.")
+        
+        raise Exception(f"Path {path} is not a directory nor an archive type supported by GuardDog.")
 
     @abstractmethod
     def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
