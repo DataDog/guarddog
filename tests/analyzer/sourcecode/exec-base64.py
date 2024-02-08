@@ -101,12 +101,6 @@ import marshal,zlib;exec(marshal.loads(zlib.decompress(b'x\x9cM...`;')))
 
 """ RULEID: using the join function execute a base64 encoded string
 """
-# ruleid: exec-base64
-exec(''.join([y[0] for x in [x for x in base64.b64decode( ('TSUmPCwrKCEvLCQnLypNJ3AnL3IvLCQnLypEJC').encode('ascii') ).decode('ascii')] for y in [[x[0], x[1]] for x in {'\t': 'e', '\n': 'M', ' ': '!', '!': 'u', '@': ':', '~': ')', '`': '#', '#': '9', '$': 'J', '%': '`', '^': 'x', '&': 'b', '*': '2', '(': 'r', ')': ' ', '_': '[', '=': '.', '-': 'R', '+': 'K', '{': 'n', '}': '-', '|': 'm', '\\': 'C', '[': 'Z', ']': 'j', ':': '3', ';': 'z', '"': '~', "'": 'c', ',': 'g', '.': 'D', '/': 'L', '?': '1', '>': '7', '<': '|', '0': 'q', '1': 'G', '2': 'd', '3': 'X', '4': '"', '5': '\t', '6': 'N', '7': '_', '8': '6', '9': 'i', 'a': 'O', 'b': '^', 'c': '/', 'd': '$', 'e': "'", 'f': '0', 'g': 'V', 'h': 'T', 'i': '%', 'j': 'H', 'k': '=', 'l': 'l', 'm': '&', 'n': '?', 'o': ',', 'p': '<', 'q': 'a', 'u': 'F', 'r': '+', 's': '*', 't': '(', 'v': '@', 'w': 'o', 'x': 'p', 'y': 'A', 'z': '4', 'A': 'v', 'B': 'I', 'C': 'f', 'D': 'P', 'E': 'k', 'F': 's', 'G': '5', 'H': '8', 'I': 'U', 'J': ']', 'K': 'h', 'L': 'W', 'M': 'B', 'N': '>', 'O': 'E', 'P': '\\', 'Q': 'y', 'U': 'S', 'R': 't', 'S': '}', 'T': '{', 'V': 'Y', 'W': '\n', 'X': ';', 'Y': 'w', 'Z': 'Q'}.items()] if x == y[1]]))
-
-# ruleid: exec-base64
-exec(''.join(base64.b64decode("YWFh").decode()))
-
 
 # ruleid: exec-base64
 __import__("builtins").exec(
