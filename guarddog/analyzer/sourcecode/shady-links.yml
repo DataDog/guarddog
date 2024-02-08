@@ -13,7 +13,7 @@ rules:
           - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream))$
           - pattern-regex: (http[s]?:\/\/.*\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
           - pattern-regex: (http[s]?:\/\/[^/?#]*(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))
-          - pattern-regex: (http[s]?://[^\[/?#]*(?:\[(?:([A-Fa-f0-9]{1,4}:){0,7}|:):?[A-Fa-f0-9]{1,4}\]))
+          - pattern-regex: (http[s]?://[^\[/?#]*(?:\[(([A-Fa-f0-9]{1,4}:){0,7}|:):?[A-Fa-f0-9]{1,4}(:[A-Fa-f0-9]{1,4}){0,7})\])
     languages:
       - python
       - javascript
