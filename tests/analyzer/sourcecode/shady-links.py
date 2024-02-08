@@ -64,6 +64,42 @@ os.system(
 # ruleid: shady-links
 req = urllib3.Request("https://grabify.link/E09EIF", headers={"User-Agent": os})
 
+""" RULEID: IPv4
+"""
+
+# ruleid: shady-links
+req = urllib3.Request("https://root@127.0.0.1", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://root@127.0.0.1:42", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://root@127.0.0.1", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://root:pw@127.0.0.1", headers={"User-Agent": os})
+
+""" RULEID: IPv6
+"""
+
+# ruleid: shady-links
+req = urllib3.Request("https://[::1]", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://[::1]:42", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://[12aB::1]", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://[12ab:12AB:12ab:12BA:12ab:12Ab:12aB:12Ab]", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://root@[::1]", headers={"User-Agent": os})
+
+# ruleid: shady-links
+req = urllib3.Request("https://root:pw@[::1]", headers={"User-Agent": os})
+
 # todoruleid: shady-links
 request(
     # todoruleid: shady-links
