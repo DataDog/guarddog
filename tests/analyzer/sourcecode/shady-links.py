@@ -68,6 +68,9 @@ req = urllib3.Request("https://grabify.link/E09EIF", headers={"User-Agent": os})
 """
 
 # ruleid: shady-links
+req = urllib3.Request("https://127.0.0.1/foo.exe", headers={"User-Agent": os})
+
+# ruleid: shady-links
 req = urllib3.Request("https://root@127.0.0.1", headers={"User-Agent": os})
 
 # ruleid: shady-links
@@ -83,7 +86,7 @@ req = urllib3.Request("https://root:pw@127.0.0.1", headers={"User-Agent": os})
 """
 
 # ruleid: shady-links
-req = urllib3.Request("https://[::1]", headers={"User-Agent": os})
+req = urllib3.Request("https://[::1]/foo.exe", headers={"User-Agent": os})
 
 # ruleid: shady-links
 req = urllib3.Request("https://[::1]:42", headers={"User-Agent": os})
