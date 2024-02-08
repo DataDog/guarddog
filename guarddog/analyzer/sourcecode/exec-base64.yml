@@ -50,8 +50,6 @@ rules:
       - pattern-either:
           - pattern: |
               "...".decode(...)
-          - pattern: |
-              "...".join(...)
           - pattern: base64.b64decode("...")
           - pattern: base64.b64decode(...)
           - pattern: decode("...")
