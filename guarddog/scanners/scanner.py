@@ -239,7 +239,7 @@ class PackageScanner(Scanner):
 
         if os.path.isdir(path):
             return self.analyzer.analyze_sourcecode(path, rules=rules)
-        
+
         raise Exception(f"Path {path} is not a directory nor an archive type supported by GuardDog.")
 
     @abstractmethod
