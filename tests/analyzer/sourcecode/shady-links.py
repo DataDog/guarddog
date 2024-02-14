@@ -19,8 +19,10 @@ goodlink1 = "http://google.com:5000/v1.0/"
 goodlink2 = "https://id.atlassian.com/login?continue=https%3A%2F%2Fstart.atlassian.com%2F&application=start"
 
 # ok: shady-links
-goodlink1 = "http://xn--n3h.net//"
+goodlink3 = "http://xn--n3h.net//"
 
+# ok: shady-links
+goodlink4 = "http://192.168.1.1/"
 
 """ OK: urls with free domain extensions in other parts of link
 """
@@ -68,7 +70,7 @@ req = urllib3.Request("https://grabify.link/E09EIF", headers={"User-Agent": os})
 """
 
 # ruleid: shady-links
-req = urllib3.Request("https://127.0.0.1/foo.exe", headers={"User-Agent": os})
+req = urllib3.Request("https://128.0.0.1/foo.exe", headers={"User-Agent": os})
 
 # ruleid: shady-links
 req = urllib3.Request("https://root@1.2.3.4", headers={"User-Agent": os})
@@ -80,7 +82,7 @@ req = urllib3.Request("https://root@12.34.56.78:42", headers={"User-Agent": os})
 req = urllib3.Request("https://root@123.234.156.178", headers={"User-Agent": os})
 
 # ruleid: shady-links
-req = urllib3.Request("https://root:pw@127.0.0.1", headers={"User-Agent": os})
+req = urllib3.Request("https://root:pw@128.0.0.1", headers={"User-Agent": os})
 
 """ RULEID: IPv6
 """
