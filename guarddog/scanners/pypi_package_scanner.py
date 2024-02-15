@@ -38,31 +38,29 @@ class PypiPackageScanner(PackageScanner):
         if version is None:
             version = data["info"]["version"]
 
-        if version in releases:
-            files = releases[version]
+        if version not in releases:
+            raise Exception(f"Version {version} for package {package_name} doesn't exist.")
 
-            url = None
-            file_extension = None
+        files = releases[version]
+        url = None
+        file_extension = None
 
-            for file in files:
-                # Store url to compressed package and appropriate file extension
-                if file["filename"].endswith(".tar.gz"):
-                    url = file["url"]
-                    file_extension = ".tar.gz"
+        for file in files:
+            # Store url to compressed package and appropriate file extension
+            if file["filename"].endswith(".tar.gz"):
+                url = file["url"]
+                file_extension = ".tar.gz"
 
-                if file["filename"].endswith(".egg") or file["filename"].endswith(".whl") \
-                        or file["filename"].endswith(".zip"):
-                    url = file["url"]
-                    file_extension = ".zip"
+            if any(file["filename"].endswith(ext) for ext in (".egg", ".whl", ".zip")):
+                url = file["url"]
+                file_extension = ".zip"
 
-            if url and file_extension:
-                # Path to compressed package
-                zippath = os.path.join(directory, package_name + file_extension)
-                unzippedpath = zippath.removesuffix(file_extension)
+        if not (url or file_extension):
+            raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
 
-                self.download_compressed(url, zippath, unzippedpath)
-                return unzippedpath
-            else:
-                raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
-        else:
-            raise Exception("Version " + version + " for package " + package_name + " doesn't exist.")
+        # Path to compressed package
+        zippath = os.path.join(directory, package_name + file_extension)
+        unzippedpath = zippath.removesuffix(file_extension)
+
+        self.download_compressed(url, zippath, unzippedpath)
+        return unzippedpath
