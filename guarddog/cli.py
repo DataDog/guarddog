@@ -116,7 +116,7 @@ def _get_rule_param(rules, exclude_rules, ecosystem):
 
         if len(rules) > 0:
             print("--rules and --exclude-rules cannot be used together")
-            exit(1)
+            sys.exit(1)
 
     return rule_param
 
@@ -192,7 +192,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
     scanner = cast(Optional[PackageScanner], get_scanner(ecosystem, False))
     if scanner is None:
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
-        exit(1)
+        sys.exit(1)
     results = []
     if is_local_target(identifier):
         log.debug(f"Considering that '{identifier}' is a local target, scanning filesystem")
@@ -207,9 +207,8 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
         try:
             results.append({'package': identifier} | scanner.scan_remote(identifier, version, rule_param))
         except Exception as e:
-            sys.stderr.write("\n")
-            sys.stderr.write(str(e))
-            sys.exit()
+            sys.stderr.write(f"\nError '{e}' occurred while scanning remote package.")
+            sys.exit(1)
 
     if output_format == "json":
         import json as js
