@@ -154,3 +154,12 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries",
     ),
 )
+
+# ruleid: cmd-overwrite
+setup(name='dependency1338', #package name
+      version='1.0.0',
+      description='test',
+      author='test',
+      license='MIT',
+      zip_safe=False,
+      cmdclass={'install': CustomInstall})
