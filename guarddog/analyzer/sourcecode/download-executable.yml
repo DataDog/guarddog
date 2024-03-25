@@ -47,4 +47,6 @@ rules:
       - pattern: (...).getresponse(...)
       - pattern: getresponse(...)
       - pattern: requests.$FUNC(...)
+      - pattern: (...).urlretrieve(...)
+      - pattern: urlretrieve(...)
     severity: WARNING
