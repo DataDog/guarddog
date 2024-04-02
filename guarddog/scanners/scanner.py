@@ -259,7 +259,8 @@ class PackageScanner(Scanner):
 
         results = self.analyzer.analyze(file_path, package_info, rules, name, version)
         if write_package_info:
-            suffix = f"{name}-{version}" if version is not None else name
+            package_name = name.replace("/", "-")
+            suffix = f"{package_name}-{version}" if version is not None else package_name
             with open(os.path.join(results["path"], f'package_info-{suffix}.json'), "w") as file:
                 file.write(json.dumps(package_info))
 
