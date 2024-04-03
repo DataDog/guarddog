@@ -112,3 +112,6 @@ __import__("builtins").exec(
         "exec",
     )
 )
+
+# ruleid: exec-base64
+exec(Fernet(b'E15Vxxx=').decrypt(b'gAAAxxx='))
