@@ -55,4 +55,5 @@ rules:
           - pattern: decode("...")
           - pattern: __import__("base64").b64decode(...)
           - pattern: marshal.loads(zlib.decompress(...))
+          - pattern: $FUNC("...").decrypt(...)
     severity: WARNING
