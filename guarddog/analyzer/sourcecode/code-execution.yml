@@ -23,22 +23,22 @@ rules:
           # subprocess module
           - pattern: subprocess.getoutput($ARG1, ...)
           - pattern: getoutput($ARG1, ...)
-          - pattern: subprocess.getoutput([..., "$ARG1", ...], ...)
-          - pattern: getoutput([..., "$ARG1", ...], ...)
+          - pattern: subprocess.getoutput([..., "... $ARG1 ...", ...], ...)
+          - pattern: getoutput([..., "... $ARG1 ...", ...], ...)
 
           - pattern: subprocess.call($ARG1, ...)
           - pattern: call($ARG1, ...)
-          - pattern: subprocess.call([..., "$ARG1", ...], ...)
-          - pattern: call([..., "$ARG1", ...], ...)
+          - pattern: subprocess.call([..., "... $ARG1 ...", ...], ...)
+          - pattern: call([..., "... $ARG1 ...", ...], ...)
 
           - pattern: subprocess.check_output($ARG1, ...)
           - pattern: check_output($ARG1, ...)
-          - pattern: subprocess.check_output([..., "$ARG1", ...], ...)
-          - pattern: check_output([..., "$ARG1", ...], ...)
+          - pattern: subprocess.check_output([..., "... $ARG1 ...", ...], ...)
+          - pattern: check_output([..., "... $ARG1 ...", ...], ...)
 
           - pattern: subprocess.run($ARG1, ...)
           - pattern: run($ARG1, ...)
-          - pattern: subprocess.run([..., "$ARG1", ...], ...)
+          - pattern: subprocess.run([..., "... $ARG1 ...", ...], ...)
           - pattern: run([..., "$ARG1", ...], ...)
 
           # eval, allow checking for version
