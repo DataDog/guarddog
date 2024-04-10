@@ -11,6 +11,14 @@ rules:
           - patterns:
               - pattern-either:
                   - pattern: (...).urlretrieve(...,$EXE)
+                  - pattern: open($EXE, ...).write($REQUEST)
+                  - pattern: |
+                      with open($EXE, ...) as $FILE:
+                        ...
+                        $FILE.write($REQUEST)
+                      ...
+                      $MAKE_EXEC
+
               - metavariable-pattern:
                   metavariable: $EXE
                   pattern-regex: (?i)^['"].*?\.exe['"]$
@@ -18,29 +26,19 @@ rules:
           - patterns:
               - pattern-either:
                   - pattern: |
-                      (...).urlretrieve(...)
+                      (...).urlretrieve(..., $LOC)
                       ...
                       $MAKE_EXEC
-                  - pattern: |
-                      $FILE = open($LOC, ...)
-                      ...
-                      $FILE.write($REQUEST)
-                      ...
-                      $MAKE_EXEC
-                  - pattern: |
-                      with open($LOC, ...) as $FILE:
-                        ...
-                        $FILE.write($REQUEST)
-                      ...
-                      $MAKE_EXEC
-                  - pattern: |
-                      with open($LOC, ...) as $FILE:
-                        ...
-                        $FILE.write($REQUEST)
-                      ...
-                      $MAKE_EXEC
+
                   - pattern: |
                       open($LOC, ...).write($REQUEST)
+                      ...
+                      $MAKE_EXEC
+
+                  - pattern: |
+                      with open($LOC, ...) as $FILE:
+                        ...
+                        $FILE.write($REQUEST)
                       ...
                       $MAKE_EXEC
 
@@ -75,4 +73,7 @@ rules:
       - pattern: requests.$FUNC(...)
       - pattern: (...).urlretrieve(...)
       - pattern: urlretrieve(...)
+      - pattern: requests.get(...)
     severity: WARNING
+    options: 
+      symbolic_propagation: true
