@@ -7,36 +7,60 @@ rules:
       description: Identify when a package downloads and makes executable a remote binary
     mode: taint
     pattern-sinks:
-      - patterns:
-          - pattern-either:
-              - pattern: |
-                  $FILE = open($LOC, ...)
-                  ...
-                  $FILE.write($REQUEST)
-                  ...
-                  $CHANGE_PERMISSIONS
-              - pattern: |
-                  with open($LOC, ...) as $FILE:
-                    ...
-                    $FILE.write($REQUEST)
-                  ...
-                  $CHANGE_PERMISSIONS
-              - pattern: |
-                  open($LOC, ...).write($REQUEST)
-                  ...
-                  $CHANGE_PERMISSIONS
-          - metavariable-pattern:
-              metavariable: $CHANGE_PERMISSIONS
-              pattern-either:
-                - pattern: os.chmod("$LOC", 777)
-                - pattern: os.chmod($LOC, 777)
-                - pattern: os.chmod("$LOC", <...stat.S_IEXEC...>)
-                - pattern: os.chmod($LOC, <...stat.S_IEXEC...>)
-                - pattern: chmod("$LOC", 777)
-                - pattern: chmod($LOC, 777)
-                - pattern: chmod("$LOC", <...stat.S_IEXEC...>)
-                - pattern: chmod($LOC, <...stat.S_IEXEC...>)
-                - pattern: os.system(f"...{$LOC}...")
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: (...).urlretrieve(...,$EXE)
+                  - pattern: open($EXE, ...).write($REQUEST)
+                  - pattern: |
+                      with open($EXE, ...) as $FILE:
+                        ...
+                        $FILE.write($REQUEST)
+                      ...
+                      $MAKE_EXEC
+
+              - metavariable-pattern:
+                  metavariable: $EXE
+                  pattern-regex: (?i)^['"].*?\.exe['"]$
+
+          - patterns:
+              - pattern-either:
+                  - pattern: |
+                      (...).urlretrieve(..., $LOC)
+                      ...
+                      $MAKE_EXEC
+
+                  - pattern: |
+                      open($LOC, ...).write($REQUEST)
+                      ...
+                      $MAKE_EXEC
+
+                  - pattern: |
+                      with open($LOC, ...) as $FILE:
+                        ...
+                        $FILE.write($REQUEST)
+                      ...
+                      $MAKE_EXEC
+
+              - metavariable-pattern:
+                  metavariable: $MAKE_EXEC
+                  pattern-either:
+                    - pattern-either:
+                        - pattern: os.chmod("$LOC", 777)
+                        - pattern: os.chmod($LOC, 777)
+                        - pattern: os.chmod("$LOC", <...stat.S_IEXEC...>)
+                        - pattern: os.chmod($LOC, <...stat.S_IEXEC...>)
+                        - pattern: chmod("$LOC", 777)
+                        - pattern: chmod($LOC, 777)
+                        - pattern: chmod("$LOC", <...stat.S_IEXEC...>)
+                        - pattern: chmod($LOC, <...stat.S_IEXEC...>)
+                        - pattern: os.system(f"...{$LOC}...")
+                    - patterns:
+                        - pattern: os.rename(..., $EXE)
+                        - metavariable-pattern:
+                            metavariable: $EXE
+                            pattern-regex: (?i)^['"].*?\.exe['"]$
+
     pattern-sources:
       - pattern: (...).send(...)
       - pattern: send(...)
@@ -47,4 +71,9 @@ rules:
       - pattern: (...).getresponse(...)
       - pattern: getresponse(...)
       - pattern: requests.$FUNC(...)
+      - pattern: (...).urlretrieve(...)
+      - pattern: urlretrieve(...)
+      - pattern: requests.get(...)
     severity: WARNING
+    options: 
+      symbolic_propagation: true
