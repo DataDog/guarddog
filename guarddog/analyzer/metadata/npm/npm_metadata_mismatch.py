@@ -8,6 +8,8 @@ from guarddog.analyzer.metadata.detector import Detector
 # (field, expected type)
 MANIFEST_FIELDS_CHECKLIST = {
     "scripts": dict,
+    "dependencies": dict,
+    "devDependencies": dict,
 }
 
 
