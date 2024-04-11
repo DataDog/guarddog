@@ -1,5 +1,4 @@
 from copy import deepcopy
-import json
 
 import pytest
 
@@ -35,8 +34,11 @@ class TestNPMMetadataMismatch:
         (None, None, None, False),
         (["scripts", "preinstall"], "this-is-the-same.sh", "this-is-the-same.sh", False),
         (["scripts", "preinstall"], None, "this-is-not-the-same.sh", True),
-        (["dependencies", "does.not.exit"], None, "1.0.1", True),
-        (["dependencies", "does.not.exit"], "1.1.0", "1.0.1", True),
+        (["scripts", "preinstall"], "this-is-not-the-same.sh", None, True),
+        (["scripts", "preinstall"], "this-is-not-the-same.sh", "another-script.js", True),
+        # Other fields than "scripts" are ignored to decrease false positives.
+        (["dependencies", "does.not.exit"], None, "1.0.1", False),
+        (["dependencies", "does.not.exit"], "1.1.0", "1.0.1", False),
     ]
 
     @pytest.mark.parametrize("modification", test_data)
@@ -50,8 +52,7 @@ class TestNPMMetadataMismatch:
         mocker.patch("json.loads", lambda v: package_json_metadata)
         mocker.patch("pathlib.Path.read_text", lambda self: None)
 
-        result, desc = self.mismatch_detector.detect(npm_version_metadata, path="./")
-        print(desc)
+        result, _ = self.mismatch_detector.detect(npm_version_metadata, path="./")
         assert result == modification[3]
         result, _ = self.mismatch_detector.detect(npm_version_metadata, path="./", version="2.1.0")
         assert result == modification[3]
