@@ -7,13 +7,7 @@ from guarddog.analyzer.metadata.detector import Detector
 # List of fields where mismatch between package.json and NPM can carry malicious information
 # (field, expected type)
 MANIFEST_FIELDS_CHECKLIST = {
-    "dependencies": dict,
-    "devDependencies": dict,
     "scripts": dict,
-    "main": str,
-    "repository": dict,
-    "bugs": dict,
-    "homepage": str
 }
 
 
@@ -21,7 +15,7 @@ class NPMMetadataMismatch(Detector):
     def __init__(self):
         super().__init__(
             name="npm_metadata_mismatch",
-            description="Identify packages which have mismatches between the npm pacakge manifest and the package info"
+            description="Identify packages which have mismatches between the npm package manifest and the package info for some critical fields"
         )
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
@@ -43,7 +37,7 @@ class NPMMetadataMismatch(Detector):
             field: difference_at_key(version_info, package_manifest, field, field_type)
             for field, field_type in MANIFEST_FIELDS_CHECKLIST.items()
         }
-        number_different = sum(len(v) for k, v in diff.items())
+        number_different = sum(len(v) for v in diff.values())
         diff_description = describe_diff(diff) if number_different != 0 else "No differences found"
         return number_different != 0, diff_description
 
@@ -61,7 +55,7 @@ def diff_at_key_dict(version_at_key: dict[str, Optional[str]], manifest_at_key: 
     ]
 
 
-def difference_at_key(version_info: dict[str, Any], package_manifest: dict[str, Any], key: str, key_type) -> Diff:
+def difference_at_key(version_info: dict[str, Any], package_manifest: dict[str, Any], key: str, key_type: type) -> Diff:
     version_at_key = version_info.get(key, key_type())
     manifest_at_key = package_manifest.get(key, key_type())
     if not (isinstance(version_at_key, key_type) and isinstance(manifest_at_key, key_type)):
