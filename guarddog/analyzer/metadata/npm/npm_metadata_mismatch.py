@@ -90,16 +90,17 @@ def difference_at_key(
                 f"{type(manifest_at_key)}",
             )
         ]
-    elif key_type == dict:
+
+    if key_type == dict:
         return diff_at_key_dict(version_at_key, manifest_at_key)  # type: ignore
-    else:
-        # If it is not a dict do a direct comparison of the value at the key.
-        # Currently the only other type is strings.
-        return (
-            [(key, version_at_key, manifest_at_key)]
-            if version_at_key != manifest_at_key
-            else []
-        )
+
+    # If it is not a dict do a direct comparison of the value at the key.
+    # Currently the only other type is strings.
+    return (
+        [(key, version_at_key, manifest_at_key)]
+        if version_at_key != manifest_at_key
+        else []
+    )
 
 
 def describe_diff(diff: Dict[str, Diff]) -> str:
