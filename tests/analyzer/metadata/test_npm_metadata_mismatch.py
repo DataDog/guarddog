@@ -36,9 +36,10 @@ class TestNPMMetadataMismatch:
         (["scripts", "preinstall"], None, "this-is-not-the-same.sh", True),
         (["scripts", "preinstall"], "this-is-not-the-same.sh", None, True),
         (["scripts", "preinstall"], "this-is-not-the-same.sh", "another-script.js", True),
-        # Other fields than "scripts" are ignored to decrease false positives.
-        (["dependencies", "does.not.exit"], None, "1.0.1", False),
-        (["dependencies", "does.not.exit"], "1.1.0", "1.0.1", False),
+        (["dependencies", "does.not.exit"], None, "1.0.1", True),
+        (["dependencies", "does.not.exit"], "1.1.0", "1.0.1", True),
+        # Other fields are ignored to decrease false positives.
+        (["repository", "url"], "a", "b", False),
     ]
 
     @pytest.mark.parametrize("modification", test_data)
