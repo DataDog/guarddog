@@ -1,0 +1,30 @@
+rules:
+  - id: npm-obfuscation
+    message: This package is using a common obfuscation method often used by malware
+    metadata:
+      description: Identify when a package uses a common obfuscation method often used by malware
+    patterns:
+      - pattern-either:
+        # obfuscation of function names
+        - pattern-regex: function _0x[a-zA-Z0-9\s]*\(
+        - patterns:
+          - pattern: $FN(...,<..."$VAR"...>,...)
+          - metavariable-pattern:
+              metavariable: $FN
+              patterns:
+                - pattern: $FN
+                - pattern-not: RegExp
+          - metavariable-regex:
+              # match strings that contain at least one letter and one number and one special character (most base64 encoded strings)
+              metavariable: $VAR
+              regex: ^(?=\S*[a-zA-Z])(?=\S*[0-9])(?=\S*[/=\\+])+(?:[a-zA-Z0-9/=\\+]*)$
+          - metavariable-analysis:
+              analyzer: entropy
+              metavariable: $VAR
+    paths:
+      exclude:
+        - "package/test/*.js"
+        - "package/examples/*.js"
+    languages:
+      - javascript
+    severity: WARNING
