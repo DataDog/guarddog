@@ -154,7 +154,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
 
     if output_format is not None:
         print(return_value)
-     
+
     if exit_non_zero_on_finding:
         exit_with_status_code([result['result'] for result in results])
 
