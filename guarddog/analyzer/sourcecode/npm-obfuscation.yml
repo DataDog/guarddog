@@ -5,26 +5,34 @@ rules:
       description: Identify when a package uses a common obfuscation method often used by malware
     patterns:
       - pattern-either:
-        # obfuscation of function names
+        - pattern: while (!![]) { ... }
+        - pattern: for (var $VAR = +!!false; ...; $VAR++) { ... }
+        - pattern: global[Buffer.from(...)]
+
+        # Name Mangling
         - pattern-regex: function _0x[a-zA-Z0-9\s]*\(
         - patterns:
-          - pattern: $FN(...,<..."$VAR"...>,...)
-          - metavariable-pattern:
-              metavariable: $FN
-              patterns:
-                - pattern: $FN
-                - pattern-not: RegExp
+            - pattern: function (..., $HEXVAR, ...) { ... }
+            - metavariable-regex:
+                metavariable: $HEXVAR
+                regex: ^_0x[a-zA-Z0-9]+$
+
+        # String Array Mapping
+        - patterns:
+          - pattern-inside: function $FN(){var $ARR=[...];$FN=function(){return $ARR;};return $FN();}
+          - pattern: $PARAMS
           - metavariable-regex:
-              # match strings that contain at least one letter and one number and one special character (most base64 encoded strings)
-              metavariable: $VAR
-              regex: ^(?=\S*[a-zA-Z])(?=\S*[0-9])(?=\S*[/=\\+])+(?:[a-zA-Z0-9/=\\+]*)$
+              metavariable: $PARAMS
+              regex: ("\w+"|'\w+'|,)*
+          - pattern: '<...$PARAM...>'
           - metavariable-analysis:
               analyzer: entropy
-              metavariable: $VAR
-    paths:
-      exclude:
-        - "package/test/*.js"
-        - "package/examples/*.js"
+              metavariable: $PARAM
+
+        # JSFuck 
+        - pattern-regex: ^\s*[\[\]\(\)\+\!]{10,}\s*$
     languages:
       - javascript
     severity: WARNING
+    options: 
+      symbolic_propagation: true
