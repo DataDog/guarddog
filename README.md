@@ -120,6 +120,7 @@ Source code heuristics:
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
 | npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
 | npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
+| npm-obfuscation | Identify when a package uses a common obfuscation method often used by malware |
 
 Metadata heuristics:
 
