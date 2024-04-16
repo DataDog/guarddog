@@ -10,16 +10,15 @@ from dateutil import parser
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
 
+from .utils import get_email_addresses
+
 
 class NPMPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailDomainDetector):
     def __init__(self):
         super().__init__("npm")
 
-    def get_email_addresses(self, package_info: dict) -> list[str]:
-        if package_info.get("maintainers"):
-            return list(map(lambda x: x["email"], package_info["maintainers"]))
-        else:
-            return []
+    def get_email_addresses(self, package_info: dict):
+        return get_email_addresses(package_info)
 
     def get_project_latest_release_date(self, package_info) -> Optional[datetime]:
         """
