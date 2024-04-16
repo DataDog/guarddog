@@ -2,6 +2,7 @@ from guarddog.analyzer.metadata.unclaimed_maintainer_email_domain import Unclaim
 
 from .utils import get_email_addresses
 
+
 class NPMUnclaimedMaintainerEmailDomainDetector(UnclaimedMaintainerEmailDomainDetector):
     def __init__(self):
         super().__init__("npm")
