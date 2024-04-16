@@ -35,7 +35,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
 
         emails = self.get_email_addresses(package_info)
 
-        if len(emails) == 0: # type: ignore (caused by asbtract method)
+        if len(emails) == 0: # type: ignore # caused by asbtract method
             # No e-mail is set for this package, hence no risk
             return False, "No e-mail found for this package"
 
@@ -43,7 +43,7 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
 
         has_issues = False
         messages = []
-        for email in emails: # type: ignore (caused by asbtract method)
+        for email in emails: # type: ignore # caused by asbtract method
             domain_creation_date, domain_exists = get_email_domain_creation_date(email)
 
             if not domain_exists:

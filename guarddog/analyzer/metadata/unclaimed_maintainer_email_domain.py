@@ -41,13 +41,13 @@ class UnclaimedMaintainerEmailDomainDetector(Detector):
 
         emails = self.get_email_addresses(package_info)
 
-        if len(emails) == 0: # type: ignore (caused by asbtract method)
+        if len(emails) == 0: # type: ignore # caused by asbtract method
             # No e-mail is set for this package, hence no risk
             return False, "No e-mail found for this package"
 
         has_issues = False
         messages = []
-        for email in emails: # type: ignore (caused by asbtract method)
+        for email in emails: # type: ignore # caused by asbtract method
             # XXX the "potentially_compromised_email_domain" detector
             # will already call this function on these emails;
             # TODO find a way to avoid calling this function twice
