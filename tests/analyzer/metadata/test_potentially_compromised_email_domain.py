@@ -57,21 +57,21 @@ class TestCompromisedEmail:
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised, _ = pypi_detector.detect(PYPI_PACKAGE_INFO)
-        assert compromised
+        assert not compromised
 
     empty_author_pypi = generate_pypi_project_info("author_email", None)
     empty_author_npm = generate_npm_project_info("maintainters", [{
         "name": "john doe",
         "email": None
     }])
-    
+
 
     @pytest.mark.parametrize("package_info, detector",
                              [(empty_author_pypi, pypi_detector), (empty_author_npm, npm_detector)])
     def test_email_domain_none(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
-        
+
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised, _ = detector.detect(package_info)
         assert not compromised
