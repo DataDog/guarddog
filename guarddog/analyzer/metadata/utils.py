@@ -10,6 +10,7 @@ NPM_MAINTAINER_EMAIL_WARNING = (
     "see https://www.theregister.com/2022/05/10/security_npm_email/"
 )
 
+
 @cache
 def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
     """
@@ -40,6 +41,7 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
         return min(creation_dates), True
 
     return creation_dates, True
+
 
 def extract_email_address_domain(email_address: str):
     sanitized_email = email_address.strip().replace(">", "").replace("<", "")
