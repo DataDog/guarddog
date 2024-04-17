@@ -3,7 +3,7 @@ from typing import Optional
 
 from guarddog.analyzer.metadata.detector import Detector
 
-from .utils import NPM_MAINTAINER_EMAIL_WARNING, extract_email_address_domain, get_domain_creation_date
+from .utils import extract_email_address_domain, get_domain_creation_date
 
 
 class PotentiallyCompromisedEmailDomainDetector(Detector):
@@ -56,15 +56,12 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
             if latest_project_release < domain_creation_date:
                 has_issues = True
 
-                message = (
+                messages.append(
                     f"The domain name of the maintainer's email address ({email}) was"" re-registered after"
                     " the latest release of this ""package. This can be an indicator that this is a"""
                     " custom domain that expired, and was leveraged by"" an attacker to compromise the"
                     f" package owner's {self.ecosystem}"" account."
                 )
-                if self.ecosystem == "npm":
-                    message += "; " + NPM_MAINTAINER_EMAIL_WARNING
-                messages.append(message)
 
         return has_issues, "\n".join(messages)
 
