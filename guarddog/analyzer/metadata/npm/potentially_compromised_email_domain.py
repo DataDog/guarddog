@@ -31,7 +31,6 @@ class NPMPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailDo
 
         return has_issues, message
 
-
     def get_project_latest_release_date(self, package_info) -> Optional[datetime]:
         """
         Gets the most recent release date of a Python project

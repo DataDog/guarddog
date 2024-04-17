@@ -21,4 +21,3 @@ class NPMUnclaimedMaintainerEmailDomainDetector(UnclaimedMaintainerEmailDomainDe
             message += "\n\n" + NPM_API_MAINTAINER_EMAIL_WARNING
 
         return has_issues, message
-
