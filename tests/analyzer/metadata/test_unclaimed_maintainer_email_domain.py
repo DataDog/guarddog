@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 import pathlib
@@ -8,6 +9,9 @@ import pytest
 from guarddog.analyzer.metadata.pypi import PypiUnclaimedMaintainerEmailDomainDetector
 import guarddog.analyzer.metadata.utils
 from tests.analyzer.metadata.resources.sample_project_info import PYPI_PACKAGE_INFO
+
+from tests.analyzer.metadata.utils import MockWhoIs
+
 
 with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
     NPM_PACKAGE_INFO = json.load(file)
@@ -30,3 +34,12 @@ class TestUnclaimedMaintainerEmailDomain:
         # should work exactly the same for NPM
         compromised, _ = pypi_detector.detect(PYPI_PACKAGE_INFO)
         assert compromised
+
+    def test_email_domain_does_exist(self):
+        def mock_whois(domain):
+            return MockWhoIs(datetime(1990, 1, 31))
+
+        MonkeyPatch().setattr("whois.whois", mock_whois)
+        # should work exactly the same for NPM
+        compromised, _ = pypi_detector.detect(PYPI_PACKAGE_INFO)
+        assert not compromised
