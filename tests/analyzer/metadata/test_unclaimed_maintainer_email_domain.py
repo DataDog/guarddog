@@ -2,10 +2,11 @@ import json
 import os
 import pathlib
 
-import pytest
 from _pytest.monkeypatch import MonkeyPatch
+import pytest
 
 from guarddog.analyzer.metadata.pypi import PypiUnclaimedMaintainerEmailDomainDetector
+import guarddog.analyzer.metadata.utils
 from tests.analyzer.metadata.resources.sample_project_info import PYPI_PACKAGE_INFO
 
 with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
@@ -13,6 +14,11 @@ with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "np
 
 pypi_detector = PypiUnclaimedMaintainerEmailDomainDetector()
 
+# required because mocking in tests will cause get_domain_creation_date()
+# to return different results for a same domain
+@pytest.fixture(autouse=True)
+def clear_caches():
+    guarddog.analyzer.metadata.utils.get_domain_creation_date.cache_clear()
 
 class TestUnclaimedMaintainerEmailDomain:
     def test_email_domain_doesnt_exist(self):
