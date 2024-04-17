@@ -7,6 +7,7 @@ from datetime import datetime
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
+import guarddog.analyzer.metadata.utils
 from guarddog.analyzer.metadata.npm import NPMPotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.pypi import PypiPotentiallyCompromisedEmailDomainDetector
 from tests.analyzer.metadata.resources.sample_project_info import (
@@ -27,6 +28,11 @@ class MockWhoIs:
 pypi_detector = PypiPotentiallyCompromisedEmailDomainDetector()
 npm_detector = NPMPotentiallyCompromisedEmailDomainDetector()
 
+# required because mocking in tests will cause get_domain_creation_date()
+# to return different results for a same domain
+@pytest.fixture(autouse=True)
+def clear_caches():
+    guarddog.analyzer.metadata.utils.get_domain_creation_date.cache_clear()
 
 class TestCompromisedEmail:
 
