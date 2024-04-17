@@ -1,8 +1,7 @@
-def get_email_addresses(package_info: dict) -> list[str]:
-    author_email = package_info["info"]["author_email"]
-    maintainer_email = package_info["info"]["maintainer_email"]
-    email = author_email or maintainer_email
-    if email is not None:
-        return [email]
-    else:
-        return []
+def get_email_addresses(package_info: dict) -> set[str]:
+    info = package_info.get("info", {})
+
+    return {
+        info.get("author_email")
+        or info.get("maintainer_email")
+    } - {None}
