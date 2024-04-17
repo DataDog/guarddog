@@ -3,7 +3,7 @@ from typing import Optional
 
 from guarddog.analyzer.metadata.detector import Detector
 
-from .utils import NPM_MAINTAINER_EMAIL_WARNING, get_email_domain_creation_date
+from .utils import NPM_MAINTAINER_EMAIL_WARNING, extract_email_address_domain, get_domain_creation_date
 
 
 class PotentiallyCompromisedEmailDomainDetector(Detector):
@@ -44,7 +44,9 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
         has_issues = False
         messages = []
         for email in emails:
-            domain_creation_date, domain_exists = get_email_domain_creation_date(email)
+            domain = extract_email_address_domain(email)
+            # note: get_domain_creation_date is cached
+            domain_creation_date, domain_exists = get_domain_creation_date(domain)
 
             if not domain_exists:
                 # will be caught by the "unclaimed_maintainer_email_domain" detector

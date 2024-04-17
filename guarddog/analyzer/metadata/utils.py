@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import cache
 from typing import Optional
 
 import whois  # type: ignore
@@ -9,32 +10,21 @@ NPM_MAINTAINER_EMAIL_WARNING = (
     "see https://www.theregister.com/2022/05/10/security_npm_email/"
 )
 
-
-def get_email_domain_creation_date(email) -> tuple[Optional[datetime], bool]:
+@cache
+def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
     """
-    Gets the creation date of an email address domain
+    Gets the creation date of an domain name
 
     Args:
-        email (str): email address
-
-    Raises:
-        Exception: "Domain {email_domain} does not exist"
-        ValueError: "Invalid email address: {email}"
+        domain (str): domain of email address
 
     Returns:
-        datetime: creation date of email_domain
+        datetime: creation date of domain
         bool:     if the domain is currently registered
     """
 
-    sanitized_email = email.strip().replace(">", "").replace("<", "")
-
     try:
-        email_domain = sanitized_email.split("@")[-1]
-    except IndexError:
-        raise ValueError(f"Invalid email address: {email}")
-
-    try:
-        domain_information = whois.whois(email_domain)
+        domain_information = whois.whois(domain)
     except whois.parser.PywhoisError as e:
         # The domain doesn't exist at all, if that's the case we consider it vulnerable
         # since someone could register it
@@ -50,3 +40,13 @@ def get_email_domain_creation_date(email) -> tuple[Optional[datetime], bool]:
         return min(creation_dates), True
 
     return creation_dates, True
+
+def extract_email_address_domain(email_address: str):
+    sanitized_email = email_address.strip().replace(">", "").replace("<", "")
+
+    try:
+        domain = sanitized_email.split("@")[-1]
+        return domain
+
+    except IndexError:
+        raise ValueError(f"Invalid email address: {email_address}")
