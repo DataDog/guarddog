@@ -3,7 +3,7 @@ from typing import Optional
 
 from guarddog.analyzer.metadata.detector import Detector
 
-from .utils import NPM_MAINTAINER_EMAIL_WARNING, extract_email_address_domain, get_domain_creation_date
+from .utils import extract_email_address_domain, get_domain_creation_date
 
 
 class UnclaimedMaintainerEmailDomainDetector(Detector):
@@ -13,9 +13,6 @@ class UnclaimedMaintainerEmailDomainDetector(Detector):
             "Identify when a package maintainer e-mail domain (and therefore package manager account) "
             "is currently unclaimed and could be registered by an attacker"
         )
-
-        if ecosystem == "npm":
-            description += "; " + NPM_MAINTAINER_EMAIL_WARNING
 
         super().__init__(
             name="unclaimed_maintainer_email_domain",
@@ -60,13 +57,10 @@ class UnclaimedMaintainerEmailDomainDetector(Detector):
 
             has_issues = True
 
-            message = (
+            messages.append(
                 f"The maintainer's email ({email}) domain does not exist and can likely be registered "
                 f"by an attacker to compromise the maintainer's {self.ecosystem} account"
             )
-            if self.ecosystem == "npm":
-                message += f"; {NPM_MAINTAINER_EMAIL_WARNING}"
-            messages.append(message)
 
         return has_issues, "\n".join(messages)
 
