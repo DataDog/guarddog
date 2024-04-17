@@ -16,14 +16,11 @@ from tests.analyzer.metadata.resources.sample_project_info import (
     generate_npm_project_info
     )
 
+from tests.analyzer.metadata.utils import MockWhoIs
+
+
 with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
     NPM_PACKAGE_INFO = json.load(file)
-
-
-class MockWhoIs:
-    def __init__(self, date) -> None:
-        self.creation_date = date
-
 
 pypi_detector = PypiPotentiallyCompromisedEmailDomainDetector()
 npm_detector = NPMPotentiallyCompromisedEmailDomainDetector()
