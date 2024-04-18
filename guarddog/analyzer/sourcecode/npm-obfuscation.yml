@@ -1,0 +1,63 @@
+rules:
+  - id: npm-obfuscation
+    message: This package is using a common obfuscation method often used by malware
+    metadata:
+      description: Identify when a package uses a common obfuscation method often used by malware
+    patterns:
+      - pattern-either:
+        - pattern: while (!![]) { ... }
+        - pattern: for (var $VAR = +!!false; ...; $VAR++) { ... }
+        - pattern: global[Buffer.from(...)]
+
+        # Cesar
+        - patterns:
+            - pattern-either:
+                - patterns:
+                    - pattern: | 
+                        ...
+                        $FN=$DEOB
+                        ...
+                    - metavariable-pattern:
+                        metavariable: $DEOB
+                        pattern: String.fromCharCode
+                - patterns:
+                  - pattern: | 
+                      ...
+                      function $FN(...) { 
+                        ...
+                        $DEOB
+                        ...
+                      }
+                      ...
+                  - metavariable-pattern:
+                        metavariable: $DEOB
+                        pattern: String.fromCharCode
+            - pattern: self[$FN("...")](...)
+
+        # Name Mangling
+        - pattern-regex: function _0x[a-zA-Z0-9\s]*\(
+        - patterns:
+            - pattern: function (..., $HEXVAR, ...) { ... }
+            - metavariable-regex:
+                metavariable: $HEXVAR
+                regex: ^_0x[a-zA-Z0-9]+$
+
+        # String Array Mapping
+        - patterns:
+          - pattern-inside: function $FN(){var $ARR=[...];$FN=function(){return $ARR;};return $FN();}
+          - pattern: $PARAMS
+          - metavariable-regex:
+              metavariable: $PARAMS
+              regex: ("\w+"|'\w+'|,)*
+          - pattern: '<...$PARAM...>'
+          - metavariable-analysis:
+              analyzer: entropy
+              metavariable: $PARAM
+
+        # JSFuck 
+        - pattern-regex: ^\s*[\[\]\(\)\+\!]{10,}\s*$
+    languages:
+      - javascript
+    severity: WARNING
+    options: 
+      symbolic_propagation: true
