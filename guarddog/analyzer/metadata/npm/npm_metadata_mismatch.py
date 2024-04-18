@@ -18,7 +18,7 @@ class NPMMetadataMismatch(Detector):
         super().__init__(
             name="npm_metadata_mismatch",
             description="Identify packages which have mismatches between the npm package"
-            "manifest and the package info for some critical fields",
+            " manifest and the package info for some critical fields",
         )
 
     def detect(
