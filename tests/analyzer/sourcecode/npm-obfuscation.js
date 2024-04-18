@@ -116,3 +116,41 @@ function f(){
     ]
 }
 
+/* RuleID: Cesar rotation  */
+function f(){
+    const i = 'gfudi';
+    const k = s => s.split('').map(c => String.fromCharCode(c.charCodeAt() - 1)).join('');
+    // ruleid: npm-obfuscation
+    self[k(i)](urlTo);
+}
+
+/* RuleID: Cesar rotation  */
+function f(){
+    const x = "SERR PBQR PNZC"
+    function rot13(str) { // LBH QVQ VG!
+    
+        var string = "";
+        for(var i = 0; i < str.length; i++) {
+            var temp = str.charAt(i);
+            if(temp !== " " || temp!== "!" || temp!== "?") {
+            string += String.fromCharCode(13 + String.prototype.charCodeAt(temp));
+            } else {
+            string += temp;
+            }
+        }
+        
+    return string;
+    }
+
+    // ruleid: npm-obfuscation
+    self[rot13(x)](urlWithYourPreciousData); //should decode to "FREE CODE CAMP"
+}
+
+/* OK: Cesar rotation  */
+function f(){
+    const i = 'some data';
+    // ok: npm-obfuscation
+    const k = s => s.split('').map(c => 'c').join('');
+    self[k(i)](urlTo);
+}
+
