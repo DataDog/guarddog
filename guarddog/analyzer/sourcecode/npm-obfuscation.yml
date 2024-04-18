@@ -9,6 +9,31 @@ rules:
         - pattern: for (var $VAR = +!!false; ...; $VAR++) { ... }
         - pattern: global[Buffer.from(...)]
 
+        # Cesar
+        - patterns:
+            - pattern-either:
+                - patterns:
+                    - pattern: | 
+                        ...
+                        $FN=$DEOB
+                        ...
+                    - metavariable-pattern:
+                        metavariable: $DEOB
+                        pattern: String.fromCharCode
+                - patterns:
+                  - pattern: | 
+                      ...
+                      function $FN(...) { 
+                        ...
+                        $DEOB
+                        ...
+                      }
+                      ...
+                  - metavariable-pattern:
+                        metavariable: $DEOB
+                        pattern: String.fromCharCode
+            - pattern: self[$FN("...")](...)
+
         # Name Mangling
         - pattern-regex: function _0x[a-zA-Z0-9\s]*\(
         - patterns:
