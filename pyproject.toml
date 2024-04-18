@@ -33,7 +33,7 @@ prettytable="^3.6.0"
 mypy = "^1.4.1"
 coverage = "^7.2.7"
 flake8 = ">=5.0.4,<8.0.0"
-pytest = "^7.4.0"
+pytest = ">=7.4,<9.0"
 setuptools = ">=65.6.3,<70.0.0"
 pytest-mock = "^3.11.1"
 
