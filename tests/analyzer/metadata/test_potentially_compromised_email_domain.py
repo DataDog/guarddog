@@ -7,6 +7,7 @@ from datetime import datetime
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
+import guarddog.analyzer.metadata.utils
 from guarddog.analyzer.metadata.npm import NPMPotentiallyCompromisedEmailDomainDetector
 from guarddog.analyzer.metadata.pypi import PypiPotentiallyCompromisedEmailDomainDetector
 from tests.analyzer.metadata.resources.sample_project_info import (
@@ -15,18 +16,20 @@ from tests.analyzer.metadata.resources.sample_project_info import (
     generate_npm_project_info
     )
 
+from tests.analyzer.metadata.utils import MockWhoIs
+
+
 with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
     NPM_PACKAGE_INFO = json.load(file)
-
-
-class MockWhoIs:
-    def __init__(self, date) -> None:
-        self.creation_date = date
-
 
 pypi_detector = PypiPotentiallyCompromisedEmailDomainDetector()
 npm_detector = NPMPotentiallyCompromisedEmailDomainDetector()
 
+# required because mocking in tests will cause get_domain_creation_date()
+# to return different results for a same domain
+@pytest.fixture(autouse=True)
+def clear_caches():
+    guarddog.analyzer.metadata.utils.get_domain_creation_date.cache_clear()
 
 class TestCompromisedEmail:
 
@@ -57,21 +60,21 @@ class TestCompromisedEmail:
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised, _ = pypi_detector.detect(PYPI_PACKAGE_INFO)
-        assert compromised
+        assert not compromised
 
     empty_author_pypi = generate_pypi_project_info("author_email", None)
     empty_author_npm = generate_npm_project_info("maintainters", [{
         "name": "john doe",
         "email": None
     }])
-    
+
 
     @pytest.mark.parametrize("package_info, detector",
                              [(empty_author_pypi, pypi_detector), (empty_author_npm, npm_detector)])
     def test_email_domain_none(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
-        
+
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised, _ = detector.detect(package_info)
         assert not compromised

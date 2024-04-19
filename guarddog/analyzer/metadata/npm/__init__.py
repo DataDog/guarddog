@@ -2,6 +2,9 @@ from guarddog.analyzer.metadata.npm.empty_information import NPMEmptyInfoDetecto
 from guarddog.analyzer.metadata.npm.potentially_compromised_email_domain import (
     NPMPotentiallyCompromisedEmailDomainDetector,
 )
+from guarddog.analyzer.metadata.npm.unclaimed_maintainer_email_domain import (
+    NPMUnclaimedMaintainerEmailDomainDetector,
+)
 from guarddog.analyzer.metadata.npm.release_zero import NPMReleaseZeroDetector
 from guarddog.analyzer.metadata.npm.typosquatting import NPMTyposquatDetector
 from guarddog.analyzer.metadata.npm.direct_url_dependency import (
@@ -15,6 +18,7 @@ classes = [
     NPMEmptyInfoDetector,
     NPMReleaseZeroDetector,
     NPMPotentiallyCompromisedEmailDomainDetector,
+    NPMUnclaimedMaintainerEmailDomainDetector,
     NPMTyposquatDetector,
     NPMDirectURLDependencyDetector,
     NPMMetadataMismatch,

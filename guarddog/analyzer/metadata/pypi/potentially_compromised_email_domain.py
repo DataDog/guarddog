@@ -10,19 +10,15 @@ from packaging import version
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
 
+from .utils import get_email_addresses
+
 
 class PypiPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailDomainDetector):
     def __init__(self):
         super().__init__("pypi")
 
-    def get_email_addresses(self, package_info: dict) -> list[str]:
-        author_email = package_info["info"]["author_email"]
-        maintainer_email = package_info["info"]["maintainer_email"]
-        email = author_email or maintainer_email
-        if email is not None:
-            return [email]
-        else:
-            return []
+    def get_email_addresses(self, package_info: dict):
+        return get_email_addresses(package_info)
 
     def get_project_latest_release_date(self, package_info) -> Optional[datetime]:
         """

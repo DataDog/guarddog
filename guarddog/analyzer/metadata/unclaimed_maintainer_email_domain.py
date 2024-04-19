@@ -6,13 +6,17 @@ from guarddog.analyzer.metadata.detector import Detector
 from .utils import extract_email_address_domain, get_domain_creation_date
 
 
-class PotentiallyCompromisedEmailDomainDetector(Detector):
+class UnclaimedMaintainerEmailDomainDetector(Detector):
     # The name of the rule is dependent on the ecosystem and is provided by the implementing subclasses
     def __init__(self, ecosystem: str):
+        description = (
+            "Identify when a package maintainer e-mail domain (and therefore package manager account) "
+            "is currently unclaimed and could be registered by an attacker"
+        )
+
         super().__init__(
-            name="potentially_compromised_email_domain",
-            description="Identify when a package maintainer e-mail domain (and therefore package manager account) "
-                        "might have been compromised",
+            name="unclaimed_maintainer_email_domain",
+            description=description,
         )
         self.ecosystem = ecosystem
 
@@ -20,13 +24,13 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
                version: Optional[str] = None) -> tuple[bool, str]:
         """
         Uses a package's information to determine
-        if the maintainer's email domain might have been compromised
+        if the maintainer's email domain is unclaimed and thus exposed to hijacking
 
         Args:
             package_info (dict): package info from the package repository
 
         Returns:
-            bool: True if email domain may be compromised
+            bool: True if email domain is unclaimed
             str: Message explaining the issue
         """
 
@@ -36,29 +40,24 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
             # No e-mail is set for this package, hence no risk
             return False, "No e-mail found for this package"
 
-        latest_project_release = self.get_project_latest_release_date(package_info)
-
         has_issues = False
         messages = []
         for email in emails:
             domain = extract_email_address_domain(email)
             # note: get_domain_creation_date is cached
-            domain_creation_date, domain_exists = get_domain_creation_date(domain)
+            _, domain_exists = get_domain_creation_date(domain)
 
-            if not domain_exists:
-                # will be caught by the "unclaimed_maintainer_email_domain" detector
+            if domain_exists:
                 continue
-            if domain_creation_date is None or latest_project_release is None:
-                continue
-            if latest_project_release < domain_creation_date:
-                has_issues = True
 
-                messages.append(
-                    f"The domain name of the maintainer's email address ({email}) was"" re-registered after"
-                    " the latest release of this ""package. This can be an indicator that this is a"""
-                    " custom domain that expired, and was leveraged by"" an attacker to compromise the"
-                    f" package owner's {self.ecosystem}"" account."
-                )
+            # domain does not exist
+
+            has_issues = True
+
+            messages.append(
+                f"The maintainer's email ({email}) domain does not exist and can likely be registered "
+                f"by an attacker to compromise the maintainer's {self.ecosystem} account"
+            )
 
         return has_issues, "\n".join(messages)
 
