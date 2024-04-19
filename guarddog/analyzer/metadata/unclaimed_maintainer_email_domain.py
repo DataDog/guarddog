@@ -23,18 +23,15 @@ class UnclaimedMaintainerEmailDomainDetector(Detector):
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, str]:
         """
-        Uses a package's information from PyPI's JSON API to determine
-        if the package's email domain might have been compromised
+        Uses a package's information to determine
+        if the maintainer's email domain is unclaimed and thus exposed to hijacking
 
         Args:
-            package_info (dict): dictionary representation of PyPI's JSON
-                output
-
-        Raises:
-            Exception: "Email for {package_info['info']['name']} does not exist."
+            package_info (dict): package info from the package repository
 
         Returns:
-            bool: True if email domain is compromised
+            bool: True if email domain is unclaimed
+            str: Message explaining the issue
         """
 
         emails = self.get_email_addresses(package_info)
