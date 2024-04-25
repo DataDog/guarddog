@@ -20,7 +20,7 @@ class NPMTyposquatDetector(TyposquatDetector):
         with open(os.path.join(resources_dir, top_packages_filename)) as file:
             top_packages_data = json.load(file)
 
-        return list(map(lambda x: x["project"], top_packages_data))
+        return list(map(lambda x: x["project"], top_packages_data.get("rows")))
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, Optional[str]]:

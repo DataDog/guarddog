@@ -24,3 +24,10 @@ coverage-report:
 
 docs:
 	python scripts/generate-rules-docs.py README.md
+
+top-pkg-list-update:
+	curl "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.json" | jq '.' > guarddog/analyzer/metadata/resources/top_pypi_packages.json
+	
+	curl "https://anvaka.github.io/npmrank/online/npmrank.json" | \
+		jq -r '[ .rank | keys[] as $$k |  {project:$$k, rank:.[$$k] }  ] | sort_by(.rank) | reverse | .[0:5000] | { last_update: now | todateiso8601, rows: . }' \
+			> guarddog/analyzer/metadata/resources/top_npm_packages.json
