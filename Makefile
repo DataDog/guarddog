@@ -25,7 +25,7 @@ coverage-report:
 docs:
 	python scripts/generate-rules-docs.py README.md
 
-top-pkg-list-update:
+update-top-pkg-list:
 	curl "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.json" | jq '.' > guarddog/analyzer/metadata/resources/top_pypi_packages.json
 	
 	curl "https://anvaka.github.io/npmrank/online/npmrank.json" | \
