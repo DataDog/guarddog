@@ -105,7 +105,7 @@ Metadata heuristics:
 | release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
 | typosquatting | Identify packages that are named closely to an highly popular package |
 | potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
-| unclaimed_maintainer_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) is currently unclaimed and could be registered by an attacker |
+| unclaimed_maintainer_email_domain | Identify when a package maintainer e-mail domain (and therefore npm account) is unclaimed and can be registered by an attacker |
 | repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
 | single_python_file | Identify packages that have only a single Python file |
 
@@ -123,7 +123,6 @@ Source code heuristics:
 | npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
 | npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
-| npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 
 Metadata heuristics:
 
@@ -132,7 +131,7 @@ Metadata heuristics:
 | empty_information | Identify packages with an empty description field |
 | release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
 | potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised; note that NPM's API may not provide accurate information regarding the maintainer's email, so this detector may cause false positives for NPM packages. see https://www.theregister.com/2022/05/10/security_npm_email/ |
-| unclaimed_maintainer_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) is currently unclaimed and could be registered by an attacker; note that NPM's API may not provide accurate information regarding the maintainer's email, so this detector may cause false positives for NPM packages. see https://www.theregister.com/2022/05/10/security_npm_email/ |
+| unclaimed_maintainer_email_domain | Identify when a package maintainer e-mail domain (and therefore npm account) is unclaimed and can be registered by an attacker; note that NPM's API may not provide accurate information regarding the maintainer's email, so this detector may cause false positives for NPM packages. see https://www.theregister.com/2022/05/10/security_npm_email/ |
 | typosquatting | Identify packages that are named closely to an highly popular package |
 | direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
 | npm_metadata_mismatch | Identify packages which have mismatches between the npm package manifest and the package info for some critical fields |
