@@ -26,8 +26,7 @@ docs:
 	python scripts/generate-rules-docs.py README.md
 
 update-top-pkg-list:
-	curl "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.json" | jq '.' > guarddog/analyzer/metadata/resources/top_pypi_packages.json
+	/bin/bash scripts/generate_pypi_top_list.sh
+	/bin/bash scripts/generate_npm_top_list.sh
 	
-	curl "https://api.npms.io/v2/search?q=not:deprecated" | \
-		jq -r '[ .results.[] |  {project:.package.name, score:.score.final }  ] | sort_by(.score) | reverse | .[0:5000] | { last_update: now | todateiso8601, rows: . }' \
-			> guarddog/analyzer/metadata/resources/top_npm_packages.json
+	
