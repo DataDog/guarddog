@@ -26,6 +26,8 @@ for file_name in rule_file_names:
             for lang in rule["languages"]:
                 match lang:
                     case "python":
-                        SOURCECODE_RULES[ECOSYSTEM.PYPI].append(rule)
+                        if rule not in SOURCECODE_RULES[ECOSYSTEM.PYPI]:
+                            SOURCECODE_RULES[ECOSYSTEM.PYPI].append(rule)
                     case "javascript" | "typescript" | "json":
-                        SOURCECODE_RULES[ECOSYSTEM.NPM].append(rule)
+                        if rule not in SOURCECODE_RULES[ECOSYSTEM.NPM]:
+                                SOURCECODE_RULES[ECOSYSTEM.NPM].append(rule)
