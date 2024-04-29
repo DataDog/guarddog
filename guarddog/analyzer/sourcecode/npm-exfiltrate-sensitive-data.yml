@@ -48,9 +48,6 @@ rules:
                   $HTTP = require('https')
                   ...
               - pattern-inside: |
-                  $HTTP = require('https')
-                  ...
-              - pattern-inside: |
                   $HTTP = require('axios')
                   ...
               - pattern-inside: |
