@@ -10,8 +10,8 @@ class UnclaimedMaintainerEmailDomainDetector(Detector):
     # The name of the rule is dependent on the ecosystem and is provided by the implementing subclasses
     def __init__(self, ecosystem: str):
         description = (
-            "Identify when a package maintainer e-mail domain (and therefore package manager account) "
-            "is currently unclaimed and could be registered by an attacker"
+            "Identify when a package maintainer e-mail domain (and therefore npm account) "
+            "is unclaimed and can be registered by an attacker"
         )
 
         super().__init__(

@@ -1,0 +1,73 @@
+rules:
+  - id: npm-exfiltrate-sensitive-data
+    mode: taint
+    message: This package is exfiltrating sensitive data to a remote server
+    metadata:
+      description: Identify when a package reads and exfiltrates sensitive data from
+        the local system
+    pattern-sources:
+      - pattern-either:
+          - patterns:              
+            - pattern-either:
+              - pattern: process.env
+          - patterns:              
+            - pattern-either:
+                - pattern-inside: |
+                    $FS = require('fs')
+                    ...
+                - pattern-inside: |
+                    $FS = require('fs/promises')
+                    ...
+                - pattern-inside: |
+                    import * as $FS from 'fs'
+                    ...
+                - pattern-inside: |
+                    import $FS from 'fs'
+                    ...
+                - pattern-inside: |
+                    import * as $FS from 'fs/promises'
+                    ...
+                - pattern-inside: |
+                    import $FS from 'fs/promises'
+                    ...
+            - patterns:
+                - pattern-either:
+                    - pattern: $FS. ... .readFileSync(...,<..."$FILE"...>,...)
+                    - pattern: $FS. ... .readFile(...,<..."$FILE"...>,...)
+                    - pattern: $FS. ... .open(...,<..."$FILE"...>,...)
+                    - pattern: $FS. ... .access(...,<..."$FILE"...>,...)
+                    - pattern: $FS. ... .createReadStream(...,<..."$FILE"...>,...)
+                - metavariable-regex:
+                    metavariable: $FILE
+                    regex: (/etc/passwd|.aws/credentials|.docker/config.json|/.kube/config|/etc/hosts/.ssh/id_rsa)
+        
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  $HTTP = require('https')
+                  ...
+              - pattern-inside: |
+                  $HTTP = require('axios')
+                  ...
+              - pattern-inside: |
+                  $HTTP = require('node-fetch')
+                  ...
+              - pattern-inside: |
+                  $HTTP = new Firebase(...);
+                  ...
+              - pattern-inside: |
+                  $HTTP = require('firebase')
+                  ...
+          - pattern-either:
+            - pattern: $HTTP. ... .request(...)
+            - pattern: $HTTP. ... .get(...)
+            - pattern: $HTTP. ... .post(...)
+            - pattern: $HTTP. ... .push(...)
+            - pattern: $HTTP(...)
+    languages:
+      - javascript
+      - typescript
+    severity: WARNING
+    options:
+      symbolic_propagation: true
