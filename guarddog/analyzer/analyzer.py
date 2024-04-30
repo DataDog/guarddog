@@ -14,7 +14,7 @@ def get_rules(file_extension, path):
     return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
 
 
-SEMGREP_MAX_TARGET_BYTES = 10000000
+SEMGREP_MAX_TARGET_BYTES = 10_000_000
 SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
 
