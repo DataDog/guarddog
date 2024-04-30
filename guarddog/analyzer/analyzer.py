@@ -14,6 +14,7 @@ def get_rules(file_extension, path):
     return set(rule.replace(file_extension, "") for rule in os.listdir(path) if rule.endswith(file_extension))
 
 
+SEMGREP_MAX_TARGET_BYTES = 10_000_000
 SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
 
@@ -197,6 +198,7 @@ class Analyzer:
             cmd.append("--no-git-ignore")
             cmd.append("--json")
             cmd.append("--quiet")
+            cmd.append(f"--max-target-bytes={SEMGREP_MAX_TARGET_BYTES}")
             cmd.append(target)
             log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
             result = subprocess.run(cmd, capture_output=True, check=True, encoding="utf-8")
