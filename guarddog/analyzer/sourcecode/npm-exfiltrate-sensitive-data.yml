@@ -10,8 +10,8 @@ rules:
           - patterns:              
             - pattern-either:
               - pattern: process.env
-          - patterns:              
-            - pattern-either:
+          - patterns:  
+            - pattern-either: # after defining fs
                 - pattern-inside: |
                     $FS = require('fs')
                     ...
@@ -30,16 +30,23 @@ rules:
                 - pattern-inside: |
                     import $FS from 'fs/promises'
                     ...
-            - patterns:
-                - pattern-either:
-                    - pattern: $FS. ... .readFileSync(...,<..."$FILE"...>,...)
-                    - pattern: $FS. ... .readFile(...,<..."$FILE"...>,...)
-                    - pattern: $FS. ... .open(...,<..."$FILE"...>,...)
-                    - pattern: $FS. ... .access(...,<..."$FILE"...>,...)
-                    - pattern: $FS. ... .createReadStream(...,<..."$FILE"...>,...)
-                - metavariable-regex:
-                    metavariable: $FILE
-                    regex: (/etc/passwd|.aws/credentials|.docker/config.json|/.kube/config|/etc/hosts/.ssh/id_rsa)
+            - pattern-either: 
+                # match use of ootb functions
+                - pattern: $FS. ... .homedir()
+                - pattern: $FS. ... .hostname()
+                - pattern: $FS. ... .userInfo()
+
+                # match access to sensitive files
+                - patterns:
+                    - pattern-either:
+                        - pattern: $FS. ... .readFileSync(...,<..."$FILE"...>,...)
+                        - pattern: $FS. ... .readFile(...,<..."$FILE"...>,...)
+                        - pattern: $FS. ... .open(...,<..."$FILE"...>,...)
+                        - pattern: $FS. ... .access(...,<..."$FILE"...>,...)
+                        - pattern: $FS. ... .createReadStream(...,<..."$FILE"...>,...)
+                    - metavariable-regex:
+                        metavariable: $FILE
+                        regex: (/etc/passwd|.aws/credentials|.docker/config.json|/.kube/config|/etc/hosts/.ssh/id_rsa)
         
     pattern-sinks:
       - patterns:
