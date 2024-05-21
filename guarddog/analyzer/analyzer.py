@@ -8,6 +8,7 @@ from typing import Iterable, List, Optional
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
+from guarddog.analyzer.sourcecode import SOURCECODE_RULES
 
 
 def get_rules(file_extension, path):
@@ -17,6 +18,8 @@ def get_rules(file_extension, path):
 SEMGREP_MAX_TARGET_BYTES = 10_000_000
 SEMGREP_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 SEMGREP_RULE_NAMES = get_rules(".yml", SEMGREP_RULES_PATH)
+NPM_SOURCE_RULES = [rules["id"] for rules in SOURCECODE_RULES[ECOSYSTEM.NPM]]
+PYPI_SOURCE_RULES = [rules["id"] for rules in SOURCECODE_RULES[ECOSYSTEM.PYPI]]
 
 log = logging.getLogger("guarddog")
 
@@ -45,7 +48,7 @@ class Analyzer:
         self.metadata_detectors = get_metadata_detectors(ecosystem)
 
         self.metadata_ruleset = self.metadata_detectors.keys()
-        self.sourcecode_ruleset = SEMGREP_RULE_NAMES
+        self.sourcecode_ruleset = PYPI_SOURCE_RULES if ecosystem is ECOSYSTEM.PYPI else NPM_SOURCE_RULES
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -99,6 +102,9 @@ class Analyzer:
                     metadata_rules.add(rule)
                 else:
                     raise Exception(f"{rule} is not a valid rule.")
+        else:
+            metadata_rules = self.metadata_ruleset
+            sourcecode_rules = self.sourcecode_ruleset
 
         log.debug(f"Running metadata rules against package '{name}'")
         metadata_results = self.analyze_metadata(path, info, metadata_rules, name, version)
@@ -139,6 +145,7 @@ class Analyzer:
                 if rule_matches:
                     issues += 1
                     results[rule] = message
+                results[rule] = {}
             except Exception as e:
                 errors[rule] = f"failed to run rule {rule}: {str(e)}"
 

@@ -23,8 +23,10 @@ from guarddog.scanners.scanner import PackageScanner
 ALL_RULES = \
     set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) \
     | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
-NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | SEMGREP_RULE_NAMES
-PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
+NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | \
+    set([rules["id"] for rules in SOURCECODE_RULES[ECOSYSTEM.NPM]])
+PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | \
+    set([rules["id"] for rules in SOURCECODE_RULES[ECOSYSTEM.PYPI]])
 EXIT_CODE_ISSUES_FOUND = 1
 
 AVAILABLE_LOG_LEVELS = {
