@@ -62,18 +62,42 @@ rules:
                             pattern-regex: (?i)^['"].*?\.exe['"]$
 
     pattern-sources:
-      - pattern: (...).send(...)
-      - pattern: send(...)
-      - pattern: (...).request(...)
-      - pattern: request(...)
-      - pattern: (...).urlopen(...)
-      - pattern: urlopen(...)
-      - pattern: (...).getresponse(...)
-      - pattern: getresponse(...)
-      - pattern: requests.$FUNC(...)
-      - pattern: (...).urlretrieve(...)
-      - pattern: urlretrieve(...)
-      - pattern: requests.get(...)
+      - pattern: |
+          (...).send(...)
+          ...
+      - pattern: |
+          send(...)
+          ...
+      - pattern: |
+          (...).request(...)
+          ...
+      - pattern: |
+          request(...)
+          ...
+      - pattern: |
+          (...).urlopen(...)
+          ...
+      - pattern: |
+          urlopen(...)
+          ...
+      - pattern: |
+          (...).getresponse(...)
+          ...
+      - pattern: |
+          getresponse(...)
+          ...
+      - pattern: |
+          requests.$FUNC(...)
+          ...
+      - pattern: |
+          (...).urlretrieve(...)
+          ...
+      - pattern: |
+          urlretrieve(...)
+          ...
+      - pattern: |
+          requests.get(...)
+          ...
     severity: WARNING
     options: 
       symbolic_propagation: true
