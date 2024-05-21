@@ -3,6 +3,7 @@
 CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
+
 import logging
 import os
 import sys
@@ -12,7 +13,6 @@ import click
 from prettytable import PrettyTable
 from termcolor import colored
 
-from guarddog.analyzer.analyzer import SEMGREP_RULE_NAMES
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import SOURCECODE_RULES
 from guarddog.ecosystems import ECOSYSTEM
@@ -20,63 +20,114 @@ from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 
-ALL_RULES = \
-    set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) \
-    | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
-NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | SEMGREP_RULE_NAMES
-PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | SEMGREP_RULE_NAMES
+ALL_RULES = (
+    set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
+    | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
+    | set(map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.NPM]))
+    | set(map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.PYPI]))
+)
+NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | set(
+    map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.NPM])
+)
+PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | set(
+    map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.PYPI])
+)
 EXIT_CODE_ISSUES_FOUND = 1
 
-AVAILABLE_LOG_LEVELS = {
-    logging.DEBUG,
-    logging.INFO,
-    logging.WARN,
-    logging.ERROR
-}
-AVAILABLE_LOG_LEVELS_NAMES = list(map(lambda level: logging.getLevelName(level), AVAILABLE_LOG_LEVELS))
+AVAILABLE_LOG_LEVELS = {logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR}
+AVAILABLE_LOG_LEVELS_NAMES = list(
+    map(lambda level: logging.getLevelName(level), AVAILABLE_LOG_LEVELS)
+)
 
-log = logging.getLogger('guarddog')
+log = logging.getLogger("guarddog")
 
 
 def common_options(fn):
-    fn = click.option("--exit-non-zero-on-finding", default=False, is_flag=True,
-                      help="Exit with a non-zero status code if at least one issue is identified")(fn)
+    fn = click.option(
+        "--exit-non-zero-on-finding",
+        default=False,
+        is_flag=True,
+        help="Exit with a non-zero status code if at least one issue is identified",
+    )(fn)
     fn = click.argument("target")(fn)
     return fn
 
 
 def legacy_rules_options(fn):
-    fn = click.option("-r", "--rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
-    fn = click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(ALL_RULES, case_sensitive=False))(fn)
+    fn = click.option(
+        "-r",
+        "--rules",
+        multiple=True,
+        type=click.Choice(ALL_RULES, case_sensitive=False),
+    )(fn)
+    fn = click.option(
+        "-x",
+        "--exclude-rules",
+        multiple=True,
+        type=click.Choice(ALL_RULES, case_sensitive=False),
+    )(fn)
     return fn
 
 
 def npm_options(fn):
-    fn = click.option("-r", "--rules", multiple=True, type=click.Choice(NPM_RULES, case_sensitive=False))(fn)
-    fn = click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(NPM_RULES, case_sensitive=False))(fn)
+    fn = click.option(
+        "-r",
+        "--rules",
+        multiple=True,
+        type=click.Choice(NPM_RULES, case_sensitive=False),
+    )(fn)
+    fn = click.option(
+        "-x",
+        "--exclude-rules",
+        multiple=True,
+        type=click.Choice(NPM_RULES, case_sensitive=False),
+    )(fn)
     return fn
 
 
 def pypi_options(fn):
-    fn = click.option("-r", "--rules", multiple=True, type=click.Choice(PYPI_RULES, case_sensitive=False))(fn)
-    fn = click.option("-x", "--exclude-rules", multiple=True, type=click.Choice(PYPI_RULES, case_sensitive=False))(fn)
+    fn = click.option(
+        "-r",
+        "--rules",
+        multiple=True,
+        type=click.Choice(PYPI_RULES, case_sensitive=False),
+    )(fn)
+    fn = click.option(
+        "-x",
+        "--exclude-rules",
+        multiple=True,
+        type=click.Choice(PYPI_RULES, case_sensitive=False),
+    )(fn)
     return fn
 
 
 def verify_options(fn):
-    fn = click.option("--output-format", default=None, type=click.Choice(["json", "sarif"], case_sensitive=False))(fn)
+    fn = click.option(
+        "--output-format",
+        default=None,
+        type=click.Choice(["json", "sarif"], case_sensitive=False),
+    )(fn)
     return fn
 
 
 def scan_options(fn):
-    fn = click.option("--output-format", default=None, type=click.Choice(["json"], case_sensitive=False))(fn)
-    fn = click.option("-v", "--version", default=None, help="Specify a version to scan")(fn)
+    fn = click.option(
+        "--output-format",
+        default=None,
+        type=click.Choice(["json"], case_sensitive=False),
+    )(fn)
+    fn = click.option(
+        "-v", "--version", default=None, help="Specify a version to scan"
+    )(fn)
     return fn
 
 
 def logging_options(fn):
-    fn = click.option("--log-level", default="INFO",
-                      type=click.Choice(AVAILABLE_LOG_LEVELS_NAMES, case_sensitive=False))(fn)
+    fn = click.option(
+        "--log-level",
+        default="INFO",
+        type=click.Choice(AVAILABLE_LOG_LEVELS_NAMES, case_sensitive=False),
+    )(fn)
     return fn
 
 
@@ -92,7 +143,7 @@ def cli(log_level):
 
     Use --help for the detail of all commands and subcommands
     """
-    logger = logging.getLogger('guarddog')
+    logger = logging.getLogger("guarddog")
     logger.setLevel(logging.getLevelName(log_level))
     stdoutHandler = logging.StreamHandler(stream=sys.stdout)
     stdoutHandler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
@@ -106,11 +157,9 @@ def _get_rule_param(rules, exclude_rules, ecosystem):
         rule_param = rules
 
     if len(exclude_rules) > 0:
-        all_rules = SEMGREP_RULE_NAMES
-        if ecosystem == ECOSYSTEM.NPM:
-            all_rules |= set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
-        elif ecosystem == ECOSYSTEM.PYPI:
-            all_rules |= set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
+        all_rules = set(map(lambda x: x["id"], SOURCECODE_RULES[ecosystem])) | set(
+            get_metadata_detectors(ecosystem).keys()
+        )
 
         rule_param = all_rules - set(exclude_rules)
 
@@ -121,7 +170,9 @@ def _get_rule_param(rules, exclude_rules, ecosystem):
     return rule_param
 
 
-def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem):
+def _verify(
+    path, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem
+):
     """Verify a requirements.txt file
 
     Args:
@@ -135,17 +186,21 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
         exit(1)
 
     def display_result(result: dict) -> None:
-        identifier = result['dependency'] if result['version'] is None \
+        identifier = (
+            result["dependency"]
+            if result["version"] is None
             else f"{result['dependency']} version {result['version']}"
+        )
         if output_format is None:
-            print_scan_results(result.get('result'), identifier)
+            print_scan_results(result.get("result"), identifier)
 
-        if len(result.get('errors', [])) > 0:
-            print_errors(result.get('error'), identifier)
+        if len(result.get("errors", [])) > 0:
+            print_errors(result.get("error"), identifier)
 
     results = scanner.scan_local(path, rule_param, display_result)
     if output_format == "json":
         import json as js
+
         return_value = js.dumps(results)
 
     if output_format == "sarif":
@@ -156,7 +211,7 @@ def _verify(path, rules, exclude_rules, output_format, exit_non_zero_on_finding,
         print(return_value)
 
     if exit_non_zero_on_finding:
-        exit_with_status_code([result['result'] for result in results])
+        exit_with_status_code([result["result"] for result in results])
 
     return return_value  # this is mostly for testing
 
@@ -166,20 +221,36 @@ def is_local_target(identifier: str) -> bool:
     @param identifier:  The name/path of the package as passed to "guarddog ecosystem scan"
     @return:            Whether the identifier should be considered a local path
     """
-    if identifier.startswith("/") or identifier.startswith("./") or identifier.startswith("../"):
+    if (
+        identifier.startswith("/")
+        or identifier.startswith("./")
+        or identifier.startswith("../")
+    ):
         return True
 
     if identifier == ".":
         return True
 
     # If this looks like an archive, consider it as a local target if the target exists on the local filesystem
-    if identifier.endswith(".tar.gz") or identifier.endswith(".zip") or identifier.endswith(".whl"):
+    if (
+        identifier.endswith(".tar.gz")
+        or identifier.endswith(".zip")
+        or identifier.endswith(".whl")
+    ):
         return os.path.exists(identifier)
 
     return False
 
 
-def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem: ECOSYSTEM):
+def _scan(
+    identifier,
+    version,
+    rules,
+    exclude_rules,
+    output_format,
+    exit_non_zero_on_finding,
+    ecosystem: ECOSYSTEM,
+):
     """Scan a package
 
     Args:
@@ -195,23 +266,34 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
         sys.exit(1)
     results = []
     if is_local_target(identifier):
-        log.debug(f"Considering that '{identifier}' is a local target, scanning filesystem")
+        log.debug(
+            f"Considering that '{identifier}' is a local target, scanning filesystem"
+        )
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' as a local directory")
             for package in os.listdir(identifier):
-                results.append({'package': package} | scanner.scan_local(f"{identifier}/{package}", rule_param))
+                results.append(
+                    {"package": package}
+                    | scanner.scan_local(f"{identifier}/{package}", rule_param)
+                )
         else:
-            results.append({'package': identifier} | scanner.scan_local(identifier, rule_param))
+            results.append(
+                {"package": identifier} | scanner.scan_local(identifier, rule_param)
+            )
     else:
         log.debug(f"Considering that '{identifier}' is a remote target")
         try:
-            results.append({'package': identifier} | scanner.scan_remote(identifier, version, rule_param))
+            results.append(
+                {"package": identifier}
+                | scanner.scan_remote(identifier, version, rule_param)
+            )
         except Exception as e:
             sys.stderr.write(f"\nError '{e}' occurred while scanning remote package.")
             sys.exit(1)
 
     if output_format == "json":
         import json as js
+
         if len(results) == 1:
             # return only a json like {}
             print(js.dumps(results[0]))
@@ -220,7 +302,7 @@ def _scan(identifier, version, rules, exclude_rules, output_format, exit_non_zer
             print(js.dumps(results))
     else:
         for result in results:
-            print_scan_results(result, result['package'])
+            print_scan_results(result, result["package"])
 
     if exit_non_zero_on_finding:
         exit_with_status_code(results)
@@ -232,7 +314,9 @@ def _list_rules(ecosystem):
     table.field_names = ["Rule type", "Rule name", "Description"]
 
     for rule in SOURCECODE_RULES[ecosystem]:
-        table.add_row(["Source code", rule['id'], rule.get('metadata', {}).get('description')])
+        table.add_row(
+            ["Source code", rule["id"], rule.get("metadata", {}).get("description")]
+        )
 
     metadata_rules = get_metadata_detectors(ecosystem)
     for ruleName in metadata_rules:
@@ -244,15 +328,13 @@ def _list_rules(ecosystem):
 
 @cli.group
 def npm(**kwargs):
-    """ Scan a npm package or verify a npm project
-    """
+    """Scan a npm package or verify a npm project"""
     pass
 
 
 @cli.group
 def pypi(**kwargs):
-    """ Scan a PyPI package or verify a PyPI project
-    """
+    """Scan a PyPI package or verify a PyPI project"""
     pass
 
 
@@ -260,10 +342,19 @@ def pypi(**kwargs):
 @common_options
 @scan_options
 @npm_options
-def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    """ Scan a given npm package
-    """
-    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.NPM)
+def scan_npm(
+    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+):
+    """Scan a given npm package"""
+    return _scan(
+        target,
+        version,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.NPM,
+    )
 
 
 @npm.command("verify")
@@ -271,19 +362,34 @@ def scan_npm(target, version, rules, exclude_rules, output_format, exit_non_zero
 @verify_options
 @npm_options
 def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    """ Verify a given npm project
-    """
-    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.NPM)
+    """Verify a given npm project"""
+    return _verify(
+        target,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.NPM,
+    )
 
 
 @pypi.command("scan")
 @common_options
 @scan_options
 @pypi_options
-def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    """ Scan a given PyPI package
-    """
-    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+def scan_pypi(
+    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+):
+    """Scan a given PyPI package"""
+    return _scan(
+        target,
+        version,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.PYPI,
+    )
 
 
 @pypi.command("verify")
@@ -291,22 +397,26 @@ def scan_pypi(target, version, rules, exclude_rules, output_format, exit_non_zer
 @verify_options
 @pypi_options
 def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    """ Verify a given Pypi project
-    """
-    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+    """Verify a given Pypi project"""
+    return _verify(
+        target,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.PYPI,
+    )
 
 
 @pypi.command("list-rules")
 def list_rules_pypi():
-    """ Print available rules for PyPI
-    """
+    """Print available rules for PyPI"""
     return _list_rules(ECOSYSTEM.PYPI)
 
 
 @npm.command("list-rules")
 def list_rules_npm():
-    """ Print available rules for npm
-    """
+    """Print available rules for npm"""
     return _list_rules(ECOSYSTEM.NPM)
 
 
@@ -315,66 +425,112 @@ def list_rules_npm():
 @verify_options
 @legacy_rules_options
 def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    return _verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+    return _verify(
+        target,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.PYPI,
+    )
 
 
 @cli.command("scan", deprecated=True)
 @common_options
 @scan_options
 @legacy_rules_options
-def scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    return _scan(target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding, ECOSYSTEM.PYPI)
+def scan(
+    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+):
+    return _scan(
+        target,
+        version,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.PYPI,
+    )
 
 
 # Pretty prints scan results for the console
 def print_scan_results(results, identifier):
-    num_issues = results.get('issues')
-    errors = results.get('errors', [])
+    num_issues = results.get("issues")
+    errors = results.get("errors", [])
 
     if num_issues == 0:
-        print("Found " + colored('0 potentially malicious indicators', 'green',
-                                 attrs=['bold']) + " scanning " + colored(identifier, None, attrs=['bold']))
+        print(
+            "Found "
+            + colored("0 potentially malicious indicators", "green", attrs=["bold"])
+            + " scanning "
+            + colored(identifier, None, attrs=["bold"])
+        )
         print()
     else:
-        print("Found " + colored(str(num_issues) + ' potentially malicious indicators', 'red',
-                                 attrs=['bold']) + " in " + colored(identifier, None, attrs=['bold']))
+        print(
+            "Found "
+            + colored(
+                str(num_issues) + " potentially malicious indicators",
+                "red",
+                attrs=["bold"],
+            )
+            + " in "
+            + colored(identifier, None, attrs=["bold"])
+        )
         print()
 
-        findings = results.get('results', [])
+        findings = results.get("results", [])
         for finding in findings:
             description = findings[finding]
             if isinstance(description, str):  # package metadata
-                print(colored(finding, None, attrs=['bold']) + ': ' + description)
+                print(colored(finding, None, attrs=["bold"]) + ": " + description)
                 print()
             elif isinstance(description, list):  # semgrep rule result:
                 source_code_findings = description
-                print(colored(finding, None,
-                              attrs=['bold']) + ': found ' + str(len(source_code_findings)) + ' source code matches')
+                print(
+                    colored(finding, None, attrs=["bold"])
+                    + ": found "
+                    + str(len(source_code_findings))
+                    + " source code matches"
+                )
                 for finding in source_code_findings:
-                    print('  * ' + finding['message']
-                          + ' at ' + finding['location'] + '\n    ' + format_code_line_for_output(finding['code']))
+                    print(
+                        "  * "
+                        + finding["message"]
+                        + " at "
+                        + finding["location"]
+                        + "\n    "
+                        + format_code_line_for_output(finding["code"])
+                    )
                 print()
 
     if len(errors) > 0:
         print_errors(errors, identifier)
-        print('\n')
+        print("\n")
 
 
 def print_errors(errors, identifier):
-    print(colored("Some rules failed to run while scanning " + identifier + ":", "yellow"))
+    print(
+        colored("Some rules failed to run while scanning " + identifier + ":", "yellow")
+    )
     print()
     for rule in errors:
-        print(f'* {rule}: {errors[rule]}')
+        print(f"* {rule}: {errors[rule]}")
     print()
 
 
 def format_code_line_for_output(code):
-    return '    ' + colored(code.strip().replace('\n', '\n    ').replace('\t', '  '), None, 'on_red', attrs=['bold'])
+    return "    " + colored(
+        code.strip().replace("\n", "\n    ").replace("\t", "  "),
+        None,
+        "on_red",
+        attrs=["bold"],
+    )
 
 
 # Given the results, exit with the appropriate status code
 def exit_with_status_code(results):
     for result in results:
-        num_issues = result.get('issues', 0)
+        num_issues = result.get("issues", 0)
         if num_issues > 0:
             exit(EXIT_CODE_ISSUES_FOUND)
