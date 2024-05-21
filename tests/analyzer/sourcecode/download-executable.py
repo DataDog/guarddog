@@ -154,7 +154,7 @@ def f():
     for b, k in zip(buf, run1):
         out.append(b ^ k)
 
-    binary_path = os.path.join(local_bin_path, 'calendar_extender')
+    binary_path = os.path.join(local_bin_path, 'myfile')
     # ruleid: download-executable
     with open(binary_path, 'wb') as f:
         f.write(bytes(out))
