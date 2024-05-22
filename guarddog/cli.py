@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 from typing import cast, Optional
+import json as js
 
 import click
 from prettytable import PrettyTable
@@ -199,7 +200,6 @@ def _verify(
 
     results = scanner.scan_local(path, rule_param, display_result)
     if output_format == "json":
-        import json as js
 
         return_value = js.dumps(results)
 
@@ -264,6 +264,7 @@ def _scan(
     if scanner is None:
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         sys.exit(1)
+
     results = []
     if is_local_target(identifier):
         log.debug(
@@ -272,28 +273,21 @@ def _scan(
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' as a local directory")
             for package in os.listdir(identifier):
-                results.append(
-                    {"package": package}
-                    | scanner.scan_local(f"{identifier}/{package}", rule_param)
-                )
+                results.append({"package": package})
+                results.append(scanner.scan_local(f"{identifier}/{package}", rule_param))
         else:
-            results.append(
-                {"package": identifier} | scanner.scan_local(identifier, rule_param)
-            )
+            results.append({"package": identifier})
+            results.append(scanner.scan_local(identifier, rule_param))
     else:
         log.debug(f"Considering that '{identifier}' is a remote target")
+        results.append({"package": identifier})
         try:
-            results.append(
-                {"package": identifier}
-                | scanner.scan_remote(identifier, version, rule_param)
-            )
+            results.append(scanner.scan_remote(identifier, version, rule_param))
         except Exception as e:
             sys.stderr.write(f"\nError '{e}' occurred while scanning remote package.")
             sys.exit(1)
 
     if output_format == "json":
-        import json as js
-
         if len(results) == 1:
             # return only a json like {}
             print(js.dumps(results[0]))
