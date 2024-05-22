@@ -39,7 +39,7 @@ class Analyzer:
         self.metadata_detectors = get_metadata_detectors(ecosystem)
 
         self.metadata_ruleset = self.metadata_detectors.keys()
-        self.sourcecode_ruleset = set(map(lambda r: r["id"], SOURCECODE_RULES[ecosystem]))
+        self.sourcecode_ruleset = [rule["id"] for rule in SOURCECODE_RULES[ecosystem]]
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
