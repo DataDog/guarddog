@@ -122,6 +122,9 @@ class Analyzer:
         """
 
         all_rules = rules if rules is not None else self.metadata_ruleset
+
+        # for each metadata rule, is expected to have an nulleable string as result
+        # None value represents that the rule was not matched
         results: dict[str, Optional[str]] = {}
         errors = {}
         issues = 0
