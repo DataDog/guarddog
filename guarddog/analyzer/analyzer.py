@@ -130,6 +130,7 @@ class Analyzer:
             try:
                 log.debug(f"Running rule {rule} against package '{name}'")
                 rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
+                results[rule] = None
                 if rule_matches:
                     issues += 1
                     results[rule] = message
