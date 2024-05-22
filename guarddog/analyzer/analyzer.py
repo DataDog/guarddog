@@ -130,10 +130,9 @@ class Analyzer:
             try:
                 log.debug(f"Running rule {rule} against package '{name}'")
                 rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
-                results[rule] = {}
+                results[rule] = message
                 if rule_matches:
                     issues += 1
-                    results[rule] = message
             except Exception as e:
                 errors[rule] = f"failed to run rule {rule}: {str(e)}"
 
