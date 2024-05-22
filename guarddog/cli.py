@@ -273,16 +273,19 @@ def _scan(
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' as a local directory")
             for package in os.listdir(identifier):
-                results.append({"package": package})
-                results.append(scanner.scan_local(f"{identifier}/{package}", rule_param))
+                result = scanner.scan_local(f"{identifier}/{package}", rule_param)
+                result["package"] = package
+                results.append(result)
         else:
-            results.append({"package": identifier})
-            results.append(scanner.scan_local(identifier, rule_param))
+            result = scanner.scan_local(identifier, rule_param)
+            result["package"] = identifier
+            results.append(result)
     else:
         log.debug(f"Considering that '{identifier}' is a remote target")
-        results.append({"package": identifier})
         try:
-            results.append(scanner.scan_remote(identifier, version, rule_param))
+            result = scanner.scan_remote(identifier, version, rule_param)
+            result["package"] = identifier
+            results.append(result)
         except Exception as e:
             sys.stderr.write(f"\nError '{e}' occurred while scanning remote package.")
             sys.exit(1)
