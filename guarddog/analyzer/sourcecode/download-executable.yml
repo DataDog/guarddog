@@ -63,12 +63,6 @@ rules:
 
     pattern-sources:
       - pattern: |
-          (...).send(...)
-          ...
-      - pattern: |
-          send(...)
-          ...
-      - pattern: |
           (...).request(...)
           ...
       - pattern: |
