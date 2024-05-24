@@ -1,8 +1,8 @@
 rules:
   - id: bidirectional-characters
-    message: This package contains contains bidirectional (bidi) characters
+    message: This package contains bidirectional (bidi) characters
     metadata:
-      description: Identify when a package contains contains bidirectional (bidi) characters. See more at https://trojansource.codes/
+      description: Identify when a package contains bidirectional (bidi) characters. See more at https://trojansource.codes/
     patterns:
       - pattern-either:
           - pattern-regex: ‪
