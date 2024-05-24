@@ -154,3 +154,18 @@ function f(){
     self[k(i)](urlTo);
 }
 
+function f(){
+    // ok: npm-obfuscation
+    console.warn(`
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    WARNING
+    
+    Version discrepancies between server and "${clientRole}" client:
+    + server: ${serverVersion} | client: ${clientVersion}
+    
+    This might lead to unexpected behavior, you should consider to re-install your
+    dependencies on both your server and clients.
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+}
