@@ -169,7 +169,7 @@ def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: 
         package = entry["dependency"]
         version = entry["version"]
         for rule_name in scan_result_details.keys():
-            if len(scan_result_details[rule_name]) == 0:
+            if scan_result_details[rule_name] is None or len(scan_result_details[rule_name]) == 0:
                 continue
             text = f"On package: {package} version: {version}\n" + "\n".join(map(
                 lambda x: x["message"],
