@@ -12,14 +12,14 @@ from .utils import extract_email_address_domain
 DISPOSABLE_EMAIL_DOMAINS_CACHE_LOCATION = os.environ.get('GUARDDOG_DISPOSABLE_EMAIL_DOMAINS_CACHE_LOCATION')
 
 class DeceptiveAuthorDetector(Detector):
-    """This heuristic detects when an author of is using a disposable email."""
+    """This heuristic detects when an author is using a disposable email."""
 
     MESSAGE_TEMPLATE = "An author was detected using a disposable email %s"
 
     def __init__(self):
         super().__init__(
             name="deceptive_author",
-            description="This heuristic detects when an author of is using a disposable email"
+            description="This heuristic detects when an author is using a disposable email"
         )
 
     def get_email_addresses(self, package_info: dict) -> set[str]:
