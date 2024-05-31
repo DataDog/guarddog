@@ -28,7 +28,7 @@ class DeceptiveAuthorDetector(Detector):
     def get_email_addresses(self, package_info: dict) -> set[str]:
         return set()
 
-    def _get_disposable_email_domains(self) -> list:
+    def _get_disposable_email_domains(self) -> set:
         """
         Gets the domains that are known to provide disposable e-mails
 
