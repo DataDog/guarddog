@@ -68,7 +68,7 @@ class DeceptiveAuthorDetector(Detector):
 
             disposable_email_domains_data = response
 
-        return disposable_email_domains_data.split("\n")
+        return set(disposable_email_domains_data.split("\n"))
 
     @abstractmethod
     def detect(
