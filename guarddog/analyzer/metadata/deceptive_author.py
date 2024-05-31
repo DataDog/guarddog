@@ -33,10 +33,12 @@ class DeceptiveAuthorDetector(Detector):
         Gets the domains that are known to provide disposable e-mails
 
         """
+        disposable_email_domains_data = None  # contains the raw content of the disposable email domains file
 
         disposable_email_domains_url = \
             "https://raw.githubusercontent.com/wesbos/burner-email-providers/master/emails.txt"
 
+        # Obtain the path to the file containing the disposable email domains by config
         disposable_email_domains_filename = "disposable_email_domains.txt"
         resources_dir = DISPOSABLE_EMAIL_DOMAINS_CACHE_LOCATION
         if resources_dir is None:
@@ -48,8 +50,7 @@ class DeceptiveAuthorDetector(Detector):
             resources_dir, disposable_email_domains_filename
         )
 
-        disposable_email_domains_data = None
-
+        # Read data if file exists and is not older than 30 days
         if disposable_email_domains_filename in os.listdir(resources_dir):
             update_time = datetime.fromtimestamp(
                 os.path.getmtime(disposable_email_domains_path)
@@ -61,6 +62,7 @@ class DeceptiveAuthorDetector(Detector):
                 ) as disposable_email_domains_file:
                     disposable_email_domains_data = disposable_email_domains_file.read()
 
+        # If no valid data is present, fetch the data from the URL
         if disposable_email_domains_data is None:
             response = requests.get(disposable_email_domains_url).text
             with open(disposable_email_domains_path, "w+") as f:
