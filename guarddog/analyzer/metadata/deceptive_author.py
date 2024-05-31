@@ -28,7 +28,8 @@ class DeceptiveAuthorDetector(Detector):
     def get_email_addresses(self, package_info: dict) -> set[str]:
         return set()
 
-    def _get_disposable_email_domains(self) -> set:
+    @staticmethod
+    def get_disposable_email_domains() -> set:
         """
         Gets the domains that are known to provide disposable e-mails
 
@@ -89,6 +90,11 @@ class DeceptiveAuthorDetector(Detector):
         for email in emails:
             domain = extract_email_address_domain(email)
 
-            if domain in self._get_disposable_email_domains():
+            if domain in DeceptiveAuthorDetector.get_disposable_email_domains():
                 return True, self.MESSAGE_TEMPLATE % email
         return False, ""
+
+
+if __name__ == "__main__":
+    # If package is run as a script, update disposable email domains file
+    DeceptiveAuthorDetector.get_disposable_email_domains()
