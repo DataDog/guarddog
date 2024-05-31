@@ -109,6 +109,7 @@ Metadata heuristics:
 | repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
 | single_python_file | Identify packages that have only a single Python file |
 | bundled_binary | Identify packages bundling binaries |
+| deceptive_author | This heuristic detects when an author is using a disposable email |
 
 
 ### npm
@@ -137,6 +138,7 @@ Metadata heuristics:
 | direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
 | npm_metadata_mismatch | Identify packages which have mismatches between the npm package manifest and the package info for some critical fields |
 | bundled_binary | Identify packages bundling binaries |
+| deceptive_author | This heuristic detects when an author is using a disposable email |
 
 
 <!-- END_RULE_LIST -->
