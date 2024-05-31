@@ -92,7 +92,7 @@ class ProjectScanner(Scanner):
 
         num_workers = multiprocessing.cpu_count()
         if os.environ.get("GUARDDOG_PARALLELISM") is not None:
-            num_workers = int(os.environ["GUARDDOG_PARALLELISIM"])
+            num_workers = int(os.environ["GUARDDOG_PARALLELISM"])
 
         sys.stderr.write(f"Scanning using at most {num_workers} parallel worker threads\n")
         sys.stderr.flush()
