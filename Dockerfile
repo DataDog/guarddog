@@ -4,7 +4,6 @@ LABEL org.opencontainers.image.source="https://github.com/DataDog/guarddog/"
 RUN addgroup --system --gid 1000 guarddog \
     && adduser --system --shell /bin/bash --uid 1000 --ingroup guarddog guarddog
 
-RUN mkdir /app
 WORKDIR /app
 
 
