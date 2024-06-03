@@ -25,16 +25,17 @@ tarsafe = "^0.0.5"
 semantic-version = "^2.10.0"
 pyyaml = "^6.0"
 # 1.12+ requires new version of libgit2 which is not avaiable in Alpine
-pygit2 = ">=1.11,<1.15"
+pygit2 = ">=1.11,<1.16"
 configparser = ">=5.3,<8.0"
 prettytable="^3.6.0"
+disposable-email-domains = "^0.0.103"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"
 coverage = "^7.2.7"
 flake8 = ">=5.0.4,<8.0.0"
 pytest = ">=7.4,<9.0"
-setuptools = ">=65.6.3,<70.0.0"
+setuptools = ">=65.6.3,<71.0.0"
 pytest-mock = "^3.11.1"
 
 [tool.pytest.ini_options]
