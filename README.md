@@ -239,12 +239,15 @@ flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --excl
 flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
 
-## Acknowledgments
+## Maintainers
 
 Authors:
 * [Ellen Wang](https://www.linkedin.com/in/ellen-wang-4bb5961a0/)
 * [Christophe Tafani-Dereeper](https://github.com/christophetd)
 * [Vladimir de Turckheim](https://www.linkedin.com/in/vladimirdeturckheim/)
+* [Sebastian Obregoso](https://www.linkedin.com/in/sebastianobregoso/)
+
+## Acknowledgments
 
 Inspiration:
 * [Backstabber’s Knife Collection: A Review of Open Source Software Supply Chain Attacks](https://arxiv.org/pdf/2005.09535)
