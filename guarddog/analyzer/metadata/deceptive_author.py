@@ -34,12 +34,14 @@ class DeceptiveAuthorDetector(Detector):
             os.path.join(os.path.dirname(__file__), "resources")
         )
 
-        disposable_email_domains_path = os.path.join(
+        placeholder_email_domains_path = os.path.join(
             resources_dir, placeholder_email_domains_filename
         )
 
+        # read internal maintained list of placeholder email domains
+        # this domains are usually used by authors who want to don't want to reveal their real email
         placeholder_email_domains_data = None
-        with open(disposable_email_domains_path, "r") as placeholder_email_domains_file:
+        with open(placeholder_email_domains_path, "r") as placeholder_email_domains_file:
             placeholder_email_domains_data = set(
                 placeholder_email_domains_file.read().split("\n")
             )
@@ -52,7 +54,7 @@ class DeceptiveAuthorDetector(Detector):
         The format should be ready to compare against the list of known disposable domains.
         """
         domain = domain.lower().strip()
-        return ".".join(domain.split(".")[-2:]) 
+        return ".".join(domain.split(".")[-2:])
 
     @abstractmethod
     def detect(
