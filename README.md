@@ -109,6 +109,8 @@ Metadata heuristics:
 | unclaimed_maintainer_email_domain | Identify when a package maintainer e-mail domain (and therefore npm account) is unclaimed and can be registered by an attacker |
 | repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
 | single_python_file | Identify packages that have only a single Python file |
+| bundled_binary | Identify packages bundling binaries |
+| deceptive_author | This heuristic detects when an author is using a disposable email |
 
 
 ### npm
@@ -137,6 +139,8 @@ Metadata heuristics:
 | typosquatting | Identify packages that are named closely to an highly popular package |
 | direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
 | npm_metadata_mismatch | Identify packages which have mismatches between the npm package manifest and the package info for some critical fields |
+| bundled_binary | Identify packages bundling binaries |
+| deceptive_author | This heuristic detects when an author is using a disposable email |
 
 
 <!-- END_RULE_LIST -->
@@ -237,12 +241,15 @@ flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --excl
 flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
 
-## Acknowledgments
+## Maintainers
 
 Authors:
 * [Ellen Wang](https://www.linkedin.com/in/ellen-wang-4bb5961a0/)
 * [Christophe Tafani-Dereeper](https://github.com/christophetd)
 * [Vladimir de Turckheim](https://www.linkedin.com/in/vladimirdeturckheim/)
+* [Sebastian Obregoso](https://www.linkedin.com/in/sebastianobregoso/)
+
+## Acknowledgments
 
 Inspiration:
 * [Backstabber’s Knife Collection: A Review of Open Source Software Supply Chain Attacks](https://arxiv.org/pdf/2005.09535)

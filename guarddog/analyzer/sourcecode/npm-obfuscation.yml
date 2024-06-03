@@ -55,7 +55,9 @@ rules:
               metavariable: $PARAM
 
         # JSFuck 
-        - pattern-regex: ^\s*[\[\]\(\)\+\!]{10,}\s*$
+        - patterns:
+          - pattern-not-inside: "..."
+          - pattern-regex: ^\s*[\[\]\(\)\+\!]{10,}\s*$
     languages:
       - javascript
     severity: WARNING
