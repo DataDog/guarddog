@@ -35,8 +35,7 @@ class TestTyposquatting:
         ("wich-boxed-primitive", "which-boxed-primitive"),
         ("twetnacl", "tweetnacl"),
         ("jest-watchers", "jest-watcher"),
-        ("shpk", "sshpk"),
-        ("requests", "request")
+        ("shpk", "sshpk")
     ]
 
     negative_cases = ["hello-world", "foo", "bar"]

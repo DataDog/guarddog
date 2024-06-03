@@ -26,7 +26,7 @@ class PypiTyposquatDetector(TyposquatDetector):
         popular_packages (list): list of top 5000 downloaded packages from PyPI
     """
 
-    def _get_top_packages(self) -> list:
+    def _get_top_packages(self) -> set:
         """
         Gets the package information of the top 5000 most downloaded PyPI packages
 
@@ -70,7 +70,7 @@ class PypiTyposquatDetector(TyposquatDetector):
         def get_safe_name(package):
             return packaging.utils.canonicalize_name(package["project"])
 
-        return list(map(get_safe_name, top_packages_information))
+        return set(map(get_safe_name, top_packages_information))
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, Optional[str]]:
@@ -93,3 +93,7 @@ class PypiTyposquatDetector(TyposquatDetector):
         if len(similar_package_names) > 0:
             return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(similar_package_names)
         return False, None
+
+if __name__ == "__main__":
+    # update top_pypi_packages.json
+    PypiTyposquatDetector()._get_top_packages()

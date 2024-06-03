@@ -26,7 +26,7 @@ docs:
 	python scripts/generate-rules-docs.py README.md
 
 update-top-pkg-list:
-	/bin/bash scripts/generate_pypi_top_list.sh
-	/bin/bash scripts/generate_npm_top_list.sh
+	python -m guarddog.analyzer.metadata.npm.typosquatting
+	python -m guarddog.analyzer.metadata.pypi.typosquatting
 	
 	
