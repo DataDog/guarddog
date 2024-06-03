@@ -30,7 +30,7 @@ class TestDeceptiveAuthor:
         "author_email", "john@example.com"
     )
     disposable_author_npm = generate_npm_project_info(
-        "maintainers", [{"name": "john doe", "email": "john@example.com"}]
+        "maintainers", [{"name": "john doe", "email": "john@exAmple.com"}]
     )
     non_disposable_author_pypi = generate_pypi_project_info(
         "author_email", "john@gmail.com"
@@ -38,6 +38,21 @@ class TestDeceptiveAuthor:
     non_disposable_author_npm = generate_npm_project_info(
         "maintainers", [{"name": "john doe", "email": "john@gmail.com"}]
     )
+
+    @pytest.mark.parametrize(
+        "domain, expected_domain",
+        [
+            ("domain.com", "domain.com"),
+            ("third.domain.com", "domain.com"),
+            ("fourth.third.domain.com", "domain.com"),
+        ],
+    )
+    def test_secondlevel_domain(self, domain: str, expected_domain: str):
+        """
+        This test checks that every domain is reduced to its second level domain.
+        Our list of disposable domains can only be matched this way.
+        """
+        assert pypi_detector._get_normalized_domain(domain) == expected_domain
 
     @pytest.mark.parametrize(
         "package_info, detector",
