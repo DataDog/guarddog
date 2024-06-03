@@ -24,3 +24,9 @@ coverage-report:
 
 docs:
 	python scripts/generate-rules-docs.py README.md
+
+update-top-pkg-list:
+	python -m guarddog.analyzer.metadata.npm.typosquatting
+	python -m guarddog.analyzer.metadata.pypi.typosquatting
+	
+	
