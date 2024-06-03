@@ -31,15 +31,15 @@ class PypiTyposquatDetector(TyposquatDetector):
         Gets the package information of the top 5000 most downloaded PyPI packages
 
         Returns:
-            list: list of package data in the format:
-                [
+            set: set of package data in the format:
+                {
                     ...
                     {
                         download_count: ...
                         project: <package-name>
                     }
                     ...
-                ]
+                }
         """
 
         popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
@@ -93,6 +93,7 @@ class PypiTyposquatDetector(TyposquatDetector):
         if len(similar_package_names) > 0:
             return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(similar_package_names)
         return False, None
+
 
 if __name__ == "__main__":
     # update top_pypi_packages.json

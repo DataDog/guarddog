@@ -16,7 +16,7 @@ class TyposquatDetector(Detector):
         )
 
     @abc.abstractmethod
-    def _get_top_packages(self) -> list:
+    def _get_top_packages(self) -> set:
         pass
 
     def _is_distance_one_Levenshtein(self, name1, name2) -> bool:
