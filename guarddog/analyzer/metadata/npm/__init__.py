@@ -12,6 +12,7 @@ from guarddog.analyzer.metadata.npm.direct_url_dependency import (
 )
 from guarddog.analyzer.metadata.npm.npm_metadata_mismatch import NPMMetadataMismatch
 from guarddog.analyzer.metadata.npm.bundled_binary import NPMBundledBinary
+from guarddog.analyzer.metadata.npm.deceptive_author import NPMDeceptiveAuthor
 
 NPM_METADATA_RULES = {}
 
@@ -24,6 +25,7 @@ classes = [
     NPMDirectURLDependencyDetector,
     NPMMetadataMismatch,
     NPMBundledBinary,
+    NPMDeceptiveAuthor,
 ]
 
 for detectorClass in classes:
