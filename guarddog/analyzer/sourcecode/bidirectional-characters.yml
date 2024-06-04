@@ -1,0 +1,29 @@
+rules:
+  - id: bidirectional-characters
+    message: This package contains bidirectional (bidi) characters
+    metadata:
+      description: Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/
+    patterns:
+      - pattern-either:
+          # Try treating following text as left-to-right.
+          - pattern-regex: ‪
+          # Try treating following text as right-to-left.
+          - pattern-regex: ‫
+          # Force treating following text as left-to-right.
+          - pattern-regex: ‭
+          # Force treating following text as right-to-left.
+          - pattern-regex: ‮
+          # Force treating following text as left-to-right without affecting adjacent text.
+          - pattern-regex: ⁦
+          # Force treating following text as right-to-left without affecting adjacent text.
+          - pattern-regex: ⁧
+          # Force treating following text in direction indicated by the next character.
+          - pattern-regex: ⁨
+          # Terminate nearest LRE, RLE, LRO, or RLO.
+          - pattern-regex: ‬
+          # Terminate nearest LRI or RLI.
+          - pattern-regex: ⁩
+    languages:
+      - python
+      - javascript
+    severity: WARNING
