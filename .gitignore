@@ -12,4 +12,5 @@ wheels/
 *.egg-info/
 build/
 .coverage*
-
+.cache
+.semgrep
