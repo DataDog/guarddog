@@ -1,14 +1,17 @@
 import logging
 import re
 import sys
-
+import os
 import pkg_resources
 import requests
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
+from packaging.requirements import Requirement
 
 log = logging.getLogger("guarddog")
+
+VERIFY_ALL_DEPENDENCIES = os.environ.get("GUARDDOG_VERIFY_ALL_DEPENDENCIES", False)
 
 
 class PypiRequirementsScanner(ProjectScanner):
@@ -87,8 +90,10 @@ class PypiRequirementsScanner(ProjectScanner):
                 except StopIteration:
                     break
                 except Exception as e:
-                    sys.stderr.write(f"Error when parsing requirements, received error {str(e)}. This entry will be "
-                                     "ignored.\n")
+                    sys.stderr.write(
+                        f"Error when parsing requirements, received error {str(e)}. This entry will be "
+                        "ignored.\n"
+                    )
                     yield None
 
         try:
@@ -97,49 +102,26 @@ class PypiRequirementsScanner(ProjectScanner):
                     continue
                 valid_versions = None
                 project_exists_on_pypi = True
-                for spec in requirement.specs:
-                    qualifier, version = spec
+                try:
+                    available_versions = versions(
+                        requirement.project_name
+                    )  # type: list[str]
+                except Exception:
+                    sys.stderr.write(
+                        f"Package {requirement.project_name} not on PyPI\n"
+                    )
+                    project_exists_on_pypi = False
+                    continue
 
-                    try:
-                        available_versions = versions(requirement.project_name)  # type: list[str]
-                    except Exception:
-                        sys.stderr.write(f"Package {requirement.project_name} not on PyPI\n")
-                        project_exists_on_pypi = False
-                        continue
+                r = Requirement(str(requirement))
 
-                    used_versions = None
+                matched_versions = [m for m in r.specifier.filter(available_versions)]
 
-                    match qualifier:
-                        case ">":
-                            used_versions = {v for v in available_versions if v > version}
-                        case "<":
-                            used_versions = {v for v in available_versions if v < version}
-                        case ">=":
-                            used_versions = {v for v in available_versions if v >= version}
-                        case "<=":
-                            used_versions = {v for v in available_versions if v <= version}
-                        case "==":
-                            matches = [re.search(version, candidate) for candidate in available_versions]
-                            filtered_matches = list(filter(None, matches))
-                            str_matches = [v.string for v in filtered_matches]
-                            used_versions = set(str_matches)
-                        case "~=":
-                            prefix = "".join(version.split(".")[:-1])
-                            for available_version in available_versions:  # sorted decreasing
-                                if available_version >= version and available_version.startswith(prefix):
-                                    used_versions = set(available_version)
-                                    break
-                        case _:
-                            sys.stderr.write(f"Unknown qualifier: {qualifier}")
-                            continue
-
-                    if valid_versions is None:
-                        valid_versions = used_versions
-                    else:
-                        valid_versions = valid_versions & used_versions
+                if not VERIFY_ALL_DEPENDENCIES and matched_versions:
+                    matched_versions = [sorted(matched_versions).pop()]
 
                 if project_exists_on_pypi:
-                    dependencies[requirement.project_name] = valid_versions
+                    dependencies[requirement.project_name] = set(matched_versions)
         except Exception as e:
             sys.stderr.write(f"Received error {str(e)}")
 
