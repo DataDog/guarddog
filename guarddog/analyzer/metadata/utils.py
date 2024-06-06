@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cache
 from typing import Optional
 
 import whois  # type: ignore
+
 
 NPM_MAINTAINER_EMAIL_WARNING = (
     "note that NPM's API may not provide accurate information regarding the maintainer's email, "
@@ -29,7 +30,7 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
     except whois.parser.PywhoisError as e:
         # The domain doesn't exist at all, if that's the case we consider it vulnerable
         # since someone could register it
-        return None, (not str(e).lower().startswith('no match for'))
+        return None, (not str(e).lower().startswith("no match for"))
 
     if domain_information.creation_date is None:
         # No creation date in whois, so we can't know
@@ -38,7 +39,7 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
     creation_dates = domain_information.creation_date
 
     if type(creation_dates) is list:
-        return min(creation_dates), True
+        return min([d.replace(tzinfo=timezone.utc) for d in creation_dates]), True
 
     return creation_dates, True
 
