@@ -1,15 +1,13 @@
 import json
 import logging
-import os
 import requests
 from semantic_version import NpmSpec, Version  # type:ignore
 
+from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
 
 log = logging.getLogger("guarddog")
-# This flag spedificies if an analysis of all posible versions is required
-VERIFY_ALL_DEPENDENCIES = os.environ.get("GUARDDOG_VERIFY_ALL_DEPENDENCIES", False)
 
 
 class NPMRequirementsScanner(ProjectScanner):
@@ -72,7 +70,7 @@ class NPMRequirementsScanner(ProjectScanner):
                     result.add(v)
 
             # If just the best matched version scan is required we only keep one
-            if not VERIFY_ALL_DEPENDENCIES and result:
+            if not VERIFY_EXHAUSTIVE_DEPENDENCIES and result:
                 result = set([sorted(result).pop()])
 
             return result

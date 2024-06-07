@@ -13,7 +13,7 @@ from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 log = logging.getLogger("guarddog")
 
 
-TOP_PACKAGES_CACHE_LOCATION = os.environ.get('GUARDDOG_TOP_PACKAGES_CACHE_LOCATION')
+
 
 
 class PypiTyposquatDetector(TyposquatDetector):

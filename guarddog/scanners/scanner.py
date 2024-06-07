@@ -1,16 +1,14 @@
 import concurrent.futures
 import json
 import logging
-import multiprocessing
 import os
 import sys
 import tempfile
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-
 import requests
-
+from guarddog.utils.config import PARALLELISM
 from guarddog.utils.archives import safe_extract
 
 log = logging.getLogger("guarddog")
@@ -92,10 +90,7 @@ class ProjectScanner(Scanner):
             return {"dependency": dependency, "version": version, "result": result}
 
         dependencies = self.parse_requirements(requirements)
-
-        num_workers = multiprocessing.cpu_count()
-        if os.environ.get("GUARDDOG_PARALLELISM") is not None:
-            num_workers = int(os.environ["GUARDDOG_PARALLELISM"])
+        num_workers = PARALLELISM
 
         sys.stderr.write(
             f"Scanning using at most {num_workers} parallel worker threads\n"

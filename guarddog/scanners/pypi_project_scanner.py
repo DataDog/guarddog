@@ -1,18 +1,15 @@
 import logging
 import re
 import sys
-import os
 import pkg_resources
 import requests
+from packaging.specifiers import Specifier
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
-from packaging.specifiers import Specifier
+from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
-
-# This flag spedificies if an analysis of all posible versions is required
-VERIFY_ALL_DEPENDENCIES = os.environ.get("GUARDDOG_VERIFY_ALL_DEPENDENCIES", False)
 
 
 class PypiRequirementsScanner(ProjectScanner):
@@ -89,7 +86,7 @@ class PypiRequirementsScanner(ProjectScanner):
                 result = [semver_range]
 
             # If just the best matched version scan is required we only keep one
-            if not VERIFY_ALL_DEPENDENCIES and result:
+            if not VERIFY_EXHAUSTIVE_DEPENDENCIES and result:
                 result = [sorted(result).pop()]
 
             return set(result)
