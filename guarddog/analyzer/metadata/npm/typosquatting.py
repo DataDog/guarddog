@@ -8,7 +8,6 @@ from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 import requests
 
 
-
 class NPMTyposquatDetector(TyposquatDetector):
     """Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 5000 packages.
     Checks for distance one Levenshtein, one-off character swaps, permutations

@@ -13,9 +13,6 @@ from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 log = logging.getLogger("guarddog")
 
 
-
-
-
 class PypiTyposquatDetector(TyposquatDetector):
     """
     Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 1000 packages.
