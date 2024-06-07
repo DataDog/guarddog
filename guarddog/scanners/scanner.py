@@ -25,7 +25,9 @@ class Scanner:
         pass
 
     @abstractmethod
-    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop):
+    def scan_local(
+        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
+    ):
         pass
 
 
@@ -53,7 +55,12 @@ class ProjectScanner(Scanner):
             exit(1)
         return (user, personal_access_token)
 
-    def scan_requirements(self, requirements: str, rules=None, callback: typing.Callable[[dict], None] = noop) -> dict:
+    def scan_requirements(
+        self,
+        requirements: str,
+        rules=None,
+        callback: typing.Callable[[dict], None] = noop,
+    ) -> dict:
         """
         Reads the requirements.txt file and scans each possible
         dependency and version
@@ -82,11 +89,7 @@ class ProjectScanner(Scanner):
         def scan_single_dependency(dependency, version):
             log.debug(f"Scanning {dependency} version {version}")
             result = self.package_scanner.scan_remote(dependency, version, rules)
-            return {
-                'dependency': dependency,
-                'version': version,
-                'result': result
-            }
+            return {"dependency": dependency, "version": version, "result": result}
 
         dependencies = self.parse_requirements(requirements)
 
@@ -94,7 +97,9 @@ class ProjectScanner(Scanner):
         if os.environ.get("GUARDDOG_PARALLELISM") is not None:
             num_workers = int(os.environ["GUARDDOG_PARALLELISM"])
 
-        sys.stderr.write(f"Scanning using at most {num_workers} parallel worker threads\n")
+        sys.stderr.write(
+            f"Scanning using at most {num_workers} parallel worker threads\n"
+        )
         sys.stderr.flush()
         with ThreadPoolExecutor(max_workers=num_workers) as pool:
             try:
@@ -103,12 +108,18 @@ class ProjectScanner(Scanner):
                     assert versions is None or len(versions) > 0
                     if versions is None:
                         # this will cause scan_remote to use the latest version
-                        futures.append(pool.submit(scan_single_dependency, dependency, None))
+                        futures.append(
+                            pool.submit(scan_single_dependency, dependency, None)
+                        )
                     else:
-                        futures.extend(map(
-                            lambda version: pool.submit(scan_single_dependency, dependency, version),
-                            versions
-                        ))
+                        futures.extend(
+                            map(
+                                lambda version: pool.submit(
+                                    scan_single_dependency, dependency, version
+                                ),
+                                versions,
+                            )
+                        )
 
                 results = []
                 for future in concurrent.futures.as_completed(futures):
@@ -157,10 +168,14 @@ class ProjectScanner(Scanner):
         if resp.status_code == 200:
             return self.scan_requirements(resp.content.decode())
         else:
-            sys.stdout.write(f"{req_url} does not exist. Check your link or branch name.")
+            sys.stdout.write(
+                f"{req_url} does not exist. Check your link or branch name."
+            )
             sys.exit(255)
 
-    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop):
+    def scan_local(
+        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
+    ):
         """
         Scans a local requirements.txt file
 
@@ -193,7 +208,9 @@ class ProjectScanner(Scanner):
             sys.exit(255)
 
     @abstractmethod
-    def parse_requirements(self, param: str) -> dict[str, set[str]]:  # returns { package: version }
+    def parse_requirements(
+        self, raw_requirements: str
+    ) -> dict[str, set[str]]:  # returns { package: version }
         pass
 
 
@@ -209,7 +226,9 @@ class PackageScanner(Scanner):
         super().__init__()
         self.analyzer = analyzer
 
-    def scan_local(self, path, rules=None, callback: typing.Callable[[dict], None] = noop) -> dict:
+    def scan_local(
+        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
+    ) -> dict:
         """
         Scans local package
 
@@ -232,7 +251,7 @@ class PackageScanner(Scanner):
         if not os.path.exists(path):
             raise Exception(f"Path {path} does not exist.")
 
-        if any(path.endswith(ext) for ext in ('.tar.gz', '.tgz', '.zip', '.whl')):
+        if any(path.endswith(ext) for ext in (".tar.gz", ".tgz", ".zip", ".whl")):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 safe_extract(path, tmpdirname)
                 return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
@@ -240,33 +259,47 @@ class PackageScanner(Scanner):
         if os.path.isdir(path):
             return self.analyzer.analyze_sourcecode(path, rules=rules)
 
-        raise Exception(f"Path {path} is not a directory nor an archive type supported by GuardDog.")
+        raise Exception(
+            f"Path {path} is not a directory nor an archive type supported by GuardDog."
+        )
 
     @abstractmethod
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
-        raise NotImplementedError('download_and_get_package_info is not implemented')
+    def download_and_get_package_info(
+        self, directory: str, package_name: str, version=None
+    ) -> typing.Tuple[dict, str]:
+        raise NotImplementedError("download_and_get_package_info is not implemented")
 
-    def _scan_remote(self, name, base_dir, version=None, rules=None, write_package_info=False):
+    def _scan_remote(
+        self, name, base_dir, version=None, rules=None, write_package_info=False
+    ):
         directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), base_dir)
 
         file_path = None
         package_info = None
         try:
-            package_info, file_path = self.download_and_get_package_info(directory, name, version)
+            package_info, file_path = self.download_and_get_package_info(
+                directory, name, version
+            )
         except Exception as e:
             log.debug("Unable to download package, ignoring: " + str(e))
-            return {'issues': 0, 'errors': {'download-package': str(e)}}
+            return {"issues": 0, "errors": {"download-package": str(e)}}
 
         results = self.analyzer.analyze(file_path, package_info, rules, name, version)
         if write_package_info:
             package_name = name.replace("/", "-")
-            suffix = f"{package_name}-{version}" if version is not None else package_name
-            with open(os.path.join(results["path"], f'package_info-{suffix}.json'), "w") as file:
+            suffix = (
+                f"{package_name}-{version}" if version is not None else package_name
+            )
+            with open(
+                os.path.join(results["path"], f"package_info-{suffix}.json"), "w"
+            ) as file:
                 file.write(json.dumps(package_info))
 
         return results
 
-    def scan_remote(self, name, version=None, rules=None, base_dir=None, write_package_info=False):
+    def scan_remote(
+        self, name, version=None, rules=None, base_dir=None, write_package_info=False
+    ):
         """
         Scans a remote package
 
@@ -291,7 +324,9 @@ class PackageScanner(Scanner):
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             # Directory to download compressed and uncompressed package
-            return self._scan_remote(name, tmpdirname, version, rules, write_package_info)
+            return self._scan_remote(
+                name, tmpdirname, version, rules, write_package_info
+            )
 
     def download_compressed(self, url, archive_path, target_path):
         """Downloads a compressed file and extracts it
