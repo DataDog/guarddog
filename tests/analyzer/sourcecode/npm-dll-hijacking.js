@@ -1,3 +1,4 @@
+// Executable sideloading a DLL file
 function f() {
   try {
     process.chdir("E:\\Games\\ALT1Games\\TwelveSky1");
@@ -19,11 +20,29 @@ function f() {
   }
 }
 
+// OK: Run an Executable
 function f() {
-  // ruleid: npm-dll-hijacking
-  execute("LD_PRELOAD=/tmp/lib", "/usr/bin/binary");
+  // ok: npm-dll-hijacking
+  spawn('/usr/bin/python', ['-c', 'print("Hello World")'])
 }
 
+// Preloading libraries in linux  
+function f() {
+  // ruleid: npm-dll-hijacking
+  spawn("LD_PRELOAD=/tmp/lib", "/usr/bin/binary");
+}
+
+// Preloading libraries in linux  
+function f() {
+  /* 
+  Multiline comment 
+  // ok: npm-dll-hijacking
+  LD_PRELOAD=/tmp/lib /usr/bin/binary
+  */
+  return;
+}
+
+// Phantom DLL case planting a shared object file and executing a builtin binary
 function f() {
   const fs = require("fs");
 
