@@ -57,6 +57,8 @@ rules:
         # JSFuck 
         - patterns:
           - pattern-not-inside: "..."
+          - pattern-not-inside: /*...*/
+          - pattern-not-inside: //...
           - pattern-regex: ^\s*[\[\]\(\)\+\!]{10,}\s*$
     languages:
       - javascript
