@@ -3,7 +3,7 @@ import re
 import sys
 import pkg_resources
 import requests
-from packaging.specifiers import Specifier
+from packaging.specifiers import Specifier, Version
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
@@ -67,33 +67,44 @@ class PypiRequirementsScanner(ProjectScanner):
             }
         """
         requirements = raw_requirements.splitlines()
+        sanitized_requirements = self._sanitize_requirements(requirements)
+        dependencies = {}
 
-        def find_all_versions(package_name: str, semver_range: str) -> set[str]:
+        def get_matched_versions(versions: set[str], semver_range: str) -> set[str]:
             """
-            This helper function retrieves all available version of a package
+            Retrieves all versions that match a given semver selector
             """
-            url = "https://pypi.org/pypi/%s/json" % (package_name,)
-            log.debug(f"Retrieving PyPI package metadata information from {url}")
-            data = requests.get(url).json()
-            versions = sorted(data["releases"].keys(), reverse=True)
+            result = []
 
             # Filters to specified versions
             try:
                 spec = Specifier(semver_range)
-                result = [m for m in spec.filter(versions)]
+                result = [Version(m) for m in spec.filter(versions)]
             except ValueError:
-                # keep it raw
-                result = [semver_range]
+                # use it raw
+                return set([semver_range])
 
             # If just the best matched version scan is required we only keep one
             if not VERIFY_EXHAUSTIVE_DEPENDENCIES and result:
                 result = [sorted(result).pop()]
 
-            return set(result)
+            return set([str(r) for r in result])
 
-        sanitized_requirements = self._sanitize_requirements(requirements)
+        def find_all_versions(package_name: str) -> set[str]:
+            """
+            This helper function retrieves all versions availables for the package
+            """
+            url = "https://pypi.org/pypi/%s/json" % (package_name,)
+            log.debug(f"Retrieving PyPI package metadata information from {url}")
+            response = requests.get(url)
+            if response.status_code != 200:
+                log.debug(f"No version available, status code {response.status_code}")
+                return set()
 
-        dependencies = {}
+            data = response.json()
+            versions = set(sorted(data["releases"].keys()))
+            log.debug(f"Retrieved versions {', '.join(versions)}")
+            return versions
 
         def safe_parse_requirements(req):
             """
@@ -117,26 +128,23 @@ class PypiRequirementsScanner(ProjectScanner):
                 if requirement is None:
                     continue
 
-                project_exists_on_pypi = True
-                try:
-                    versions = find_all_versions(
-                        requirement.project_name,
-                        (
-                            requirement.url
-                            if requirement.url
-                            else str(requirement.specifier)
-                        ),
+                versions = get_matched_versions(
+                    find_all_versions(requirement.project_name),
+                    (
+                        requirement.url
+                        if requirement.url
+                        else str(requirement.specifier)
+                    ),
+                )
+
+                if len(versions) == 0:
+                    log.error(
+                        f"Package/Version {requirement.project_name} not on NPM\n"
                     )
-                except Exception:
-                    sys.stderr.write(
-                        f"Package {requirement.project_name} not on PyPI\n"
-                    )
-                    project_exists_on_pypi = False
                     continue
 
-                if project_exists_on_pypi:
-                    dependencies[requirement.project_name] = versions
+                dependencies[requirement.project_name] = versions
         except Exception as e:
-            sys.stderr.write(f"Received error {str(e)}")
+            log.error(f"Received error {str(e)}")
 
         return dependencies

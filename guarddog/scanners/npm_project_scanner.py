@@ -45,9 +45,29 @@ class NPMRequirementsScanner(ProjectScanner):
             package["devDependencies"] if "devDependencies" in package else {}
         )
 
-        def find_all_versions(package_name: str, semver_range: str) -> set[str]:
+        def get_matched_versions(versions: set[str], semver_range: str) -> set[str]:
             """
-            This helper function retrieves all versions matching the selector
+            Retrieves all versions that match a given semver selector
+            """
+            result = []
+
+            # Filters to specified versions
+            try:
+                spec = NpmSpec(semver_range)
+                result = [Version(m) for m in versions if spec.match(Version(m))]
+            except ValueError:
+                # use it raw
+                return set([semver_range])
+
+            # If just the best matched version scan is required we only keep one
+            if not VERIFY_EXHAUSTIVE_DEPENDENCIES and result:
+                result = [sorted(result).pop()]
+
+            return set([str(r) for r in result])
+
+        def find_all_versions(package_name: str) -> set[str]:
+            """
+            This helper function retrieves all versions availables for the package
             """
             url = f"https://registry.npmjs.org/{package_name}"
             log.debug(f"Retrieving npm package metadata from {url}")
@@ -57,23 +77,9 @@ class NPMRequirementsScanner(ProjectScanner):
                 return set()
 
             data = response.json()
-            versions = list(data["versions"].keys())
+            versions = set(data["versions"].keys())
             log.debug(f"Retrieved versions {', '.join(versions)}")
-            result = set()
-            try:
-                npm_spec = NpmSpec(semver_range)
-            except ValueError:  # not a semver range, let's keep it raw
-                result.add(semver_range)
-                return result
-            for v in versions:
-                if Version(v) in npm_spec:
-                    result.add(v)
-
-            # If just the best matched version scan is required we only keep one
-            if not VERIFY_EXHAUSTIVE_DEPENDENCIES and result:
-                result = set([sorted(result).pop()])
-
-            return result
+            return versions
 
         merged = {}  # type: dict[str, set[str]]
         for package, selector in list(dependencies.items()) + list(
@@ -87,7 +93,12 @@ class NPMRequirementsScanner(ProjectScanner):
         for package, all_selectors in merged.items():
             versions = set()  # type: set[str]
             for selector in all_selectors:
-                versions = versions.union(find_all_versions(package, selector))
-            if len(versions) > 0:
-                results[package] = versions
+                versions = versions.union(
+                    get_matched_versions(find_all_versions(package), selector)
+                )
+            if len(versions) == 0:
+                log.error(f"Package/Version {package} not on NPM\n")
+                continue
+
+            results[package] = versions
         return results
