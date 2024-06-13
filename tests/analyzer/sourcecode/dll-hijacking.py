@@ -1,3 +1,4 @@
+"""Injecting a DLL into a process"""
 def f():
     import sys
 
@@ -62,7 +63,12 @@ def f():
     )
     print("[+] Successful injection into PID: %s" % PID)
 
+"""OK: Injecting a DLL into a process"""
+def f():
+    # ok: dll-hijacking
+    x="This is a string containing CreateRemoteThread"
 
+"""Phantom DLL case planting a DLL and executing a builtin binary"""
 def f():
     class ActionOnInstall(install):
         def run(self):
@@ -93,14 +99,19 @@ def f():
                 f.write(rd)
             os.system("START " + dname + "\\ComServer.exe showdeskband")
 
-
+"""OK: Injecting a DLL into a process"""
 def f():
     import os
+    # ok: dll-hijacking
+    os.system("start explorer.exe c:\\")
 
+"""Known executable sideloading dll"""
+def f():
+    import os
     # ruleid: dll-hijacking
     os.system("RUNDLL32.EXE" + " some.dll, function")
 
-
+"""Preloading libraries in linux """
 def f():
     import os
     import pickle
@@ -116,3 +127,9 @@ def f():
         "http://10.0.0.3:5000/",
         cookies={"pickle": b64encode(pickle.dumps(Exploit())).decode()},
     )
+
+"""OK: Preloading libraries in linux"""
+def f():
+    # ok: dll-hijacking
+    # This is comment that mentions LD_PRELOAD
+    pass
