@@ -154,6 +154,7 @@ function f(){
     self[k(i)](urlTo);
 }
 
+/* OK: only JSFuck charactes in static data */
 function f(){
     // ok: npm-obfuscation
     console.warn(`
@@ -168,4 +169,19 @@ function f(){
     dependencies on both your server and clients.
     
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+}
+
+/* OK: only JSFuck charactes in static data */
+function f(){
+    
+/*
+button component option
+ variant = text , contained , outlined
+// ok: npm-obfuscation
+ ++++++++++++++
+ text button 
+ // ok: npm-obfuscation
+ ++++++++++++++
+ disabled
+*/
 }
