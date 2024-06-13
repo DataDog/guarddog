@@ -139,7 +139,7 @@ class PypiRequirementsScanner(ProjectScanner):
 
                 if len(versions) == 0:
                     log.error(
-                        f"Package/Version {requirement.project_name} not on NPM\n"
+                        f"Package/Version {requirement.project_name} not on PyPI\n"
                     )
                     continue
 
