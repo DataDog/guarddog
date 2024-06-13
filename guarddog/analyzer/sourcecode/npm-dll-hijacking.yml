@@ -4,7 +4,7 @@ rules:
       - javascript
     message: This package manipulates a trusted application into loading a malicious dll
     metadata:
-      description: identifies when a trusted application is manipulated into loading a malicious dll
+      description: Identifies when a trusted application is manipulated into loading a malicious dll
     pattern-either:
 
       # dll side-loading
