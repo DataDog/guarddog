@@ -1,12 +1,13 @@
 import logging
 import re
 import sys
-
 import pkg_resources
 import requests
+from packaging.specifiers import Specifier, Version
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
 from guarddog.scanners.scanner import ProjectScanner
+from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
 
@@ -47,14 +48,13 @@ class PypiRequirementsScanner(ProjectScanner):
 
         return sanitized_lines
 
-    # FIXME: type return value properly to dict[str, set[str]]
-    def parse_requirements(self, raw_requirements: str) -> dict:
+    def parse_requirements(self, raw_requirements: str) -> dict[str, set[str]]:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
 
         Args:
-            raw_requirements (List[str]): contents of requirements.txt file
+            raw_requirements (str): contents of requirements.txt file
 
         Returns:
             dict: mapping of dependencies to valid versions
@@ -67,19 +67,49 @@ class PypiRequirementsScanner(ProjectScanner):
             }
         """
         requirements = raw_requirements.splitlines()
-
-        def versions(package_name):
-            url = "https://pypi.org/pypi/%s/json" % (package_name,)
-            log.debug(f"Retrieving PyPI package metadata information from {url}")
-            data = requests.get(url).json()
-            versions = sorted(data["releases"].keys(), reverse=True)
-            return versions
-
         sanitized_requirements = self._sanitize_requirements(requirements)
-
         dependencies = {}
 
+        def get_matched_versions(versions: set[str], semver_range: str) -> set[str]:
+            """
+            Retrieves all versions that match a given semver selector
+            """
+            result = []
+
+            # Filters to specified versions
+            try:
+                spec = Specifier(semver_range)
+                result = [Version(m) for m in spec.filter(versions)]
+            except ValueError:
+                # use it raw
+                return set([semver_range])
+
+            # If just the best matched version scan is required we only keep one
+            if not VERIFY_EXHAUSTIVE_DEPENDENCIES and result:
+                result = [sorted(result).pop()]
+
+            return set([str(r) for r in result])
+
+        def find_all_versions(package_name: str) -> set[str]:
+            """
+            This helper function retrieves all versions availables for the package
+            """
+            url = "https://pypi.org/pypi/%s/json" % (package_name,)
+            log.debug(f"Retrieving PyPI package metadata information from {url}")
+            response = requests.get(url)
+            if response.status_code != 200:
+                log.debug(f"No version available, status code {response.status_code}")
+                return set()
+
+            data = response.json()
+            versions = set(sorted(data["releases"].keys()))
+            log.debug(f"Retrieved versions {', '.join(versions)}")
+            return versions
+
         def safe_parse_requirements(req):
+            """
+            This helper function yields one valid requirement line at a time
+            """
             parsed = pkg_resources.parse_requirements(req)
             while True:
                 try:
@@ -87,60 +117,34 @@ class PypiRequirementsScanner(ProjectScanner):
                 except StopIteration:
                     break
                 except Exception as e:
-                    sys.stderr.write(f"Error when parsing requirements, received error {str(e)}. This entry will be "
-                                     "ignored.\n")
+                    sys.stderr.write(
+                        f"Error when parsing requirements, received error {str(e)}. This entry will be "
+                        "ignored.\n"
+                    )
                     yield None
 
         try:
             for requirement in safe_parse_requirements(sanitized_requirements):
                 if requirement is None:
                     continue
-                valid_versions = None
-                project_exists_on_pypi = True
-                for spec in requirement.specs:
-                    qualifier, version = spec
 
-                    try:
-                        available_versions = versions(requirement.project_name)  # type: list[str]
-                    except Exception:
-                        sys.stderr.write(f"Package {requirement.project_name} not on PyPI\n")
-                        project_exists_on_pypi = False
-                        continue
+                versions = get_matched_versions(
+                    find_all_versions(requirement.project_name),
+                    (
+                        requirement.url
+                        if requirement.url
+                        else str(requirement.specifier)
+                    ),
+                )
 
-                    used_versions = None
+                if len(versions) == 0:
+                    log.error(
+                        f"Package/Version {requirement.project_name} not on PyPI\n"
+                    )
+                    continue
 
-                    match qualifier:
-                        case ">":
-                            used_versions = {v for v in available_versions if v > version}
-                        case "<":
-                            used_versions = {v for v in available_versions if v < version}
-                        case ">=":
-                            used_versions = {v for v in available_versions if v >= version}
-                        case "<=":
-                            used_versions = {v for v in available_versions if v <= version}
-                        case "==":
-                            matches = [re.search(version, candidate) for candidate in available_versions]
-                            filtered_matches = list(filter(None, matches))
-                            str_matches = [v.string for v in filtered_matches]
-                            used_versions = set(str_matches)
-                        case "~=":
-                            prefix = "".join(version.split(".")[:-1])
-                            for available_version in available_versions:  # sorted decreasing
-                                if available_version >= version and available_version.startswith(prefix):
-                                    used_versions = set(available_version)
-                                    break
-                        case _:
-                            sys.stderr.write(f"Unknown qualifier: {qualifier}")
-                            continue
-
-                    if valid_versions is None:
-                        valid_versions = used_versions
-                    else:
-                        valid_versions = valid_versions & used_versions
-
-                if project_exists_on_pypi:
-                    dependencies[requirement.project_name] = valid_versions
+                dependencies[requirement.project_name] = versions
         except Exception as e:
-            sys.stderr.write(f"Received error {str(e)}")
+            log.error(f"Received error {str(e)}")
 
         return dependencies
