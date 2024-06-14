@@ -8,12 +8,9 @@ import requests
 import packaging.utils
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
-
+from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 
 log = logging.getLogger("guarddog")
-
-
-TOP_PACKAGES_CACHE_LOCATION = os.environ.get('GUARDDOG_TOP_PACKAGES_CACHE_LOCATION')
 
 
 class PypiTyposquatDetector(TyposquatDetector):
