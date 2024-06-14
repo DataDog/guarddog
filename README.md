@@ -93,6 +93,7 @@ Source code heuristics:
 | download-executable | Identify when a package downloads and makes executable a remote binary |
 | exec-base64 | Identify when a package dynamically executes base64-encoded code |
 | silent-process-execution | Identify when a package silently executes an executable |
+| dll-hijacking | Identifies when a trusted application is manipulated into loading a malicious dll |
 | bidirectional-characters | Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/ |
 | steganography | Identify when a package retrieves hidden data from an image and executes it |
 | code-execution | Identify when an OS command is executed in the setup.py file |
@@ -126,6 +127,7 @@ Source code heuristics:
 | npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
 | npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
 | bidirectional-characters | Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/ |
+| npm-dll-hijacking | Identifies when a trusted application is manipulated into loading a malicious dll |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 
 Metadata heuristics:

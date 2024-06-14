@@ -1,0 +1,75 @@
+rules:
+  - id: npm-dll-hijacking
+    languages:
+      - javascript
+    message: This package manipulates a trusted application into loading a malicious dll
+    metadata:
+      description: Identifies when a trusted application is manipulated into loading a malicious dll
+    pattern-either:
+
+      # dll side-loading
+      - pattern-either:
+        - patterns:
+          - pattern: "$DLL_LOAD"
+          - metavariable-pattern:
+              metavariable: $DLL_LOAD
+              pattern-either:
+                # load inline windows
+                - pattern-regex: (?i).*?\.exe.*?\.dll
+                # load inline linux
+                - pattern-regex: (?i).*?\/bin/.+\s+.*?\.so
+                # environment preload
+                - pattern-regex: LD_PRELOAD
+        - patterns:
+          - pattern: $FN(<...$EXE...>,...,<...$DLL...>)
+          - metavariable-pattern:
+              metavariable: $EXE
+              patterns:
+                # a string with .exe or /bin/[whatever] in it
+                - pattern: "..."
+                - pattern-regex: (?i).*?(\.exe|\/bin/.+)
+          - metavariable-pattern:
+              metavariable: $DLL
+              patterns:
+                # a string with .dll or .so in it
+                - pattern: "..."
+                - pattern-regex: (?i).*?\.(dll|so)
+
+      # dll injection
+      - pattern-either:
+        - pattern: ....WriteProcessMemory
+        - pattern: ....CreateRemoteThread
+        - pattern: ....LoadLibraryA
+
+      # phantom dll
+      - patterns:
+        # write a library to disk
+        - patterns:
+            - pattern: |
+                ...
+                $WRITE(...,<...$DLL...>,...)
+                ...
+                $FN(...,<...$EXE...>,...)
+            - metavariable-pattern:
+                metavariable: $WRITE
+                pattern-either: 
+                  - pattern: ....writeFileSync
+                  - pattern: ....writeFile
+                  - pattern: ....appendFile
+            - metavariable-pattern:
+                metavariable: $EXE
+                patterns: 
+                  # a string with .exe or /bin/[whatever] in it
+                  - pattern: "..."
+                  - pattern-regex: (?i).*?(\.exe|\/bin/.+)
+            - metavariable-pattern:
+                metavariable: $DLL
+                patterns:
+                # a string with .dll or .so in it
+                  - pattern: "..."
+                  - pattern-regex: (?i)\.(dll|so)
+            - focus-metavariable: $DLL
+
+    severity: WARNING
+    options:
+      symbolic_propagation: true
