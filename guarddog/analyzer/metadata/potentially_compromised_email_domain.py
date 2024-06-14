@@ -60,15 +60,10 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
                 has_issues = True
 
                 messages.append(
-                    f"The domain name of the maintainer's email address ({email}) was"
-                    " re-registered after"
-                    " the latest release of this "
-                    "package. This can be an indicator that this is a"
-                    ""
-                    " custom domain that expired, and was leveraged by"
-                    " an attacker to compromise the"
-                    f" package owner's {self.ecosystem}"
-                    " account."
+                    f"The domain name of the maintainer's email address ({email}) was"" re-registered after"
+                    " the latest release of this ""package. This can be an indicator that this is a"
+                    " custom domain that expired, and was leveraged by"" an attacker to compromise the"
+                    f" package owner's {self.ecosystem}"" account."
                 )
 
         return has_issues, "\n".join(messages)
