@@ -4,9 +4,8 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
+from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 import requests
-
-TOP_PACKAGES_CACHE_LOCATION = os.environ.get("GUARDDOG_TOP_PACKAGES_CACHE_LOCATION")
 
 
 class NPMTyposquatDetector(TyposquatDetector):
