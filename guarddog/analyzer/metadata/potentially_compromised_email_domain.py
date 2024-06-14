@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from datetime import datetime
 from typing import Optional
 
 from guarddog.analyzer.metadata.detector import Detector
@@ -12,12 +13,17 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
         super().__init__(
             name="potentially_compromised_email_domain",
             description="Identify when a package maintainer e-mail domain (and therefore package manager account) "
-                        "might have been compromised",
+            "might have been compromised",
         )
         self.ecosystem = ecosystem
 
-    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+    def detect(
+        self,
+        package_info,
+        path: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> tuple[bool, str]:
         """
         Uses a package's information to determine
         if the maintainer's email domain might have been compromised
@@ -54,16 +60,21 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
                 has_issues = True
 
                 messages.append(
-                    f"The domain name of the maintainer's email address ({email}) was"" re-registered after"
-                    " the latest release of this ""package. This can be an indicator that this is a"""
-                    " custom domain that expired, and was leveraged by"" an attacker to compromise the"
-                    f" package owner's {self.ecosystem}"" account."
+                    f"The domain name of the maintainer's email address ({email}) was"
+                    " re-registered after"
+                    " the latest release of this "
+                    "package. This can be an indicator that this is a"
+                    ""
+                    " custom domain that expired, and was leveraged by"
+                    " an attacker to compromise the"
+                    f" package owner's {self.ecosystem}"
+                    " account."
                 )
 
         return has_issues, "\n".join(messages)
 
     @abstractmethod
-    def get_project_latest_release_date(self, package_info):
+    def get_project_latest_release_date(self, package_info) -> Optional[datetime]:
         pass
 
     @abstractmethod
