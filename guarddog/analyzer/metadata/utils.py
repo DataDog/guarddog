@@ -4,7 +4,6 @@ from typing import Optional
 
 import whois  # type: ignore
 
-
 NPM_MAINTAINER_EMAIL_WARNING = (
     "note that NPM's API may not provide accurate information regarding the maintainer's email, "
     "so this detector may cause false positives for NPM packages. "
@@ -39,7 +38,7 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
     creation_dates = domain_information.creation_date
 
     if type(creation_dates) is list:
-        # TZ info is updated to turn all dates into TZ aware so we can compare them 
+        # TZ info is updated to turn all dates into TZ aware so we can compare them
         return min([d.replace(tzinfo=timezone.utc) for d in creation_dates]), True
 
     return creation_dates, True
