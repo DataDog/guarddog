@@ -2,18 +2,22 @@
 
 Detects if a maintainer's email domain might have been compromised.
 """
-from datetime import datetime
+
+from datetime import datetime, timezone
 from typing import Optional
 
 from dateutil import parser
 from packaging import version
 
-from guarddog.analyzer.metadata.potentially_compromised_email_domain import PotentiallyCompromisedEmailDomainDetector
+from guarddog.analyzer.metadata.potentially_compromised_email_domain import \
+    PotentiallyCompromisedEmailDomainDetector
 
 from .utils import get_email_addresses
 
 
-class PypiPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailDomainDetector):
+class PypiPotentiallyCompromisedEmailDomainDetector(
+    PotentiallyCompromisedEmailDomainDetector
+):
     def __init__(self):
         super().__init__("pypi")
 
@@ -34,13 +38,17 @@ class PypiPotentiallyCompromisedEmailDomainDetector(PotentiallyCompromisedEmailD
         sorted_versions = sorted(
             releases.keys(), key=lambda r: version.parse(r), reverse=True
         )
-        earlier_versions = sorted_versions[:-1] if len(sorted_versions) > 1 else sorted_versions
+        earlier_versions = (
+            sorted_versions[:-1] if len(sorted_versions) > 1 else sorted_versions
+        )
 
         for early_version in earlier_versions:
             version_release = releases[early_version]
 
             if len(version_release) > 0:  # if there's a distribution for the package
                 upload_time_text = version_release[0]["upload_time_iso_8601"]
-                release_date = parser.isoparse(upload_time_text).replace(tzinfo=None)
+                release_date = parser.isoparse(upload_time_text).replace(
+                    tzinfo=timezone.utc
+                )
                 return release_date
         raise Exception("could not find release date")
