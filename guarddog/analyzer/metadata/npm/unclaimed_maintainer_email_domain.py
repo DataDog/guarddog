@@ -1,5 +1,7 @@
 from typing import Optional
-from guarddog.analyzer.metadata.unclaimed_maintainer_email_domain import UnclaimedMaintainerEmailDomainDetector
+
+from guarddog.analyzer.metadata.unclaimed_maintainer_email_domain import \
+    UnclaimedMaintainerEmailDomainDetector
 
 from .utils import NPM_API_MAINTAINER_EMAIL_WARNING, get_email_addresses
 
@@ -10,11 +12,16 @@ class NPMUnclaimedMaintainerEmailDomainDetector(UnclaimedMaintainerEmailDomainDe
 
         self.description += "; " + NPM_API_MAINTAINER_EMAIL_WARNING
 
-    def get_email_addresses(self, package_info: dict):
+    def get_email_addresses(self, package_info: dict) -> set[str]:
         return get_email_addresses(package_info)
 
-    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+    def detect(
+        self,
+        package_info,
+        path: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> tuple[bool, str]:
         has_issues, message = super().detect(package_info, path, name, version)
 
         if has_issues:

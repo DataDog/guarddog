@@ -41,7 +41,7 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
         # TZ info is updated to turn all dates into TZ aware so we can compare them
         return min([d.replace(tzinfo=timezone.utc) for d in creation_dates]), True
 
-    return creation_dates, True
+    return creation_dates.replace(tzinfo=timezone.utc), True
 
 
 def extract_email_address_domain(email_address: str):
