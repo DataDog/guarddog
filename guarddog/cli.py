@@ -134,6 +134,7 @@ def logging_options(fn):
 
 @click.group
 @logging_options
+@click.version_option(message="%(version)s")
 def cli(log_level):
     """
     GuardDog cli tool to detect malware in package ecosystems
