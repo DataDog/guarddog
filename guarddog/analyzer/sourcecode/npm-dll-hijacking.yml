@@ -4,7 +4,7 @@ rules:
       - javascript
     message: This package manipulates a trusted application into loading a malicious dll
     metadata:
-      description: Identifies when a trusted application is manipulated into loading a malicious dll
+      description: Identifies when a malicious package manipulates a trusted application into loading a malicious DLL
     pattern-either:
 
       # dll side-loading
@@ -15,7 +15,7 @@ rules:
               metavariable: $DLL_LOAD
               pattern-either:
                 # load inline windows
-                - pattern-regex: (?i).*?\.exe.*?\.dll
+                - pattern-regex: (?i).*?\.exe\s+.*?\.dll
                 # load inline linux
                 - pattern-regex: (?i).*?\/bin/.+\s+.*?\.so
                 # environment preload
