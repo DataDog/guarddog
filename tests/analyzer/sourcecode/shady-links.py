@@ -14,6 +14,10 @@
 """
 def f():
   # ok: shady-links
+  _TEST_IP_LIST = ['https://1.1.1.1', 'https://8.8.8.8/test']
+
+def f():
+  # ok: shady-links
   goodlink1 = "http://google.com:5000/v1.0/"
 
 def f():
