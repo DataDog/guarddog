@@ -35,9 +35,8 @@ class BundledBinary(Detector):
         if not path:
             raise ValueError("path is needed to run heuristic " + self.get_name())
 
+        bin_files = []
         for root, _, files in os.walk(path):
-            bin_files = []
-
             for f in files:
                 kind = self.is_binary(os.path.join(root, f))
                 if kind:
