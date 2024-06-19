@@ -2,9 +2,9 @@ rules:
   - id: dll-hijacking
     languages:
       - python
-    message: This package manipulates a trusted application into loading a malicious dll
+    message: This package manipulates a trusted application into loading a malicious DLL
     metadata:
-      description: Identifies when a malicious package manipulates a trusted application into loading a malicious dll
+      description: Identifies when a malicious package manipulates a trusted application into loading a malicious DLL
     pattern-either:
 
       # dll side-loading
