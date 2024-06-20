@@ -138,6 +138,10 @@ def f():
     options.proxy_user = proxy[0]
 
 def f():
+  # ok: shady-links
+  self.image_url = "https://" + self.image_url[7]
+
+def f():
   request(
       # ruleid: shady-links
       url="http://us.dslab.pw/webhook.php",
