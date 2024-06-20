@@ -1,3 +1,4 @@
+// ref: https://www.sonatype.com/blog/cors-parser-npm-package-hides-cross-platform-backdoor-in-png-files
 function f() {
   const t = "base64",
       c = "utf8",
