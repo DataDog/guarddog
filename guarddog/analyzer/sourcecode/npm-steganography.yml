@@ -14,10 +14,12 @@ rules:
           - pattern-inside: |
               Buffer.from
               ...
+          - pattern-inside: |
+              steggy.reveal
+              ...
 
         - pattern-either:
           - pattern: eval(...)
-
           
     pattern-sources:
       - patterns:
