@@ -7,9 +7,11 @@ import tempfile
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
+
 import requests
-from guarddog.utils.config import PARALLELISM
+
 from guarddog.utils.archives import safe_extract
+from guarddog.utils.config import PARALLELISM
 
 log = logging.getLogger("guarddog")
 
@@ -246,13 +248,17 @@ class PackageScanner(Scanner):
         if not os.path.exists(path):
             raise Exception(f"Path {path} does not exist.")
 
+        sourcecode_rules, _ = self.analyzer.get_rules(rules)
+
         if any(path.endswith(ext) for ext in (".tar.gz", ".tgz", ".zip", ".whl")):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 safe_extract(path, tmpdirname)
-                return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
+                return self.analyzer.analyze_sourcecode(
+                    tmpdirname, rules=sourcecode_rules
+                )
 
         if os.path.isdir(path):
-            return self.analyzer.analyze_sourcecode(path, rules=rules)
+            return self.analyzer.analyze_sourcecode(path, rules=sourcecode_rules)
 
         raise Exception(
             f"Path {path} is not a directory nor an archive type supported by GuardDog."

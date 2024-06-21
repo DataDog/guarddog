@@ -57,6 +57,27 @@ class Analyzer:
             ".semgrep_logs",
         ]
 
+    def get_rules(self, rules=None):
+      # populate results, errors, and number of issues
+        metadata_rules = None
+        sourcecode_rules = None
+        if rules is not None:
+            # Only run specific rules
+            sourcecode_rules = set()
+            metadata_rules = set()
+
+            for rule in rules:
+                if rule in self.sourcecode_ruleset:
+                    log.debug(f"Using source code rule {rule}")
+                    sourcecode_rules.add(rule)
+                elif rule in self.metadata_ruleset:
+                    log.debug(f"Using metadata rule {rule}")
+                    metadata_rules.add(rule)
+                else:
+                    raise Exception(f"{rule} is not a valid rule.")
+        return sourcecode_rules, metadata_rules
+
+
     def analyze(self, path, info=None, rules=None, name: Optional[str] = None, version: Optional[str] = None) -> dict:
         """
         Analyzes a package in the given path
@@ -77,23 +98,8 @@ class Analyzer:
         sourcecode_results = None
 
         # populate results, errors, and number of issues
-        metadata_rules = None
-        sourcecode_rules = None
-        if rules is not None:
-            # Only run specific rules
-            sourcecode_rules = set()
-            metadata_rules = set()
-
-            for rule in rules:
-                if rule in self.sourcecode_ruleset:
-                    log.debug(f"Using source code rule {rule}")
-                    sourcecode_rules.add(rule)
-                elif rule in self.metadata_ruleset:
-                    log.debug(f"Using metadata rule {rule}")
-                    metadata_rules.add(rule)
-                else:
-                    raise Exception(f"{rule} is not a valid rule.")
-
+        sourcecode_rules, metadata_rules = self.get_rules(rules)
+        
         log.debug(f"Running metadata rules against package '{name}'")
         metadata_results = self.analyze_metadata(path, info, metadata_rules, name, version)
 
