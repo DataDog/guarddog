@@ -126,8 +126,9 @@ Source code heuristics:
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
 | npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
 | npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
+| npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
 | bidirectional-characters | Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/ |
-| npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious dll |
+| npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 
 Metadata heuristics:
