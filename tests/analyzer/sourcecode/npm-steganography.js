@@ -19,3 +19,15 @@ function f() {
       };
   module.exports = cors;
 }
+
+
+function f() {
+    const fs = require('fs')
+    const steggy = require('steggy')
+
+    const image = fs.readFileSync('./path/to/image.png')
+    // Returns a string if encoding is provided, otherwise a buffer
+    const revealed = steggy.reveal()(image)
+    // ruleid: npm-steganography
+    eval(revealed.toString())
+}
