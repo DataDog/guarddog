@@ -2,10 +2,10 @@ import json
 import logging
 import os
 import subprocess
-import yara # type: ignore
+import yara
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, Dict, Optional
+from typing import Iterable, List, Optional, Dict
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import SOURCECODE_RULES
@@ -42,9 +42,9 @@ class Analyzer:
         # Rules and associated detectors
         self.metadata_detectors = get_metadata_detectors(ecosystem)
 
-        self.metadata_ruleset: set[str] = set(self.metadata_detectors.keys())
-        self.sourcecode_ruleset: set[str] = set(rule["id"] for rule in SOURCECODE_RULES[ecosystem])
-        self.ioc_ruleset: set[str] = set(IOC_RULES)
+        self.metadata_ruleset = self.metadata_detectors.keys()
+        self.sourcecode_ruleset = [rule["id"] for rule in SOURCECODE_RULES[ecosystem]]
+        self.ioc_ruleset = list(IOC_RULES)
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -87,6 +87,9 @@ class Analyzer:
 
         log.debug(f"Running source code rules against directory '{path}'")
         sourcecode_results = self.analyze_sourcecode(path, rules)
+
+        log.debug(f"Running ioc rules against directory '{path}'")
+        sourcecode_results = self.analyze_iocs(path, None)
 
         log.debug(f"Running ioc rules against directory '{path}'")
         sourcecode_results = self.analyze_iocs(path, None)
@@ -148,8 +151,8 @@ class Analyzer:
             dict[str]: map from each IOC rule and their corresponding output
         """
         all_rules = rules if rules is not None else self.ioc_ruleset
-        results = {rule: [] for rule in all_rules}  # type: dict
-        errors: Dict[str, str] = {}
+        results = {rule: {} for rule in all_rules}  # type: dict
+        errors: Dict[str,str] = {}
         issues = 0
 
         rules_path: Dict[str, str]
@@ -157,8 +160,8 @@ class Analyzer:
             log.debug(f"No rules specified using full rules directory {self.ioc_rules_path}")
             rules = set(all_rules)
 
-        rules_path = {
-            rule_name: os.path.join(self.ioc_rules_path, f"{rule_name}.yar")
+        rules_path = { 
+            rule_name: os.path.join(self.ioc_rules_path, f"{rule_name}.yar") 
             for rule_name in rules
         }
 
@@ -173,15 +176,9 @@ class Analyzer:
                 for f in files:
                     matches = scan_rules.match(os.path.join(root, f))
                     for m in matches:
-                        for s in m.strings:
-                            for i in s.instances:
-                                rule_results = {
-                                    "location": f"{f}:{i.offset}",
-                                    "code": self.trim_code_snippet(str(i.matched_data)),
-                                    'message': m.meta.get("description", f"{m.rule} rule matched")
-                                }
-                                issues += len(m.strings)
-                                results[m.rule].append(rule_results)
+                        rule_results = { m.rule: "\n".join([str(s) for s in m.strings]) }
+                        issues += len(m.strings)
+                        results = results | rule_results
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
