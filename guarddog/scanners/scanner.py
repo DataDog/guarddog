@@ -249,10 +249,10 @@ class PackageScanner(Scanner):
         if any(path.endswith(ext) for ext in (".tar.gz", ".tgz", ".zip", ".whl")):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 safe_extract(path, tmpdirname)
-                return self.analyzer.analyze_iocs(tmpdirname, rules=rules)
+                return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
 
         if os.path.isdir(path):
-            return self.analyzer.analyze_iocs(path, rules=rules)
+            return self.analyzer.analyze_sourcecode(path, rules=rules)
 
         raise Exception(
             f"Path {path} is not a directory nor an archive type supported by GuardDog."
