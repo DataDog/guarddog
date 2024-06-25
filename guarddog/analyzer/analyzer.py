@@ -191,7 +191,7 @@ class Analyzer:
                             for i in s.instances:
                                 rule_results = { 
                                     "location": f"{f}:{i.offset}",
-                                    "code": str(i.matched_data),
+                                    "code": self.trim_code_snippet(str(i.matched_data)),
                                     'message': m.meta.get("description", f"{m.rule} rule matched")
                                 }
                                 issues += len(m.strings)
