@@ -14,6 +14,10 @@
 """
 def f():
   # ok: shady-links
+  _TEST_IP_LIST = ['https://1.1.1.1', 'https://8.8.8.8/test']
+
+def f():
+  # ok: shady-links
   goodlink1 = "http://google.com:5000/v1.0/"
 
 def f():
@@ -132,6 +136,10 @@ def f():
   if (config.proxy.indexOf('@') != -1):
     proxy = (url.parse(config.proxy).auth).split(':')
     options.proxy_user = proxy[0]
+
+def f():
+  # ok: shady-links
+  self.image_url = "https://" + self.image_url[7]
 
 def f():
   request(
