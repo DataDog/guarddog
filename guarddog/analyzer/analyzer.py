@@ -82,6 +82,9 @@ class Analyzer:
         metadata_results = self.analyze_metadata(path, info, rules, name, version)
         sourcecode_results = self.analyze_sourcecode(path, rules)
 
+        log.debug(f"Running ioc rules against directory '{path}'")
+        sourcecode_results = self.analyze_iocs(path, None)
+
         # Concatenate dictionaries together
         issues = metadata_results["issues"] + sourcecode_results["issues"]
         results = metadata_results["results"] | sourcecode_results["results"]
@@ -126,6 +129,51 @@ class Analyzer:
                     results[rule] = message
             except Exception as e:
                 errors[rule] = f"failed to run rule {rule}: {str(e)}"
+
+        return {"results": results, "errors": errors, "issues": issues}
+
+    def analyze_iocs(self, path: str, rules: Optional[set] = None) -> dict:
+        """
+        Analyzes the IOCs of a given package
+
+        Args:
+            path (str): path to package
+            rules (set, optional): Set of IOC rules to analyze. Defaults to all rules.
+
+        Returns:
+            dict[str]: map from each IOC rule and their corresponding output
+        """
+        all_rules = rules if rules is not None else self.ioc_ruleset
+        results = {rule: {} for rule in all_rules}  # type: dict
+        errors: Dict[str,str] = {}
+        issues = 0
+
+        rules_path: Dict[str, str]
+        if rules is None:
+            log.debug(f"No rules specified using full rules directory {self.ioc_rules_path}")
+            rules = set(all_rules)
+
+        rules_path = { 
+            rule_name: os.path.join(self.ioc_rules_path, f"{rule_name}.yar") 
+            for rule_name in rules
+        }
+
+        if len(rules_path) == 0:
+            log.debug("No ioc rules to run")
+            return {"results": results, "errors": errors, "issues": issues}
+
+        try:
+            scan_rules = yara.compile(filepaths=rules_path)
+
+            for root, _, files in os.walk(path):
+                for f in files:
+                    matches = scan_rules.match(os.path.join(root, f))
+                    for m in matches:
+                        rule_results = { m.rule: "\n".join([str(s) for s in m.strings]) }
+                        issues += len(m.strings)
+                        results = results | rule_results
+        except Exception as e:
+            errors["rules-all"] = f"failed to run rule: {str(e)}"
 
         return {"results": results, "errors": errors, "issues": issues}
 
