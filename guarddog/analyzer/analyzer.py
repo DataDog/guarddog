@@ -162,7 +162,7 @@ class Analyzer:
             dict[str]: map from each IOC rule and their corresponding output
         """
         all_rules = rules if rules is not None else self.ioc_ruleset
-        results = {rule: {} for rule in all_rules}  # type: dict
+        results = {rule: [] for rule in all_rules}  # type: dict
         errors: Dict[str,str] = {}
         issues = 0
 
@@ -187,9 +187,15 @@ class Analyzer:
                 for f in files:
                     matches = scan_rules.match(os.path.join(root, f))
                     for m in matches:
-                        rule_results = { m.rule: "\n".join([str(s) for s in m.strings]) }
-                        issues += len(m.strings)
-                        results = results | rule_results
+                        for s in m.strings:
+                            for i in s.instances:
+                                rule_results = { 
+                                    "location": f"{f}:{i.offset}",
+                                    "code": str(i.matched_data),
+                                    'message': m.meta.get("description", f"{m.rule} rule matched")
+                                }
+                                issues += len(m.strings)
+                                results[m.rule].append(rule_results)
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
