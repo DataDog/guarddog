@@ -7,9 +7,12 @@ import tempfile
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
+
 import requests
-from guarddog.utils.config import PARALLELISM
+
+from guarddog.analyzer.analyzer import Analyzer
 from guarddog.utils.archives import safe_extract
+from guarddog.utils.config import PARALLELISM
 
 log = logging.getLogger("guarddog")
 
@@ -217,7 +220,7 @@ class PackageScanner(Scanner):
         analyzer (Analyzer): Analyzer for source code and metadata rules
     """
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer: Analyzer):
         super().__init__()
         self.analyzer = analyzer
 
@@ -249,7 +252,9 @@ class PackageScanner(Scanner):
         if any(path.endswith(ext) for ext in (".tar.gz", ".tgz", ".zip", ".whl")):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 safe_extract(path, tmpdirname)
-                return self.analyzer.analyze_sourcecode(tmpdirname, rules=rules)
+                return self.analyzer.analyze_sourcecode(
+                    tmpdirname, rules=rules
+                )
 
         if os.path.isdir(path):
             return self.analyzer.analyze_sourcecode(path, rules=rules)
