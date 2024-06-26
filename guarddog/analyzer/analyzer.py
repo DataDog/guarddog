@@ -5,7 +5,7 @@ import subprocess
 import yara
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, List, Optional, Dict
+from typing import Iterable, Optional
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import SOURCECODE_RULES
@@ -42,9 +42,8 @@ class Analyzer:
         # Rules and associated detectors
         self.metadata_detectors = get_metadata_detectors(ecosystem)
 
-        self.metadata_ruleset = self.metadata_detectors.keys()
-        self.sourcecode_ruleset = [rule["id"] for rule in SOURCECODE_RULES[ecosystem]]
-        self.ioc_ruleset = list(IOC_RULES)
+        self.metadata_ruleset: set[str] = set(self.metadata_detectors.keys())
+        self.sourcecode_ruleset: set[str] = set(rule["id"] for rule in SOURCECODE_RULES[ecosystem])
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -82,28 +81,11 @@ class Analyzer:
         sourcecode_results = None
 
         # populate results, errors, and number of issues
-        metadata_rules = None
-        sourcecode_rules = None
-        if rules is not None:
-            # Only run specific rules
-            sourcecode_rules = set()
-            metadata_rules = set()
-
-            for rule in rules:
-                if rule in self.sourcecode_ruleset:
-                    log.debug(f"Using source code rule {rule}")
-                    sourcecode_rules.add(rule)
-                elif rule in self.metadata_ruleset:
-                    log.debug(f"Using metadata rule {rule}")
-                    metadata_rules.add(rule)
-                else:
-                    raise Exception(f"{rule} is not a valid rule.")
-
         log.debug(f"Running metadata rules against package '{name}'")
-        metadata_results = self.analyze_metadata(path, info, metadata_rules, name, version)
+        metadata_results = self.analyze_metadata(path, info, rules, name, version)
 
         log.debug(f"Running source code rules against directory '{path}'")
-        sourcecode_results = self.analyze_sourcecode(path, sourcecode_rules)
+        sourcecode_results = self.analyze_sourcecode(path, rules)
 
         log.debug(f"Running ioc rules against directory '{path}'")
         sourcecode_results = self.analyze_iocs(path, None)
@@ -129,7 +111,10 @@ class Analyzer:
             dict[str]: map from each metadata rule and their corresponding output
         """
 
-        all_rules = rules if rules is not None else self.metadata_ruleset
+        all_rules = self.metadata_ruleset
+        if rules is not None:
+            # filtering the full ruleset witht the user's input
+            all_rules = self.metadata_ruleset & rules
 
         # for each metadata rule, is expected to have an nulleable string as result
         # None value represents that the rule was not matched
@@ -213,20 +198,19 @@ class Analyzer:
             dict[str]: map from each source code rule and their corresponding output
         """
         targetpath = Path(path)
-        all_rules = rules if rules is not None else self.sourcecode_ruleset
+        all_rules = self.sourcecode_ruleset
+        if rules is not None:
+            # filtering the full ruleset witht the user's input
+            all_rules = self.sourcecode_ruleset & rules
+
         results = {rule: {} for rule in all_rules}  # type: dict
         errors = {}
         issues = 0
 
-        rules_path: List[str]
-        if rules is None:
-            log.debug(f"No rules specified using full rules directory {self.sourcecode_rules_path}")
-            rules_path = [self.sourcecode_rules_path]
-        else:
-            rules_path = list(map(
-                lambda rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yml"),
-                rules
-            ))
+        rules_path = list(map(
+            lambda rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yml"),
+            all_rules
+        ))
 
         if len(rules_path) == 0:
             log.debug("No source code rules to run")
