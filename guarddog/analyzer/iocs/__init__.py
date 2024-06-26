@@ -13,4 +13,3 @@ IOC_RULES: set[str] = set()
 
 for file_name in rule_file_names:
     IOC_RULES.add(pathlib.Path(file_name).stem)
-
