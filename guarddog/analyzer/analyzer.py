@@ -2,10 +2,10 @@ import json
 import logging
 import os
 import subprocess
-import yara
+import yara # type: ignore
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, Dict, Optional
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import SOURCECODE_RULES
@@ -44,6 +44,7 @@ class Analyzer:
 
         self.metadata_ruleset: set[str] = set(self.metadata_detectors.keys())
         self.sourcecode_ruleset: set[str] = set(rule["id"] for rule in SOURCECODE_RULES[ecosystem])
+        self.ioc_ruleset: set[str] = set(IOC_RULES)
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -148,7 +149,7 @@ class Analyzer:
         """
         all_rules = rules if rules is not None else self.ioc_ruleset
         results = {rule: [] for rule in all_rules}  # type: dict
-        errors: Dict[str,str] = {}
+        errors: Dict[str, str] = {}
         issues = 0
 
         rules_path: Dict[str, str]
@@ -156,8 +157,8 @@ class Analyzer:
             log.debug(f"No rules specified using full rules directory {self.ioc_rules_path}")
             rules = set(all_rules)
 
-        rules_path = { 
-            rule_name: os.path.join(self.ioc_rules_path, f"{rule_name}.yar") 
+        rules_path = {
+            rule_name: os.path.join(self.ioc_rules_path, f"{rule_name}.yar")
             for rule_name in rules
         }
 
@@ -174,7 +175,7 @@ class Analyzer:
                     for m in matches:
                         for s in m.strings:
                             for i in s.instances:
-                                rule_results = { 
+                                rule_results = {
                                     "location": f"{f}:{i.offset}",
                                     "code": self.trim_code_snippet(str(i.matched_data)),
                                     'message': m.meta.get("description", f"{m.rule} rule matched")
