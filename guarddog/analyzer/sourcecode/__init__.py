@@ -43,5 +43,3 @@ YARA_RULES: set[str] = set()
 
 for file_name in yara_rule_file_names:
     YARA_RULES.add(pathlib.Path(file_name).stem)
-
-
