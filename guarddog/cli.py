@@ -15,24 +15,21 @@ from prettytable import PrettyTable
 from termcolor import colored
 
 from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.analyzer.sourcecode import SEMGREP_SOURCECODE_RULES
+from guarddog.analyzer.sourcecode import get_sourcecode_rules
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 
-ALL_RULES = (
-    set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
-    | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
-    | set(map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.NPM]))
-    | set(map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.PYPI]))
+from functools import reduce 
+
+ALL_RULES = reduce(
+    lambda a, b: a | b,
+    map(lambda e: set(get_sourcecode_rules(e)) | set(get_metadata_detectors(e).keys()), [e for e in ECOSYSTEM])
 )
-NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | set(
-    map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.NPM])
-)
-PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | set(
-    map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.PYPI])
-)
+PYPI_RULES = set(get_sourcecode_rules(ECOSYSTEM.PYPI)) | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
+NPM_RULES = set(get_sourcecode_rules(ECOSYSTEM.NPM)) | set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
+
 EXIT_CODE_ISSUES_FOUND = 1
 
 AVAILABLE_LOG_LEVELS = {logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR}
