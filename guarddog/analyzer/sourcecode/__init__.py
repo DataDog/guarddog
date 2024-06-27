@@ -7,27 +7,41 @@ from yaml.loader import SafeLoader
 from guarddog.ecosystems import ECOSYSTEM
 
 current_dir = pathlib.Path(__file__).parent.resolve()
-rule_file_names = list(
+semgrep_rule_file_names = list(
     filter(
         lambda x: x.endswith('yml'),
         os.listdir(current_dir)
     )
 )
 
-SOURCECODE_RULES = {
+SEMGREP_SOURCECODE_RULES = {
     ECOSYSTEM.PYPI: list(),
     ECOSYSTEM.NPM: list(),
 }  # type: dict[ECOSYSTEM, list[dict]]
 
-for file_name in rule_file_names:
+for file_name in semgrep_rule_file_names:
     with open(os.path.join(current_dir, file_name), "r") as fd:
         data = yaml.load(fd, Loader=SafeLoader)
         for rule in data["rules"]:
             for lang in rule["languages"]:
                 match lang:
                     case "python":
-                        if rule not in SOURCECODE_RULES[ECOSYSTEM.PYPI]:
-                            SOURCECODE_RULES[ECOSYSTEM.PYPI].append(rule)
+                        if rule not in SEMGREP_SOURCECODE_RULES[ECOSYSTEM.PYPI]:
+                            SEMGREP_SOURCECODE_RULES[ECOSYSTEM.PYPI].append(rule)
                     case "javascript" | "typescript" | "json":
-                        if rule not in SOURCECODE_RULES[ECOSYSTEM.NPM]:
-                            SOURCECODE_RULES[ECOSYSTEM.NPM].append(rule)
+                        if rule not in SEMGREP_SOURCECODE_RULES[ECOSYSTEM.NPM]:
+                            SEMGREP_SOURCECODE_RULES[ECOSYSTEM.NPM].append(rule)
+
+yara_rule_file_names = list(
+    filter(
+        lambda x: x.endswith('yar'),
+        os.listdir(current_dir)
+    )
+)
+
+YARA_RULES: set[str] = set()
+
+for file_name in yara_rule_file_names:
+    YARA_RULES.add(pathlib.Path(file_name).stem)
+
+
