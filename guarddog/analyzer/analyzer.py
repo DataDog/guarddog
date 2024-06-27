@@ -2,14 +2,13 @@ import json
 import logging
 import os
 import subprocess
-import yara
+import yara  # type: ignore
 from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, List, Optional, Dict
 
 from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.analyzer.sourcecode import SOURCECODE_RULES
-from guarddog.analyzer.iocs import IOC_RULES
+from guarddog.analyzer.sourcecode import SEMGREP_SOURCECODE_RULES, YARA_RULES
 from guarddog.ecosystems import ECOSYSTEM
 
 SEMGREP_MAX_TARGET_BYTES = 10_000_000
@@ -35,16 +34,14 @@ class Analyzer:
 
     def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
         self.sourcecode_rules_path = os.path.join(os.path.dirname(__file__), "sourcecode")
-        self.ioc_rules_path = os.path.join(os.path.dirname(__file__), "iocs")
-
         self.ecosystem = ecosystem
 
         # Rules and associated detectors
         self.metadata_detectors = get_metadata_detectors(ecosystem)
 
-        self.metadata_ruleset = self.metadata_detectors.keys()
-        self.sourcecode_ruleset = [rule["id"] for rule in SOURCECODE_RULES[ecosystem]]
-        self.ioc_ruleset = list(IOC_RULES)
+        self.metadata_ruleset: set[str] = set(self.metadata_detectors.keys())
+        self.semgrep_ruleset: set[str] = set(rule["id"] for rule in SEMGREP_SOURCECODE_RULES[ecosystem])
+        self.yara_ruleset: set[str] = set(YARA_RULES)
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [
@@ -82,17 +79,8 @@ class Analyzer:
         sourcecode_results = None
 
         # populate results, errors, and number of issues
-        log.debug(f"Running metadata rules against package '{name}'")
         metadata_results = self.analyze_metadata(path, info, rules, name, version)
-
-        log.debug(f"Running source code rules against directory '{path}'")
         sourcecode_results = self.analyze_sourcecode(path, rules)
-
-        log.debug(f"Running ioc rules against directory '{path}'")
-        sourcecode_results = self.analyze_iocs(path, None)
-
-        log.debug(f"Running ioc rules against directory '{path}'")
-        sourcecode_results = self.analyze_iocs(path, None)
 
         # Concatenate dictionaries together
         issues = metadata_results["issues"] + sourcecode_results["issues"]
@@ -114,6 +102,8 @@ class Analyzer:
         Returns:
             dict[str]: map from each metadata rule and their corresponding output
         """
+
+        log.debug(f"Running metadata rules against package '{name}'")
 
         all_rules = self.metadata_ruleset
         if rules is not None:
@@ -139,51 +129,6 @@ class Analyzer:
 
         return {"results": results, "errors": errors, "issues": issues}
 
-    def analyze_iocs(self, path: str, rules: Optional[set] = None) -> dict:
-        """
-        Analyzes the IOCs of a given package
-
-        Args:
-            path (str): path to package
-            rules (set, optional): Set of IOC rules to analyze. Defaults to all rules.
-
-        Returns:
-            dict[str]: map from each IOC rule and their corresponding output
-        """
-        all_rules = rules if rules is not None else self.ioc_ruleset
-        results = {rule: {} for rule in all_rules}  # type: dict
-        errors: Dict[str,str] = {}
-        issues = 0
-
-        rules_path: Dict[str, str]
-        if rules is None:
-            log.debug(f"No rules specified using full rules directory {self.ioc_rules_path}")
-            rules = set(all_rules)
-
-        rules_path = { 
-            rule_name: os.path.join(self.ioc_rules_path, f"{rule_name}.yar") 
-            for rule_name in rules
-        }
-
-        if len(rules_path) == 0:
-            log.debug("No ioc rules to run")
-            return {"results": results, "errors": errors, "issues": issues}
-
-        try:
-            scan_rules = yara.compile(filepaths=rules_path)
-
-            for root, _, files in os.walk(path):
-                for f in files:
-                    matches = scan_rules.match(os.path.join(root, f))
-                    for m in matches:
-                        rule_results = { m.rule: "\n".join([str(s) for s in m.strings]) }
-                        issues += len(m.strings)
-                        results = results | rule_results
-        except Exception as e:
-            errors["rules-all"] = f"failed to run rule: {str(e)}"
-
-        return {"results": results, "errors": errors, "issues": issues}
-
     def analyze_sourcecode(self, path, rules=None) -> dict:
         """
         Analyzes the source code of a given package
@@ -195,11 +140,87 @@ class Analyzer:
         Returns:
             dict[str]: map from each source code rule and their corresponding output
         """
-        targetpath = Path(path)
-        all_rules = self.sourcecode_ruleset
+        semgrepscan_results = self.analyze_semgrep(path, rules)
+
+        yarascan_results = self.analyze_yara(path, rules)
+
+        # Concatenate dictionaries together
+        issues = semgrepscan_results["issues"] + yarascan_results["issues"]
+        results = semgrepscan_results["results"] | yarascan_results["results"]
+        errors = semgrepscan_results["errors"] | yarascan_results["errors"]
+
+        return {"issues": issues, "errors": errors, "results": results, "path": path}
+
+    def analyze_yara(self, path: str, rules: Optional[set] = None) -> dict:
+        """
+        Analyzes the IOCs of a given package
+
+        Args:
+            path (str): path to package
+            rules (set, optional): Set of IOC rules to analyze. Defaults to all rules.
+
+        Returns:
+            dict[str]: map from each IOC rule and their corresponding output
+        """
+        log.debug(f"Running yara rules against directory '{path}'")
+
+        all_rules = self.yara_ruleset
         if rules is not None:
             # filtering the full ruleset witht the user's input
-            all_rules = self.sourcecode_ruleset & rules
+            all_rules = self.yara_ruleset & rules
+
+        results = {rule: {} for rule in all_rules}  # type: dict
+        errors: Dict[str, str] = {}
+        issues = 0
+
+        rules_path = {
+            rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yar")
+            for rule_name in all_rules
+        }
+
+        if len(rules_path) == 0:
+            log.debug("No yara rules to run")
+            return {"results": results, "errors": errors, "issues": issues}
+
+        try:
+            scan_rules = yara.compile(filepaths=rules_path)
+
+            for root, _, files in os.walk(path):
+                for f in files:
+                    matches = scan_rules.match(os.path.join(root, f))
+                    for m in matches:
+                        for s in m.strings:
+                            for i in s.instances:
+                                rule_results = {
+                                    "location": f"{f}:{i.offset}",
+                                    "code": self.trim_code_snippet(str(i.matched_data)),
+                                    'message': m.meta.get("description", f"{m.rule} rule matched")
+                                }
+                                issues += len(m.strings)
+                                results[m.rule].update(rule_results)
+        except Exception as e:
+            errors["rules-all"] = f"failed to run rule: {str(e)}"
+
+        return {"results": results, "errors": errors, "issues": issues}
+
+    def analyze_semgrep(self, path, rules=None) -> dict:
+        """
+        Analyzes the source code of a given package
+
+        Args:
+            path (str): path to directory of package
+            rules (set, optional): Set of source code rules to analyze. Defaults to all rules.
+
+        Returns:
+            dict[str]: map from each source code rule and their corresponding output
+        """
+        log.debug(f"Running semgrep rules against directory '{path}'")
+
+        targetpath = Path(path)
+        all_rules = self.semgrep_ruleset
+        if rules is not None:
+            # filtering the full ruleset witht the user's input
+            all_rules = self.semgrep_ruleset & rules
 
         results = {rule: {} for rule in all_rules}  # type: dict
         errors = {}
@@ -211,11 +232,11 @@ class Analyzer:
         ))
 
         if len(rules_path) == 0:
-            log.debug("No source code rules to run")
+            log.debug("No semgrep code rules to run")
             return {"results": {}, "errors": {}, "issues": 0}
 
         try:
-            log.debug(f"Running source code rules against {path}")
+            log.debug(f"Running semgrep code rules against {path}")
             response = self._invoke_semgrep(target=path, rules=rules_path)
             rule_results = self._format_semgrep_response(response, targetpath=targetpath)
             issues += sum(len(res) for res in rule_results.values())

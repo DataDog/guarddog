@@ -15,7 +15,7 @@ from prettytable import PrettyTable
 from termcolor import colored
 
 from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.analyzer.sourcecode import SOURCECODE_RULES
+from guarddog.analyzer.sourcecode import SEMGREP_SOURCECODE_RULES
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
@@ -24,14 +24,14 @@ from guarddog.scanners.scanner import PackageScanner
 ALL_RULES = (
     set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
     | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
-    | set(map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.NPM]))
-    | set(map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.PYPI]))
+    | set(map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.NPM]))
+    | set(map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.PYPI]))
 )
 NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | set(
-    map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.NPM])
+    map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.NPM])
 )
 PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | set(
-    map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.PYPI])
+    map(lambda r: r["id"], SEMGREP_SOURCECODE_RULES[ECOSYSTEM.PYPI])
 )
 EXIT_CODE_ISSUES_FOUND = 1
 
@@ -159,7 +159,7 @@ def _get_rule_param(rules, exclude_rules, ecosystem):
         rule_param = rules
 
     if len(exclude_rules) > 0:
-        all_rules = set(map(lambda x: x["id"], SOURCECODE_RULES[ecosystem])) | set(
+        all_rules = set(map(lambda x: x["id"], SEMGREP_SOURCECODE_RULES[ecosystem])) | set(
             get_metadata_detectors(ecosystem).keys()
         )
 
@@ -311,7 +311,7 @@ def _list_rules(ecosystem):
     table.align = "l"
     table.field_names = ["Rule type", "Rule name", "Description"]
 
-    for rule in SOURCECODE_RULES[ecosystem]:
+    for rule in SEMGREP_SOURCECODE_RULES[ecosystem]:
         table.add_row(
             ["Source code", rule["id"], rule.get("metadata", {}).get("description")]
         )
