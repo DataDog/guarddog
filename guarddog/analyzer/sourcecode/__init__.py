@@ -43,3 +43,7 @@ YARA_RULES: set[str] = set()
 
 for file_name in yara_rule_file_names:
     YARA_RULES.add(pathlib.Path(file_name).stem)
+
+
+def get_sourcecode_rules(ecosystem: ECOSYSTEM) -> set:
+    return {r["id"] for r in SEMGREP_SOURCECODE_RULES[ecosystem]} | YARA_RULES
