@@ -15,13 +15,12 @@ from prettytable import PrettyTable
 from termcolor import colored
 
 from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.analyzer.sourcecode import get_sourcecode_rules
+from guarddog.analyzer.sourcecode import get_sourcecode_rules, SEMGREP_SOURCECODE_RULES
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
-
-from functools import reduce 
+from functools import reduce
 
 ALL_RULES = reduce(
     lambda a, b: a | b,
@@ -68,33 +67,35 @@ def legacy_rules_options(fn):
 
 
 def npm_options(fn):
+    rules = _get_all_rules(ECOSYSTEM.NPM)
     fn = click.option(
         "-r",
         "--rules",
         multiple=True,
-        type=click.Choice(NPM_RULES, case_sensitive=False),
+        type=click.Choice(rules, case_sensitive=False),
     )(fn)
     fn = click.option(
         "-x",
         "--exclude-rules",
         multiple=True,
-        type=click.Choice(NPM_RULES, case_sensitive=False),
+        type=click.Choice(rules, case_sensitive=False),
     )(fn)
     return fn
 
 
 def pypi_options(fn):
+    rules = _get_all_rules(ECOSYSTEM.PYPI)
     fn = click.option(
         "-r",
         "--rules",
         multiple=True,
-        type=click.Choice(PYPI_RULES, case_sensitive=False),
+        type=click.Choice(rules, case_sensitive=False),
     )(fn)
     fn = click.option(
         "-x",
         "--exclude-rules",
         multiple=True,
-        type=click.Choice(PYPI_RULES, case_sensitive=False),
+        type=click.Choice(rules, case_sensitive=False),
     )(fn)
     return fn
 
@@ -150,16 +151,17 @@ def cli(log_level):
     pass
 
 
+def _get_all_rules(ecosystem: ECOSYSTEM) -> set[str]:
+    return set(get_sourcecode_rules(ecosystem)) | set(get_metadata_detectors(ecosystem).keys())
+
+
 def _get_rule_param(rules, exclude_rules, ecosystem):
     rule_param = None
     if len(rules) > 0:
         rule_param = rules
 
     if len(exclude_rules) > 0:
-        all_rules = set(map(lambda x: x["id"], SEMGREP_SOURCECODE_RULES[ecosystem])) | set(
-            get_metadata_detectors(ecosystem).keys()
-        )
-
+        all_rules = _get_all_rules(ecosystem)
         rule_param = all_rules - set(exclude_rules)
 
         if len(rules) > 0:
