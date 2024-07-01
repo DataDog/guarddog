@@ -1,6 +1,6 @@
-""" PyPI Package Malware Scanner
+""" Package Malware Scanner
 
-CLI command that scans a PyPI package version for user-specified malware flags.
+CLI command that scans a package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
 
@@ -22,10 +22,6 @@ from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 from functools import reduce
 
-ALL_RULES = reduce(
-    lambda a, b: a | b,
-    map(lambda e: set(get_sourcecode_rules(e)) | set(get_metadata_detectors(e).keys()), [e for e in ECOSYSTEM])
-)
 PYPI_RULES = set(get_sourcecode_rules(ECOSYSTEM.PYPI)) | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
 NPM_RULES = set(get_sourcecode_rules(ECOSYSTEM.NPM)) | set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
 
@@ -51,6 +47,11 @@ def common_options(fn):
 
 
 def legacy_rules_options(fn):
+    ALL_RULES = reduce(
+        lambda a, b: a | b,
+        map(lambda e: set(get_sourcecode_rules(e)) | set(get_metadata_detectors(e).keys()), [e for e in ECOSYSTEM])
+    )
+
     fn = click.option(
         "-r",
         "--rules",
@@ -62,40 +63,6 @@ def legacy_rules_options(fn):
         "--exclude-rules",
         multiple=True,
         type=click.Choice(ALL_RULES, case_sensitive=False),
-    )(fn)
-    return fn
-
-
-def npm_options(fn):
-    rules = _get_all_rules(ECOSYSTEM.NPM)
-    fn = click.option(
-        "-r",
-        "--rules",
-        multiple=True,
-        type=click.Choice(rules, case_sensitive=False),
-    )(fn)
-    fn = click.option(
-        "-x",
-        "--exclude-rules",
-        multiple=True,
-        type=click.Choice(rules, case_sensitive=False),
-    )(fn)
-    return fn
-
-
-def pypi_options(fn):
-    rules = _get_all_rules(ECOSYSTEM.PYPI)
-    fn = click.option(
-        "-r",
-        "--rules",
-        multiple=True,
-        type=click.Choice(rules, case_sensitive=False),
-    )(fn)
-    fn = click.option(
-        "-x",
-        "--exclude-rules",
-        multiple=True,
-        type=click.Choice(rules, case_sensitive=False),
     )(fn)
     return fn
 
@@ -148,7 +115,6 @@ def cli(log_level):
     stdoutHandler = logging.StreamHandler(stream=sys.stdout)
     stdoutHandler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
     logger.addHandler(stdoutHandler)
-    pass
 
 
 def _get_all_rules(ecosystem: ECOSYSTEM) -> set[str]:
@@ -323,98 +289,71 @@ def _list_rules(ecosystem):
     print(table)
 
 
-@cli.group
-def npm(**kwargs):
-    """Scan a npm package or verify a npm project"""
-    pass
+class CliEcosystem(click.Group):
+    def __init__(self, ecosystem: ECOSYSTEM):
+        super().__init__()
+        self.name = ecosystem.name.lower()
+        self.ecosystem = ecosystem
+
+        def rule_options(fn):
+            rules = _get_all_rules(self.ecosystem)
+            fn = click.option(
+                "-r",
+                "--rules",
+                multiple=True,
+                type=click.Choice(rules, case_sensitive=False),
+            )(fn)
+            fn = click.option(
+                "-x",
+                "--exclude-rules",
+                multiple=True,
+                type=click.Choice(rules, case_sensitive=False),
+            )(fn)
+            return fn
+
+        @click.command("scan", help=f"Scan a given {self.ecosystem.name} package")
+        @common_options
+        @scan_options
+        @rule_options
+        def scan_ecosystem(
+            target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+        ):
+            return _scan(
+                target,
+                version,
+                rules,
+                exclude_rules,
+                output_format,
+                exit_non_zero_on_finding,
+                self.ecosystem,
+            )
+
+        @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
+        @common_options
+        @verify_options
+        @rule_options
+        def verify_ecosystem(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+            return _verify(
+                target,
+                rules,
+                exclude_rules,
+                output_format,
+                exit_non_zero_on_finding,
+                ECOSYSTEM.PYPI,
+            )
+
+        @click.command("list-rules", help=f"List available rules for {self.ecosystem.name}")
+        def list_rules_ecosystem():
+            return _list_rules(self.ecosystem)
+
+        self.add_command(scan_ecosystem, "scan")
+        self.add_command(verify_ecosystem, "verify")
+        self.add_command(list_rules_ecosystem, "list-rules")
 
 
-@cli.group
-def pypi(**kwargs):
-    """Scan a PyPI package or verify a PyPI project"""
-    pass
-
-
-@npm.command("scan")
-@common_options
-@scan_options
-@npm_options
-def scan_npm(
-    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
-):
-    """Scan a given npm package"""
-    return _scan(
-        target,
-        version,
-        rules,
-        exclude_rules,
-        output_format,
-        exit_non_zero_on_finding,
-        ECOSYSTEM.NPM,
-    )
-
-
-@npm.command("verify")
-@common_options
-@verify_options
-@npm_options
-def verify_npm(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    """Verify a given npm project"""
-    return _verify(
-        target,
-        rules,
-        exclude_rules,
-        output_format,
-        exit_non_zero_on_finding,
-        ECOSYSTEM.NPM,
-    )
-
-
-@pypi.command("scan")
-@common_options
-@scan_options
-@pypi_options
-def scan_pypi(
-    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
-):
-    """Scan a given PyPI package"""
-    return _scan(
-        target,
-        version,
-        rules,
-        exclude_rules,
-        output_format,
-        exit_non_zero_on_finding,
-        ECOSYSTEM.PYPI,
-    )
-
-
-@pypi.command("verify")
-@common_options
-@verify_options
-@pypi_options
-def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    """Verify a given Pypi project"""
-    return _verify(
-        target,
-        rules,
-        exclude_rules,
-        output_format,
-        exit_non_zero_on_finding,
-        ECOSYSTEM.PYPI,
-    )
-
-
-@pypi.command("list-rules")
-def list_rules_pypi():
-    """Print available rules for PyPI"""
-    return _list_rules(ECOSYSTEM.PYPI)
-
-
-@npm.command("list-rules")
-def list_rules_npm():
-    """Print available rules for npm"""
-    return _list_rules(ECOSYSTEM.NPM)
+# Adding all ecosystems as subcommands
+for e in ECOSYSTEM:
+    cli.add_command(CliEcosystem(e), e.name.lower())
 
 
 @cli.command("verify", deprecated=True)
