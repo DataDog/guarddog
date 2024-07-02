@@ -16,7 +16,7 @@ def generate_docs() -> str:
         output += 'Source code heuristics:\n\n'
         output += '| **Heuristic** | **Description** |\n'
         output += '|:-------------:|:---------------:|\n'
-        for rule in sourcecode_analyzers.SOURCECODE_RULES[ecosystem]:
+        for rule in sourcecode_analyzers.SEMGREP_SOURCECODE_RULES[ecosystem]:
             description = rule.get("metadata", {}).get("description")
             if description is None:
                 description = rule.get('message')
