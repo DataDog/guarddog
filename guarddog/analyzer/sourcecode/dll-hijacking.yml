@@ -21,7 +21,7 @@ rules:
                 # environment preload
                 - pattern-regex: LD_PRELOAD
         - patterns:
-          - pattern: $FN(<...$EXE...>,...,<...$DLL...>)
+          - pattern: $FN($EXE,...,$DLL)
           - metavariable-pattern:
               metavariable: $EXE
               patterns:
@@ -49,7 +49,7 @@ rules:
                 ...
                 open($DLL,'wb')
                 ...
-                $FN(...,<...$EXE...>,...)
+                $FN(...,$EXE,...)
             - metavariable-pattern:
                 metavariable: $EXE
                 patterns:
