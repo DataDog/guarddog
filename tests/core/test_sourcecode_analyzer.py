@@ -4,7 +4,7 @@ import pytest
 
 
 pypi_analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
-npm_analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+npm_analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.NPM)
 @pytest.mark.parametrize(
         "analyzer",
         [
