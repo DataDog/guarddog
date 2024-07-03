@@ -12,26 +12,19 @@ rules:
         # Cesar
         - patterns:
             - pattern-either:
-                - patterns:
-                    - pattern: | 
-                        ...
-                        $FN=$DEOB
-                        ...
-                    - metavariable-pattern:
-                        metavariable: $DEOB
-                        pattern: String.fromCharCode
-                - patterns:
-                  - pattern: | 
+                - pattern-inside: | 
+                    $FN=$DEOB
+                    ...
+                - pattern-inside: | 
+                    function $FN(...) { 
                       ...
-                      function $FN(...) { 
-                        ...
-                        $DEOB
-                        ...
-                      }
+                      $DEOB
                       ...
-                  - metavariable-pattern:
-                        metavariable: $DEOB
-                        pattern: String.fromCharCode
+                    }
+                    ...
+            - metavariable-pattern:
+                  metavariable: $DEOB
+                  pattern: String.fromCharCode
             - pattern: self[$FN("...")](...)
 
         # Name Mangling
@@ -45,11 +38,7 @@ rules:
         # String Array Mapping
         - patterns:
           - pattern-inside: function $FN(){var $ARR=[...];$FN=function(){return $ARR;};return $FN();}
-          - pattern: $PARAMS
-          - metavariable-regex:
-              metavariable: $PARAMS
-              regex: ("\w+"|'\w+'|,)*
-          - pattern: '<...$PARAM...>'
+          - pattern: "$PARAM"
           - metavariable-analysis:
               analyzer: entropy
               metavariable: $PARAM
