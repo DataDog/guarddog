@@ -24,13 +24,22 @@ def test_get_rule_param_include():
     """
     Test the parsing function returns the included parameter
     """
-    assert len(guarddog.cli._get_rule_param(("shady-links",), (), ECOSYSTEM.NPM)) == 1
-
+    rules = guarddog.cli._get_rule_param(("shady-links",), (), ECOSYSTEM.NPM)
+    assert rules
+    assert len(rules) == 1
 
 def test_get_rule_param_exclude():
     """
-    Test the parsing function returns returns a list without the excluded parameter
+    Test the parsing function returns a list without the excluded parameter
     """
     rules = guarddog.cli._get_rule_param((), ("shady-links",), ECOSYSTEM.PYPI)
+    assert rules
     assert len(rules) != 1
     assert "shady-links" not in rules
+
+def test_get_rule_param_empty():
+    """
+    Test the parsing function returns None when no rules are provided
+    """
+    rules = guarddog.cli._get_rule_param((), (), ECOSYSTEM.PYPI)
+    assert rules is None
