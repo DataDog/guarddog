@@ -4,11 +4,11 @@ CLI command that scans a PyPI package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
 
+import json as js
 import logging
 import os
 import sys
-from typing import cast, Optional
-import json as js
+from typing import Optional, cast
 
 import click
 from prettytable import PrettyTable
@@ -153,8 +153,14 @@ def cli(log_level):
     pass
 
 
-def _get_rule_param(rules: tuple[str, ...], exclude_rules: tuple[str, ...], ecosystem: ECOSYSTEM) -> set:
-    rule_param = set()
+def _get_rule_param(
+    rules: tuple[str, ...], exclude_rules: tuple[str, ...], ecosystem: ECOSYSTEM
+) -> Optional[set]:
+    """
+    This function should return None if no rules are provided
+    Else a set of rules to be used for scanning
+    """
+    rule_param = None
     if len(rules) > 0:
         rule_param = set(rules)
 
