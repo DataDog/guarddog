@@ -153,10 +153,10 @@ def cli(log_level):
     pass
 
 
-def _get_rule_param(rules, exclude_rules, ecosystem):
-    rule_param = None
+def _get_rule_param(rules: tuple[str, ...], exclude_rules: tuple[str, ...], ecosystem: ECOSYSTEM) -> set:
+    rule_param = set()
     if len(rules) > 0:
-        rule_param = rules
+        rule_param = set(rules)
 
     if len(exclude_rules) > 0:
         all_rules = set(map(lambda x: x["id"], SOURCECODE_RULES[ecosystem])) | set(
