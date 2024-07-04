@@ -240,11 +240,16 @@ output: {e.output}
             location = file_path + ":" + str(line)
             code = self.trim_code_snippet(code_snippet)
 
-            results[rule_name].append({
+            finding = {
                 'location': location,
                 'code': code,
                 'message': result["extra"]["message"]
-            })
+            }
+
+            rule_results = results[rule_name]
+            if finding in rule_results:
+                continue
+            results[rule_name].append(finding)
 
         return results
 
