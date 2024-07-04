@@ -153,8 +153,12 @@ def cli(log_level):
     pass
 
 
-def _get_rule_param(rules: tuple[str, ...], exclude_rules: tuple[str, ...], ecosystem: ECOSYSTEM) -> set:
-    rule_param = set()
+def _get_rule_param(rules: tuple[str, ...], exclude_rules: tuple[str, ...], ecosystem: ECOSYSTEM) -> Optional[set]:
+    """
+    This function should return None if no rules are provided
+    Else a set of rules to be used for scanning
+    """
+    rule_param = None
     if len(rules) > 0:
         rule_param = set(rules)
 
