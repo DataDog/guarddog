@@ -294,6 +294,7 @@ def _list_rules(ecosystem):
 
     print(table)
 
+
 # This class is used to create dynamic groups in the cli, each group is an ecosystem with the same options
 class CliEcosystem(click.Group):
     """
