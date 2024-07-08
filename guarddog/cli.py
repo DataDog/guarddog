@@ -288,8 +288,12 @@ def _list_rules(ecosystem):
 
     print(table)
 
-
+# This class is used to create dynamic groups in the cli, each group is an ecosystem with the same options
 class CliEcosystem(click.Group):
+    """
+    Class that dynamically represents an ecosystem in click
+    It dynamically selects the ruleset to the instantiated ecosystem
+    """
     def __init__(self, ecosystem: ECOSYSTEM):
         super().__init__()
         self.name = ecosystem.name.lower()
