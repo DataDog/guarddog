@@ -158,6 +158,39 @@ Sourcecode rules live under the [guarddog/analyzer/sourcecode](guarddog/analyzer
 
 Is possible then to write your own rule and drop it into that directory, Guarddog will allow you to select it or exclude it as any built-in rule as well as appending the findings to its output.
 
+For example, you can create the following semgrep rule:
+```yaml
+rules:
+  - id: sample-rule 
+    languages:
+      - python
+    message: Output message when rule matches
+    metadata:
+      description: Description used in the CLI help
+    patterns:
+        YOUR RULE HEURISTICS GO HERE  
+    severity: WARNING
+```
+      
+Then you'll need to save it as `sample-rule.yml` and note that the id must match the filename
+
+In the case of Yara, you can create the following rule:
+```
+rule sample-rule
+{
+  meta:
+    description = "Description used in the output message"
+    target_entity = "file"
+  strings:
+    $exec = "exec"
+  condition:
+    1 of them
+}
+```
+Then you'll need to save it as `sample-rule.yar`. 
+
+Note that in both cases, the rule id must match the filename
+
 ## Running GuardDog in a GitHub Action
 
 The easiest way to integrate GuardDog in your CI pipeline is to leverage the SARIF output format, and upload it to GitHub's [code scanning](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning) feature.
