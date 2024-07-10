@@ -4,6 +4,7 @@ from enum import Enum
 class ECOSYSTEM(Enum):
     PYPI = "pypi"
     NPM = "npm"
+    GO = "go"
 
 
 def get_friendly_name(ecosystem: ECOSYSTEM) -> str:
@@ -12,5 +13,7 @@ def get_friendly_name(ecosystem: ECOSYSTEM) -> str:
             return "PyPI"
         case ECOSYSTEM.NPM:
             return "npm"
+        case ECOSYSTEM.GO:
+            return "go"
         case _:
             return ecosystem.value

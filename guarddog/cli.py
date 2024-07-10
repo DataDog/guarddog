@@ -24,14 +24,19 @@ from guarddog.scanners.scanner import PackageScanner
 ALL_RULES = (
     set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
     | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
+    | set(get_metadata_detectors(ECOSYSTEM.GO).keys())
     | set(map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.NPM]))
     | set(map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.PYPI]))
+    | set(map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.GO]))
 )
 NPM_RULES = set(get_metadata_detectors(ECOSYSTEM.NPM).keys()) | set(
     map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.NPM])
 )
 PYPI_RULES = set(get_metadata_detectors(ECOSYSTEM.PYPI).keys()) | set(
     map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.PYPI])
+)
+GO_RULES = set(get_metadata_detectors(ECOSYSTEM.GO).keys()) | set(
+    map(lambda r: r["id"], SOURCECODE_RULES[ECOSYSTEM.GO])
 )
 EXIT_CODE_ISSUES_FOUND = 1
 
@@ -102,6 +107,22 @@ def pypi_options(fn):
     return fn
 
 
+def go_options(fn):
+    fn = click.option(
+        "-r",
+        "--rules",
+        multiple=True,
+        type=click.Choice(GO_RULES, case_sensitive=False),
+    )(fn)
+    fn = click.option(
+        "-x",
+        "--exclude-rules",
+        multiple=True,
+        type=click.Choice(GO_RULES, case_sensitive=False),
+    )(fn)
+    return fn
+
+
 def verify_options(fn):
     fn = click.option(
         "--output-format",
@@ -139,7 +160,7 @@ def cli(log_level):
     """
     GuardDog cli tool to detect malware in package ecosystems
 
-    Supports PyPI and npm
+    Supports PyPI, npm and Go modules.
 
     Example: guarddog pypi scan semantic-version
 
@@ -207,11 +228,15 @@ def _verify(
 
     results = scanner.scan_local(path, rule_param, display_result)
     if output_format == "json":
-
         return_value = js.dumps(results)
 
     if output_format == "sarif":
-        sarif_rules = PYPI_RULES if ecosystem == ECOSYSTEM.PYPI else NPM_RULES
+        sarif_rules = NPM_RULES
+        if ecosystem == ECOSYSTEM.PYPI:
+            sarif_rules = PYPI_RULES
+        elif ecosystem == ECOSYSTEM.GO:
+            sarif_rules = GO_RULES
+
         return_value = report_verify_sarif(path, list(sarif_rules), results, ecosystem)
 
     if output_format is not None:
@@ -342,6 +367,12 @@ def pypi(**kwargs):
     pass
 
 
+@cli.group
+def go(**kwargs):
+    """Scan or verify a Go module"""
+    pass
+
+
 @npm.command("scan")
 @common_options
 @scan_options
@@ -412,6 +443,41 @@ def verify_pypi(target, rules, exclude_rules, output_format, exit_non_zero_on_fi
     )
 
 
+@go.command("scan")
+@common_options
+@scan_options
+@go_options
+def scan_go(
+    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+):
+    """Scan a given Go module"""
+    return _scan(
+        target,
+        version,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.GO,
+    )
+
+
+@go.command("verify")
+@common_options
+@verify_options
+@go_options
+def verify_go(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+    """Verify a given Go module"""
+    return _verify(
+        target,
+        rules,
+        exclude_rules,
+        output_format,
+        exit_non_zero_on_finding,
+        ECOSYSTEM.GO,
+    )
+
+
 @pypi.command("list-rules")
 def list_rules_pypi():
     """Print available rules for PyPI"""
@@ -422,6 +488,12 @@ def list_rules_pypi():
 def list_rules_npm():
     """Print available rules for npm"""
     return _list_rules(ECOSYSTEM.NPM)
+
+
+@go.command("list-rules")
+def list_rules_go():
+    """Print available rules for Go"""
+    return _list_rules(ECOSYSTEM.GO)
 
 
 @cli.command("verify", deprecated=True)
