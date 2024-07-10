@@ -148,6 +148,16 @@ Metadata heuristics:
 
 <!-- END_RULE_LIST -->
 
+## Custom Rules
+
+Guarddog allows to implement custom sourcecode rules.
+Sourcecode rules live under the [guarddog/analyzer/sourcecode](guarddog/analyzer/sourcecode) directory, and supported formats are [Semgrep](https://github.com/semgrep/semgrep) or [Yara](https://github.com/VirusTotal/yara).
+
+* Semgrep rules are language-dependent, and Guarddog will import all `.yml` rules where the language matches the ecosystem selected by the user in CLI.
+* Yara rules on the other hand are language agnostic, therefore all matching `.yar` rules present will be imported.
+
+Is possible then to write your own rule and drop it into that directory, Guarddog will allow you to select it or exclude it as any built-in rule as well as appending the findings to its output.
+
 ## Running GuardDog in a GitHub Action
 
 The easiest way to integrate GuardDog in your CI pipeline is to leverage the SARIF output format, and upload it to GitHub's [code scanning](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning) feature.
