@@ -19,6 +19,8 @@ SEMGREP_SOURCECODE_RULES = {
     ECOSYSTEM.NPM: list(),
 }  # type: dict[ECOSYSTEM, list[dict]]
 
+# all yml files placed in the sourcecode directory are loaded as semgrep rules
+# refer to README.md for more information
 for file_name in semgrep_rule_file_names:
     with open(os.path.join(current_dir, file_name), "r") as fd:
         data = yaml.load(fd, Loader=SafeLoader)
@@ -41,6 +43,8 @@ yara_rule_file_names = list(
 
 YARA_RULES: set[str] = set()
 
+# all yar files placed in the sourcecode directory are loaded as YARA rules
+# refer to README.md for more information
 for file_name in yara_rule_file_names:
     YARA_RULES.add(pathlib.Path(file_name).stem)
 
