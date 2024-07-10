@@ -17,6 +17,7 @@ rule_file_names = list(
 SOURCECODE_RULES = {
     ECOSYSTEM.PYPI: list(),
     ECOSYSTEM.NPM: list(),
+    ECOSYSTEM.GO: list(),
 }  # type: dict[ECOSYSTEM, list[dict]]
 
 for file_name in rule_file_names:
@@ -31,3 +32,6 @@ for file_name in rule_file_names:
                     case "javascript" | "typescript" | "json":
                         if rule not in SOURCECODE_RULES[ECOSYSTEM.NPM]:
                             SOURCECODE_RULES[ECOSYSTEM.NPM].append(rule)
+                    case "go":
+                        if rule not in SOURCECODE_RULES[ECOSYSTEM.GO]:
+                            SOURCECODE_RULES[ECOSYSTEM.GO].append(rule)
