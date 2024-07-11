@@ -24,7 +24,9 @@ class GoModuleScanner(PackageScanner):
     ) -> Tuple[dict, str]:
         # If the version is not set explicitely, guarddog defaults to the latest
         if not version:
-            latest_version_info_url = f"{GOPROXY_URL}/{package_name}/@latest"
+            latest_version_info_url = (
+                f"{GOPROXY_URL}/{escape_package_name(package_name)}/@latest"
+            )
             log.debug(
                 f"Version for Go module {package_name} is unspecified, "
                 f"fetching the latest version info from {latest_version_info_url}..."
@@ -38,12 +40,14 @@ class GoModuleScanner(PackageScanner):
             version = latest_version
 
         # Most of this logic comes from the NPM package scanner
-        zip_url = f"{GOPROXY_URL}/{package_name}/@v/{version}.zip"
+        zip_url = f"{GOPROXY_URL}/{escape_package_name(package_name)}/@v/{version}.zip"
         zip_path = os.path.join(directory, package_name.replace("/", "-") + ".zip")
         unzipped_path = zip_path.removesuffix(".zip")
         self.download_compressed(zip_url, zip_path, unzipped_path)
 
-        version_info_url = f"{GOPROXY_URL}/{package_name}/@v/{version}.info"
+        version_info_url = (
+            f"{GOPROXY_URL}/{escape_package_name(package_name)}/@v/{version}.info"
+        )
         log.debug(
             f"Fetching Go module {package_name}@{version}'s info from {version_info_url}..."
         )
@@ -51,3 +55,21 @@ class GoModuleScanner(PackageScanner):
         version_info.raise_for_status()
 
         return version_info.json(), unzipped_path
+
+
+# As described in https://go.dev/ref/mod#goproxy-protocol:
+# > To avoid ambiguity when serving from case-insensitive file systems,
+# > the $module and $version elements are case-encoded by replacing every uppercase letter
+# > with an exclamation mark followed by the corresponding lower-case letter.
+# > This allows modules example.com/M and example.com/m to both be stored on disk,
+# > since the former is encoded as example.com/!m.
+def escape_package_name(package_name: str) -> str:
+    escaped_package_name = ""
+
+    for c in package_name:
+        if c.isupper():
+            escaped_package_name += f"!{c.lower()}"
+        else:
+            escaped_package_name += c
+
+    return escaped_package_name
