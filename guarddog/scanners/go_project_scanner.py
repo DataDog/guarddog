@@ -4,7 +4,7 @@ import requests
 from guarddog.scanners.go_package_scanner import (
     GoModuleScanner,
     GOPROXY_URL,
-    escape_package_name,
+    escape_module_name,
 )
 from guarddog.scanners.scanner import ProjectScanner
 
@@ -71,7 +71,7 @@ class GoDependenciesScanner(ProjectScanner):
 
     def get_go_mod_file(self, package_name: str, version: str) -> GoModule:
         go_mod_file_url = (
-            f"{GOPROXY_URL}/{escape_package_name(package_name)}/@v/{version}.mod"
+            f"{GOPROXY_URL}/{escape_module_name(package_name)}/@v/{version}.mod"
         )
         response = requests.get(go_mod_file_url)
         response.raise_for_status()
