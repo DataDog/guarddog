@@ -44,7 +44,7 @@ rules:
             - pattern-regex: InstallUtil(.exe)?\s*\S*
             - pattern-regex: mshta(.exe)?\s*\S*
             - pattern-regex: msiexec(.exe)?\s*\S*
-            - pattern-regex: odbcconf(.exe)?.*{REGSVR \S*}
+            - pattern-regex: odbcconf(.exe)?.*{REGSVR\s*\S*}
             - pattern-regex: regsvcs(.exe)?\s*\S*
             - pattern-regex: regasm(.exe)?\s*\S*
             - pattern-regex: regsvr32(.exe)?\s*\S*
