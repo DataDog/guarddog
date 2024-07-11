@@ -25,7 +25,7 @@ class GoModuleScanner(PackageScanner):
         # If the version is not set explicitely, guarddog defaults to the latest
         if not version:
             latest_version_info_url = (
-                f"{GOPROXY_URL}/{escape_package_name(package_name)}/@latest"
+                f"{GOPROXY_URL}/{escape_module_name(package_name)}/@latest"
             )
             log.debug(
                 f"Version for Go module {package_name} is unspecified, "
@@ -40,13 +40,13 @@ class GoModuleScanner(PackageScanner):
             version = latest_version
 
         # Most of this logic comes from the NPM package scanner
-        zip_url = f"{GOPROXY_URL}/{escape_package_name(package_name)}/@v/{version}.zip"
+        zip_url = f"{GOPROXY_URL}/{escape_module_name(package_name)}/@v/{version}.zip"
         zip_path = os.path.join(directory, package_name.replace("/", "-") + ".zip")
         unzipped_path = zip_path.removesuffix(".zip")
         self.download_compressed(zip_url, zip_path, unzipped_path)
 
         version_info_url = (
-            f"{GOPROXY_URL}/{escape_package_name(package_name)}/@v/{version}.info"
+            f"{GOPROXY_URL}/{escape_module_name(package_name)}/@v/{version}.info"
         )
         log.debug(
             f"Fetching Go module {package_name}@{version}'s info from {version_info_url}..."
@@ -63,7 +63,7 @@ class GoModuleScanner(PackageScanner):
 # > with an exclamation mark followed by the corresponding lower-case letter.
 # > This allows modules example.com/M and example.com/m to both be stored on disk,
 # > since the former is encoded as example.com/!m.
-def escape_package_name(package_name: str) -> str:
+def escape_module_name(package_name: str) -> str:
     escaped_package_name = ""
 
     for c in package_name:
