@@ -34,24 +34,24 @@ rules:
                 # a string with .dll or .so in it
                 - pattern: "..."
                 - pattern-regex: (?i).*?\.(dll|so)
-	- patterns:
-	  - pattern: "..."
-	  - pattern-either:
-	    # See MITRE ATT&CK "System Binary Proxy Execution" techniques
-	    # https://attack.mitre.org/techniques/T1218/
-	    - pattern-regex: control(.exe)?\s*\S*.cpl
-	    - pattern-regex: cmstp(.exe)?\s*\S*
-	    - pattern-regex: InstallUtil(.exe)?\s*\S*
-	    - pattern-regex: mshta(.exe)?\s*\S*
-	    - pattern-regex: msiexec(.exe)?\s*\S*
-	    - pattern-regex: odbcconf(.exe)?.*{REGSVR \S*}
-	    - pattern-regex: regsvcs(.exe)?\s*\S*
-	    - pattern-regex: regasm(.exe)?\s*\S*
-	    - pattern-regex: regsvr32(.exe)?\s*\S*
-	    - pattern-regex: rundll32(.exe)?\s*\S*
-	    - pattern-regex: verclsid(.exe)?.*{\S*}
-	    - pattern-regex: mavinject(.exe)?\s*\d+\s*/INJECTRUNNING\s*\S*
-	    - pattern-regex: mmc(.exe)?\s*-Embedding\s*\S*.ms
+        - patterns:
+          - pattern: "..."
+          - pattern-either:
+            # See MITRE ATT&CK "System Binary Proxy Execution" techniques
+            # https://attack.mitre.org/techniques/T1218/
+            - pattern-regex: control(.exe)?\s*\S*.cpl
+            - pattern-regex: cmstp(.exe)?\s*\S*
+            - pattern-regex: InstallUtil(.exe)?\s*\S*
+            - pattern-regex: mshta(.exe)?\s*\S*
+            - pattern-regex: msiexec(.exe)?\s*\S*
+            - pattern-regex: odbcconf(.exe)?.*{REGSVR \S*}
+            - pattern-regex: regsvcs(.exe)?\s*\S*
+            - pattern-regex: regasm(.exe)?\s*\S*
+            - pattern-regex: regsvr32(.exe)?\s*\S*
+            - pattern-regex: rundll32(.exe)?\s*\S*
+            - pattern-regex: verclsid(.exe)?.*{\S*}
+            - pattern-regex: mavinject(.exe)?\s*\d+\s*/INJECTRUNNING\s*\S*
+            - pattern-regex: mmc(.exe)?\s*-Embedding\s*\S*.ms
 
       # dll injection
       - pattern-either:
