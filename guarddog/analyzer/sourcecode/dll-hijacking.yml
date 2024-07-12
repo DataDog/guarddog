@@ -11,6 +11,8 @@ rules:
       - pattern-either:
         - patterns:
           - pattern: "$DLL_LOAD"
+          # Ignore docstrings
+          - pattern-not-regex: ^\s*"""(.|\n)*?"""\s*$
           - metavariable-pattern:
               metavariable: $DLL_LOAD
               pattern-either:
