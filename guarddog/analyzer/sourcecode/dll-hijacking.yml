@@ -27,12 +27,12 @@ rules:
                 - pattern-regex: (?i)InstallUtil(.exe)?\s+\S+
                 - pattern-regex: (?i)mshta(.exe)?\s+\S+
                 - pattern-regex: (?i)msiexec(.exe)?\s+\S+
-                - pattern-regex: (?i)odbcconf(.exe)?.*{REGSVR\s+\S+}
+                - pattern-regex: (?i)odbcconf(.exe)?\s+.*{\s*REGSVR\s+\S+\s*}
                 - pattern-regex: (?i)regsvcs(.exe)?\s+\S+
                 - pattern-regex: (?i)regasm(.exe)?\s+\S+
                 - pattern-regex: (?i)regsvr32(.exe)?\s+\S+
                 - pattern-regex: (?i)rundll32(.exe)?\s+\S+
-                - pattern-regex: (?i)verclsid(.exe)?.*{\S+}
+                - pattern-regex: (?i)verclsid(.exe)?\s+.*{\s*\S+\s*}
                 - pattern-regex: (?i)mavinject(.exe)?\s+\d+\s+/INJECTRUNNING\s+\S+
                 - pattern-regex: (?i)mmc(.exe)?\s+-Embedding\s+\S+.ms
         - patterns:
