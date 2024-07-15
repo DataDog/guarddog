@@ -11,6 +11,8 @@ rules:
       - pattern-either:
         - patterns:
           - pattern: "$DLL_LOAD"
+          # Ignore docstrings
+          - pattern-not-regex: ^\s*"""(.|\n)*?"""\s*$
           - metavariable-pattern:
               metavariable: $DLL_LOAD
               pattern-either:
@@ -20,6 +22,21 @@ rules:
                 - pattern-regex: (?i).*?\/bin/.+\s+.*?\.so
                 # environment preload
                 - pattern-regex: LD_PRELOAD
+                # MITRE ATT&CK "System Binary Proxy Execution" techniques
+                # https://attack.mitre.org/techniques/T1218/
+                - pattern-regex: (?i)control(.exe)?\s+\S+.cpl
+                - pattern-regex: (?i)cmstp(.exe)?\s+\S+
+                - pattern-regex: (?i)InstallUtil(.exe)?\s+\S+
+                - pattern-regex: (?i)mshta(.exe)?\s+\S+
+                - pattern-regex: (?i)msiexec(.exe)?\s+\S+
+                - pattern-regex: (?i)odbcconf(.exe)?\s+.*{\s*REGSVR\s+\S+\s*}
+                - pattern-regex: (?i)regsvcs(.exe)?\s+\S+
+                - pattern-regex: (?i)regasm(.exe)?\s+\S+
+                - pattern-regex: (?i)regsvr32(.exe)?\s+\S+
+                - pattern-regex: (?i)rundll32(.exe)?\s+\S+
+                - pattern-regex: (?i)verclsid(.exe)?\s+.*{\s*\S+\s*}
+                - pattern-regex: (?i)mavinject(.exe)?\s+\d+\s+/INJECTRUNNING\s+\S+
+                - pattern-regex: (?i)mmc(.exe)?\s+-Embedding\s+\S+.ms
         - patterns:
           - pattern: $FN($EXE,...,$DLL)
           - metavariable-pattern:
