@@ -18,6 +18,7 @@ class SourceCodeRule:
     """
     Base class for source code rules
     """
+
     id: str
     file: str
 
@@ -27,6 +28,7 @@ class YaraRule(SourceCodeRule):
     """
     Yara rule just reimplements base
     """
+
     pass
 
 
@@ -36,9 +38,27 @@ class SempgrepRule(SourceCodeRule):
     Semgrep rule are language specific
     Content of rule in yaml format is accessible through rule_content
     """
+
     description: str
     ecosystem: ECOSYSTEM
     rule_content: dict
+
+
+def get_sourcecode_rules(
+    ecosystem: ECOSYSTEM, kind: Optional[type] = None
+) -> list[SourceCodeRule]:
+    """
+    This function returns the source code rules for a given ecosystem and kind.
+    Args:
+        ecosystem: The ecosystem to filter for if rules are ecosystem specific
+        kind: The kind of rule to filter for
+    """
+    return [
+        rule
+        for rule in SOURCECODE_RULES
+        if (getattr(rule, "ecosystem", ecosystem) == ecosystem)
+        and (not kind or isinstance(rule, kind))
+    ]
 
 
 SOURCECODE_RULES: list[SourceCodeRule] = list()
@@ -63,7 +83,11 @@ for file_name in semgrep_rule_file_names:
                         continue
 
                 # avoids duplicates when multiple languages are supported by a rule
-                if not [r for r in SOURCECODE_RULES if r.id == rule["id"]]:
+                if not [
+                    r
+                    for r in get_sourcecode_rules(ecosystem, SempgrepRule)
+                    if (r.id == rule["id"])
+                ]:
                     SOURCECODE_RULES.append(
                         SempgrepRule(
                             id=rule["id"],
@@ -81,20 +105,3 @@ yara_rule_file_names = list(
 # refer to README.md for more information
 for file_name in yara_rule_file_names:
     SOURCECODE_RULES.append(YaraRule(id=pathlib.Path(file_name).stem, file=file_name))
-
-
-def get_sourcecode_rules(
-    ecosystem: ECOSYSTEM, kind: Optional[type] = None
-) -> list[SourceCodeRule]:
-    """
-    This function returns the source code rules for a given ecosystem and kind.
-    Args:
-        ecosystem: The ecosystem to filter for if rules are ecosystem specific
-        kind: The kind of rule to filter for
-    """
-    return [
-        rule
-        for rule in SOURCECODE_RULES
-        if (getattr(rule, "ecosystem", ecosystem) == ecosystem)
-        and (not kind or isinstance(rule, kind))
-    ]
