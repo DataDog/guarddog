@@ -233,29 +233,33 @@ class PackageScanner(Scanner):
         Args:
             path (str): path to package
             rules (set, optional): Set of rule names to use. Defaults to all rules.
+            callback (typing.Callable[[dict], None], optional): Callback to apply to Analyzer output
 
         Raises:
             Exception: Analyzer exception
 
         Returns:
             dict: Analyzer output with rules to results mapping
-            rules: rules to apply
-            callback: callback to call for each result
         """
 
         if rules is not None:
             rules = set(rules)
 
+        results = None
         if os.path.isdir(path):
-            return self.analyzer.analyze_sourcecode(path, rules=rules)
+            results = self.analyzer.analyze_sourcecode(path, rules=rules)
         elif (os.path.isfile(path) and is_supported_archive(path)):
             with tempfile.TemporaryDirectory() as tempdir:
                 safe_extract(path, tempdir)
-                return self.analyzer.analyze_sourcecode(tempdir, rules=rules)
+                results = self.analyzer.analyze_sourcecode(tempdir, rules=rules)
         else:
             raise Exception(
                 f"Path {path} is not a directory nor an archive supported by GuardDog."
             )
+
+        callback(results)
+
+        return results
 
     @abstractmethod
     def download_and_get_package_info(
