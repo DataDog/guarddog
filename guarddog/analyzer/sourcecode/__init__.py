@@ -41,13 +41,13 @@ yara_rule_file_names = list(
     )
 )
 
-YARA_RULES: set[str] = set()
+YARA_SOURCECODE_RULES: set[str] = set()
 
 # all yar files placed in the sourcecode directory are loaded as YARA rules
 # refer to README.md for more information
 for file_name in yara_rule_file_names:
-    YARA_RULES.add(pathlib.Path(file_name).stem)
+    YARA_SOURCECODE_RULES.add(pathlib.Path(file_name).stem)
 
 
 def get_sourcecode_rules(ecosystem: ECOSYSTEM) -> set:
-    return {r["id"] for r in SEMGREP_SOURCECODE_RULES[ecosystem]} | YARA_RULES
+    return {r["id"] for r in SEMGREP_SOURCECODE_RULES[ecosystem]} | YARA_SOURCECODE_RULES

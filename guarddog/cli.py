@@ -22,9 +22,6 @@ from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
 from functools import reduce
 
-PYPI_RULES = set(get_sourcecode_rules(ECOSYSTEM.PYPI)) | set(get_metadata_detectors(ECOSYSTEM.PYPI).keys())
-NPM_RULES = set(get_sourcecode_rules(ECOSYSTEM.NPM)) | set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
-
 EXIT_CODE_ISSUES_FOUND = 1
 
 AVAILABLE_LOG_LEVELS = {logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR}
@@ -176,7 +173,7 @@ def _verify(
         return_value = js.dumps(results)
 
     if output_format == "sarif":
-        sarif_rules = PYPI_RULES if ecosystem == ECOSYSTEM.PYPI else NPM_RULES
+        sarif_rules = _get_all_rules(ecosystem)
         return_value = report_verify_sarif(path, list(sarif_rules), results, ecosystem)
 
     if output_format is not None:
