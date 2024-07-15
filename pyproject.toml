@@ -38,6 +38,7 @@ flake8 = ">=5.0.4,<8.0.0"
 pytest = ">=7.4,<9.0"
 setuptools = ">=65.6.3,<71.0.0"
 pytest-mock = "^3.11.1"
+sarif-tools = "^2.0.0"
 
 [tool.pytest.ini_options]
 filterwarnings = [
