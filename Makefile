@@ -1,6 +1,6 @@
 .PHONY: test test-semgrep-rules test-metadata-rules test-core docs
 
-test: test-semgrep-rules test-metadata-rules test-core coverage-report
+test: test-semgrep-rules test-metadata-rules test-core test-reporters coverage-report
 
 type-check:
 	mypy --install-types --non-interactive guarddog
@@ -18,8 +18,11 @@ test-metadata-rules:
 test-core:
 	COVERAGE_FILE=.coverage_core coverage run -m pytest tests/core
 
+test-reporters:
+	COVERAGE_FILE=.coverage_reporters coverage run -m pytest tests/reporters
+
 coverage-report:
-	coverage combine .coverage_metadata .coverage_core
+	coverage combine .coverage_metadata .coverage_core .coverage_reporters
 	coverage report
 
 docs:

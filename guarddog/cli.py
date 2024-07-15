@@ -15,7 +15,7 @@ from prettytable import PrettyTable
 from termcolor import colored
 
 from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.analyzer.sourcecode import get_sourcecode_rules, SEMGREP_SOURCECODE_RULES
+from guarddog.analyzer.sourcecode import get_sourcecode_rules
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
@@ -46,7 +46,11 @@ def common_options(fn):
 def legacy_rules_options(fn):
     ALL_RULES = reduce(
         lambda a, b: a | b,
-        map(lambda e: set(get_sourcecode_rules(e)) | set(get_metadata_detectors(e).keys()), [e for e in ECOSYSTEM])
+        map(
+            lambda e: set([r.id for r in get_sourcecode_rules(e)])
+            | set(get_metadata_detectors(e).keys()),
+            [e for e in ECOSYSTEM],
+        ),
     )
 
     fn = click.option(
@@ -115,7 +119,9 @@ def cli(log_level):
 
 
 def _get_all_rules(ecosystem: ECOSYSTEM) -> set[str]:
-    return set(get_sourcecode_rules(ecosystem)) | set(get_metadata_detectors(ecosystem).keys())
+    return set([r.id for r in get_sourcecode_rules(ecosystem)]) | set(
+        get_metadata_detectors(ecosystem).keys()
+    )
 
 
 def _get_rule_param(
@@ -274,20 +280,18 @@ def _scan(
         exit_with_status_code(results)
 
 
-def _list_rules(ecosystem):
+def _list_rules(ecosystem: ECOSYSTEM):
     table = PrettyTable()
     table.align = "l"
     table.field_names = ["Rule type", "Rule name", "Description"]
 
-    for rule in SEMGREP_SOURCECODE_RULES[ecosystem]:
-        table.add_row(
-            ["Source code", rule["id"], rule.get("metadata", {}).get("description")]
-        )
+    for sc_rule in get_sourcecode_rules(ecosystem):
+        table.add_row(["Source code", sc_rule.id, getattr(sc_rule, "description", "")])
 
     metadata_rules = get_metadata_detectors(ecosystem)
     for ruleName in metadata_rules:
-        rule = metadata_rules[ruleName]
-        table.add_row(["Package metadata", rule.get_name(), rule.get_description()])
+        m_rule = metadata_rules[ruleName]
+        table.add_row(["Package metadata", m_rule.get_name(), m_rule.get_description()])
 
     print(table)
 
@@ -347,7 +351,7 @@ class CliEcosystem(click.Group):
                 exclude_rules,
                 output_format,
                 exit_non_zero_on_finding,
-                ECOSYSTEM.PYPI,
+                self.ecosystem,
             )
 
         @click.command("list-rules", help=f"List available rules for {self.ecosystem.name}")

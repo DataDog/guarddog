@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Iterable, Optional, Dict
 
 from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.analyzer.sourcecode import SEMGREP_SOURCECODE_RULES, YARA_SOURCECODE_RULES
+from guarddog.analyzer.sourcecode import get_sourcecode_rules, SempgrepRule, YaraRule
 from guarddog.ecosystems import ECOSYSTEM
 
 SEMGREP_MAX_TARGET_BYTES = 10_000_000
@@ -40,8 +40,12 @@ class Analyzer:
         self.metadata_detectors = get_metadata_detectors(ecosystem)
 
         self.metadata_ruleset: set[str] = set(self.metadata_detectors.keys())
-        self.semgrep_ruleset: set[str] = set(rule["id"] for rule in SEMGREP_SOURCECODE_RULES[ecosystem])
-        self.yara_ruleset: set[str] = set(YARA_SOURCECODE_RULES)
+        self.semgrep_ruleset: set[str] = set(
+            [r.id for r in get_sourcecode_rules(ecosystem, SempgrepRule)]
+        )
+        self.yara_ruleset: set[str] = set(
+            [r.id for r in get_sourcecode_rules(ecosystem, YaraRule)]
+        )
 
         # Define paths to exclude from sourcecode analysis
         self.exclude = [

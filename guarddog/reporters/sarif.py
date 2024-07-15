@@ -1,9 +1,7 @@
 import hashlib
 import json
-import os.path
 
-import yaml
-
+from guarddog.analyzer.sourcecode import get_sourcecode_rules
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.ecosystems import ECOSYSTEM
 
@@ -19,16 +17,10 @@ def build_rules_help_list() -> dict:
         for name, instance in rules.items():
             detector_class = instance.__class__.__base__
             rules_documentation[name] = detector_class.__doc__
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    semgrep_rules_base_dir = os.path.join(dir_path, "..", "analyzer", "sourcecode")
-    for file in os.listdir(semgrep_rules_base_dir):
-        if not file.endswith('.yml') and not file.endswith('.yaml'):
-            continue
-        with open(os.path.join(semgrep_rules_base_dir, file), "r") as fd:
-            content = yaml.safe_load(fd)
-            for rule in content["rules"]:
-                text = rule["description"] if "description" in rule else rule["message"]
-                rules_documentation[rule["id"]] = text
+        for sourcecode_rule in get_sourcecode_rules(ecosystem):
+            rules_documentation[sourcecode_rule.id] = getattr(
+                sourcecode_rule, "description", ""
+            )
     return rules_documentation
 
 
@@ -144,8 +136,12 @@ def get_region(package_raw: str, package: str) -> dict:
     }
 
 
-def report_verify_sarif(package_path: str, rule_names: list[str], scan_results: list[dict],
-                        ecosystem: ECOSYSTEM) -> str:
+def report_verify_sarif(
+    package_path: str,
+    rule_names: list[str],
+    scan_results: list[dict],
+    ecosystem: ECOSYSTEM,
+) -> str:
     rules_documentation = build_rules_help_list()
     rules = list(map(
         lambda s: get_rule(s, rules_documentation),
