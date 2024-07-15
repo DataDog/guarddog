@@ -200,7 +200,6 @@ class ProjectScanner(Scanner):
 
         try:
             with open(path, "r") as f:
-                print(self.scan_requirements(f.read(), rules, callback))
                 return self.scan_requirements(f.read(), rules, callback)
         except Exception as e:
             sys.stdout.write(f"Received {e}")
