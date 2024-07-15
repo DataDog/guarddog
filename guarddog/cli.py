@@ -20,6 +20,7 @@ from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
+from guarddog.utils.archives import is_supported_archive
 
 ALL_RULES = (
     set(get_metadata_detectors(ECOSYSTEM.NPM).keys())
@@ -228,25 +229,10 @@ def is_local_target(identifier: str) -> bool:
     @param identifier:  The name/path of the package as passed to "guarddog ecosystem scan"
     @return:            Whether the identifier should be considered a local path
     """
-    if (
-        identifier.startswith("/")
-        or identifier.startswith("./")
-        or identifier.startswith("../")
-    ):
-        return True
-
-    if identifier == ".":
-        return True
-
-    # If this looks like an archive, consider it as a local target if the target exists on the local filesystem
-    if (
-        identifier.endswith(".tar.gz")
-        or identifier.endswith(".zip")
-        or identifier.endswith(".whl")
-    ):
-        return os.path.exists(identifier)
-
-    return False
+    return (
+        os.path.isdir(identifier)
+        or (os.path.isfile(identifier) and is_supported_archive(identifier))
+    )
 
 
 def _scan(

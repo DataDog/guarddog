@@ -4,6 +4,7 @@ import typing
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
+from guarddog.utils.archives import is_tar_archive, is_zip_archive
 from guarddog.utils.package_info import get_package_info
 
 
@@ -47,11 +48,11 @@ class PypiPackageScanner(PackageScanner):
 
         for file in files:
             # Store url to compressed package and appropriate file extension
-            if file["filename"].endswith(".tar.gz"):
+            if is_tar_archive(file["filename"]):
                 url = file["url"]
                 file_extension = ".tar.gz"
 
-            if any(file["filename"].endswith(ext) for ext in (".egg", ".whl", ".zip")):
+            if is_zip_archive(file["filename"]):
                 url = file["url"]
                 file_extension = ".zip"
 
