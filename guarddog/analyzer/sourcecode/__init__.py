@@ -80,10 +80,13 @@ for file_name in semgrep_rule_file_names:
                         continue
 
                 # avoids duplicates when multiple languages are supported by a rule
-                if not next(filter(
+                if not next(
+                    filter(
                         lambda r: r.id == rule["id"],
                         get_sourcecode_rules(ecosystem, SempgrepRule),
-                    ),None):
+                    ),
+                    None,
+                ):
                     SOURCECODE_RULES.append(
                         SempgrepRule(
                             id=rule["id"],
