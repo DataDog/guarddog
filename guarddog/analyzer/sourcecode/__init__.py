@@ -1,7 +1,7 @@
 import os
 import pathlib
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Iterable
 
 import yaml
 from yaml.loader import SafeLoader
@@ -18,7 +18,6 @@ class SourceCodeRule:
     """
     Base class for source code rules
     """
-
     id: str
     file: str
 
@@ -28,7 +27,6 @@ class YaraRule(SourceCodeRule):
     """
     Yara rule just reimplements base
     """
-
     pass
 
 
@@ -38,7 +36,6 @@ class SempgrepRule(SourceCodeRule):
     Semgrep rule are language specific
     Content of rule in yaml format is accessible through rule_content
     """
-
     description: str
     ecosystem: ECOSYSTEM
     rule_content: dict
@@ -46,19 +43,19 @@ class SempgrepRule(SourceCodeRule):
 
 def get_sourcecode_rules(
     ecosystem: ECOSYSTEM, kind: Optional[type] = None
-) -> list[SourceCodeRule]:
+) -> Iterable[SourceCodeRule]:
     """
     This function returns the source code rules for a given ecosystem and kind.
     Args:
         ecosystem: The ecosystem to filter for if rules are ecosystem specific
         kind: The kind of rule to filter for
     """
-    return [
-        rule
-        for rule in SOURCECODE_RULES
-        if (getattr(rule, "ecosystem", ecosystem) == ecosystem)
-        and (not kind or isinstance(rule, kind))
-    ]
+    for rule in SOURCECODE_RULES:
+        if not (getattr(rule, "ecosystem", ecosystem) == ecosystem):
+            continue
+        if kind and not isinstance(rule, kind):
+            continue
+        yield rule
 
 
 SOURCECODE_RULES: list[SourceCodeRule] = list()
@@ -83,11 +80,10 @@ for file_name in semgrep_rule_file_names:
                         continue
 
                 # avoids duplicates when multiple languages are supported by a rule
-                if not [
-                    r
-                    for r in get_sourcecode_rules(ecosystem, SempgrepRule)
-                    if (r.id == rule["id"])
-                ]:
+                if not next(filter(
+                        lambda r: r.id == rule["id"],
+                        get_sourcecode_rules(ecosystem, SempgrepRule),
+                    ),None):
                     SOURCECODE_RULES.append(
                         SempgrepRule(
                             id=rule["id"],
