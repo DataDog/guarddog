@@ -98,6 +98,7 @@ Source code heuristics:
 | steganography | Identify when a package retrieves hidden data from an image and executes it |
 | code-execution | Identify when an OS command is executed in the setup.py file |
 | cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
+| invisible-ferret |  |
 
 Metadata heuristics:
 
@@ -130,6 +131,7 @@ Source code heuristics:
 | bidirectional-characters | Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/ |
 | npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
+| invisible-ferret |  |
 
 Metadata heuristics:
 
