@@ -76,6 +76,8 @@ for file_name in semgrep_rule_file_names:
                         ecosystem = ECOSYSTEM.PYPI
                     case "javascript" | "typescript" | "json":
                         ecosystem = ECOSYSTEM.NPM
+                    case "go":
+                        ecosystem = ECOSYSTEM.GO
                     case _:
                         continue
 

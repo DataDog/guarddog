@@ -38,4 +38,5 @@ rules:
       - javascript
       - python
       - typescript
+      - go
     severity: WARNING

@@ -6,9 +6,9 @@
   <img src="./docs/images/logo.png" alt="GuardDog" width="300" />
 </p>
 
-GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
+GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages or Go modules. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
 
-GuardDog can be used to scan local or remote PyPI and npm packages using any of the available [heuristics](#heuristics).
+GuardDog can be used to scan local or remote PyPI and npm packages or Go modules using any of the available [heuristics](#heuristics).
 
 ![GuardDog demo usage](docs/images/demo.png)
 
@@ -63,7 +63,7 @@ guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
 # Output JSON to standard output - works for every command
 guarddog pypi scan requests --output-format=json
 
-# All the commands also work on npm
+# All the commands also work on npm or go
 guarddog npm scan express
 
 # Run in debug mode
@@ -146,6 +146,13 @@ Metadata heuristics:
 | deceptive_author | This heuristic detects when an author is using a disposable email |
 
 
+### go
+
+Source code heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
 <!-- END_RULE_LIST -->
 
 ## Custom Rules
