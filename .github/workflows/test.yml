@@ -71,6 +71,8 @@ jobs:
       run: make test-metadata-rules
     - name: Core unit tests
       run: make test-core
+    - name: Reporters unit tests
+      run: make test-reporters
     - name: Report coverage
       run: make coverage-report
 
