@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from guarddog.analyzer.analyzer import Analyzer
-from guarddog.utils.archives import safe_extract
+from guarddog.utils.archives import is_supported_archive, safe_extract
 from guarddog.utils.config import PARALLELISM
 
 log = logging.getLogger("guarddog")
@@ -246,22 +246,16 @@ class PackageScanner(Scanner):
         if rules is not None:
             rules = set(rules)
 
-        if not os.path.exists(path):
-            raise Exception(f"Path {path} does not exist.")
-
-        if any(path.endswith(ext) for ext in (".tar.gz", ".tgz", ".zip", ".whl")):
-            with tempfile.TemporaryDirectory() as tmpdirname:
-                safe_extract(path, tmpdirname)
-                return self.analyzer.analyze_sourcecode(
-                    tmpdirname, rules=rules
-                )
-
         if os.path.isdir(path):
             return self.analyzer.analyze_sourcecode(path, rules=rules)
-
-        raise Exception(
-            f"Path {path} is not a directory nor an archive type supported by GuardDog."
-        )
+        elif (os.path.isfile(path) and is_supported_archive(path)):
+            with tempfile.TemporaryDirectory() as tempdir:
+                safe_extract(path, tempdir)
+                return self.analyzer.analyze_sourcecode(tempdir, rules=rules)
+        else:
+            raise Exception(
+                f"Path {path} is not a directory nor an archive supported by GuardDog."
+            )
 
     @abstractmethod
     def download_and_get_package_info(
