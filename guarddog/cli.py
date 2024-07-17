@@ -105,7 +105,7 @@ def cli(log_level):
     """
     GuardDog cli tool to detect malware in package ecosystems
 
-    Supports PyPI and npm
+    Supports PyPI, npm and Go modules.
 
     Example: guarddog pypi scan semantic-version
 
@@ -175,7 +175,6 @@ def _verify(
 
     results = scanner.scan_local(path, rule_param, display_result)
     if output_format == "json":
-
         return_value = js.dumps(results)
 
     if output_format == "sarif":

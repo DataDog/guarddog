@@ -11,25 +11,28 @@ END_MARKER = "<!-- END_RULE_LIST -->\n"
 def generate_docs() -> str:
     output = ''
     for ecosystem in ECOSYSTEM:
-        output += '### ' + get_friendly_name(ecosystem)
-        output += '\n\n'
-        output += 'Source code heuristics:\n\n'
-        output += '| **Heuristic** | **Description** |\n'
-        output += '|:-------------:|:---------------:|\n'
-        for rule in sourcecode_analyzers.get_sourcecode_rules(ecosystem):
-            description = getattr(rule, "description", "")
-            description = description.replace("\n", "")
-            output += f'| {rule.id} | {description} |\n'
+        source_code_rules = list(sourcecode_analyzers.get_sourcecode_rules(ecosystem))
+        if len(source_code_rules) > 0:
+            output += '### ' + get_friendly_name(ecosystem)
+            output += '\n\n'
+            output += 'Source code heuristics:\n\n'
+            output += '| **Heuristic** | **Description** |\n'
+            output += '|:-------------:|:---------------:|\n'
+            for rule in source_code_rules:
+                description = getattr(rule, "description", "")
+                description = description.replace("\n", "")
+                output += f'| {rule.id} | {description} |\n'
 
-        output += '\nMetadata heuristics:\n\n'
-        output += '| **Heuristic** | **Description** |\n'
-        output += '|:-------------:|:---------------:|\n'
-        rules = metadata_analyzers.get_metadata_detectors(ecosystem)
-        for ruleName in rules:
-            rule = rules[ruleName]
-            output += f"| {rule.get_name()} | {rule.get_description()} |\n"
+        metadata_rules = metadata_analyzers.get_metadata_detectors(ecosystem)
+        if len(metadata_rules) > 0:
+            output += '\nMetadata heuristics:\n\n'
+            output += '| **Heuristic** | **Description** |\n'
+            output += '|:-------------:|:---------------:|\n'
+            for ruleName in metadata_rules:
+                rule = metadata_rules[ruleName]
+                output += f"| {rule.get_name()} | {rule.get_description()} |\n"
 
-        output += "\n\n"
+            output += "\n\n"
     return output
 
 
@@ -61,6 +64,3 @@ if __name__ == "__main__":
         file = sys.argv[1]
         print(f'Generating docs and injecting into {file}')
         inject_docs(file, generate_docs())
-
-
-
