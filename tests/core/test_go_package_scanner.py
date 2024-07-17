@@ -34,7 +34,11 @@ def test_download_and_get_package_info_without_version():
 
 
 @pytest.mark.parametrize(
-    "module", ["go.uber.org/zap", "github.com/AlecAivazis/survey/v2"]
+    "module,expected",
+    [
+        ("go.uber.org/zap", "go.uber.org/zap"),
+        ("github.com/AlecAivazis/survey/v2", "github.com/!alec!aivazis/survey/v2"),
+    ],
 )
-def test_escape_module_name(module):
-    assert escape_module_name(module).islower()
+def test_escape_module_name(module, expected):
+    assert escape_module_name(module) == expected
