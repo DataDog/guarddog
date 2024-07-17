@@ -153,13 +153,6 @@ Source code heuristics:
 | **Heuristic** | **Description** |
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
-
-Metadata heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-
-
 <!-- END_RULE_LIST -->
 
 ## Custom Rules
