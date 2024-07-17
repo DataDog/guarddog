@@ -16,12 +16,10 @@ def generate_docs() -> str:
         output += 'Source code heuristics:\n\n'
         output += '| **Heuristic** | **Description** |\n'
         output += '|:-------------:|:---------------:|\n'
-        for rule in sourcecode_analyzers.SOURCECODE_RULES[ecosystem]:
-            description = rule.get("metadata", {}).get("description")
-            if description is None:
-                description = rule.get('message')
+        for rule in sourcecode_analyzers.get_sourcecode_rules(ecosystem):
+            description = getattr(rule, "description", "")
             description = description.replace("\n", "")
-            output += f'| {rule["id"]} | {description} |\n'
+            output += f'| {rule.id} | {description} |\n'
 
         output += '\nMetadata heuristics:\n\n'
         output += '| **Heuristic** | **Description** |\n'
