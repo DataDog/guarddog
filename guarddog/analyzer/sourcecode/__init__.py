@@ -51,9 +51,9 @@ def get_sourcecode_rules(
         kind: The kind of rule to filter for
     """
     for rule in SOURCECODE_RULES:
-        if not (getattr(rule, "ecosystem", ecosystem) == ecosystem):
-            continue
         if kind and not isinstance(rule, kind):
+            continue
+        if not (getattr(rule, "ecosystem", ecosystem) == ecosystem):
             continue
         yield rule
 

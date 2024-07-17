@@ -41,10 +41,10 @@ class Analyzer:
 
         self.metadata_ruleset: set[str] = set(self.metadata_detectors.keys())
         self.semgrep_ruleset: set[str] = set(
-            [r.id for r in get_sourcecode_rules(ecosystem, SempgrepRule)]
+            r.id for r in get_sourcecode_rules(ecosystem, SempgrepRule)
         )
         self.yara_ruleset: set[str] = set(
-            [r.id for r in get_sourcecode_rules(ecosystem, YaraRule)]
+            r.id for r in get_sourcecode_rules(ecosystem, YaraRule)
         )
 
         # Define paths to exclude from sourcecode analysis
