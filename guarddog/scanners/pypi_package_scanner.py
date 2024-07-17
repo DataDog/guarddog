@@ -4,7 +4,7 @@ import typing
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
-from guarddog.utils.archives import is_tar_archive, is_zip_archive
+from guarddog.utils.archives import is_supported_archive
 from guarddog.utils.package_info import get_package_info
 
 
@@ -43,25 +43,20 @@ class PypiPackageScanner(PackageScanner):
             raise Exception(f"Version {version} for package {package_name} doesn't exist.")
 
         files = releases[version]
-        url = None
-        file_extension = None
+        url, file_extension = None, None
 
         for file in files:
-            # Store url to compressed package and appropriate file extension
-            if is_tar_archive(file["filename"]):
+            if is_supported_archive(file["filename"]):
                 url = file["url"]
-                file_extension = ".tar.gz"
+                _, file_extension = os.path.splitext(file["filename"])
+                break
 
-            if is_zip_archive(file["filename"]):
-                url = file["url"]
-                file_extension = ".zip"
-
-        if not (url or file_extension):
+        if not (url and file_extension):
             raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
 
         # Path to compressed package
         zippath = os.path.join(directory, package_name + file_extension)
-        unzippedpath = zippath.removesuffix(file_extension)
-
+        unzippedpath = os.path.join(directory, package_name)
         self.download_compressed(url, zippath, unzippedpath)
+
         return unzippedpath

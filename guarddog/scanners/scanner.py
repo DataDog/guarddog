@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from guarddog.analyzer.analyzer import Analyzer
-from guarddog.utils.archives import is_supported_archive, safe_extract
+from guarddog.utils.archives import safe_extract
 from guarddog.utils.config import PARALLELISM
 
 log = logging.getLogger("guarddog")
@@ -248,14 +248,12 @@ class PackageScanner(Scanner):
         results = None
         if os.path.isdir(path):
             results = self.analyzer.analyze_sourcecode(path, rules=rules)
-        elif (os.path.isfile(path) and is_supported_archive(path)):
+        elif os.path.isfile(path):
             with tempfile.TemporaryDirectory() as tempdir:
                 safe_extract(path, tempdir)
                 results = self.analyzer.analyze_sourcecode(tempdir, rules=rules)
         else:
-            raise Exception(
-                f"Path {path} is not a directory nor an archive supported by GuardDog."
-            )
+            raise Exception(f"Local scan target {path} is neither a directory nor a file.")
 
         callback(results)
 
