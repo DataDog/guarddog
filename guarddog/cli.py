@@ -191,17 +191,6 @@ def _verify(
     return return_value  # this is mostly for testing
 
 
-def is_local_target(identifier: str) -> bool:
-    """
-    @param identifier:  The name/path of the package as passed to "guarddog ecosystem scan"
-    @return:            Whether the identifier should be considered a local path
-    """
-    return (
-        os.path.isdir(identifier)
-        or (os.path.isfile(identifier) and is_supported_archive(identifier))
-    )
-
-
 def _scan(
     identifier,
     version,
@@ -226,20 +215,17 @@ def _scan(
         sys.exit(1)
 
     results = []
-    if is_local_target(identifier):
-        log.debug(
-            f"Considering that '{identifier}' is a local target, scanning filesystem"
-        )
-        if os.path.isdir(identifier):
-            log.debug(f"Considering that '{identifier}' as a local directory")
-            for package in os.listdir(identifier):
-                result = scanner.scan_local(f"{identifier}/{package}", rule_param)
-                result["package"] = package
-                results.append(result)
-        else:
-            result = scanner.scan_local(identifier, rule_param)
-            result["package"] = identifier
+    if os.path.isdir(identifier):
+        log.debug(f"Considering that '{identifier}' is a local directory")
+        for package in os.listdir(identifier):
+            result = scanner.scan_local(f"{identifier}/{package}", rule_param)
+            result["package"] = package
             results.append(result)
+    elif os.path.isfile(identifier):
+        log.debug(f"Considering that '{identifier}' is a local file")
+        result = scanner.scan_local(identifier, rule_param)
+        result["package"] = identifier
+        results.append(result)
     else:
         log.debug(f"Considering that '{identifier}' is a remote target")
         try:
