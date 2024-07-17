@@ -21,7 +21,6 @@ from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
-from guarddog.utils.archives import is_supported_archive
 
 EXIT_CODE_ISSUES_FOUND = 1
 
