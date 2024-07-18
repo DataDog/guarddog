@@ -31,6 +31,19 @@ rules:
           - metavariable-regex:
               metavariable: $ENVVAR
               regex: ([\"\'](AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)[\"\'])
+      - patterns:
+          - pattern-inside: |
+              $CONNECT = sqlite3.connect(...)
+              ...
+              $CURSOR = $CONNECT.cursor(...)
+              ...
+              $CURSOR.close(...)
+          - pattern: $CURSOR.execute($QUERY, ...)
+          - metavariable-pattern:
+              metavariable: $QUERY
+              patterns:
+                - pattern: "..."
+                - pattern-regex: (?i)select\s+[card_number_encrypted|encrypted_value|isHttpOnly|name|origin_url|password_value|username].*\s+from\s+[cookies|credit_cards|logins|moz_cookies|moz_formhistory|moz_logins]
     pattern-sinks:
       - pattern-either:
           - pattern-inside: requests.$METHOD(...)
@@ -42,6 +55,7 @@ rules:
               - pattern-inside: $S = socket.socket(...); ...
               - pattern-inside: $S.connect(...); ...
               - pattern-inside: $S.send(...)
+          - pattern-inside: $F.write(...)
     languages:
       - python
     severity: WARNING
