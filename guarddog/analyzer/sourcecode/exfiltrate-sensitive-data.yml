@@ -42,7 +42,7 @@ rules:
               metavariable: $QUERY
               patterns:
                 - pattern: "..."
-                - pattern-regex: (?i)select\s+\S+.*\s+from\s+(cookies|credit_cards|logins|moz_cookies|moz_formhistory|moz_logins)
+                - pattern-regex: (?i)(cookies|credit_cards|logins|moz_cookies|moz_formhistory|moz_logins)
     pattern-sinks:
       - pattern-either:
           - pattern-inside: requests.$METHOD(...)
