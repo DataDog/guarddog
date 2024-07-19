@@ -6,22 +6,45 @@ from .pypi_package_scanner import PypiPackageScanner
 from .pypi_project_scanner import PypiRequirementsScanner
 from .go_package_scanner import GoModuleScanner
 from .go_project_scanner import GoDependenciesScanner
-from .scanner import Scanner
+from .scanner import PackageScanner, ProjectScanner
 from ..ecosystems import ECOSYSTEM
 
 
-def get_scanner(ecosystem: ECOSYSTEM, project: bool) -> Optional[Scanner]:
-    match (ecosystem, project):
-        case (ECOSYSTEM.PYPI, False):
+def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
+    """
+    TODO
+
+    Args:
+        ecosystem (ECOSYSTEM): TODO
+
+    Returns:
+        Optional[PackageScanner]: TODO
+    """
+    match ecosystem:
+        case ECOSYSTEM.PYPI:
             return PypiPackageScanner()
-        case (ECOSYSTEM.PYPI, True):
-            return PypiRequirementsScanner()
-        case (ECOSYSTEM.NPM, False):
+        case ECOSYSTEM.NPM:
             return NPMPackageScanner()
-        case (ECOSYSTEM.NPM, True):
-            return NPMRequirementsScanner()
-        case (ECOSYSTEM.GO, False):
+        case ECOSYSTEM.GO:
             return GoModuleScanner()
-        case (ECOSYSTEM.GO, True):
+    return None
+
+
+def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
+    """
+    TODO
+
+    Args:
+        ecosystem (ECOSYSTEM): TODO
+
+    Returns:
+        Optional[ProjectScanner]: TODO
+    """
+    match ecosystem:
+        case ECOSYSTEM.PYPI:
+            return PypiRequirementsScanner()
+        case ECOSYSTEM.NPM:
+            return NPMRequirementsScanner()
+        case ECOSYSTEM.GO:
             return GoDependenciesScanner()
     return None
