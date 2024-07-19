@@ -12,13 +12,15 @@ from ..ecosystems import ECOSYSTEM
 
 def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
     """
-    TODO
+    Return a `PackageScanner` for the given ecosystem or `None` if it
+    is not yet supported.
 
     Args:
-        ecosystem (ECOSYSTEM): TODO
+        ecosystem (ECOSYSTEM): The ecosystem of the desired scanner
 
     Returns:
-        Optional[PackageScanner]: TODO
+        Optional[PackageScanner]: The result of the scanner request
+
     """
     match ecosystem:
         case ECOSYSTEM.PYPI:
@@ -32,13 +34,15 @@ def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
 
 def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
     """
-    TODO
+    Return a `ProjectScanner` for the given ecosystem or `None` if
+    it is not yet supported.
 
     Args:
-        ecosystem (ECOSYSTEM): TODO
+        ecosystem (ECOSYSTEM): The ecosystem of the desired scanner
 
     Returns:
-        Optional[ProjectScanner]: TODO
+        Optional[ProjectScanner]: The result of the scanner request
+
     """
     match ecosystem:
         case ECOSYSTEM.PYPI:
