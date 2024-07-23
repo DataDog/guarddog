@@ -213,40 +213,28 @@ def _scan(
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         sys.exit(1)
 
-    results = []
+    result = {"package": identifier}
     if os.path.isdir(identifier):
         log.debug(f"Considering that '{identifier}' is a local directory")
-        result = scanner.scan_local(identifier, rule_param)
-        result["package"] = identifier
-        results.append(result)
+        result |= scanner.scan_local(identifier, rule_param)
     elif os.path.isfile(identifier):
         log.debug(f"Considering that '{identifier}' is a local file")
-        result = scanner.scan_local(identifier, rule_param)
-        result["package"] = identifier
-        results.append(result)
+        result |= scanner.scan_local(identifier, rule_param)
     else:
         log.debug(f"Considering that '{identifier}' is a remote target")
         try:
-            result = scanner.scan_remote(identifier, version, rule_param)
-            result["package"] = identifier
-            results.append(result)
+            result |= scanner.scan_remote(identifier, version, rule_param)
         except Exception as e:
             sys.stderr.write(f"\nError '{e}' occurred while scanning remote package.")
             sys.exit(1)
 
     if output_format == "json":
-        if len(results) == 1:
-            # return only a json like {}
-            print(js.dumps(results[0]))
-        else:
-            # Return a list of result like [{},{}]
-            print(js.dumps(results))
+        print(js.dumps(result))
     else:
-        for result in results:
-            print_scan_results(result, result["package"])
+        print_scan_results(result, result["package"])
 
     if exit_non_zero_on_finding:
-        exit_with_status_code(results)
+        exit_with_status_code([result])
 
 
 def _list_rules(ecosystem: ECOSYSTEM):
