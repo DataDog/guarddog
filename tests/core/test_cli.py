@@ -107,9 +107,8 @@ class TestCli(unittest.TestCase):
                             try:
                                 with self.assertLogs("guarddog", level="DEBUG") as cm:
                                     guarddog.cli._scan(filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
-                            # Since is_tar_archive and is_zip_archive
-                            # have been patched accordingly, we always
-                            # end up here
+                            # Since is_tar_archive and is_zip_archive have been
+                            # patched accordingly, we always end up here
                             except ValueError:
                                 self.assertNotIn(
                                     f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
