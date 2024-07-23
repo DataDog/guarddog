@@ -9,6 +9,7 @@ import json as js
 import logging
 import os
 import sys
+import tempfile
 from typing import Optional, cast
 
 import click
@@ -21,6 +22,7 @@ from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
+from guarddog.utils.archives import safe_extract
 
 EXIT_CODE_ISSUES_FOUND = 1
 
@@ -218,8 +220,10 @@ def _scan(
         log.debug(f"Considering that '{identifier}' is a local directory")
         result |= scanner.scan_local(identifier, rule_param)
     elif os.path.isfile(identifier):
-        log.debug(f"Considering that '{identifier}' is a local file")
-        result |= scanner.scan_local(identifier, rule_param)
+        log.debug(f"Considering that '{identifier}' is a local archive file")
+        with tempfile.TemporaryDirectory() as tempdir:
+            safe_extract(identifier, tempdir)
+            result |= scanner.scan_local(tempdir, rule_param)
     else:
         log.debug(f"Considering that '{identifier}' is a remote target")
         try:
