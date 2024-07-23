@@ -216,10 +216,9 @@ def _scan(
     results = []
     if os.path.isdir(identifier):
         log.debug(f"Considering that '{identifier}' is a local directory")
-        for package in os.listdir(identifier):
-            result = scanner.scan_local(f"{identifier}/{package}", rule_param)
-            result["package"] = package
-            results.append(result)
+        result = scanner.scan_local(identifier, rule_param)
+        result["package"] = identifier
+        results.append(result)
     elif os.path.isfile(identifier):
         log.debug(f"Considering that '{identifier}' is a local file")
         result = scanner.scan_local(identifier, rule_param)
