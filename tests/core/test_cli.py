@@ -109,7 +109,7 @@ class TestCli(unittest.TestCase):
                                     guarddog.cli._scan(filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
                             # Since is_tar_archive and is_zip_archive have been
                             # patched accordingly, we always end up here
-                            except ValueError:
+                            except SystemExit:
                                 self.assertNotIn(
                                     f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
                                     cm.output

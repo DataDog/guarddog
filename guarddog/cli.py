@@ -216,21 +216,21 @@ def _scan(
         sys.exit(1)
 
     result = {"package": identifier}
-    if os.path.isdir(identifier):
-        log.debug(f"Considering that '{identifier}' is a local directory")
-        result |= scanner.scan_local(identifier, rule_param)
-    elif os.path.isfile(identifier):
-        log.debug(f"Considering that '{identifier}' is a local archive file")
-        with tempfile.TemporaryDirectory() as tempdir:
-            safe_extract(identifier, tempdir)
-            result |= scanner.scan_local(tempdir, rule_param)
-    else:
-        log.debug(f"Considering that '{identifier}' is a remote target")
-        try:
+    try:
+        if os.path.isdir(identifier):
+            log.debug(f"Considering that '{identifier}' is a local directory")
+            result |= scanner.scan_local(identifier, rule_param)
+        elif os.path.isfile(identifier):
+            log.debug(f"Considering that '{identifier}' is a local archive file")
+            with tempfile.TemporaryDirectory() as tempdir:
+                safe_extract(identifier, tempdir)
+                result |= scanner.scan_local(tempdir, rule_param)
+        else:
+            log.debug(f"Considering that '{identifier}' is a remote target")
             result |= scanner.scan_remote(identifier, version, rule_param)
-        except Exception as e:
-            sys.stderr.write(f"\nError '{e}' occurred while scanning remote package.")
-            sys.exit(1)
+    except Exception as e:
+        sys.stderr.write(f"Error occurred while scanning target {identifier}: '{e}'\n")
+        sys.exit(1)
 
     if output_format == "json":
         print(js.dumps(result))
