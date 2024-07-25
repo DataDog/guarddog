@@ -44,15 +44,11 @@ guarddog pypi scan requests --rules exec-base64 --rules code-execution
 # Scan the 'requests' package using all rules but one
 guarddog pypi scan requests --exclude-rules exec-base64
 
-# Scan a local package
+# Scan a local package archive
 guarddog pypi scan /tmp/triage.tar.gz
 
-# Scan a local directory, the packages need to be located in the root directory
-# For instance you have several pypi packages in ./samples/ like:
-# ./samples/package1.tar.gz ./samples/package2.zip ./samples/package3.whl
-# FYI if a file not supported by guarddog is found you will get an error
-# Here is the command to scan a directory:
-guarddog pypi scan ./samples/
+# Scan a local package directory
+guarddog pypi scan /tmp/requests-2.28.1/
 
 # Scan every package referenced in a requirements.txt file of a local folder
 guarddog pypi verify workspace/guarddog/requirements.txt
