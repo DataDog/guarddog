@@ -48,7 +48,7 @@ guarddog pypi scan requests --exclude-rules exec-base64
 guarddog pypi scan /tmp/triage.tar.gz
 
 # Scan a local package directory
-guarddog pypi scan /tmp/requests-2.28.1/
+guarddog pypi scan /tmp/triage/
 
 # Scan every package referenced in a requirements.txt file of a local folder
 guarddog pypi verify workspace/guarddog/requirements.txt
