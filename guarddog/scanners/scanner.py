@@ -231,7 +231,7 @@ class PackageScanner(Scanner):
         Scans local package
 
         Args:
-            path (str): path to package
+            path (str): Path to the directory containing the package to analyze
             rules (set, optional): Set of rule names to use. Defaults to all rules.
             callback (typing.Callable[[dict], None], optional): Callback to apply to Analyzer output
 
@@ -245,16 +245,7 @@ class PackageScanner(Scanner):
         if rules is not None:
             rules = set(rules)
 
-        results = None
-        if os.path.isdir(path):
-            results = self.analyzer.analyze_sourcecode(path, rules=rules)
-        elif os.path.isfile(path):
-            with tempfile.TemporaryDirectory() as tempdir:
-                safe_extract(path, tempdir)
-                results = self.analyzer.analyze_sourcecode(tempdir, rules=rules)
-        else:
-            raise Exception(f"Local scan target {path} is neither a directory nor a file.")
-
+        results = self.analyzer.analyze_sourcecode(path, rules=rules)
         callback(results)
 
         return results
