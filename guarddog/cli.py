@@ -9,6 +9,7 @@ import json as js
 import logging
 import os
 import sys
+import tempfile
 from typing import Optional, cast
 
 import click
@@ -21,6 +22,7 @@ from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
 from guarddog.scanners import get_scanner
 from guarddog.scanners.scanner import PackageScanner
+from guarddog.utils.archives import safe_extract
 
 EXIT_CODE_ISSUES_FOUND = 1
 
@@ -213,41 +215,30 @@ def _scan(
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         sys.exit(1)
 
-    results = []
-    if os.path.isdir(identifier):
-        log.debug(f"Considering that '{identifier}' is a local directory")
-        for package in os.listdir(identifier):
-            result = scanner.scan_local(f"{identifier}/{package}", rule_param)
-            result["package"] = package
-            results.append(result)
-    elif os.path.isfile(identifier):
-        log.debug(f"Considering that '{identifier}' is a local file")
-        result = scanner.scan_local(identifier, rule_param)
-        result["package"] = identifier
-        results.append(result)
-    else:
-        log.debug(f"Considering that '{identifier}' is a remote target")
-        try:
-            result = scanner.scan_remote(identifier, version, rule_param)
-            result["package"] = identifier
-            results.append(result)
-        except Exception as e:
-            sys.stderr.write(f"\nError '{e}' occurred while scanning remote package.")
-            sys.exit(1)
+    result = {"package": identifier}
+    try:
+        if os.path.isdir(identifier):
+            log.debug(f"Considering that '{identifier}' is a local directory")
+            result |= scanner.scan_local(identifier, rule_param)
+        elif os.path.isfile(identifier):
+            log.debug(f"Considering that '{identifier}' is a local archive file")
+            with tempfile.TemporaryDirectory() as tempdir:
+                safe_extract(identifier, tempdir)
+                result |= scanner.scan_local(tempdir, rule_param)
+        else:
+            log.debug(f"Considering that '{identifier}' is a remote target")
+            result |= scanner.scan_remote(identifier, version, rule_param)
+    except Exception as e:
+        sys.stderr.write(f"Error occurred while scanning target {identifier}: '{e}'\n")
+        sys.exit(1)
 
     if output_format == "json":
-        if len(results) == 1:
-            # return only a json like {}
-            print(js.dumps(results[0]))
-        else:
-            # Return a list of result like [{},{}]
-            print(js.dumps(results))
+        print(js.dumps(result))
     else:
-        for result in results:
-            print_scan_results(result, result["package"])
+        print_scan_results(result, result["package"])
 
     if exit_non_zero_on_finding:
-        exit_with_status_code(results)
+        exit_with_status_code([result])
 
 
 def _list_rules(ecosystem: ECOSYSTEM):
