@@ -21,18 +21,7 @@ def noop(arg: typing.Any) -> None:
     pass
 
 
-class Scanner:
-    def __init__(self) -> None:
-        pass
-
-    @abstractmethod
-    def scan_local(
-        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
-    ):
-        pass
-
-
-class ProjectScanner(Scanner):
+class ProjectScanner:
     def __init__(self, package_scanner):
         super().__init__()
         self.package_scanner = package_scanner
@@ -212,7 +201,7 @@ class ProjectScanner(Scanner):
         pass
 
 
-class PackageScanner(Scanner):
+class PackageScanner:
     """
     Scans package for attack vectors based on source code and metadata rules
 

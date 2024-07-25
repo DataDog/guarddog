@@ -10,7 +10,7 @@ import logging
 import os
 import sys
 import tempfile
-from typing import Optional, cast
+from typing import Optional
 
 import click
 from prettytable import PrettyTable
@@ -20,8 +20,7 @@ from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import get_sourcecode_rules
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.sarif import report_verify_sarif
-from guarddog.scanners import get_scanner
-from guarddog.scanners.scanner import PackageScanner
+from guarddog.scanners import get_package_scanner, get_project_scanner
 from guarddog.utils.archives import safe_extract
 
 EXIT_CODE_ISSUES_FOUND = 1
@@ -158,7 +157,7 @@ def _verify(
     """
     return_value = None
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
-    scanner = get_scanner(ecosystem, True)
+    scanner = get_project_scanner(ecosystem)
     if scanner is None:
         sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
         exit(1)
@@ -210,7 +209,7 @@ def _scan(
     """
 
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
-    scanner = cast(Optional[PackageScanner], get_scanner(ecosystem, False))
+    scanner = get_package_scanner(ecosystem)
     if scanner is None:
         sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
         sys.exit(1)
