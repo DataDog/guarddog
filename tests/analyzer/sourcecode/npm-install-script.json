@@ -5,8 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    // ruleid: npm-install-script
-    "postinstall": "echo Running malicious code"
+    "dummy_child1": {
+       // ruleid: npm-install-script
+      "postinstall": "echo Running malicious code",
+    },
+    "dummy_child2": {
+       // ok: npm-install-script
+      "postinstall": "npx only-allow pnpm",
+    },
+    "dummy_child3": {
+       // ok: npm-install-script
+      "preinstall": "husky",
+    },
   },
   "author": "",
   "license": "ISC"
