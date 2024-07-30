@@ -1,7 +1,7 @@
 import logging
 import os
 import zipfile
-
+import stat
 import tarsafe  # type:ignore
 
 log = logging.getLogger("guarddog")
@@ -62,7 +62,26 @@ def safe_extract(source_archive: str, target_directory: str) -> None:
     """
     log.debug(f"Extracting archive {source_archive} to directory {target_directory}")
     if is_tar_archive(source_archive):
+
+        def add_exec(path):
+            st = os.stat(path)
+            os.chmod(path, st.st_mode | stat.S_IEXEC)
+
+        def add_read(path):
+            st = os.stat(path)
+            os.chmod(path, st.st_mode | stat.S_IREAD)
+
+        def recurse_add_perms(path):
+            add_exec(path)
+            for root, dirs, files in os.walk(path):
+                for d in dirs:
+                    add_exec(os.path.join(root, d))
+                for f in files:
+                    add_read(os.path.join(root, f))
+
         tarsafe.open(source_archive).extractall(target_directory)
+        recurse_add_perms(target_directory)
+
     elif is_zip_archive(source_archive):
         with zipfile.ZipFile(source_archive, 'r') as zip:
             for file in zip.namelist():
