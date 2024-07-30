@@ -21,7 +21,9 @@ def is_supported_archive(path: str) -> bool:
 
     """
     def is_tar_archive(path: str) -> bool:
-        return any(path.endswith(ext) for ext in [".tar.gz", ".tgz"])
+        tar_exts = [".bz2", ".bzip2", ".gz", ".gzip", ".tgz", ".xz"]
+
+        return any(path.endswith(ext) for ext in tar_exts)
 
     def is_zip_archive(path: str) -> bool:
         return any(path.endswith(ext) for ext in [".zip", ".whl", ".egg"])
