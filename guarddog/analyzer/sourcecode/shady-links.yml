@@ -24,7 +24,7 @@ rules:
         - pattern: ("...")
         - pattern-either:
             # complete domains
-            - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(bit\.ly|discord\.com|workers\.dev|transfer\.sh|filetransfer\.io|sendspace\.com|appdomain\.cloud|backblazeb2\.com\|paste\.ee|ngrok\.io|termbin\.com|localhost\.run)\/)
+            - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(bit\.ly|discord\.com|workers\.dev|transfer\.sh|filetransfer\.io|sendspace\.com|appdomain\.cloud|backblazeb2\.com\|paste\.ee|ngrok\.io|termbin\.com|localhost\.run|webhook\.site|oastify\.com|burpcollaborator\.me)\/)
             # top-level domains
             - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
             # IPv4
