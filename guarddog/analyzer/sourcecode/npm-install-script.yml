@@ -10,6 +10,17 @@ rules:
       # (typically when a dependency is a git repository, see https://github.com/npm/cli/issues/6031#issuecomment-1449119423)
       # however this happens pretty rarely so reporting every package with a "prepare" script would be too noisy;
       # see https://github.com/DataDog/guarddog/issues/308
+      - pattern-not: |
+            "...": "npx only-allow pnpm"
+      - pattern-not: |
+          "...": ""
+      - pattern-not: |
+          "...": "patch-package"
+      - pattern-not: |
+          "...": "husky"
+      - pattern-not: |
+          "preinstall": "echo \"preinstall script\""
+
       - pattern-either:
           - pattern: |
               "preinstall": "..."
