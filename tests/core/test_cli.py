@@ -1,5 +1,8 @@
 import unittest
 import unittest.mock as mock
+import zipfile
+
+import tarsafe
 
 import guarddog.cli
 from guarddog.ecosystems import ECOSYSTEM
@@ -99,10 +102,10 @@ class TestCli(unittest.TestCase):
                 isfile.return_value = True
                 # The next two patches are to make sure we don't try
                 # to extract the test filename
-                with mock.patch("guarddog.utils.archives.is_tar_archive") as istar:
-                    istar.return_value = False
-                    with mock.patch("guarddog.utils.archives.is_zip_archive") as iszip:
-                        iszip.return_value = False
+                with mock.patch("tarsafe.is_tarfile") as is_tar:
+                    is_tar.return_value = False
+                    with mock.patch("zipfile.is_zipfile") as is_zip:
+                        is_zip.return_value = False
                         with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
                             try:
                                 with self.assertLogs("guarddog", level="DEBUG") as cm:
