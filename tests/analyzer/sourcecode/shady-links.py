@@ -165,3 +165,7 @@ def f():
                 insecure=kube_config.verify_ssl is False,
             )
 
+  def f():
+    # ruleid: shady-links
+    trackingServiceUrl = 'https://b.alt-h7-eoj8gqk1.workers.dev/track'
+
