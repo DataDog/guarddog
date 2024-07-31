@@ -149,3 +149,19 @@ def f():
       data=json.dumps(data).encode("utf-8", errors="ignore"),
       headers=headers,
   )
+
+  def f():
+    auth_config = KubernetesUserPasswordConfig(
+                username=kube_config.username,
+                password=kube_config.password,
+                server=kube_config.host,
+                certificate_authority=base64.urlsafe_b64encode(
+                    open(kube_config.ssl_ca_cert, "rb").read()
+                ).decode("utf-8")
+                if kube_config.ssl_ca_cert
+                else None,
+                # ok: shady-links
+                cluster_name=kube_config.host.strip("https://").split(":")[0],
+                insecure=kube_config.verify_ssl is False,
+            )
+
