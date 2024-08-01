@@ -44,7 +44,7 @@ class NPMTyposquatDetector(TyposquatDetector):
 
         if top_packages_information is None:
             response = requests.get(popular_packages_url).json()
-            top_packages_information = list([i["name"] for i in response[0:5000]])
+            top_packages_information = list([i["name"] for i in response[0:8000]])
             with open(top_packages_path, "w+") as f:
                 json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
 
