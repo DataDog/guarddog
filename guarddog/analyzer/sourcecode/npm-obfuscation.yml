@@ -49,6 +49,10 @@ rules:
           - pattern-not-inside: /*...*/
           - pattern-not-inside: //...
           - pattern-regex: ^\s*[\[\]\(\)\+\!]{10,}\s*$
+
+          # hide code from sight
+        - pattern-regex: ^(.*?);?[\h]{150,};?.{10,}$
+
     languages:
       - javascript
     severity: WARNING
