@@ -11,6 +11,21 @@ rules:
           - pattern: 'eval("\x65\x76\x61\x6c")'
           # this naming is used by some obfuscators such as BlankOBF
           - pattern: '_____=eval(...)'
+
+          # accessing the builtins
+          - pattern: $OBJ.getattr(__builtins__, ...)
+          - pattern: getattr(builtins, ...)
+
+          # hide code from sight
+          - pattern-regex: ^(.*?);?[\h]{150,};?.{10,}$
+
+          # using decode hardcoded content
+          - patterns: 
+              - pattern: $HEX.decode(...)
+              - metavariable-regex:
+                  metavariable: $HEX
+                  regex: b['"](\\[xX]\S{1,5}){4,}['"]
     languages:
       - python
     severity: WARNING
+
