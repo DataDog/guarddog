@@ -185,3 +185,8 @@ button component option
  disabled
 */
 }
+
+function f(){
+    // ruleid: npm-obfuscation
+    var i=0                                                                                                                                                                                                                                                                                                                             ;print("malicious code here");
+}
