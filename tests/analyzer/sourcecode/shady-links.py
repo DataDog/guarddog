@@ -169,3 +169,7 @@ def f():
     # ruleid: shady-links
     trackingServiceUrl = 'https://b.alt-h7-eoj8gqk1.workers.dev/track'
 
+def f():
+    # ok: shady-links
+    trackingServiceUrl = 'https//discord.com/invite/u9zUjWbbQ'
+
