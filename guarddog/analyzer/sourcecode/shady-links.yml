@@ -15,22 +15,26 @@ rules:
       - pattern-not-regex: ^\s*"""(.|\n)*?"""\s*$
 
       # Exclude local IPv4 sometimes used in tests
-      - pattern-not-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(?:192\.168|10\.\d{1,3}|172\.(?:1[6-9]|2\d|3[0-1])|127\.\d{1,3})\.\d{1,3}\.\d{1,3}|0\.0\.0\.0|localhost)
+      - pattern-not-regex: (https?:\/\/[^\n\[\/\?#"']*?(?:192\.168|10\.\d{1,3}|172\.(?:1[6-9]|2\d|3[0-1])|127\.\d{1,3})\.\d{1,3}\.\d{1,3}|0\.0\.0\.0|localhost)
 
       # Exclude public IPv4 sometimes used in tests
-      - pattern-not-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(?:1\.1\.1\.1|8\.8\.8\.8))
+      - pattern-not-regex: (https?:\/\/[^\n\[\/\?#"']*?(?:1\.1\.1\.1|8\.8\.8\.8))
+
+      # ignore discord allowed 
+      - pattern-not-regex: https?:\/\/discord.com\/(invite|oauth2\/authorize)
 
       - patterns:
         - pattern: ("...")
         - pattern-either:
             # complete domains
-            - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(bit\.ly|discord\.com|workers\.dev|transfer\.sh|filetransfer\.io|sendspace\.com|appdomain\.cloud|backblazeb2\.com\|paste\.ee|ngrok\.io|termbin\.com|localhost\.run|webhook\.site|oastify\.com|burpcollaborator\.me)\/)
+            - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?(bit\.ly|discord\.com|workers\.dev|transfer\.sh|filetransfer\.io|sendspace\.com|appdomain\.cloud|backblazeb2\.com\|paste\.ee|ngrok\.io|termbin\.com|localhost\.run|webhook\.site|oastify\.com|burpcollaborator\.me)\/)
+            - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(oast\.(pro|live|site|online|fun|me)|api\.telegram\.org|rentry\.co)\/)
             # top-level domains
-            - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
+            - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
             # IPv4
-            - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))
+            - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))
             # IPv6
-            - pattern-regex: (http[s]?:\/\/[^\n\[\/\?#"']*?(?:\[(([A-Fa-f0-9]{1,4}:){0,7}|:):?[A-Fa-f0-9]{1,4}(:[A-Fa-f0-9]{1,4}){0,7})\])
+            - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?(?:\[(([A-Fa-f0-9]{1,4}:){0,7}|:):?[A-Fa-f0-9]{1,4}(:[A-Fa-f0-9]{1,4}){0,7})\])
     paths:
       exclude:
         - "*/test/*"
