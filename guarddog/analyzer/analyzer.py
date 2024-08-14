@@ -12,6 +12,7 @@ from guarddog.analyzer.sourcecode import get_sourcecode_rules, SempgrepRule, Yar
 from guarddog.ecosystems import ECOSYSTEM
 
 SEMGREP_MAX_TARGET_BYTES = 10_000_000
+SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 
 log = logging.getLogger("guarddog")
 
@@ -21,7 +22,6 @@ class Analyzer:
     Analyzes a local directory for threats found by source code or metadata rules
 
     Attributes:
-        sourcecode_rules_path (str): path to source code rules
         ecosystem (str): name of the current ecosystem
         metadata_ruleset (list): list of metadata rule names
         sourcecode_ruleset (list): list of source code rule names
@@ -33,7 +33,6 @@ class Analyzer:
     """
 
     def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
-        self.sourcecode_rules_path = os.path.join(os.path.dirname(__file__), "sourcecode")
         self.ecosystem = ecosystem
 
         # Rules and associated detectors
@@ -173,12 +172,12 @@ class Analyzer:
             # filtering the full ruleset witht the user's input
             all_rules = self.yara_ruleset & rules
 
-        results = {rule: {} for rule in all_rules}  # type: dict
+        results = {rule: [] for rule in all_rules}  # type: dict
         errors: Dict[str, str] = {}
         issues = 0
 
         rules_path = {
-            rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yar")
+            rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
             for rule_name in all_rules
         }
 
@@ -200,8 +199,10 @@ class Analyzer:
                                     "code": self.trim_code_snippet(str(i.matched_data)),
                                     'message': m.meta.get("description", f"{m.rule} rule matched")
                                 }
+                                if m.rule not in results.keys():
+                                    continue
                                 issues += len(m.strings)
-                                results[m.rule].update(rule_results)
+                                results[m.rule].append(rule_results)
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
@@ -231,7 +232,7 @@ class Analyzer:
         issues = 0
 
         rules_path = list(map(
-            lambda rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yml"),
+            lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"),
             all_rules
         ))
 
