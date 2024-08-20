@@ -3,12 +3,14 @@ import logging
 import os
 import subprocess
 import yara  # type: ignore
+
 from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, Optional, Dict
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import get_sourcecode_rules, SempgrepRule, YaraRule
+from guarddog.utils.config import YARA_EXT_EXCLUDE
 from guarddog.ecosystems import ECOSYSTEM
 
 SEMGREP_MAX_TARGET_BYTES = 10_000_000
@@ -190,12 +192,19 @@ class Analyzer:
 
             for root, _, files in os.walk(path):
                 for f in files:
-                    matches = scan_rules.match(os.path.join(root, f))
+                    # Skip files with excluded extensions
+                    if f.endswith(tuple(YARA_EXT_EXCLUDE)):
+                        continue
+
+                    scan_file_target_abspath = os.path.join(root, f)
+                    scan_file_target_relpath = os.path.relpath(scan_file_target_abspath, path)
+
+                    matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
                         for s in m.strings:
                             for i in s.instances:
                                 rule_results = {
-                                    "location": f"{f}:{i.offset}",
+                                    "location": f"{scan_file_target_relpath}:{i.offset}",
                                     "code": self.trim_code_snippet(str(i.matched_data)),
                                     'message': m.meta.get("description", f"{m.rule} rule matched")
                                 }

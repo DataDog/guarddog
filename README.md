@@ -94,6 +94,7 @@ Source code heuristics:
 | steganography | Identify when a package retrieves hidden data from an image and executes it |
 | code-execution | Identify when an OS command is executed in the setup.py file |
 | cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
+| lolbas | Identify when a package uses a binary or script bundled in the OS (Live Of The Land) to leverage their capabilities. See more at https://lolbas-project.github.io |
 
 Metadata heuristics:
 
@@ -126,6 +127,7 @@ Source code heuristics:
 | bidirectional-characters | Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/ |
 | npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
+| lolbas | Identify when a package uses a binary or script bundled in the OS (Live Of The Land) to leverage their capabilities. See more at https://lolbas-project.github.io |
 
 Metadata heuristics:
 
@@ -149,6 +151,7 @@ Source code heuristics:
 | **Heuristic** | **Description** |
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| lolbas | Identify when a package uses a binary or script bundled in the OS (Live Of The Land) to leverage their capabilities. See more at https://lolbas-project.github.io |
 <!-- END_RULE_LIST -->
 
 ## Custom Rules
