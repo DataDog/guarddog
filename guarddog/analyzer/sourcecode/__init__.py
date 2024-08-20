@@ -1,4 +1,5 @@
 import os
+import re
 import pathlib
 from dataclasses import dataclass
 from typing import Optional, Iterable
@@ -20,6 +21,7 @@ class SourceCodeRule:
     """
     id: str
     file: str
+    description: str
 
 
 @dataclass
@@ -36,7 +38,6 @@ class SempgrepRule(SourceCodeRule):
     Semgrep rule are language specific
     Content of rule in yaml format is accessible through rule_content
     """
-    description: str
     ecosystem: ECOSYSTEM
     rule_content: dict
 
@@ -105,4 +106,12 @@ yara_rule_file_names = list(
 # all yar files placed in the sourcecode directory are loaded as YARA rules
 # refer to README.md for more information
 for file_name in yara_rule_file_names:
-    SOURCECODE_RULES.append(YaraRule(id=pathlib.Path(file_name).stem, file=file_name))
+    rule_id = pathlib.Path(file_name).stem
+    description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
+
+    with open(os.path.join(current_dir, file_name), "r") as fd:
+        match = re.search(description_regex, fd.read())
+        rule_description = ""
+        if match:
+            rule_description = match.group(1)
+        SOURCECODE_RULES.append(YaraRule(id=rule_id, file=file_name, description=rule_description))
