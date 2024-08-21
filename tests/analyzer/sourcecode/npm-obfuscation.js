@@ -190,3 +190,24 @@ function f(){
     // ruleid: npm-obfuscation
     var i=0                                                                                                                                                                                                                                                                                                                             ;print("malicious code here");
 }
+
+function f(){
+    /**
+     * Retrieves a list of up to 100 members and their membership status, given the provided paging and filtering.
+     *
+     * The queryMemberships function returns a Promise that resolves to a list of memberships.
+     *
+     * >**Note:** Site members can only query their own memberships.
+     *
+     // ok: npm-obfuscation
+     * | Property                    | Supported Filters & Sorting                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+     * | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+     * | `status`                    | [`eq()`](#membershipsquerybuilder/eq), [`ne()`](#membershipsquerybuilder/ne)             |
+     * | `role`                      | [`eq()`](#membershipsquerybuilder/eq), [`ne()`](#membershipsquerybuilder/ne)             |
+     *
+     * @public
+     * @requiredField memberId
+     * @param memberId - Site member ID.
+     * @adminMethod
+     */
+}
