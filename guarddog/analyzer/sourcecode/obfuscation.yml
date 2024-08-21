@@ -17,9 +17,11 @@ rules:
           - pattern: getattr(builtins, ...)
 
           # hide code from sight
-          - pattern-regex: ^(.*?);?[\h]{150,};?.{10,}$
+          - patterns:
+            - pattern: ...
+            - pattern-not-inside: '"..."'
+            - pattern-regex: ^(.*?);?[\h]{150,};?.{10,}$
 
-          # using decode hardcoded content
           - patterns: 
               - pattern: $HEX.decode(...)
               - metavariable-regex:
