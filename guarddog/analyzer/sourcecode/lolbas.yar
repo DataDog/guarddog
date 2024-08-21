@@ -67,13 +67,10 @@ rule lolbas {
       $winbin63 = "wscript.exe" nocase
       $winbin64 = "powershell.exe" nocase
 
-      $linbin1 = "socat"
-      $linbin2 = "/bin/bash"
-      $linbin3 = "wget"
-      $linbin4 = "busybox"
-      $linbin5 = "telnet"
-      $linbin6 = "python -c"
-      $linbin7 = "/bin/sh"
+      $linbin1 = /\b(bash|\/bin\/sh)\b -(i|c)/
+      $linbin2 = /\|.*?\b(bash|\/bin\/sh)\b/
+      $linbin3 = /\b(curl|wget)\b.*?\|/
+      $linbin4 = "busybox" 
 
       $script1 = "winrm.vbs" nocase
 

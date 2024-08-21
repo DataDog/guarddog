@@ -31,9 +31,11 @@ TOP_PACKAGES_CACHE_LOCATION: str = os.environ.get(
 
 """
 This parameter specifies comman separated file extentions that YARA rules will not run against
-- Default: ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,rst,csv,sql,pdf,doc,docx,ppt,pptx,xls,xlsx,odt
+- Default: ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,rst,csv,sql,pdf,doc,docx,ppt,
+           pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info
 """
 YARA_EXT_EXCLUDE: list[str] = os.environ.get(
     "GUARDDOG_YARA_EXT_EXCLUDE",
-    "ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,rst,csv,sql,pdf,doc,docx,ppt,pptx,xls,xlsx,odt"
+    "ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,rst,csv,sql,pdf,doc,docx,ppt,"
+    "pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info",
 ).split(",")
