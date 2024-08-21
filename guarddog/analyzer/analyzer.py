@@ -193,7 +193,7 @@ class Analyzer:
             for root, _, files in os.walk(path):
                 for f in files:
                     # Skip files with excluded extensions
-                    if f.endswith(tuple(YARA_EXT_EXCLUDE)):
+                    if f.lower().endswith(tuple(YARA_EXT_EXCLUDE)):
                         continue
 
                     scan_file_target_abspath = os.path.join(root, f)
