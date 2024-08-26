@@ -19,7 +19,7 @@ def generate_docs() -> str:
             output += '| **Heuristic** | **Description** |\n'
             output += '|:-------------:|:---------------:|\n'
             for rule in source_code_rules:
-                description = getattr(rule, "description", "")
+                description = rule.description
                 description = description.replace("\n", "")
                 output += f'| {rule.id} | {description} |\n'
 

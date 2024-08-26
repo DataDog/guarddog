@@ -1,6 +1,6 @@
 .PHONY: test test-semgrep-rules test-metadata-rules test-core docs
 
-test: test-semgrep-rules test-metadata-rules test-core test-reporters coverage-report
+test: test-semgrep-rules test-yara-rules test-metadata-rules test-core test-reporters coverage-report
 
 type-check:
 	mypy --install-types --non-interactive guarddog
@@ -11,6 +11,9 @@ lint:
 
 test-semgrep-rules:
 	semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
+
+test-yara-rules:
+	COVERAGE_FILE=.coverage_yara coverage run -m pytest tests/analyzer/sourcecode
 
 test-metadata-rules:
 	COVERAGE_FILE=.coverage_metadata coverage run -m pytest tests/analyzer/metadata
