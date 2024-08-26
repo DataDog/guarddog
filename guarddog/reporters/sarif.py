@@ -18,9 +18,7 @@ def build_rules_help_list() -> dict:
             detector_class = instance.__class__.__base__
             rules_documentation[name] = detector_class.__doc__
         for sourcecode_rule in get_sourcecode_rules(ecosystem):
-            rules_documentation[sourcecode_rule.id] = getattr(
-                sourcecode_rule, "description", ""
-            )
+            rules_documentation[sourcecode_rule.id] = sourcecode_rule.description
     return rules_documentation
 
 

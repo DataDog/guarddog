@@ -22,9 +22,20 @@ VERIFY_EXHAUSTIVE_DEPENDENCIES: bool = (
 This parameter specifies the location of the top packages cache
 - Default: guarddog/analyzer/metadata/resources
 """
-TOP_PACKAGES_CACHE_LOCATION = os.environ.get(
+TOP_PACKAGES_CACHE_LOCATION: str = os.environ.get(
     "GUARDDOG_TOP_PACKAGES_CACHE_LOCATION",
     os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../analyzer/metadata/resources")
     ),
 )
+
+"""
+This parameter specifies comman separated file extentions that YARA rules will not run against
+- Default: ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,rst,csv,sql,pdf,doc,docx,ppt,
+           pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info
+"""
+YARA_EXT_EXCLUDE: list[str] = os.environ.get(
+    "GUARDDOG_YARA_EXT_EXCLUDE",
+    "ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,rst,csv,sql,pdf,doc,docx,ppt,"
+    "pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info",
+).split(",")

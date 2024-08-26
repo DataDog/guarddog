@@ -3,15 +3,18 @@ import logging
 import os
 import subprocess
 import yara  # type: ignore
+
 from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, Optional, Dict
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import get_sourcecode_rules, SempgrepRule, YaraRule
+from guarddog.utils.config import YARA_EXT_EXCLUDE
 from guarddog.ecosystems import ECOSYSTEM
 
 SEMGREP_MAX_TARGET_BYTES = 10_000_000
+SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 
 log = logging.getLogger("guarddog")
 
@@ -21,7 +24,6 @@ class Analyzer:
     Analyzes a local directory for threats found by source code or metadata rules
 
     Attributes:
-        sourcecode_rules_path (str): path to source code rules
         ecosystem (str): name of the current ecosystem
         metadata_ruleset (list): list of metadata rule names
         sourcecode_ruleset (list): list of source code rule names
@@ -33,7 +35,6 @@ class Analyzer:
     """
 
     def __init__(self, ecosystem=ECOSYSTEM.PYPI) -> None:
-        self.sourcecode_rules_path = os.path.join(os.path.dirname(__file__), "sourcecode")
         self.ecosystem = ecosystem
 
         # Rules and associated detectors
@@ -177,8 +178,10 @@ class Analyzer:
         errors: Dict[str, str] = {}
         issues = 0
 
+        rule_results = defaultdict(list)
+
         rules_path = {
-            rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yar")
+            rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
             for rule_name in all_rules
         }
 
@@ -191,21 +194,28 @@ class Analyzer:
 
             for root, _, files in os.walk(path):
                 for f in files:
-                    matches = scan_rules.match(os.path.join(root, f))
+                    # Skip files with excluded extensions
+                    if f.lower().endswith(tuple(YARA_EXT_EXCLUDE)):
+                        continue
+
+                    scan_file_target_abspath = os.path.join(root, f)
+                    scan_file_target_relpath = os.path.relpath(scan_file_target_abspath, path)
+
+                    matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
                         for s in m.strings:
                             for i in s.instances:
-                                rule_results = {
-                                    "location": f"{f}:{i.offset}",
+                                finding = {
+                                    "location": f"{scan_file_target_relpath}:{i.offset}",
                                     "code": self.trim_code_snippet(str(i.matched_data)),
                                     'message': m.meta.get("description", f"{m.rule} rule matched")
                                 }
                                 issues += len(m.strings)
-                                results[m.rule].update(rule_results)
+                                rule_results[m.rule].append(finding)
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
-        return {"results": results, "errors": errors, "issues": issues}
+        return {"results": results | rule_results, "errors": errors, "issues": issues}
 
     def analyze_semgrep(self, path, rules=None) -> dict:
         """
@@ -231,7 +241,7 @@ class Analyzer:
         issues = 0
 
         rules_path = list(map(
-            lambda rule_name: os.path.join(self.sourcecode_rules_path, f"{rule_name}.yml"),
+            lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"),
             all_rules
         ))
 
