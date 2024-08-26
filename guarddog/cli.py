@@ -246,7 +246,7 @@ def _list_rules(ecosystem: ECOSYSTEM):
     table.field_names = ["Rule type", "Rule name", "Description"]
 
     for sc_rule in get_sourcecode_rules(ecosystem):
-        table.add_row(["Source code", sc_rule.id, getattr(sc_rule, "description", "")])
+        table.add_row(["Source code", sc_rule.id, sc_rule.description])
 
     metadata_rules = get_metadata_detectors(ecosystem)
     for ruleName in metadata_rules:

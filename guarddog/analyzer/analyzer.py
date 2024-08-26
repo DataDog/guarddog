@@ -174,9 +174,11 @@ class Analyzer:
             # filtering the full ruleset witht the user's input
             all_rules = self.yara_ruleset & rules
 
-        results = {rule: [] for rule in all_rules}  # type: dict
+        results = {rule: {} for rule in all_rules}  # type: dict
         errors: Dict[str, str] = {}
         issues = 0
+
+        rule_results = defaultdict(list) 
 
         rules_path = {
             rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
@@ -203,19 +205,17 @@ class Analyzer:
                     for m in matches:
                         for s in m.strings:
                             for i in s.instances:
-                                rule_results = {
+                                finding = {
                                     "location": f"{scan_file_target_relpath}:{i.offset}",
                                     "code": self.trim_code_snippet(str(i.matched_data)),
                                     'message': m.meta.get("description", f"{m.rule} rule matched")
                                 }
-                                if m.rule not in results.keys():
-                                    continue
                                 issues += len(m.strings)
-                                results[m.rule].append(rule_results)
+                                rule_results[m.rule].append(finding)
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
-        return {"results": results, "errors": errors, "issues": issues}
+        return {"results": results | rule_results, "errors": errors, "issues": issues}
 
     def analyze_semgrep(self, path, rules=None) -> dict:
         """
