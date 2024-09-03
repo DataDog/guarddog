@@ -11,6 +11,8 @@ rules:
       # however this happens pretty rarely so reporting every package with a "prepare" script would be too noisy;
       # see https://github.com/DataDog/guarddog/issues/308
       - pattern-not: |
+            "...": "npx patch-package"
+      - pattern-not: |
             "...": "npx only-allow pnpm"
       - pattern-not: |
           "...": ""
