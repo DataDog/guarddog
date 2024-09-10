@@ -9,8 +9,16 @@ rules:
     languages:
       - javascript
     severity: WARNING
-    patterns:
-      - pattern-not: eval('...')
-      - pattern-not: eval("...")
-      - pattern-not: eval(`...`)
-      - pattern: eval(atob(...))
+    mode: taint
+    pattern-sources:
+      - pattern-either:
+          - pattern: Buffer.from(...)
+          - pattern: '"..."'
+    pattern-sinks:
+      - pattern-either:
+        - patterns:            
+          - pattern-inside: |
+              $FN = new Function(...)
+              ...
+          - pattern: $FN(...)
+        - pattern: eval(...)
