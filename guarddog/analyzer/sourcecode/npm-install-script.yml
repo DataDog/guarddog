@@ -6,28 +6,20 @@ rules:
     patterns:
       - pattern-inside: |
           "scripts": {...}
+      - pattern-either:
+        - pattern: |
+            "preinstall": $VAR
+        - pattern: |
+            "postinstall": $VAR
+        - pattern: |
+            "install": $VAR
       # note that on some cases installing a package can lead to the execution of some "prepare" scripts
       # (typically when a dependency is a git repository, see https://github.com/npm/cli/issues/6031#issuecomment-1449119423)
       # however this happens pretty rarely so reporting every package with a "prepare" script would be too noisy;
       # see https://github.com/DataDog/guarddog/issues/308
-      - pattern-not: |
-            "...": "npx only-allow pnpm"
-      - pattern-not: |
-          "...": ""
-      - pattern-not: |
-          "...": "patch-package"
-      - pattern-not: |
-          "...": "husky"
-      - pattern-not: |
-          "preinstall": "echo \"preinstall script\""
-
-      - pattern-either:
-          - pattern: |
-              "preinstall": "..."
-          - pattern: |
-              "install": "..."
-          - pattern: |
-              "postinstall": "..."
+      - metavariable-pattern:
+          metavariable: $VAR
+          pattern-regex: ^(?!"(npx patch-package|nuxt prepare|npx only-allow pnpm|prisma generate|ibmtelemetry --config=telemetry.yml|husky install|tsc \|\| exit 0|patch-package|husky|echo \"preinstall script\")").*$
     languages:
       - json
     paths:
@@ -35,3 +27,4 @@ rules:
         - "*/package.json"
         - "*/npm-install-script.json" # unit test
     severity: WARNING
+
