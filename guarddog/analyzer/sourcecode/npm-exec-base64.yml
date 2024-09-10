@@ -13,7 +13,7 @@ rules:
     pattern-sources:
       - pattern-either:
           - pattern: Buffer.from(...)
-          - pattern: '"..."'
+          - pattern: atob(...)
     pattern-sinks:
       - pattern-either:
         - patterns:            
@@ -21,4 +21,5 @@ rules:
               $FN = new Function(...)
               ...
           - pattern: $FN(...)
-        - pattern: eval(...)
+        - patterns:            
+          - pattern: eval(...)
