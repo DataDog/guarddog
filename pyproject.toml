@@ -29,7 +29,7 @@ pygit2 = ">=1.11,<1.16"
 configparser = ">=5.3,<8.0"
 prettytable="^3.6.0"
 yara-python = "^4.5.1"
-disposable-email-domains = ">=0.0.103,<0.0.105"
+disposable-email-domains = ">=0.0.103,<0.0.106"
 setuptools = ">=70.3,<75.0"
 
 [tool.poetry.group.dev.dependencies]

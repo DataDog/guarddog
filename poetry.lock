@@ -432,13 +432,13 @@ files = [
 
 [[package]]
 name = "disposable-email-domains"
-version = "0.0.104"
+version = "0.0.105"
 description = "A set of disposable email domains"
 optional = false
 python-versions = "*"
 files = [
-    {file = "disposable_email_domains-0.0.104-py2.py3-none-any.whl", hash = "sha256:17400a32a254f33c6f8b4785a8cad3ab61ccbf9fdff9d7a48bbfafb229929aea"},
-    {file = "disposable_email_domains-0.0.104.tar.gz", hash = "sha256:53b097fed6d6961f75e16c041eaf1e9227409b56e3b113840fc7672905803520"},
+    {file = "disposable_email_domains-0.0.105-py2.py3-none-any.whl", hash = "sha256:41bf38b2224a6ba7df76f8ec2c64d4af65f168eb79cadac2b068dfe02da8e5f7"},
+    {file = "disposable_email_domains-0.0.105.tar.gz", hash = "sha256:d24f6e0a74c940d9875bd4d318f0931f278f13c3d0fa4407670f609bc2852987"},
 ]
 
 [package.extras]
@@ -2016,4 +2016,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "7498b24c00d093cb5f9b65204f4d856900fe72960240ecf48f1271b63b3bb405"
+content-hash = "3f1c86f18a18e3ff48d5050ffbdb2062dcd429547ac08c1bb72bc4dca7142de5"
