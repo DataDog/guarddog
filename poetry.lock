@@ -1547,16 +1547,18 @@ six = ">=1.5"
 
 [[package]]
 name = "python-docx"
-version = "0.8.11"
-description = "Create and update Microsoft Word .docx files."
+version = "1.1.2"
+description = "Create, read, and update Microsoft Word .docx files."
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 files = [
-    {file = "python-docx-0.8.11.tar.gz", hash = "sha256:1105d233a0956dd8dd1e710d20b159e2d72ac3c301041b95f4d4ceb3e0ebebc4"},
+    {file = "python_docx-1.1.2-py3-none-any.whl", hash = "sha256:08c20d6058916fb19853fcf080f7f42b6270d89eac9fa5f8c15f691c0017fabe"},
+    {file = "python_docx-1.1.2.tar.gz", hash = "sha256:0cf1f22e95b9002addca7948e16f2cd7acdfd498047f1941ca5d293db7762efd"},
 ]
 
 [package.dependencies]
-lxml = ">=2.3.2"
+lxml = ">=3.1.0"
+typing-extensions = ">=4.9.0"
 
 [[package]]
 name = "python-whois"
@@ -1739,20 +1741,20 @@ files = [
 
 [[package]]
 name = "sarif-tools"
-version = "2.0.0"
+version = "3.0.1"
 description = "SARIF tools"
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = "<4.0,>=3.8"
 files = [
-    {file = "sarif_tools-2.0.0-py3-none-any.whl", hash = "sha256:01d0a1a8b445cc5b7dd41bcf895fb827e8168072f0a6f74353b639e73870da4a"},
-    {file = "sarif_tools-2.0.0.tar.gz", hash = "sha256:aae95d255b5e5c989a2043d5441f24a727117da0f49f8cad1e7faf7c69eac3a3"},
+    {file = "sarif_tools-3.0.1-py3-none-any.whl", hash = "sha256:9399450072b2fa7e30fee3debff60033e01419ce6014e20dbfb15b70d0894d98"},
+    {file = "sarif_tools-3.0.1.tar.gz", hash = "sha256:36d5c440ca3eca57bf009119c99e9716db20e476385313a8911bfcf55d534ab8"},
 ]
 
 [package.dependencies]
-jinja2 = ">=3.1.2,<4.0.0"
+jinja2 = ">=3.1.4,<4.0.0"
 jsonpath-ng = ">=1.6.0,<2.0.0"
-matplotlib = ">=3.5.1,<4.0.0"
-python-docx = ">=0.8.11,<0.9.0"
+matplotlib = ">=3.7,<4.0"
+python-docx = ">=1.1.2,<2.0.0"
 pyyaml = ">=6.0.1,<7.0.0"
 
 [[package]]
@@ -1873,13 +1875,13 @@ files = [
 
 [[package]]
 name = "typing-extensions"
-version = "4.6.3"
-description = "Backported and Experimental Type Hints for Python 3.7+"
+version = "4.12.2"
+description = "Backported and Experimental Type Hints for Python 3.8+"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "typing_extensions-4.6.3-py3-none-any.whl", hash = "sha256:88a4153d8505aabbb4e13aacb7c486c2b4a33ca3b3f807914a9b4c844c471c26"},
-    {file = "typing_extensions-4.6.3.tar.gz", hash = "sha256:d91d5919357fe7f681a9f2b5b4cb2a5f1ef0a1e9f59c4d8ff0d3491e05c0ffd5"},
+    {file = "typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"},
+    {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},
 ]
 
 [[package]]
@@ -2016,4 +2018,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "7498b24c00d093cb5f9b65204f4d856900fe72960240ecf48f1271b63b3bb405"
+content-hash = "4b93bf32a17e256e977d1bdfad3b0ff13ee0995933249a5b1a95ccde581d3095"
