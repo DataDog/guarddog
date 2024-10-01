@@ -196,3 +196,9 @@ def run_file(path):
     # ruleid: code-execution
 	p = subprocess.Popen(f"python {path}",shell=True,stdin=None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,close_fds=True)
 	out, err = p.communicate()
+
+# ruleid: code-execution
+subprocess.check_call(["rm", "-rf", "target_dir"], cwd="/tmp")
+
+# ok: code-execution
+subprocess.check_call(["cmake", "--build", "."])
