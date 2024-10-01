@@ -173,3 +173,6 @@ def f():
     # ok: shady-links
     trackingServiceUrl = 'https//discord.com/invite/u9zUjWbbQ'
 
+def f():
+    # ruleid: shady-links
+    trackingUrl = "qkrfaniquihoswritqaqwbg5r4l072qp7.oast.fun/track"
