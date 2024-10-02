@@ -20,6 +20,9 @@ rules:
       # Exclude public IPv4 sometimes used in tests
       - pattern-not-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(?:1\.1\.1\.1|8\.8\.8\.8))
 
+      # Exclude cloud provider metadata service IPs
+      - pattern-not-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(?:169\.254\.169\.254|\[fd00:ec2::254\]))
+
       # ignore discord allowed 
       - pattern-not-regex: (?:https?:\/\/)?discord.com\/(invite|oauth2\/authorize)
 
