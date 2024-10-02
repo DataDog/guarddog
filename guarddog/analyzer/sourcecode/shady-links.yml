@@ -32,7 +32,7 @@ rules:
             # top-level domains
             - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
             # IPv4
-            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))
+            - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))
             # IPv6
             - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?(?:\[(([A-Fa-f0-9]{1,4}:){0,7}|:):?[A-Fa-f0-9]{1,4}(:[A-Fa-f0-9]{1,4}){0,7})\])
     paths:
