@@ -43,8 +43,8 @@ rules:
 
           - pattern: subprocess.check_call($ARG1, ...)
           - pattern: check_call($ARG1, ...)
-          - pattern: subprocess.check_call([..., "... $ARG1 ...", ...], ...)
-          - pattern: check_call([..., "$ARG1", ...], ...)
+          - pattern: subprocess.check_call([..., $ARG1, ...], ...)
+          - pattern: check_call([..., $ARG1, ...], ...)
 
           # eval, allow checking for version
           - patterns:
