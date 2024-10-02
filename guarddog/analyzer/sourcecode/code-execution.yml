@@ -79,6 +79,10 @@ rules:
           - pattern: popen($ARG1, ...)
           - pattern: popen([..., $ARG1, ...], ...)
 
+          # distutils spawn
+          - pattern: spawn($ARG1, ...)
+          - pattern: $OBJ.spawn($ARG1, ...)
+
           # miscellaneous
           - pattern: os.system($ARG1, ...)
           - pattern: system($ARG1, ...)

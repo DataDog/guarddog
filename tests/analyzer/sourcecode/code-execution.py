@@ -202,3 +202,13 @@ subprocess.check_call(["rm", "-rf", "target_dir"], cwd="/tmp")
 
 # ok: code-execution
 subprocess.check_call(["cmake", "--build", "."])
+
+class install_ext_solibs(install_lib):
+    def run(self):
+        super().run()
+        for wheel in glob.glob("build/bdist.*/wheel"):
+            for solib in os.listdir(wheel):
+                for mext in re.finditer("^([^/]*).cpython.*", solib):
+                    if not mext.group(1) in templates:
+                        # ruleid: code-execution
+                        self.spawn(["rm", "-f", f"{wheel}/{solib}"])
