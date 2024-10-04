@@ -41,6 +41,11 @@ rules:
           - pattern: subprocess.run([..., "... $ARG1 ...", ...], ...)
           - pattern: run([..., "$ARG1", ...], ...)
 
+          - pattern: subprocess.check_call($ARG1, ...)
+          - pattern: check_call($ARG1, ...)
+          - pattern: subprocess.check_call([..., "... $ARG1 ...", ...], ...)
+          - pattern: check_call([..., "$ARG1", ...], ...)
+
           # eval, allow checking for version
           - patterns:
               - pattern-either:
@@ -73,6 +78,10 @@ rules:
           - pattern: Popen([..., $ARG1, ...], ...)
           - pattern: popen($ARG1, ...)
           - pattern: popen([..., $ARG1, ...], ...)
+
+          # distutils spawn
+          - pattern: spawn($ARG1, ...)
+          - pattern: $OBJ.spawn($ARG1, ...)
 
           # miscellaneous
           - pattern: os.system($ARG1, ...)
