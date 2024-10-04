@@ -22,7 +22,7 @@ rules:
 
       # Exclude cloud provider metadata service IPs
       # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-      - pattern-not-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(?:169\.254\.169\.254|\[fd00:ec2::254\]))
+      - pattern-not-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(?:169\.254\.\d{1,3}\.\d{1,3}|\[fd00:ec2::254\]))
 
       # ignore discord allowed 
       - pattern-not-regex: (?:https?:\/\/)?discord.com\/(invite|oauth2\/authorize)
