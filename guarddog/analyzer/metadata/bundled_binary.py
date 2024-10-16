@@ -35,7 +35,8 @@ class BundledBinary(Detector):
         def sha256(file: str) -> str:
             with open(file, "rb") as f:
                 hasher = hashlib.sha256()
-                hasher.update(f.read())
+                while (chunk := f.read(4096)):
+                    hasher.update(chunk)
                 return hasher.hexdigest()
 
         log.debug(
