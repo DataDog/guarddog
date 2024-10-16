@@ -4,6 +4,7 @@ from typing import Optional
 import os
 from functools import reduce
 import logging
+import hashlib
 
 log = logging.getLogger("guarddog")
 
@@ -28,6 +29,14 @@ class BundledBinary(Detector):
         name: Optional[str] = None,
         version: Optional[str] = None,
     ) -> tuple[bool, str]:
+        def format_file(file: str, kind: str) -> str:
+            return f"{file} ({kind})"
+
+        def sha256(file: str) -> str:
+            with open(file, "rb") as f:
+                hasher = hashlib.sha256()
+                hasher.update(f.read())
+                return hasher.hexdigest()
 
         log.debug(
             f"Running bundled binary heuristic on package {name} version {version}"
@@ -35,14 +44,22 @@ class BundledBinary(Detector):
         if not path:
             raise ValueError("path is needed to run heuristic " + self.get_name())
 
-        bin_files = []
+        bin_files = {}
         for root, _, files in os.walk(path):
             for f in files:
-                kind = self.is_binary(os.path.join(root, f))
+                path = os.path.join(root, f)
+                kind = self.is_binary(path)
                 if kind:
-                    bin_files.append(f"{f} type {kind}")
+                    digest = sha256(path)
+                    if digest not in bin_files:
+                        bin_files[digest] = [format_file(f, kind)]
+                    else:
+                        bin_files[digest].append(format_file(f, kind))
         if bin_files:
-            return True, "Binary file/s detected in package: " + reduce(lambda x, y: f"{x}, {y}", bin_files)
+            output_lines = '\n'.join(
+                f"{digest}: {', '.join(files)}" for digest, files in bin_files.items()
+            )
+            return True, f"Binary file/s detected in package:\n{output_lines}"
         return False, ""
 
     def is_binary(self, path: str) -> Optional[str]:
