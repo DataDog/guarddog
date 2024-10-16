@@ -1,10 +1,10 @@
-from guarddog.analyzer.metadata.detector import Detector
 from abc import abstractmethod
-from typing import Optional
-import os
-from functools import reduce
-import logging
 import hashlib
+import logging
+import os
+from typing import Optional
+
+from guarddog.analyzer.metadata.detector import Detector
 
 log = logging.getLogger("guarddog")
 
