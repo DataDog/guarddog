@@ -56,12 +56,14 @@ class BundledBinary(Detector):
                         bin_files[digest] = [format_file(f, kind)]
                     else:
                         bin_files[digest].append(format_file(f, kind))
-        if bin_files:
-            output_lines = '\n'.join(
-                f"{digest}: {', '.join(files)}" for digest, files in bin_files.items()
-            )
-            return True, f"Binary file/s detected in package:\n{output_lines}"
-        return False, ""
+
+        if not bin_files:
+            return False, ""
+
+        output_lines = '\n'.join(
+            f"{digest}: {', '.join(files)}" for digest, files in bin_files.items()
+        )
+        return True, f"Binary file/s detected in package:\n{output_lines}"
 
     def is_binary(self, path: str) -> Optional[str]:
         max_head = len(max(self.magic_bytes.values()))
