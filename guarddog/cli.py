@@ -114,9 +114,9 @@ def cli(log_level):
     """
     logger = logging.getLogger("guarddog")
     logger.setLevel(logging.getLevelName(log_level))
-    stdoutHandler = logging.StreamHandler(stream=sys.stdout)
-    stdoutHandler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-    logger.addHandler(stdoutHandler)
+    stderrHandler = logging.StreamHandler(stream=sys.stderr)
+    stderrHandler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    logger.addHandler(stderrHandler)
 
 
 def _get_all_rules(ecosystem: ECOSYSTEM) -> set[str]:
