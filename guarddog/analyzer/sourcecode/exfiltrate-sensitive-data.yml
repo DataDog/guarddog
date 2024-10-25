@@ -6,7 +6,6 @@ rules:
       description: Identify when a package reads and exfiltrates sensitive data from the local system
     pattern-sources:
       - pattern: os.environ
-      - pattern: os.environ.items()
       - pattern: '[... for ... in os.environ.items()]'
       - pattern: socket.gethostname()
       - pattern: getpass.getuser()
