@@ -10,6 +10,19 @@ rules:
           - patterns:              
             - pattern-either:
               - pattern: process.env
+
+          - patterns:  
+            - pattern-either: # after defining fs
+                - pattern-inside: |
+                    $OS = require('os')
+                    ...
+            - pattern-either: 
+                # match use of ootb functions
+                - pattern: $OS. ... .homedir()
+                - pattern: $OS. ... .hostname()
+                - pattern: $OS. ... .userInfo()
+
+
           - patterns:  
             - pattern-either: # after defining fs
                 - pattern-inside: |
@@ -31,11 +44,6 @@ rules:
                     import $FS from 'fs/promises'
                     ...
             - pattern-either: 
-                # match use of ootb functions
-                - pattern: $FS. ... .homedir()
-                - pattern: $FS. ... .hostname()
-                - pattern: $FS. ... .userInfo()
-
                 # match access to sensitive files
                 - patterns:
                     - pattern-either:
