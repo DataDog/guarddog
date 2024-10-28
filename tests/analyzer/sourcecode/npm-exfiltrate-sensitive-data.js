@@ -82,7 +82,7 @@ function f(){
 }
 
 function f(){
-    os = require('fs');
+    os = require('os');
     https = require('https');
     const td = {
         c: __dirname,
