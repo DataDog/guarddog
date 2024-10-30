@@ -1,16 +1,14 @@
 import json
 import os
-from datetime import datetime, timedelta
 from typing import Optional
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
-# import requests
 
 
 class GoTyposquatDetector(TyposquatDetector):
-    """Detector for typosquatting attacks for go modules. Checks for distance one Levenshtein, one-off character swaps, permutations
-    around hyphens, and substrings.
+    """Detector for typosquatting attacks for go modules. Checks for distance one Levenshtein,
+    one-off character swaps, permutations around hyphens, and substrings.
 
     Attributes:
         popular_packages (set): set of top 500 most popular Go packages,
@@ -20,7 +18,7 @@ class GoTyposquatDetector(TyposquatDetector):
     def _get_top_packages(self) -> set:
 
         # popular_packages_url = (
-        #     "" #TODO
+        #     ""
         # )
 
         top_packages_filename = "top_go_packages.json"
@@ -47,6 +45,10 @@ class GoTyposquatDetector(TyposquatDetector):
         #     top_packages_information = list([i["name"] for i in response[0:8000]])
         #     with open(top_packages_path, "w+") as f:
         #         json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
+
+        if top_packages_information is None:
+            raise Exception(
+                f"Could not retrieve top Go packages from {top_packages_path}")
 
         return set(top_packages_information)
 
@@ -95,15 +97,15 @@ class GoTyposquatDetector(TyposquatDetector):
         confused_forms = []
 
         if package_name.startswith("github.com/"):
-            confused_forms.append(package_name.replace("github.com/", "gitlab.com/", 1))
+            replaced = package_name.replace("github.com/", "gitlab.com/", 1)
+            confused_forms.append(replaced)
         elif package_name.startswith("gitlab.com/"):
-            confused_forms.append(package_name.replace("gitlab.com/", "github.com/", 1))
-
-
+            replaced = package_name.replace("gitlab.com/", "github.com/", 1)
+            confused_forms.append(replaced)
 
         terms = package_name.split("-")
 
-        # Detect swaps like python-package -> py-package
+        # Detect swaps like golang-package -> go-package
         for i in range(len(terms)):
             confused_term = None
 
