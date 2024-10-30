@@ -149,6 +149,8 @@ Source code heuristics:
 | **Heuristic** | **Description** |
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| typosquatting | Identify packages that are named closely to an highly popular package |
+
 <!-- END_RULE_LIST -->
 
 ## Custom Rules
