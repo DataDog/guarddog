@@ -178,7 +178,7 @@ class Analyzer:
         errors: Dict[str, str] = {}
         issues = 0
 
-        rule_results:defaultdict[dict, list[dict]] = defaultdict(list)
+        rule_results: defaultdict[dict, list[dict]] = defaultdict(list)
 
         rules_path = {
             rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
