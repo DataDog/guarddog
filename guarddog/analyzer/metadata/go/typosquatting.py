@@ -16,11 +16,6 @@ class GoTyposquatDetector(TyposquatDetector):
     """
 
     def _get_top_packages(self) -> set:
-
-        # popular_packages_url = (
-        #     ""
-        # )
-
         top_packages_filename = "top_go_packages.json"
 
         resources_dir = TOP_PACKAGES_CACHE_LOCATION
@@ -34,17 +29,8 @@ class GoTyposquatDetector(TyposquatDetector):
         top_packages_information = None
 
         if top_packages_filename in os.listdir(resources_dir):
-            # update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
-            #
-            # if datetime.now() - update_time <= timedelta(days=30):
             with open(top_packages_path, "r") as top_packages_file:
                 top_packages_information = json.load(top_packages_file)
-
-        # if top_packages_information is None:
-        #     response = requests.get(popular_packages_url).json()
-        #     top_packages_information = list([i["name"] for i in response[0:8000]])
-        #     with open(top_packages_path, "w+") as f:
-        #         json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
 
         if top_packages_information is None:
             raise Exception(
