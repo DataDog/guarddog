@@ -110,7 +110,7 @@ class TyposquatDetector(Detector):
 
     @abc.abstractmethod
     def _get_confused_forms(self, package_name) -> list:
-        return []
+        pass
 
     def get_typosquatted_package(self, package_name) -> list[str]:
         """
