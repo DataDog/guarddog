@@ -46,17 +46,17 @@ class GoTyposquatDetector(TyposquatDetector):
         version: Optional[str] = None,
     ) -> tuple[bool, Optional[str]]:
         """
-        Uses a package's information from PyPI's JSON API to determine the
+        Uses a Go package's name to determine the
         package is attempting a typosquatting attack
 
         Args:
-            package_info (dict): dictionary representation of PyPI's JSON
-                output
+            name (str): The name of the package,
+                also known as the import path
 
         Returns:
-            list[str]: names of packages that <package_name> could be
-            typosquatting from
-            @param **kwargs:
+            Tuple[bool, Optional[str]]: True if package is typosquatted,
+               along with a message indicating the similar package name.
+               False if not typosquatted and None
         """
 
         similar_package_names = self.get_typosquatted_package(name)
@@ -68,10 +68,11 @@ class GoTyposquatDetector(TyposquatDetector):
 
     def _get_confused_forms(self, package_name) -> list:
         """
-        Gets confused terms for python packages
+        Gets confused terms for Go packages
         Confused terms are:
-            - py to python swaps (or vice versa)
-            - the removal of py/python terms
+            - golang to go swaps (or vice versa)
+            - the removal of go/golang terms
+            - gitlab.com to github.com swaps (or vice versa)
 
         Args:
             package_name (str): name of the package
