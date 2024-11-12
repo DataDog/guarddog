@@ -91,6 +91,44 @@ class PypiTyposquatDetector(TyposquatDetector):
             return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(similar_package_names)
         return False, None
 
+    def _get_confused_forms(self, package_name) -> list:
+        """
+        Gets confused terms for python packages
+        Confused terms are:
+            - py to python swaps (or vice versa)
+            - the removal of py/python terms
+
+        Args:
+            package_name (str): name of the package
+
+        Returns:
+            list: list of confused terms
+        """
+
+        confused_forms = []
+
+        terms = package_name.split("-")
+
+        # Detect swaps like python-package -> py-package
+        for i in range(len(terms)):
+            confused_term = None
+
+            if "python" in terms[i]:
+                confused_term = terms[i].replace("python", "py")
+            elif "py" in terms[i]:
+                confused_term = terms[i].replace("py", "python")
+            else:
+                continue
+
+            # Get form when replacing or removing py/python term
+            replaced_form = terms[:i] + [confused_term] + terms[i + 1:]
+            removed_form = terms[:i] + terms[i + 1:]
+
+            for form in (replaced_form, removed_form):
+                confused_forms.append("-".join(form))
+
+        return confused_forms
+
 
 if __name__ == "__main__":
     # update top_pypi_packages.json
