@@ -1,5 +1,6 @@
 import pytest
 
+from guarddog.analyzer.metadata.go import GoTyposquatDetector
 from guarddog.analyzer.metadata.npm import NPMTyposquatDetector
 from guarddog.analyzer.metadata.pypi import PypiTyposquatDetector
 from tests.analyzer.metadata.resources.sample_project_info import generate_pypi_project_info, generate_npm_project_info
@@ -8,6 +9,7 @@ from tests.analyzer.metadata.resources.sample_project_info import generate_pypi_
 class TestTyposquatting:
     pypi_detector = PypiTyposquatDetector()
     npm_detector = NPMTyposquatDetector()
+    go_detector = GoTyposquatDetector()
     pypi_typosquats = [
         ("ans1crypto", "asn1crypto"),
         ("colourama", "colorama"),
@@ -38,6 +40,14 @@ class TestTyposquatting:
         ("shpk", "sshpk")
     ]
 
+    golang_typosquats = [
+        ("github.com/utfave/cli", "github.com/urfave/cli"),
+        ("gitlab.com/sirupsen/logrus", "github.com/sirupsen/logrus"),
+        ("github.com/sretchr/testify", "github.com/stretchr/testify"),
+        ("github.com/go-jwt/jwt", "github.com/golang-jwt/jwt"),
+        ("github.com/gin-golangnic/gin", "github.com/gin-gonic/gin")
+    ]
+
     negative_cases = ["hello-world", "foo", "bar"]
     same_names = ["pip", "Numpy", "openCv-python", "requests_oauthlib"]
 
@@ -51,6 +61,12 @@ class TestTyposquatting:
     def test_npm_typosquats(self, typo_name, real_name):
         project_info = generate_npm_project_info("name", typo_name)
         matches, message = self.npm_detector.detect(project_info)
+        assert matches and real_name in message
+
+    @pytest.mark.parametrize("typo_name, real_name", golang_typosquats)
+    def test_go_typosquats(self, typo_name, real_name):
+        project_info = {"name": typo_name}
+        matches, message = self.go_detector.detect(project_info, name=typo_name)
         assert matches and real_name in message
 
     @pytest.mark.parametrize("name", negative_cases + same_names)
