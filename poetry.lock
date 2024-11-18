@@ -1752,13 +1752,13 @@ files = [
 
 [[package]]
 name = "sarif-tools"
-version = "3.0.3"
+version = "3.0.4"
 description = "SARIF tools"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "sarif_tools-3.0.3-py3-none-any.whl", hash = "sha256:6df9d1bc60b95f4f527a8b37b76d634ebf1c211960d16417422885d84118f0cd"},
-    {file = "sarif_tools-3.0.3.tar.gz", hash = "sha256:3983cdfad1c82676cb7726b1e57ce26e01645fb3a4b797eb552d456f418e5ea4"},
+    {file = "sarif_tools-3.0.4-py3-none-any.whl", hash = "sha256:9e6f88bf33df63d3559a34e0022da6fd2e2ceb94ea510b3ca8795199a46b9a32"},
+    {file = "sarif_tools-3.0.4.tar.gz", hash = "sha256:2be0a7624f9b155ab984c99dc6375e18877790adc70eb2d2f164c7e4e47e6c33"},
 ]
 
 [package.dependencies]
