@@ -1573,13 +1573,13 @@ typing-extensions = ">=4.9.0"
 
 [[package]]
 name = "python-whois"
-version = "0.9.4"
+version = "0.9.5"
 description = "Whois querying and parsing of domain registration information."
 optional = false
 python-versions = "*"
 files = [
-    {file = "python_whois-0.9.4-py3-none-any.whl", hash = "sha256:17d60f25524fc811a1f6a66f0298c1e5534551d7a01a77dd5f6406426da734e1"},
-    {file = "python_whois-0.9.4.tar.gz", hash = "sha256:77bc7347bf815d65ccd196711c29837652f07585aedad3c3c04dd885651fd7a7"},
+    {file = "python_whois-0.9.5-py3-none-any.whl", hash = "sha256:d435cf8012659745ce3b4e7c15428df9405648696727812d9eaacc36782d14e3"},
+    {file = "python_whois-0.9.5.tar.gz", hash = "sha256:18968c21484752fcc4b9a5f0af477ef6b8dc2e8bb7f1bd5c33831499c0dd41ca"},
 ]
 
 [package.dependencies]
