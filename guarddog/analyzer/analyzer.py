@@ -178,7 +178,7 @@ class Analyzer:
         errors: Dict[str, str] = {}
         issues = 0
 
-        rule_results = defaultdict(list)
+        rule_results: defaultdict[dict, list[dict]] = defaultdict(list)
 
         rules_path = {
             rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
@@ -210,6 +210,17 @@ class Analyzer:
                                     "code": self.trim_code_snippet(str(i.matched_data)),
                                     'message': m.meta.get("description", f"{m.rule} rule matched")
                                 }
+
+                                # since yara can match the multiple times in the same file
+                                # leading to finding several times the same word or pattern
+                                # this dedup the matches
+                                if [
+                                    f
+                                    for f in rule_results[m.rule]
+                                    if finding["code"] == f["code"]
+                                ]:
+                                    continue
+
                                 issues += len(m.strings)
                                 rule_results[m.rule].append(finding)
         except Exception as e:
