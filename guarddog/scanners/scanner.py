@@ -37,7 +37,7 @@ class ProjectScanner:
         user = os.getenv("GIT_USERNAME")
         personal_access_token = os.getenv("GH_TOKEN")
         if not user or not personal_access_token:
-            print(
+            log.error(
                 """WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN
                 (generate a personal access token in Github settings > developer)
                 as environment variables before proceeding."""
@@ -84,10 +84,9 @@ class ProjectScanner:
         dependencies = self.parse_requirements(requirements)
         num_workers = PARALLELISM
 
-        sys.stderr.write(
+        log.info(
             f"Scanning using at most {num_workers} parallel worker threads\n"
         )
-        sys.stderr.flush()
         with ThreadPoolExecutor(max_workers=num_workers) as pool:
             try:
                 futures: typing.List[concurrent.futures.Future] = []
@@ -155,7 +154,7 @@ class ProjectScanner:
         if resp.status_code == 200:
             return self.scan_requirements(resp.content.decode())
         else:
-            sys.stdout.write(
+            log.error(
                 f"{req_url} does not exist. Check your link or branch name."
             )
             sys.exit(255)
@@ -191,7 +190,7 @@ class ProjectScanner:
             with open(path, "r") as f:
                 return self.scan_requirements(f.read(), rules, callback)
         except Exception as e:
-            sys.stdout.write(f"Received {e}")
+            log.error(f"Received {e}")
             sys.exit(255)
 
     @abstractmethod
