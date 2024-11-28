@@ -117,7 +117,7 @@ class PypiRequirementsScanner(ProjectScanner):
                 except StopIteration:
                     break
                 except Exception as e:
-                    sys.stderr.write(
+                    log.error(
                         f"Error when parsing requirements, received error {str(e)}. This entry will be "
                         "ignored.\n"
                     )
