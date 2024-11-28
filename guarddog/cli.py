@@ -114,9 +114,9 @@ def cli(log_level):
     """
     logger = logging.getLogger("guarddog")
     logger.setLevel(logging.getLevelName(log_level))
-    stdoutHandler = logging.StreamHandler(stream=sys.stdout)
-    stdoutHandler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-    logger.addHandler(stdoutHandler)
+    stderrHandler = logging.StreamHandler(stream=sys.stderr)
+    stderrHandler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    logger.addHandler(stderrHandler)
 
 
 def _get_all_rules(ecosystem: ECOSYSTEM) -> set[str]:
@@ -141,7 +141,7 @@ def _get_rule_param(
         rule_param = all_rules - set(exclude_rules)
 
         if len(rules) > 0:
-            print("--rules and --exclude-rules cannot be used together")
+            log.error("--rules and --exclude-rules cannot be used together")
             sys.exit(1)
 
     return rule_param
@@ -159,7 +159,7 @@ def _verify(
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = get_project_scanner(ecosystem)
     if scanner is None:
-        sys.stderr.write(f"Command verify is not supported for ecosystem {ecosystem}")
+        log.error(f"Command verify is not supported for ecosystem {ecosystem}")
         exit(1)
 
     def display_result(result: dict) -> None:
@@ -211,7 +211,7 @@ def _scan(
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = get_package_scanner(ecosystem)
     if scanner is None:
-        sys.stderr.write(f"Command scan is not supported for ecosystem {ecosystem}")
+        log.error(f"Command scan is not supported for ecosystem {ecosystem}")
         sys.exit(1)
 
     result = {"package": identifier}
@@ -228,7 +228,7 @@ def _scan(
             log.debug(f"Considering that '{identifier}' is a remote target")
             result |= scanner.scan_remote(identifier, version, rule_param)
     except Exception as e:
-        sys.stderr.write(f"Error occurred while scanning target {identifier}: '{e}'\n")
+        log.error(f"Error occurred while scanning target {identifier}: '{e}'\n")
         sys.exit(1)
 
     if output_format == "json":
