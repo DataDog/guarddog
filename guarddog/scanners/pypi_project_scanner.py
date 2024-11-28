@@ -1,6 +1,5 @@
 import logging
 import re
-import sys
 import pkg_resources
 import requests
 from packaging.specifiers import Specifier, Version
