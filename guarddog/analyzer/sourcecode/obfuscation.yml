@@ -16,6 +16,11 @@ rules:
           - pattern: $OBJ.getattr(__builtins__, ...)
           - pattern: getattr(builtins, ...)
 
+          - pattern: |
+              ''.join(chr($X) for $X in [...])
+          - pattern: |
+              ''.join(map(chr, [...]))
+
           # hide code from sight
           - patterns:
             - pattern: ...
