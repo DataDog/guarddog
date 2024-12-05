@@ -156,5 +156,5 @@ def test_sarif_output(manifest, ecosystem, local_scan_results, warning_count):
         with open(os.path.join(tmp_dirname, "results.sarif"), "w") as fd:
             fd.write(raw_output)
         sarif_data = load_sarif_file(os.path.join(tmp_dirname, "results.sarif"))
-        stats = sarif_data.get_result_count_by_severity()
-        assert stats["warning"] == warning_count
+        stats_warning = sarif_data.get_report().get_issue_count_for_severity("warning")
+        assert stats_warning == warning_count

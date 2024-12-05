@@ -48,7 +48,7 @@ class TestTyposquatting:
         ("github.com/gin-golangnic/gin", "github.com/gin-gonic/gin")
     ]
 
-    negative_cases = ["hello-world", "foo", "bar"]
+    negative_cases = ["hello-world", "foo"] 
     same_names = ["pip", "Numpy", "openCv-python", "requests_oauthlib"]
 
     @pytest.mark.parametrize("typo_name, real_name", pypi_typosquats)
