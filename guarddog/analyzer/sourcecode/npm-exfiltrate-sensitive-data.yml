@@ -60,6 +60,12 @@ rules:
       - patterns:
           - pattern-either:
               - pattern-inside: |
+                  $HTTP = ... .request(...)
+                  ...
+              - pattern-inside: |
+                  $HTTP = require('http')
+                  ...
+              - pattern-inside: |
                   $HTTP = require('https')
                   ...
               - pattern-inside: |
@@ -79,6 +85,7 @@ rules:
             - pattern: $HTTP. ... .get(...)
             - pattern: $HTTP. ... .post(...)
             - pattern: $HTTP. ... .push(...)
+            - pattern: $HTTP. ... .write(...)
             - pattern: $HTTP(...)
     languages:
       - javascript

