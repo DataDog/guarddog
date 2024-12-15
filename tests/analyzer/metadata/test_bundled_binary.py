@@ -19,6 +19,8 @@ class TestBundleBinary:
     binary_sample_elf = (
         b"\x7F\x45\x4C\x46" + b"0x90" * 10
     )  # elf magic number plus nop sled
+    binary_sample_macho32 = b"\xFE\xED\xFA\xCE" + b"0x90" * 10
+    binary_sample_macho64 = b"\xFE\xED\xFA\xCF" + b"0x90" * 10
 
     @pytest.mark.parametrize(
         "detector",
@@ -49,6 +51,38 @@ class TestBundleBinary:
             os.mkdir(full_path)
             with open(os.path.join(full_path, "linux.txt"), "wb") as f:
                 f.write(self.binary_sample_elf)
+            matches, _ = detector.detect({}, dir)
+            assert matches
+
+    @pytest.mark.parametrize(
+        "detector",
+        [
+            (pypi_detector),
+            (npm_detector),
+        ],
+    )
+    def test_macho32(self, detector: BundledBinary):
+        with tempfile.TemporaryDirectory() as dir:
+            full_path = os.path.join(dir, "package")
+            os.mkdir(full_path)
+            with open(os.path.join(full_path, "linux.txt"), "wb") as f:
+                f.write(self.binary_sample_macho32)
+            matches, _ = detector.detect({}, dir)
+            assert matches
+
+    @pytest.mark.parametrize(
+        "detector",
+        [
+            (pypi_detector),
+            (npm_detector),
+        ],
+    )
+    def test_macho64(self, detector: BundledBinary):
+        with tempfile.TemporaryDirectory() as dir:
+            full_path = os.path.join(dir, "package")
+            os.mkdir(full_path)
+            with open(os.path.join(full_path, "linux.txt"), "wb") as f:
+                f.write(self.binary_sample_macho64)
             matches, _ = detector.detect({}, dir)
             assert matches
 
