@@ -31,8 +31,8 @@ rules:
         - pattern: ("...")
         - pattern-either:
             # complete domains
-            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(bit\.ly|discord\.com|workers\.dev|transfer\.sh|filetransfer\.io|sendspace\.com|appdomain\.cloud|backblazeb2\.com\|paste\.ee|ngrok\.io|termbin\.com|localhost\.run|webhook\.site|oastify\.com|burpcollaborator\.me)\b)
-            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(oast\.(pro|live|site|online|fun|me)|api\.telegram\.org|rentry\.co|ngrok-free\.(app|dev))\b)
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(bit\.ly|discord\.com|workers\.dev|transfer\.sh|filetransfer\.io|sendspace\.com|appdomain\.cloud|backblazeb2\.com\|paste\.ee|ngrok\.io|termbin\.com|localhost\.run|webhook\.site|oastify\.com|burpcollaborator\.(me|net))\b)
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(oast\.(pro|live|site|online|fun|me)|api\.telegram\.org|rentry\.co|ply\.gg|ngrok-free\.(app|dev)|ipinfo\.io)\b)
             # top-level domains
             - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
             # IPv4
