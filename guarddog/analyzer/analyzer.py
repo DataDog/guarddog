@@ -283,6 +283,7 @@ class Analyzer:
             cmd.append("--no-git-ignore")
             cmd.append("--json")
             cmd.append("--quiet")
+            cmd.append("--disable-nosem")
             cmd.append(f"--max-target-bytes={SEMGREP_MAX_TARGET_BYTES}")
             cmd.append(target)
             log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
