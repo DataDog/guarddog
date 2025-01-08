@@ -30,9 +30,16 @@ rules:
       - patterns:
         - pattern: ("...")
         - pattern-either:
-            # complete domains
-            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(bit\.ly|discord\.com|workers\.dev|transfer\.sh|filetransfer\.io|sendspace\.com|appdomain\.cloud|backblazeb2\.com\|paste\.ee|ngrok\.io|termbin\.com|localhost\.run|webhook\.site|oastify\.com|burpcollaborator\.(me|net))|trycloudflare\.com\b)
-            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(oast\.(pro|live|site|online|fun|me)|api\.telegram\.org|rentry\.co|ply\.gg|ngrok-free\.(app|dev)|ipinfo\.io)\b)
+            # complete domains: shorteners
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(bit\.ly)\b)
+            # complete domains: ephimerals,tunnels
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(workers\.dev|appdomain\.cloud|ngrok\.io|termbin\.com|localhost\.run|webhook\.site|oastify\.com|burpcollaborator\.(me|net)|trycloudflare\.com)\b)
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(oast\.(pro|live|site|online|fun|me)|ply\.gg|ngrok-free\.(app|dev))\b)
+            # complete domains: exfil
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(discord\.com|transfer\.sh|filetransfer\.io|sendspace\.com|backblazeb2\.com|paste\.ee|pastebin\.com|api\.telegram\.org|rentry\.co)\b)
+            # complete domains: intel 
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(ipinfo\.io)\b)
+
             # top-level domains
             - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream)\/)
             # IPv4
