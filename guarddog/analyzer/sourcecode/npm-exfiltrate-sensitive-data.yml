@@ -84,12 +84,14 @@ rules:
             - pattern: $HTTP. ... .request(...)
             - pattern: $HTTP. ... .get(...)
             - pattern: $HTTP. ... .post(...)
-            - pattern: $HTTP. ... .push(...)
+            - pattern: |
+                $FIRE=$HTTP.child(...)
+                ...
+                $FIRE.push(...)
             - pattern: $HTTP. ... .write(...)
             - pattern: $HTTP(...)
     languages:
       - javascript
       - typescript
     severity: WARNING
-    options:
-      symbolic_propagation: true
+
