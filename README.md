@@ -90,7 +90,6 @@ Source code heuristics:
 | exec-base64 | Identify when a package dynamically executes base64-encoded code |
 | silent-process-execution | Identify when a package silently executes an executable |
 | dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
-| bidirectional-characters | Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/ |
 | steganography | Identify when a package retrieves hidden data from an image and executes it |
 | code-execution | Identify when an OS command is executed in the setup.py file |
 | cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
@@ -123,7 +122,6 @@ Source code heuristics:
 | npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
 | npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
 | npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
-| bidirectional-characters | Identify when a package contains bidirectional characters, which can be used to display source code differently than its actual execution. See more at https://trojansource.codes/ |
 | npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 
@@ -149,7 +147,13 @@ Source code heuristics:
 | **Heuristic** | **Description** |
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+
+Metadata heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
 | typosquatting | Identify packages that are named closely to an highly popular package |
+
 
 <!-- END_RULE_LIST -->
 
