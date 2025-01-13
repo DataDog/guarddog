@@ -333,15 +333,19 @@ output: {e.output}
 
         for result in response["results"]:
             rule_name = rule or result["check_id"].split(".")[-1]
-            code_snippet = result["extra"]["lines"]
-            line = result["start"]["line"]
+            start_line = result["start"]["line"]
+            end_line = result["end"]["line"]
 
             file_path = os.path.abspath(result["path"])
+            code = self.trim_code_snippet(
+                self.get_snippet(
+                    file_path=file_path, start_line=start_line, end_line=end_line
+                )
+            )
             if targetpath:
                 file_path = os.path.relpath(file_path, targetpath)
 
-            location = file_path + ":" + str(line)
-            code = self.trim_code_snippet(code_snippet)
+            location = file_path + ":" + str(start_line)
 
             finding = {
                 'location': location,
@@ -355,6 +359,33 @@ output: {e.output}
             results[rule_name].append(finding)
 
         return results
+
+    def get_snippet(self, file_path: str, start_line: int, end_line: int) -> str:
+        """
+        Returns the code snippet between start_line and stop_line in a file
+
+        Args:
+            path (str): path to file
+            start_line (int): starting line number
+            end_line (int): ending line number
+
+        Returns:
+            str: code snippet
+        """
+        snippet = []
+        try:
+            with open(file_path, 'r') as file:
+                for current_line_number, line in enumerate(file, start=1):
+                    if start_line <= current_line_number <= end_line:
+                        snippet.append(line)
+                    elif current_line_number > end_line:
+                        break
+        except FileNotFoundError:
+            log.error(f"File not found: {file_path}")
+        except Exception as e:
+            log.error(f"Error reading file {file_path}: {str(e)}")
+
+        return ''.join(snippet)
 
     # Makes sure the matching code to be displayed isn't too long
     def trim_code_snippet(self, code):

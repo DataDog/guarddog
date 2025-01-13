@@ -62,11 +62,17 @@ rules:
       - patterns:
         # write a library to disk
         - patterns:
-            - pattern: |
-                ...
-                open($DLL,'wb')
-                ...
-                $FN(...,$EXE,...)
+            - pattern-either:
+              - pattern: |
+                  ...
+                  with open($DLL,'wb') as $FILE:
+                    ...
+                  $FN(...,$EXE,...)
+              - pattern: |
+                  ...
+                  $FILE = open($DLL,'wb')
+                  ...
+                  $FN(...,$EXE,...)
             - metavariable-pattern:
                 metavariable: $EXE
                 patterns:
@@ -82,5 +88,3 @@ rules:
             - focus-metavariable: $DLL
 
     severity: WARNING
-    options:
-      symbolic_propagation: true

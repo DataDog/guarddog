@@ -60,5 +60,3 @@ rules:
     languages:
       - javascript
     severity: WARNING
-    options: 
-      symbolic_propagation: true
