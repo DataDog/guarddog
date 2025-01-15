@@ -36,7 +36,7 @@ rules:
             - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(workers\.dev|appdomain\.cloud|ngrok\.io|termbin\.com|localhost\.run|webhook\.(site|cool)|oastify\.com|burpcollaborator\.(me|net)|trycloudflare\.com)\b)
             - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(oast\.(pro|live|site|online|fun|me)|ply\.gg|pipedream\.net|dnslog\.cn|webhook-test\.com|typedwebhook\.tools|beeceptor\.com|ngrok-free\.(app|dev))\b)
             # complete domains: exfil
-            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(discord\.com|transfer\.sh|filetransfer\.io|sendspace\.com|backblazeb2\.com|paste\.ee|pastebin\.com|api\.telegram\.org|rentry\.co)\b)
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(discord\.com|transfer\.sh|filetransfer\.io|sendspace\.com|backblazeb2\.com|paste\.ee|pastebin\.com|hastebin\.com|ghostbin.site|api\.telegram\.org|rentry\.co)\b)
             # complete domains: intel 
             - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(ipinfo\.io|checkip\.dyndns\.org|\bip\.me|jsonip\.com|ipify\.org|ifconfig\.me)\b)
 
