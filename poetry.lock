@@ -1912,20 +1912,20 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "ruamel-yaml"
-version = "0.17.32"
+version = "0.18.10"
 description = "ruamel.yaml is a YAML parser/emitter that supports roundtrip preservation of comments, seq/map flow style, and map key order"
 optional = false
-python-versions = ">=3"
+python-versions = ">=3.7"
 files = [
-    {file = "ruamel.yaml-0.17.32-py3-none-any.whl", hash = "sha256:23cd2ed620231677564646b0c6a89d138b6822a0d78656df7abda5879ec4f447"},
-    {file = "ruamel.yaml-0.17.32.tar.gz", hash = "sha256:ec939063761914e14542972a5cba6d33c23b0859ab6342f61cf070cfc600efc2"},
+    {file = "ruamel.yaml-0.18.10-py3-none-any.whl", hash = "sha256:30f22513ab2301b3d2b577adc121c6471f28734d3d9728581245f1e76468b4f1"},
+    {file = "ruamel.yaml-0.18.10.tar.gz", hash = "sha256:20c86ab29ac2153f80a428e1254a8adf686d3383df04490514ca3b79a362db58"},
 ]
 
 [package.dependencies]
-"ruamel.yaml.clib" = {version = ">=0.2.7", markers = "platform_python_implementation == \"CPython\" and python_version < \"3.12\""}
+"ruamel.yaml.clib" = {version = ">=0.2.7", markers = "platform_python_implementation == \"CPython\" and python_version < \"3.13\""}
 
 [package.extras]
-docs = ["ryd"]
+docs = ["mercurial (>5.7)", "ryd"]
 jinja2 = ["ruamel.yaml.jinja2 (>=0.2)"]
 
 [[package]]
@@ -2009,16 +2009,16 @@ doc = ["Sphinx", "sphinx-rtd-theme"]
 
 [[package]]
 name = "semgrep"
-version = "1.97.0"
+version = "1.102.0"
 description = "Lightweight static analysis for many languages. Find bug variants with patterns that look like source code."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "semgrep-1.97.0-cp38.cp39.cp310.cp311.py37.py38.py39.py310.py311-none-macosx_10_14_x86_64.whl", hash = "sha256:0ddaa25ee45e669e1fef87e88dcef73b2aee0874b507e09f618862c42452a205"},
-    {file = "semgrep-1.97.0-cp38.cp39.cp310.cp311.py37.py38.py39.py310.py311-none-macosx_11_0_arm64.whl", hash = "sha256:9184500bf8c49ad19d0fb2d84923abb4aa53058b0ece7008b57a3b0b5e6ce3ee"},
-    {file = "semgrep-1.97.0-cp38.cp39.cp310.cp311.py37.py38.py39.py310.py311-none-musllinux_1_0_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f7d21d6499d4e6fafb4c0b04b1750e9f4b704a26bd78f0aff19f1c73d44843b4"},
-    {file = "semgrep-1.97.0-cp38.cp39.cp310.cp311.py37.py38.py39.py310.py311-none-musllinux_1_0_x86_64.manylinux2014_x86_64.whl", hash = "sha256:996fe0b2bfac3a4d4511e470fdf5f3bca96b1f794f398e0336c8388802c218de"},
-    {file = "semgrep-1.97.0.tar.gz", hash = "sha256:c585164358e03cd7868e1f0d38fbcb422c88dbe08795b83caeb5e36cf18874aa"},
+    {file = "semgrep-1.102.0-cp39.cp310.cp311.py39.py310.py311-none-macosx_10_14_x86_64.whl", hash = "sha256:3dde482445a817ce183acfc5740979fc95f8ebe9a24b223f54802c57f406c360"},
+    {file = "semgrep-1.102.0-cp39.cp310.cp311.py39.py310.py311-none-macosx_11_0_arm64.whl", hash = "sha256:1b5c127bffbafdd2d4b587c50266466ad4a7d187dee1560de7b99fdc22fe1639"},
+    {file = "semgrep-1.102.0-cp39.cp310.cp311.py39.py310.py311-none-musllinux_1_0_aarch64.manylinux2014_aarch64.whl", hash = "sha256:70fec99b48cae45a47c34dc8be4486ca7e2b2686ec3d08be51f0dcfbcaa516f5"},
+    {file = "semgrep-1.102.0-cp39.cp310.cp311.py39.py310.py311-none-musllinux_1_0_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4afc25fedae9db030573cab96a162bfc71cc414d00d7040ac179a8c3e88c7bf8"},
+    {file = "semgrep-1.102.0.tar.gz", hash = "sha256:7a0e3a90f49bdd322ba623c6e4680220b4fe2d27300e2ada448466cd718658d5"},
 ]
 
 [package.dependencies]
@@ -2039,7 +2039,7 @@ packaging = ">=21.0"
 peewee = ">=3.14,<4.0"
 requests = ">=2.22,<3.0"
 rich = ">=13.5.2,<13.6.0"
-"ruamel.yaml" = ">=0.16.0,<0.18"
+"ruamel.yaml" = ">=0.18.5"
 tomli = ">=2.0.1,<2.1.0"
 typing-extensions = ">=4.2,<5.0"
 urllib3 = ">=2.0,<3.0"
@@ -2350,4 +2350,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "5eb9f8c6eeea913f137cac65f035e9b7a48272b13fa4d14fc600b750ae123ff3"
+content-hash = "537d82faf80d00fb725711e18b9ce73d25d162dce77b26c29d8d552b4c4e948a"
