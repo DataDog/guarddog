@@ -454,13 +454,13 @@ dev = ["PyTest", "PyTest-Cov", "bump2version (<1)", "jinja2 (>=3.0.3,<3.1.0)", "
 
 [[package]]
 name = "disposable-email-domains"
-version = "0.0.115"
+version = "0.0.116"
 description = "A set of disposable email domains"
 optional = false
 python-versions = "*"
 files = [
-    {file = "disposable_email_domains-0.0.115-py2.py3-none-any.whl", hash = "sha256:d622cc7d7f4107939f9fad9add50c6a64e37ad3da3218e6b540aae16af4d0b54"},
-    {file = "disposable_email_domains-0.0.115.tar.gz", hash = "sha256:25285d539a6fd81926961d5d5edec837cdc8e8371eb6464b01ce384720bd6c63"},
+    {file = "disposable_email_domains-0.0.116-py2.py3-none-any.whl", hash = "sha256:10142485396fd8d0bd620004d47544eab7afb1fa37a358ea77d9019c0cf9873f"},
+    {file = "disposable_email_domains-0.0.116.tar.gz", hash = "sha256:0b4793f91ebe6f82b24d351635c2bc4515f91c2bba7036497aa3d839c007eb19"},
 ]
 
 [package.extras]
@@ -2347,4 +2347,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4"
-content-hash = "3a1eade4e62290b263ffab3997265673800066e17d8363e06877d566806b19da"
+content-hash = "5a5d09aade87591dc71c98ae188076ea8e31f21c89654112c2e41333d99ce416"
