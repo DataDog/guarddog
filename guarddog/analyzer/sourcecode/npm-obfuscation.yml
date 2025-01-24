@@ -57,6 +57,14 @@ rules:
           - pattern-not-inside: //...
           - pattern-regex: ^(.*?);?[\h]{150,};?.{10,}$
 
+        # Packer
+        - pattern: | 
+            eval(function(...){ 
+            ...
+            $VAR.replace(new RegExp(...),...)
+            ... 
+            }(...))
+
     languages:
       - javascript
     severity: WARNING
