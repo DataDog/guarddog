@@ -25,14 +25,12 @@ def test_download_and_get_package_info_npm_namespaced():
         assert os.path.exists(os.path.join(tmpdirname, "@datadog-browser-logs"))
 
 
-@pytest.mark.parametrize("identifier", ["expressjs/express", "https://github.com/expressjs/express.git"])
-@pytest.mark.skip("Git targets are not yet supported for npm")
-def test_download_and_get_package_info_from_github(identifier):
+def test_download_and_get_package_info_from_github():
     scanner = NPMPackageScanner()
     with tempfile.TemporaryDirectory() as tmpdirname:
-        data, path = scanner.download_and_get_package_info(tmpdirname, "identifier")
-        assert os.path.exists(os.path.join(tmpdirname, "express", "package", "package.json"))
-        assert "1.0.0" in data["versions"]
+        data, path = scanner.download_and_get_package_info(tmpdirname, "https://github.com/expressjs/express.git", "v5.0.0")
+        assert not data
+        assert os.path.exists(os.path.join(tmpdirname, "https:--github.com-expressjs-express.git", "express-5.0.0", "package.json"))
 
 
 def test_download_and_get_package_info_non_existing_packages():
