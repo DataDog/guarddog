@@ -27,6 +27,8 @@ class NPMPackageScanner(PackageScanner):
 
         log.debug(f"Downloading NPM package from {tarball_url}")
         file_extension = pathlib.Path(tarball_url).suffix
+        if file_extension == "":
+            file_extension = ".zip"
         zippath = os.path.join(directory, package_name.replace("/", "-") + file_extension)
         unzippedpath = zippath.removesuffix(file_extension)
         self.download_compressed(tarball_url, zippath, unzippedpath)
