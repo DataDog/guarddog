@@ -49,7 +49,7 @@ class NPMPackageScanner(PackageScanner):
 
     def _get_git_data_and_tarball_url(self, package_name: str, version=None) -> typing.Tuple[dict, str]:
         if version is None:
-            return {}, f"https://github.com/{package_name}/archive/refs/heads/main.zip"
+            return {}, f"https://api.github.com/repos/{package_name}/zipball"
         else:
             return {}, f"https://github.com/{package_name}/archive/refs/tags/{version}.zip"
 
