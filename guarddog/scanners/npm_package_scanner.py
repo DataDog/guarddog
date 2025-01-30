@@ -36,10 +36,13 @@ class NPMPackageScanner(PackageScanner):
     def _parse_git_url(self, package_name: str) -> str:
         parsed_url = urlparse(package_name)
 
-        path = parsed_url.path.strip("/") # trim leading and trailing slashes
+        path = parsed_url.path.strip("/")  # trim leading and trailing slashes
 
         # TODO: support other git providers?
-        if parsed_url.hostname == "github.com" and path.endswith('.git') and not path.startswith("@") and path.count("/") == 1:
+        if parsed_url.hostname == "github.com" and \
+           path.endswith('.git') and \
+           not path.startswith("@") and \
+           path.count("/") == 1:
             return path.removesuffix(".git")
 
         return ""
