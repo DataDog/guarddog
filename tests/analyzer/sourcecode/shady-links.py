@@ -176,3 +176,11 @@ def f():
 def f():
     # ruleid: shady-links
     trackingUrl = "qkrfaniquihoswritqaqwbg5r4l072qp7.oast.fun/track"
+
+def f():
+    # ok: shady-links
+    trackingUrl = "someip.me/track"
+
+def f():
+    # ruleid: shady-links
+    trackingUrl = "https://ip.me/"
