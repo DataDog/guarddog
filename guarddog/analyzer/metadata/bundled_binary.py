@@ -14,7 +14,12 @@ class BundledBinary(Detector):
 
     # magic bytes are the first few bytes of a file that can be used to identify the file type
     # regardless of their extension
-    magic_bytes = {"exe": b"\x4D\x5A", "elf": b"\x7F\x45\x4C\x46"}
+    magic_bytes = {
+        "exe": b"\x4D\x5A",
+        "elf": b"\x7F\x45\x4C\x46",
+        "macho32": b"\xFE\xED\xFA\xCE",
+        "macho64": b"\xFE\xED\xFA\xCF",
+    }
 
     def __init__(self):
         super().__init__(
