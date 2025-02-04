@@ -13,6 +13,10 @@ rules:
                   - pattern: (...).urlretrieve(...,$EXE)
                   - pattern: open($EXE, ...).write($REQUEST)
                   - pattern: |
+                      $FILE = open($EXE, ...)
+                      ...
+                      $FILE.write($REQUEST)
+                  - pattern: |
                       with open($EXE, ...) as $FILE:
                         ...
                         $FILE.write($REQUEST)
@@ -30,6 +34,12 @@ rules:
                       ...
                       $MAKE_EXEC
 
+                  - pattern: |
+                      $FILE = open($LOC, ...)
+                      ...
+                      $FILE.write($REQUEST)
+                      ...
+                      $MAKE_EXEC
                   - pattern: |
                       open($LOC, ...).write($REQUEST)
                       ...
@@ -93,5 +103,3 @@ rules:
           requests.get(...)
           ...
     severity: WARNING
-    options: 
-      symbolic_propagation: true
