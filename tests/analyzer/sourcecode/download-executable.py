@@ -29,8 +29,8 @@ def f():
         connection.request("GET", PATH)
         response = connecton.getresponse().read()
     os.chdir(os.path.expanduser("~"))
-    d = open(LOC, "wb")
     # ruleid: download-executable
+    d = open(LOC, "wb")
     d.write(response)
     d.close()
     current_state = os.stat(LOC)

