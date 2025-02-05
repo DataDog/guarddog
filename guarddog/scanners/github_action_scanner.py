@@ -35,12 +35,12 @@ class GithubActionScanner(PackageScanner):
         parsed_url = urlparse(url)
 
         if parsed_url.hostname and parsed_url.hostname != "github.com":
-            raise Exception(parsed_url)
+            raise ValueError("Invalid GitHub repo URL: " + url)
 
         path = parsed_url.path.removesuffix(".git").strip("/")
 
         if path.count("/") != 1:
-            raise Exception("Invalid GitHub repo URL: " + url)
+            raise ValueError("Invalid GitHub repo name: " + path)
 
         return path
 
