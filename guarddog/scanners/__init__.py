@@ -6,6 +6,7 @@ from .pypi_package_scanner import PypiPackageScanner
 from .pypi_project_scanner import PypiRequirementsScanner
 from .go_package_scanner import GoModuleScanner
 from .go_project_scanner import GoDependenciesScanner
+from .github_action_scanner import GithubActionScanner
 from .scanner import PackageScanner, ProjectScanner
 from ..ecosystems import ECOSYSTEM
 
@@ -29,6 +30,8 @@ def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
             return NPMPackageScanner()
         case ECOSYSTEM.GO:
             return GoModuleScanner()
+        case ECOSYSTEM.GITHUB_ACTION:
+            return GithubActionScanner()
     return None
 
 

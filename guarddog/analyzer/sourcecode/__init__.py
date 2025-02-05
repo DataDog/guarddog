@@ -51,6 +51,9 @@ def get_sourcecode_rules(
         ecosystem: The ecosystem to filter for if rules are ecosystem specific
         kind: The kind of rule to filter for
     """
+    if ecosystem == ECOSYSTEM.GITHUB_ACTION:
+        ecosystem = ECOSYSTEM.NPM
+
     for rule in SOURCECODE_RULES:
         if kind and not isinstance(rule, kind):
             continue
