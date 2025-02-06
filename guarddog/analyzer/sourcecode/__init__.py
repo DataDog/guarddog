@@ -71,34 +71,36 @@ for file_name in semgrep_rule_file_names:
         data = yaml.load(fd, Loader=SafeLoader)
         for rule in data["rules"]:
             for lang in rule["languages"]:
-                ecosystem = None
+                ecosystems = set()
                 match lang:
                     case "python":
-                        ecosystem = ECOSYSTEM.PYPI
+                        ecosystems.add(ECOSYSTEM.PYPI)
                     case "javascript" | "typescript" | "json":
-                        ecosystem = ECOSYSTEM.NPM
+                        ecosystems.add(ECOSYSTEM.NPM)
+                        ecosystems.add(ECOSYSTEM.GITHUB_ACTION)
                     case "go":
-                        ecosystem = ECOSYSTEM.GO
+                        ecosystems.add(ECOSYSTEM.GO)
                     case _:
                         continue
 
-                # avoids duplicates when multiple languages are supported by a rule
-                if not next(
-                    filter(
-                        lambda r: r.id == rule["id"],
-                        get_sourcecode_rules(ecosystem, SempgrepRule),
-                    ),
-                    None,
-                ):
-                    SOURCECODE_RULES.append(
-                        SempgrepRule(
-                            id=rule["id"],
-                            ecosystem=ecosystem,
-                            description=rule.get("metadata", {}).get("description", ""),
-                            file=file_name,
-                            rule_content=rule,
+                for ecosystem in ecosystems:
+                    # avoids duplicates when multiple languages are supported by a rule
+                    if not next(
+                        filter(
+                            lambda r: r.id == rule["id"],
+                            get_sourcecode_rules(ecosystem, SempgrepRule),
+                        ),
+                        None,
+                    ):
+                        SOURCECODE_RULES.append(
+                            SempgrepRule(
+                                id=rule["id"],
+                                ecosystem=ecosystem,
+                                description=rule.get("metadata", {}).get("description", ""),
+                                file=file_name,
+                                rule_content=rule,
+                            )
                         )
-                    )
 
 yara_rule_file_names = list(
     filter(lambda x: x.endswith("yar"), os.listdir(current_dir))
