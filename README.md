@@ -155,6 +155,21 @@ Metadata heuristics:
 | typosquatting | Identify packages that are named closely to an highly popular package |
 
 
+### GitHub Action
+
+Source code heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| npm-serialize-environment | Identify when a package serializes 'process.env' to exfiltrate environment variables |
+| npm-obfuscation | Identify when a package uses a common obfuscation method often used by malware |
+| npm-silent-process-execution | Identify when a package silently executes an executable |
+| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
+| npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
+| npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
+| npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
+| npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
 <!-- END_RULE_LIST -->
 
 ## Custom Rules
