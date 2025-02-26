@@ -1,5 +1,6 @@
 from typing import Optional
 
+from .github_action_project_scanner import GitHubActionDependencyScanner
 from .npm_package_scanner import NPMPackageScanner
 from .npm_project_scanner import NPMRequirementsScanner
 from .pypi_package_scanner import PypiPackageScanner
@@ -54,4 +55,6 @@ def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
             return NPMRequirementsScanner()
         case ECOSYSTEM.GO:
             return GoDependenciesScanner()
+        case ECOSYSTEM.GITHUB_ACTION:
+            return GitHubActionDependencyScanner()
     return None
