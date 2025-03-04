@@ -10,6 +10,13 @@ GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages o
 
 GuardDog can be used to scan local or remote PyPI and npm packages or Go modules using any of the available [heuristics](#heuristics).
 
+It downloads and scans code from:
+
+* NPM: Packages hosted in [npmjs.org](https://www.npmjs.com/) 
+* PyPI: Source files (tar.gz) packages hosted in [PyPI.org](https://pypi.org/)
+* Go: GoLang source files of repositories hosted in [GitHub.com](https://github.com)
+* GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
+
 ![GuardDog demo usage](docs/images/demo.png)
 
 ## Getting started
@@ -59,8 +66,17 @@ guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
 # Output JSON to standard output - works for every command
 guarddog pypi scan requests --output-format=json
 
-# All the commands also work on npm or go
+# All the commands also work on npm, go
 guarddog npm scan express
+
+guarddog go scan github.com/DataDog/dd-trace-go
+
+guarddog go verify /tmp/repo/go.mod
+
+# Additionally can support scanning GitHub actions that are implemented in JavaScript 
+guarddog github_action scan DataDog/synthetics-ci-github-action
+
+guarddog github_action verify /tmp/repo/.github/workflows/main.yml
 
 # Run in debug mode
 guarddog --log-level debug npm scan express
@@ -156,6 +172,9 @@ Metadata heuristics:
 
 
 ### GitHub Action
+ 
+For GitHub Actions that are implemented in JavaScript,
+GuardDog will run the same source code heuristics as for npm packages.
 
 Source code heuristics:
 
