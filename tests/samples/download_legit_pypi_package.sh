@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TOP_PYPI_PACKAGE="https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
+TOP_PYPI_PACKAGE="https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json"
 REQUIREMENT_FILE="legit_top_packages.txt"
 
 if [ -z "$1" ]; then

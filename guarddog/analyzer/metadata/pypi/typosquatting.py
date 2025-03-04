@@ -39,7 +39,7 @@ class PypiTyposquatDetector(TyposquatDetector):
                 }
         """
 
-        popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json"
+        popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json"
 
         top_packages_filename = "top_pypi_packages.json"
         resources_dir = TOP_PACKAGES_CACHE_LOCATION
