@@ -1,3 +1,6 @@
+import os
+import pathlib
+
 from guarddog.scanners.pypi_project_scanner import PypiRequirementsScanner
 
 
@@ -10,6 +13,14 @@ def test_requirements_scanner():
     assert "not-a-real-package" not in result  # ignoring non existing packages
     assert "flask" in result
 
+def test_npm_find_requirements():
+    scanner = PypiRequirementsScanner()
+
+
+    requirements = scanner.find_requirements(
+        os.path.join(pathlib.Path(__file__).parent.resolve(), "resources")
+    )
+    assert requirements == [os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "requirements.txt")]
 
 # Regression test for https://github.com/DataDog/guarddog/issues/88
 def test_requirements_scanner_on_git_url_packages():

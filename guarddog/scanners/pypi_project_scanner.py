@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import pkg_resources
 import requests
@@ -147,3 +148,11 @@ class PypiRequirementsScanner(ProjectScanner):
             log.error(f"Received error {str(e)}")
 
         return dependencies
+
+    def find_requirements(self, directory: str) -> list[str]:
+        requirement_files = []
+        for root, dirs, files in os.walk(directory):
+            for name in files:
+                if re.match(r"^requirements(-dev)?\.txt$", name, flags=re.IGNORECASE):
+                    requirement_files.append(os.path.join(root, name))
+        return requirement_files

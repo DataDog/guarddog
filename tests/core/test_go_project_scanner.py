@@ -16,3 +16,13 @@ def test_go_parse_requirements():
             "go.uber.org/multierr": {"v1.11.0"},
             "go.uber.org/zap": {"v1.27.0"},
         }
+
+
+def test_go_find_requirements():
+    scanner = GoDependenciesScanner()
+
+
+    requirements = scanner.find_requirements(
+        os.path.join(pathlib.Path(__file__).parent.resolve(), "resources")
+    )
+    assert requirements == [os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "go.mod")]
