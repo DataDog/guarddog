@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import List, Dict, TypedDict
 from typing_extensions import NotRequired
 
@@ -99,3 +100,15 @@ class GitHubActionDependencyScanner(ProjectScanner):
                 if action:
                     actions.append(action)
         return actions
+
+    def find_requirements(self, directory: str) -> list[str]:
+        requirement_files = []
+
+        if not os.path.isdir(os.path.join(directory, ".git")):
+            raise Exception("unable to find github workflows, not called from git directory")
+        workflow_folder = os.path.join(directory, ".github/workflows")
+        if os.path.isdir(workflow_folder):
+            for name in os.listdir(workflow_folder):
+                if re.match(r"^(.+)\.y(a)?ml$", name, flags=re.IGNORECASE):
+                    requirement_files.append(os.path.join(workflow_folder, name))
+        return requirement_files

@@ -7,7 +7,7 @@ from guarddog.scanners import GitHubActionDependencyScanner
 from guarddog.scanners.github_action_project_scanner import parse_action_from_step, GitHubWorkflowStep, GitHubAction
 
 
-def test_go_parse_requirements():
+def test_githubactions_parse_requirements():
     scanner = GitHubActionDependencyScanner()
 
     with open(
@@ -21,6 +21,24 @@ def test_go_parse_requirements():
             "actions/create-github-app-token": {"0d564482f06ca65fa9e77e2510873638c82206f2"},
             "peter-evans/create-pull-request": {"v7"},
         }
+
+def test_githubactions_find_requirements():
+    scanner = GitHubActionDependencyScanner()
+    # This test pulls from the root of repo since a git repo
+    # is expected for the parser. In the future should probably
+    # fake a git repo in the test folder somehow
+    repo_root = pathlib.Path(__file__).parent.parent.parent.resolve()
+    requirements = scanner.find_requirements(
+        repo_root
+    )
+    assert requirements.sort() == [
+        os.path.join(repo_root, ".github", "workflows", "docker-release.yml"),
+        os.path.join(repo_root, ".github", "workflows", "guarddog.yml"),
+        os.path.join(repo_root, ".github", "workflows", "pypi-release.yml"),
+        os.path.join(repo_root, ".github", "workflows", "semgrep.yml"),
+        os.path.join(repo_root, ".github", "workflows", "test.yml"),
+    ].sort()
+
 
 
 @pytest.mark.parametrize(
