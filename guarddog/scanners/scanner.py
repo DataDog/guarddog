@@ -45,18 +45,17 @@ class ProjectScanner:
             exit(1)
         return (user, personal_access_token)
 
-    def scan_requirements(
+    def scan_dependencies(
         self,
-        requirements: str,
+        dependencies: dict[str, set[str]],
         rules=None,
         callback: typing.Callable[[dict], None] = noop,
-    ) -> dict:
+    ) :
         """
-        Reads the requirements.txt file and scans each possible
-        dependency and version
+        scans each possible dependency and version supplied
 
         Args:
-            requirements (str): contents of requirements.txt file
+            dependencies (dict): a mapping of dependency name to set of versions used
             rules: list of rules to apply
             callback: callback to call for each result
 
@@ -81,7 +80,6 @@ class ProjectScanner:
             result = self.package_scanner.scan_remote(dependency, version, rules)
             return {"dependency": dependency, "version": version, "result": result}
 
-        dependencies = self.parse_requirements(requirements)
         num_workers = PARALLELISM
 
         log.info(
@@ -152,7 +150,8 @@ class ProjectScanner:
         resp = requests.get(url=req_url, auth=token)
 
         if resp.status_code == 200:
-            return self.scan_requirements(resp.content.decode())
+            dependencies = self.parse_requirements(resp.content.decode())
+            return self.scan_dependencies(dependencies)
         else:
             log.error(
                 f"{req_url} does not exist. Check your link or branch name."
@@ -163,10 +162,10 @@ class ProjectScanner:
         self, path, rules=None, callback: typing.Callable[[dict], None] = noop
     ):
         """
-        Scans a local requirements.txt file
+        Scans a local requirements files (requirements.txt, package.json, etc.)
 
         Args:
-            path (str): path to requirements.txt file
+            path (str): path to requirements file or directory to search
             rules: list of rules to apply
             callback: callback to call for each result
 
@@ -186,9 +185,23 @@ class ProjectScanner:
             }
         """
 
+        requirement_paths = []
+
         try:
-            with open(path, "r") as f:
-                return self.scan_requirements(f.read(), rules, callback)
+            if os.path.isfile(path):
+                requirement_paths.append(path)
+            elif os.path.isdir(path):
+                requirement_paths.extend(self.find_requirements(path))
+            else:
+                raise ValueError(f"unable to find file or directory {path}")
+
+            dependencies: dict[str, set[str]] = {}
+
+            for req in requirement_paths:
+                with open(req, "r") as f:
+                    self._extend_requirements(dependencies, self.parse_requirements(f.read()))
+            self.scan_dependencies(dependencies, rules, callback)
+            return dependencies
         except Exception as e:
             log.error(f"Received {e}")
             sys.exit(255)
@@ -198,6 +211,20 @@ class ProjectScanner:
         self, raw_requirements: str
     ) -> dict[str, set[str]]:  # returns { package: version }
         pass
+
+    @abstractmethod
+    def find_requirements(
+            self, directory: str,
+    ) -> list[str]:  # returns paths of files
+        pass
+
+    @staticmethod
+    def _extend_requirements(reqs_a : dict[str, set[str]], reqs_b: dict[str, set[str]]):
+        for name, versions in reqs_b.items():
+            if name not in reqs_a:
+                reqs_a[name] = versions
+            else:
+                reqs_a[name].update(versions)
 
 
 class PackageScanner:

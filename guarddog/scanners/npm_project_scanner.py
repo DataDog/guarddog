@@ -1,5 +1,8 @@
 import json
 import logging
+import os
+import re
+
 import requests
 from semantic_version import NpmSpec, Version  # type:ignore
 
@@ -102,3 +105,11 @@ class NPMRequirementsScanner(ProjectScanner):
 
             results[package] = versions
         return results
+
+    def find_requirements(self, directory: str) -> list[str]:
+        requirement_files = []
+        for root, dirs, files in os.walk(directory):
+            for name in files:
+                if re.match(r"^package\.json$", name, flags=re.IGNORECASE):
+                    requirement_files.append(os.path.join(root, name))
+        return requirement_files

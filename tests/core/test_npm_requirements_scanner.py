@@ -1,3 +1,6 @@
+import os
+import pathlib
+
 from guarddog.scanners.npm_project_scanner import NPMRequirementsScanner
 
 
@@ -13,6 +16,16 @@ def test_npm_requirements_scanner():
     """)
     assert "non-existing" not in result  # ignoring non existing packages
     assert "express" in result
+
+
+def test_npm_find_requirements():
+    scanner = NPMRequirementsScanner()
+
+
+    requirements = scanner.find_requirements(
+        os.path.join(pathlib.Path(__file__).parent.resolve(), "resources")
+    )
+    assert requirements == [os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "package.json")]
 
 
 def test_npm_requirements_scanner_github():

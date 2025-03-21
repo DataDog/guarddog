@@ -1,4 +1,6 @@
 import logging
+import os
+import re
 from dataclasses import dataclass
 from typing import List
 
@@ -66,3 +68,11 @@ class GoDependenciesScanner(ProjectScanner):
             # TODO: support exclude, replace and retract statements
 
         return GoModule(module, go, toolchain, requirements)
+
+    def find_requirements(self, directory: str) -> list[str]:
+        requirement_files = []
+        for root, dirs, files in os.walk(directory):
+            for name in files:
+                if re.match(r"^go\.mod$", name, flags=re.IGNORECASE):
+                    requirement_files.append(os.path.join(root, name))
+        return requirement_files
