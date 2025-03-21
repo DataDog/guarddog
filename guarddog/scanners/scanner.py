@@ -162,7 +162,7 @@ class ProjectScanner:
         self, path, rules=None, callback: typing.Callable[[dict], None] = noop
     ):
         """
-        Scans a local requirements files (requirements.txt, npm.json, etc.)
+        Scans a local requirements files (requirements.txt, package.json, etc.)
 
         Args:
             path (str): path to requirements file or directory to search
@@ -193,7 +193,7 @@ class ProjectScanner:
             elif os.path.isdir(path):
                 requirement_paths.extend(self.find_requirements(path))
             else:
-                raise Exception(f"unable to find file or directory {path}")
+                raise ValueError(f"unable to find file or directory {path}")
 
             dependencies: dict[str, set[str]] = {}
 
