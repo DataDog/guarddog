@@ -229,9 +229,9 @@ opentelemetry-semantic-conventions==0.46b0 ; python_version >= "3.10" and python
 opentelemetry-util-http==0.46b0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:03b6e222642f9c7eae58d9132343e045b50aca9761fcb53709bd2b663571fdf6 \
     --hash=sha256:8dc1949ce63caef08db84ae977fdc1848fe6dc38e6bbaad0ae3e6ecd0d451629
-packaging==21.3 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
-    --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
+packaging==24.2 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
+    --hash=sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f
 peewee==3.16.2 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:10769981198c7311f84a0ca8db892fa213303a8eb1305deb795a71e7bd606a91
 prettytable==3.12.0 ; python_version >= "3.10" and python_version < "4" \
