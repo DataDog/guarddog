@@ -163,6 +163,7 @@ Source code heuristics:
 | **Heuristic** | **Description** |
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
+| go-exec-base64 | Identify Base64-decoded content being passed to execution functions |
 
 Metadata heuristics:
 
