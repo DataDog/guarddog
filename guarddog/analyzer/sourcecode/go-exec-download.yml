@@ -1,0 +1,89 @@
+rules:
+  - id: go-exec-download
+    languages:
+      - go
+    message: Downloads and executes a remote binary after setting executable
+      permissions.
+    metadata:
+      description: This rule downloads and executes a remote binary after setting
+        executable permissions.
+    severity: WARNING
+    mode: taint
+    pattern-sources:
+      - pattern: |
+          http.Get(...)
+          ...
+      - pattern: |
+          http.NewRequest(...)
+          ...
+          $CLIENT.Do(...)
+          ...
+      - patterns:
+          - pattern: |
+              $NET.$DIALFUNC(...)
+              ...
+          - metavariable-regex:
+              metavariable: $DIALFUNC
+              regex: Dial(?:Timeout|UDP|TCP|Unix)?
+      - patterns:
+          - pattern: |
+              $EXEC.Command("$DOWNLOADER", ...)
+              ...
+          - metavariable-regex:
+              metavariable: $DOWNLOADER
+              regex: wget|curl|scp|ftp|sftp|certutil|Invoke-WebRequest|Invoke-RestMethod
+    pattern-sinks:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: |
+                      $OS.OpenFile($PATH, ...,$PERMISSION)
+                      ...
+                  - pattern: |
+                      $PEM= $OS.FileMode($PERMISSION)
+                      ...
+                      $OS.Chmod($PATH, $PERM)
+              - metavariable-comparison:
+                  comparison: $PERMISSION==0o755 or $PERMISSION==0o777
+                  metavariable: $PERMISSION
+                  base: 8
+          - patterns:
+              - pattern-either:
+                  - pattern: |
+                      $OS.Create($PATH)
+                      ...
+                      $IO.Copy($FILE, $RESPBODY)
+                      ...
+                      $MAKE_EXEC
+                  - pattern: |
+                      $OS.Create($PATH)
+                      ...
+                      $RESPBODY.WriteTo($FILE)
+                      ...
+                      $MAKE_EXEC
+                  - pattern: |
+                      $IOUTIL.ReadAll($RESPBODY)
+                      ...
+                      $OS.WriteFile($PATH,...)
+                      ...
+                      $MAKE_EXEC
+                  - pattern: |
+                      $OS.Create($PATH)
+                      ...
+                      $OS.Write(...)
+                      ...
+                      $MAKE_EXEC
+                  - pattern: $MAKE_EXEC
+              - metavariable-pattern:
+                  metavariable: $MAKE_EXEC
+                  pattern-either:
+                    - patterns:
+                        - pattern-either:
+                            - pattern: $OS.Chmod($PATH, $PERMISSION)
+                            - pattern: $OS.Chmod($PATH, os.FileMode($PERMISSION))
+                            - pattern: $OS.Chmod($PATH,$PERM)
+                        - metavariable-comparison:
+                            metavariable: $PERMISSION
+                            comparison: $PERMISSION==0o755 or $PERMISSION==0o777
+                            base: 8
+                    - pattern: $OS.Chmod($PATH, $MODE | 0111)
