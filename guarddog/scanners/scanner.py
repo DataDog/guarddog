@@ -330,6 +330,40 @@ class PackageScanner:
                 name, tmpdirname, version, rules, write_package_info
             )
 
+    def scan_diff(self, name, old_version, new_version=None, rules=None) -> dict:
+        """
+        Perform a diff scan between the two given versions.
+
+        Args:
+            * `name` (str): The name of the package as found on PyPI
+            * `old_version` (str): The version of the package to diff against
+            * `new_version` (str): The version of the package to scan
+            * `rules` (set, optional): The set of rule names to use (default: all rules used)
+
+        Returns:
+            dict: A `dict` mapping rule names to the findings the rule produced during analysis
+        """
+        old_version_dir = tempfile.TemporaryDirectory()
+        new_version_dir = tempfile.TemporaryDirectory()
+
+        try:
+            _, _ = self.download_and_get_package_info(
+                old_version_dir.name, name, old_version
+            )
+            _, new_version_path = self.download_and_get_package_info(
+                new_version_dir.name, name, new_version
+            )
+        except Exception as e:
+            log.debug("Unable to download package, ignoring: " + str(e))
+            return {"issues": 0, "errors": {"download-package": str(e)}}
+
+        results = self.analyzer.analyze_sourcecode(new_version_path, rules=rules)
+
+        old_version_dir.cleanup()
+        new_version_dir.cleanup()
+
+        return results
+
     def download_compressed(self, url, archive_path, target_path):
         """Downloads a compressed file and extracts it
 

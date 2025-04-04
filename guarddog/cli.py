@@ -87,6 +87,9 @@ def scan_options(fn):
     fn = click.option(
         "-v", "--version", default=None, help="Specify a version to scan"
     )(fn)
+    fn = click.option(
+        "-d", "--diff", default=None, help="Scan only code changes made since a given version"
+    )(fn)
     return fn
 
 
@@ -194,6 +197,7 @@ def _verify(
 def _scan(
     identifier,
     version,
+    diff,
     rules,
     exclude_rules,
     output_format,
@@ -216,7 +220,10 @@ def _scan(
 
     result = {"package": identifier}
     try:
-        if os.path.isdir(identifier):
+        if diff:
+            log.debug(f"Diff scan: considering that '{identifier}' is a remote target")
+            result |= scanner.scan_diff(identifier, diff, version, rule_param)
+        elif os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
             result |= scanner.scan_local(identifier, rule_param)
         elif os.path.isfile(identifier):
@@ -288,11 +295,12 @@ class CliEcosystem(click.Group):
         @scan_options
         @rule_options
         def scan_ecosystem(
-            target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+            target, version, diff, rules, exclude_rules, output_format, exit_non_zero_on_finding
         ):
             return _scan(
                 target,
                 version,
+                diff,
                 rules,
                 exclude_rules,
                 output_format,
