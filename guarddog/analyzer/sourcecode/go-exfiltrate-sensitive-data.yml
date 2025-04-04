@@ -1,0 +1,55 @@
+rules:
+  - id: go-exfiltrate-sensitive-data
+    languages:
+      - go
+    message: Identify when a package reads and exfiltrates sensitive data from the local system.
+    metadata:
+      description: This rule detects Go code that downloads a remote binary and
+        executes it after setting executable permissions.
+    severity: WARNING
+    mode: taint
+    pattern-sources:
+      - pattern-either:
+          - pattern: os.Hostname()
+          - pattern: os.Getenv($USER)
+          - pattern: os.Environ()
+          - patterns:
+              - pattern-either:
+                  - pattern: |
+                        $OS.ReadFile($FILE)
+                        ...
+                  - pattern: |
+                        $OS.Open($FILE)
+                        ...
+                  - pattern: |
+                        $OS.OpenFile($FILE,...)
+                        ...
+              - metavariable-regex:
+                  metavariable: $FILE
+                  regex: \".*(\.aws\/(credentials|config)|\.config\/gcloud\/credentials|gcp.*\.json|\.azure\/(accessTokens|azureProfile)|\.ssh\/.*|\.git-credentials|\.netrc|\.npmrc|google-chrome\/.*\/(Cookies|Login\s?Data)|firefox\/.*\/(cookies\.sqlite|logins\.json)|\.docker\/config\.json|\.kube\/config)\"
+          - patterns:
+              - pattern-either:
+                  - pattern: |
+                        $OS.Getenv($ENVAR)
+                        ...
+                  - pattern: |
+                        $OS.LookupEnv($ENVAR)
+                        ...
+                  - pattern: |
+                        exec.Command(...,$ENVAR)
+                        ...
+              - metavariable-regex:
+                  metavariable: $ENVAR
+                  regex: \"(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|GOOGLE_APPLICATION_CREDENTIALS|AZURE_CLIENT_SECRET|CI_JOB_TOKEN|GITHUB_TOKEN|GITLAB_TOKEN|API_KEY|SECRET_KEY|ACCESS_TOKEN|TOKEN|PASSWORD)\"
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $HTTP.Post(...)
+          - pattern: $HTTP.NewRequest(...)
+          - pattern: $HTTP.PostForm(...)
+          - pattern: $NET.Dial(...)
+          - pattern: $NET.DialTCP(...)
+          - pattern: $NET.DialUDP(...)
+          - pattern: $NET.DialTimeout(...)
+          - pattern: $NET.LookupHost(...)
+          - pattern: $SMTP.SendMail(...)
+          - pattern: exec.Command(...)
