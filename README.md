@@ -12,7 +12,7 @@ GuardDog can be used to scan local or remote PyPI and npm packages or Go modules
 
 It downloads and scans code from:
 
-* NPM: Packages hosted in [npmjs.org](https://www.npmjs.com/) 
+* NPM: Packages hosted in [npmjs.org](https://www.npmjs.com/)
 * PyPI: Source files (tar.gz) packages hosted in [PyPI.org](https://pypi.org/)
 * Go: GoLang source files of repositories hosted in [GitHub.com](https://github.com)
 * GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
@@ -73,7 +73,7 @@ guarddog go scan github.com/DataDog/dd-trace-go
 
 guarddog go verify /tmp/repo/go.mod
 
-# Additionally can support scanning GitHub actions that are implemented in JavaScript 
+# Additionally can support scanning GitHub actions that are implemented in JavaScript
 guarddog github_action scan DataDog/synthetics-ci-github-action
 
 guarddog github_action verify /tmp/repo/.github/workflows/main.yml
@@ -164,6 +164,7 @@ Source code heuristics:
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
 | go-exec-base64 | Identify Base64-decoded content being passed to execution functions |
+| go-exec-download | Identify Go code that downloads potentially executable files |
 
 Metadata heuristics:
 
@@ -173,7 +174,7 @@ Metadata heuristics:
 
 
 ### GitHub Action
- 
+
 For GitHub Actions that are implemented in JavaScript,
 GuardDog will run the same source code heuristics as for npm packages.
 
@@ -205,17 +206,17 @@ Is possible then to write your own rule and drop it into that directory, Guarddo
 For example, you can create the following semgrep rule:
 ```yaml
 rules:
-  - id: sample-rule 
+  - id: sample-rule
     languages:
       - python
     message: Output message when rule matches
     metadata:
       description: Description used in the CLI help
     patterns:
-        YOUR RULE HEURISTICS GO HERE  
+        YOUR RULE HEURISTICS GO HERE
     severity: WARNING
 ```
-      
+
 Then you'll need to save it as `sample-rule.yml` and note that the id must match the filename
 
 In the case of Yara, you can create the following rule:
@@ -231,7 +232,7 @@ rule sample-rule
     1 of them
 }
 ```
-Then you'll need to save it as `sample-rule.yar`. 
+Then you'll need to save it as `sample-rule.yar`.
 
 Note that in both cases, the rule id must match the filename
 
