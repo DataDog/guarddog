@@ -2,6 +2,7 @@ import concurrent.futures
 import json
 import logging
 import os
+from pathlib import Path
 import sys
 import tempfile
 import typing
@@ -13,6 +14,7 @@ import requests
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.utils.archives import safe_extract
 from guarddog.utils.config import PARALLELISM
+from guarddog.utils.diff import DirectoryDiff
 
 log = logging.getLogger("guarddog")
 
@@ -347,7 +349,7 @@ class PackageScanner:
         new_version_dir = tempfile.TemporaryDirectory()
 
         try:
-            _, _ = self.download_and_get_package_info(
+            _, old_version_path = self.download_and_get_package_info(
                 old_version_dir.name, name, old_version
             )
             _, new_version_path = self.download_and_get_package_info(
@@ -356,6 +358,8 @@ class PackageScanner:
         except Exception as e:
             log.debug("Unable to download package, ignoring: " + str(e))
             return {"issues": 0, "errors": {"download-package": str(e)}}
+
+        diff = DirectoryDiff.from_directories(Path(old_version_path), Path(new_version_path))
 
         results = self.analyzer.analyze_sourcecode(new_version_path, rules=rules)
 
