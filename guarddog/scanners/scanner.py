@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import typing
@@ -361,7 +362,17 @@ class PackageScanner:
 
         diff = DirectoryDiff.from_directories(Path(old_version_path), Path(new_version_path))
 
-        results = self.analyzer.analyze_sourcecode(new_version_path, rules=rules)
+        with tempfile.TemporaryDirectory() as diff_dir:
+            for path in diff.added:
+                src_path = diff.right / path
+                dst_path = Path(diff_dir) / path
+                if src_path.is_dir():
+                    shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+                if src_path.is_file():
+                    os.makedirs(dst_path.parent, exist_ok=True)
+                    shutil.copy(src_path, dst_path)
+
+            results = self.analyzer.analyze_sourcecode(diff_dir, rules=rules)
 
         old_version_dir.cleanup()
         new_version_dir.cleanup()
