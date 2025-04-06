@@ -19,6 +19,9 @@ class GoModuleScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.GO))
 
+    def ecosystem(self) -> ECOSYSTEM:
+        return ECOSYSTEM.GO
+
     def download_and_get_package_info(
         self, directory: str, package_name: str, version=None
     ) -> Tuple[dict, str]:

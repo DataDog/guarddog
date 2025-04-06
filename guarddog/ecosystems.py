@@ -8,6 +8,7 @@ class ECOSYSTEM(Enum):
     GITHUB_ACTION = "github-action"
 
 
+# TODO(ikretz): Get rid of this function
 def get_friendly_name(ecosystem: ECOSYSTEM) -> str:
     match ecosystem:
         case ECOSYSTEM.PYPI:

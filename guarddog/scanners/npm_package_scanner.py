@@ -17,6 +17,9 @@ class NPMPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.NPM))
 
+    def ecosystem(self) -> ECOSYSTEM:
+        return ECOSYSTEM.NPM
+
     def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
         git_target = None
         if urlparse(package_name).hostname is not None and package_name.endswith('.git'):

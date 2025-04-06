@@ -13,9 +13,10 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from guarddog.analyzer.analyzer import Analyzer
+from guarddog.ecosystems import ECOSYSTEM
 from guarddog.utils.archives import safe_extract
 from guarddog.utils.config import PARALLELISM
-from guarddog.utils.diff import DirectoryDiff
+from guarddog.utils.diff import DirectoryDiff, SourceFileDiffer
 
 log = logging.getLogger("guarddog")
 
@@ -242,6 +243,13 @@ class PackageScanner:
         super().__init__()
         self.analyzer = analyzer
 
+    @abstractmethod
+    def ecosystem(self) -> ECOSYSTEM:
+        """
+        Return the package ecosystem a `PackageScanner` is intended for.
+        """
+        raise NotImplementedError("ecosystem is not implemented")
+
     def scan_local(
         self, path, rules=None, callback: typing.Callable[[dict], None] = noop
     ) -> dict:
@@ -346,6 +354,16 @@ class PackageScanner:
         Returns:
             dict: A `dict` mapping rule names to the findings the rule produced during analysis
         """
+        def release_temp_dirs(temp_dirs: list) -> None:
+            for dir in temp_dirs:
+                dir.cleanup()
+
+        try:
+            source_differ = SourceFileDiffer.from_ecosystem(self.ecosystem())
+        except Exception as e:
+            log.debug(f"Failed to initialize source file differ: {e}")
+            return {"issues": 0, "errors": {"diff-scan": str(e)}}
+
         old_version_dir = tempfile.TemporaryDirectory()
         new_version_dir = tempfile.TemporaryDirectory()
 
@@ -357,28 +375,39 @@ class PackageScanner:
                 new_version_dir.name, name, new_version
             )
         except Exception as e:
-            old_version_dir.cleanup()
-            new_version_dir.cleanup()
+            release_temp_dirs([old_version_dir, new_version_dir])
             log.debug("Unable to download package, ignoring: " + str(e))
             return {"issues": 0, "errors": {"download-package": str(e)}}
 
         diff = DirectoryDiff.from_directories(Path(old_version_path), Path(new_version_path))
         diff_dir = tempfile.TemporaryDirectory()
 
+        for path in diff.changed:
+            old_path = diff.left / path
+            new_path = diff.right / path
+            diff_path = Path(diff_dir.name) / path
+            os.makedirs(diff_path.parent, exist_ok=True)
+
+            try:
+                source_diff = source_differ.get_diff(old_path, new_path)
+                with open(diff_path, 'w') as f:
+                    f.write(source_diff)
+            except Exception as e:
+                log.debug(f"Failed to diff file {path}: {e}")
+                shutil.copy(new_path, diff_path)
+
         for path in diff.added:
             src_path = diff.right / path
             dst_path = Path(diff_dir.name) / path
             if src_path.is_dir():
                 shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
-            if src_path.is_file():
+            elif src_path.is_file():
                 os.makedirs(dst_path.parent, exist_ok=True)
                 shutil.copy(src_path, dst_path)
 
         results = self.analyzer.analyze_sourcecode(diff_dir.name, rules=rules)
 
-        old_version_dir.cleanup()
-        new_version_dir.cleanup()
-        diff_dir.cleanup()
+        release_temp_dirs([old_version_dir, new_version_dir, diff_dir])
 
         return results
 
