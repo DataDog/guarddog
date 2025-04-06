@@ -16,7 +16,7 @@ from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.utils.archives import safe_extract
 from guarddog.utils.config import PARALLELISM
-from guarddog.utils.diff import DirectoryDiff, SourceFileDiffer
+from guarddog.utils.diff import DirectoryDiff, SourceCodeDiffer
 
 log = logging.getLogger("guarddog")
 
@@ -359,7 +359,7 @@ class PackageScanner:
                 dir.cleanup()
 
         try:
-            source_differ = SourceFileDiffer.from_ecosystem(self.ecosystem())
+            source_differ = SourceCodeDiffer.from_ecosystem(self.ecosystem())
         except Exception as e:
             log.debug(f"Failed to initialize source file differ: {e}")
             return {"issues": 0, "errors": {"diff-scan": str(e)}}
@@ -389,8 +389,12 @@ class PackageScanner:
             os.makedirs(diff_path.parent, exist_ok=True)
 
             try:
-                source_diff = source_differ.get_diff(old_path, new_path)
-                with open(diff_path, 'w') as f:
+                with open(old_path, 'rb') as f:
+                    old_source = f.read()
+                with open(new_path, 'rb') as f:
+                    new_source = f.read()
+                source_diff = source_differ.get_diff(old_source, new_source)
+                with open(diff_path, 'wb') as f:
                     f.write(source_diff)
             except Exception as e:
                 log.debug(f"Failed to diff file {path}: {e}")
