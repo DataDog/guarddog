@@ -6,7 +6,10 @@ from dataclasses import dataclass
 import filecmp
 import functools
 from pathlib import Path
-from typing import Optional
+from tree_sitter import Language, Parser
+import tree_sitter_go as ts_go
+import tree_sitter_javascript as ts_javascript
+import tree_sitter_python as ts_python
 from typing_extensions import Self
 
 from guarddog.ecosystems import ECOSYSTEM, get_friendly_name
@@ -16,6 +19,9 @@ class SourceFileDiffer:
     """
     Provides source code file diffing utilities in various ecosystems.
     """
+    def __init__(self, parser: Parser):
+        self.parser = parser
+
     @classmethod
     def from_ecosystem(cls, ecosystem: ECOSYSTEM) -> Self:
         """
@@ -30,10 +36,17 @@ class SourceFileDiffer:
         Raises:
             ValueError: The given `ecosystem` is not supported.
         """
-        if ecosystem == ECOSYSTEM.PYPI:
-            return cls()
-        else:
-            raise ValueError(f"Diff scans are not available for the {get_friendly_name(ecosystem)} ecosystem")
+        match ecosystem:
+            case ECOSYSTEM.PYPI:
+                language = ts_python.language()
+            case ECOSYSTEM.NPM:
+                language = ts_javascript.language()
+            case ECOSYSTEM.GO:
+                language = ts_go.language()
+            case ECOSYSTEM.GITHUB_ACTION:
+                raise ValueError("Diff scans are not available for GitHub Actions")
+
+        return cls(Parser(Language(language)))
 
     def get_diff(self, left: Path, right: Path) -> str:
         """
@@ -59,6 +72,9 @@ class SourceFileDiffer:
 
 @dataclass
 class DirectoryDiff:
+    """
+    The structured results of recursively diffing two directories.
+    """
     left: Path
     right: Path
     added: list[Path]
@@ -66,6 +82,16 @@ class DirectoryDiff:
 
     @classmethod
     def from_directories(cls, left: Path, right: Path) -> Self:
+        """
+        Recursively diff two directories.
+
+        Args:
+            * `left` (Path): The directory to diff against.
+            * `right` (Path): The directory to be diffed.
+
+        Returns:
+            A `DirectoryDiff` containing the results of diffing the given directories.
+        """
         def inner(acc: tuple[list[Path], list[Path]], dcmp) -> tuple[list[Path], list[Path]]:
             added = list(map(lambda file: Path(dcmp.right) / Path(file), dcmp.right_only))
             changed = list(map(lambda file: Path(dcmp.right) / Path(file), dcmp.diff_files))
