@@ -389,13 +389,13 @@ class PackageScanner:
             os.makedirs(diff_path.parent, exist_ok=True)
 
             try:
-                with open(old_path, 'rb') as f:
-                    old_source = f.read()
-                with open(new_path, 'rb') as f:
-                    new_source = f.read()
+                with open(old_path, 'rb') as r:
+                    old_source = r.read()
+                with open(new_path, 'rb') as r:
+                    new_source = r.read()
                 source_diff = source_differ.get_diff(old_source, new_source)
-                with open(diff_path, 'wb') as f:
-                    f.write(source_diff)
+                with open(diff_path, 'wb') as w:
+                    w.write(source_diff)
             except Exception as e:
                 log.debug(f"Failed to diff file {path}: {e}")
                 shutil.copy(new_path, diff_path)
