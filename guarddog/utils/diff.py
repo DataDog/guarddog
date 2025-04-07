@@ -75,24 +75,10 @@ class SourceCodeDiffer:
         def node_eq(left: Node, right: Node) -> bool:
             return left.type == right.type and left.text == right.text
 
-        def select_relevant_nodes(tree: Tree) -> list[Node]:
-            relevant_types = {
-                "function_definition",
-                "class_definition",
-                "decorated_definition",
-                "expression_statement",
-                "import_statement",
-                "import_from_statement",
-                "assignment",
-            }
-            return [node for node in tree.root_node.children if node.type in relevant_types]
-
         def get_changed_nodes(left: Tree, right: Tree) -> list[Node]:
-            left_nodes = select_relevant_nodes(left)
-            right_nodes = select_relevant_nodes(right)
             return [
-                right_node for right_node in right_nodes
-                if not any(node_eq(right_node, left_node) for left_node in left_nodes)
+                right_node for right_node in right.root_node.children
+                if not any(node_eq(right_node, left_node) for left_node in left.root_node.children)
             ]
 
         def generate_program(nodes: list[Node]) -> bytes:

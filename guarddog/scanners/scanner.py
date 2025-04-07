@@ -400,7 +400,7 @@ class PackageScanner:
                 with open(diff_path, 'wb') as w:
                     w.write(source_diff)
             except Exception as e:
-                log.warning(f"Failed to diff file {path}, analyzing original file: {e}")
+                log.info(f"Failed to diff file {path}, analyzing original file: {e}")
                 shutil.copy(new_path, diff_path)
 
         results = self.analyzer.analyze_sourcecode(diff_dir.name, rules=rules)

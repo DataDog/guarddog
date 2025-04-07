@@ -1,8 +1,5 @@
 import unittest
 import unittest.mock as mock
-import zipfile
-
-import tarsafe
 
 import guarddog.cli
 from guarddog.ecosystems import ECOSYSTEM
@@ -27,6 +24,30 @@ class TestCli(unittest.TestCase):
         self._test_local_file_template("/tmp/foo")
         self._test_local_file_template("./foo")
         self._test_local_file_template("../foo")
+
+    def test_diff(self):
+        """
+        Test that the CLI identifies diff scans correctly
+        """
+        with mock.patch.object(scanner.PackageScanner, 'scan_diff', return_value={}) as _:
+            with self.assertLogs("guarddog", level="DEBUG") as cm:
+                guarddog.cli._scan("foo", "0.2.0", "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+            self.assertIn(
+                f"DEBUG:guarddog:Diff scan: considering that 'foo' is a remote target",
+                cm.output
+            )
+            self.assertNotIn(
+                f"DEBUG:guarddog:Considering that 'foo' is a local directory",
+                cm.output
+            )
+            self.assertNotIn(
+                f"DEBUG:guarddog:Considering that 'foo' is a local archive file",
+                cm.output
+            )
+            self.assertNotIn(
+                f"DEBUG:guarddog:Considering that 'foo' is a remote target",
+                cm.output
+            )
 
     def test_get_rule_param_include(self):
         """
@@ -56,10 +77,13 @@ class TestCli(unittest.TestCase):
         # `directory` is a directory
         with mock.patch("os.path.isdir") as isdir:
             isdir.return_value = True
-            with mock.patch("os.listdir") as listdir:
-                listdir.return_value = []
+            with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
                 with self.assertLogs("guarddog", level="DEBUG") as cm:
                     guarddog.cli._scan(directory, "0.1.0", None, (), (), None, False, ECOSYSTEM.PYPI)
+                self.assertNotIn(
+                    f"DEBUG:guarddog:Diff scan: considering that '{directory}' is a remote target",
+                    cm.output
+                )
                 self.assertIn(
                     f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
                     cm.output
@@ -78,9 +102,13 @@ class TestCli(unittest.TestCase):
             isdir.return_value = False
             with mock.patch("os.path.isfile") as isfile:
                 isfile.return_value = False
-                with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
+                with mock.patch.object(scanner.PackageScanner, 'scan_remote', return_value={}) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(directory, "0.1.0", None, (), (), None, False, ECOSYSTEM.PYPI)
+                    self.assertNotIn(
+                        f"DEBUG:guarddog:Diff scan: considering that '{directory}' is a remote target",
+                        cm.output
+                    )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
                         cm.output
@@ -114,6 +142,10 @@ class TestCli(unittest.TestCase):
                             # patched accordingly, we always end up here
                             except SystemExit:
                                 self.assertNotIn(
+                                    f"DEBUG:guarddog:Diff scan: considering that '{filename}' is a remote target",
+                                    cm.output
+                                )
+                                self.assertNotIn(
                                     f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
                                     cm.output
                                 )
@@ -131,9 +163,13 @@ class TestCli(unittest.TestCase):
             isdir.return_value = False
             with mock.patch("os.path.isfile") as isfile:
                 isfile.return_value = False
-                with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
+                with mock.patch.object(scanner.PackageScanner, 'scan_remote', return_value={}) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(filename, "0.1.0", None, (), (), None, False, ECOSYSTEM.PYPI)
+                    self.assertNotIn(
+                        f"DEBUG:guarddog:Diff scan: considering that '{filename}' is a remote target",
+                        cm.output
+                    )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
                         cm.output
