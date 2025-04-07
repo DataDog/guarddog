@@ -59,7 +59,7 @@ class TestCli(unittest.TestCase):
             with mock.patch("os.listdir") as listdir:
                 listdir.return_value = []
                 with self.assertLogs("guarddog", level="DEBUG") as cm:
-                    guarddog.cli._scan(directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                    guarddog.cli._scan(directory, "0.1.0", None, (), (), None, False, ECOSYSTEM.PYPI)
                 self.assertIn(
                     f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
                     cm.output
@@ -80,7 +80,7 @@ class TestCli(unittest.TestCase):
                 isfile.return_value = False
                 with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
-                        guarddog.cli._scan(directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                        guarddog.cli._scan(directory, "0.1.0", None, (), (), None, False, ECOSYSTEM.PYPI)
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
                         cm.output
@@ -109,7 +109,7 @@ class TestCli(unittest.TestCase):
                         with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
                             try:
                                 with self.assertLogs("guarddog", level="DEBUG") as cm:
-                                    guarddog.cli._scan(filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                                    guarddog.cli._scan(filename, "0.1.0", None, (), (), None, False, ECOSYSTEM.PYPI)
                             # Since is_tar_archive and is_zip_archive have been
                             # patched accordingly, we always end up here
                             except SystemExit:
@@ -133,7 +133,7 @@ class TestCli(unittest.TestCase):
                 isfile.return_value = False
                 with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
-                        guarddog.cli._scan(filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                        guarddog.cli._scan(filename, "0.1.0", None, (), (), None, False, ECOSYSTEM.PYPI)
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
                         cm.output
