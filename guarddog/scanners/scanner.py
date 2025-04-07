@@ -382,6 +382,9 @@ class PackageScanner:
         diff = DirectoryDiff.from_directories(Path(old_version_path), Path(new_version_path))
         diff_dir = tempfile.TemporaryDirectory()
 
+        diff.copy_added(Path(diff_dir.name))
+        diff.copy_funny_from_right(Path(diff_dir.name))
+
         for path in diff.changed:
             old_path = diff.left / path
             new_path = diff.right / path
@@ -397,17 +400,8 @@ class PackageScanner:
                 with open(diff_path, 'wb') as w:
                     w.write(source_diff)
             except Exception as e:
-                log.debug(f"Failed to diff file {path}: {e}")
+                log.warning(f"Failed to diff file {path}, analyzing original file: {e}")
                 shutil.copy(new_path, diff_path)
-
-        for path in diff.added:
-            src_path = diff.right / path
-            dst_path = Path(diff_dir.name) / path
-            if src_path.is_dir():
-                shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
-            elif src_path.is_file():
-                os.makedirs(dst_path.parent, exist_ok=True)
-                shutil.copy(src_path, dst_path)
 
         results = self.analyzer.analyze_sourcecode(diff_dir.name, rules=rules)
 
