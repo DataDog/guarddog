@@ -1,8 +1,21 @@
+
+
+
+
+
+
+
+
+
+
+
+
 type Game struct {
 	min   int
 	max   int
 	value int
 }
+
 func NewGame(min, max int) *Game {
 	rand.Seed(time.Now().UnixNano())
 	return &Game{
@@ -11,6 +24,7 @@ func NewGame(min, max int) *Game {
 		value: rand.Intn(max-min+1) + min,
 	}
 }
+
 func (g *Game) Play() {
 	fmt.Printf("I'm thinking of a number between %d and %d!\n", g.min, g.max)
 

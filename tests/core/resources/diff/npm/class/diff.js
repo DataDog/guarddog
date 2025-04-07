@@ -1,3 +1,9 @@
+
+
+
+
+
+
 class Game {
   constructor(min = 1, max = 100) {
     this.min = min;

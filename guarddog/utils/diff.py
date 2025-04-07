@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import shutil
 import sys
-from tree_sitter import Language, Node, Parser, Tree
+from tree_sitter import Language, Node, Parser
 import tree_sitter_go as ts_go
 import tree_sitter_javascript as ts_javascript
 import tree_sitter_python as ts_python
@@ -75,19 +75,32 @@ class SourceCodeDiffer:
         def node_eq(left: Node, right: Node) -> bool:
             return left.type == right.type and left.text == right.text
 
-        def get_changed_nodes(left: Tree, right: Tree) -> list[Node]:
-            return [
-                right_node for right_node in right.root_node.children
-                if not any(node_eq(right_node, left_node) for left_node in left.root_node.children)
-            ]
-
         def generate_program(nodes: list[Node]) -> bytes:
-            return b'\n'.join(right[node.start_byte:node.end_byte] for node in nodes)
+            program = bytearray()
+            line, column = 0, 0
+
+            for node in nodes:
+                while line < node.start_point[0]:
+                    program.extend(b'\n')
+                    line += 1
+                while column < node.start_point[1]:
+                    program.extend(b' ')
+                    column += 1
+                if node.text:
+                    program.extend(node.text)
+                line, column = node.end_point[0], node.end_point[1]
+
+            return bytes(program)
 
         left_tree = self._parser.parse(left)
         right_tree = self._parser.parse(right)
 
-        return generate_program(get_changed_nodes(left_tree, right_tree))
+        changed_nodes = [
+            right_node for right_node in right_tree.root_node.children
+            if not any(node_eq(right_node, left_node) for left_node in left_tree.root_node.children)
+        ]
+
+        return generate_program(changed_nodes)
 
 
 @dataclass

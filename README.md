@@ -57,7 +57,7 @@ guarddog pypi scan /tmp/triage.tar.gz
 # Scan a local package directory
 guarddog pypi scan /tmp/triage/
 
-# Scan code changes between two versions of a package
+# Scan code changes between two versions of a package (remote targets only)
 guarddog pypi scan requests --version 2.32.3 --diff 2.32.2
 
 # Scan every package referenced in a requirements.txt file of a local folder
