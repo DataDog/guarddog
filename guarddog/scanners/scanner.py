@@ -404,13 +404,8 @@ class PackageScanner:
             os.makedirs(diff_path.parent, exist_ok=True)
 
             try:
-                with open(old_path, 'rb') as r:
-                    old_source = r.read()
-                with open(new_path, 'rb') as r:
-                    new_source = r.read()
-                source_diff = source_differ.get_diff(old_source, new_source)
-                with open(diff_path, 'wb') as w:
-                    w.write(source_diff)
+                with open(old_path, 'rb') as old, open(new_path, 'rb') as new, open(diff_path, 'wb') as d:
+                    d.write(source_differ.get_diff(old.read(), new.read()))
             except Exception as e:
                 log.info(f"Failed to diff file {path}, analyzing original file: {e}")
                 shutil.copy(new_path, diff_path)
