@@ -348,7 +348,7 @@ class PackageScanner:
         Args:
             * `name` (str): The name of the package as found on PyPI
             * `old_version` (str): The version of the package to diff against
-            * `new_version` (str): The version of the package to scan
+            * `new_version` (str, optional): The version of the package to scan
             * `rules` (set, optional): The set of rule names to use (default: all rules used)
 
         Returns:
