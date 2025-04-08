@@ -18,13 +18,30 @@ from guarddog.ecosystems import ECOSYSTEM
 
 log = logging.getLogger("guarddog")
 
+# The TreeSitter.Node types of import-like statements in each supported language
+PYTHON_IMPORT_TYPES = {
+    "aliased_import",
+    "future_import_statement",
+    "import_from_statement",
+    "import_statement",
+}
+NPM_IMPORT_TYPES = {
+    "import_statement",
+    "namespace_import",
+    "require_call",
+}
+GO_IMPORT_TYPES = {
+    "import_declaration"
+}
+
 
 class SourceCodeDiffer:
     """
     Provides source code diffing utilities parameterized over target language.
     """
-    def __init__(self, parser: Parser):
+    def __init__(self, parser: Parser, import_types: set[str]):
         self._parser = parser
+        self._import_types = import_types
 
     @classmethod
     def from_ecosystem(cls, ecosystem: ECOSYSTEM) -> Self:
@@ -42,15 +59,15 @@ class SourceCodeDiffer:
         """
         match ecosystem:
             case ECOSYSTEM.PYPI:
-                language = ts_python.language()
+                language, import_types = ts_python.language(), PYTHON_IMPORT_TYPES
             case ECOSYSTEM.NPM:
-                language = ts_javascript.language()
+                language, import_types = ts_javascript.language(), NPM_IMPORT_TYPES
             case ECOSYSTEM.GO:
-                language = ts_go.language()
+                language, import_types = ts_go.language(), GO_IMPORT_TYPES
             case ECOSYSTEM.GITHUB_ACTION:
                 raise ValueError("Diff scans are not available for GitHub Actions")
 
-        return cls(Parser(Language(language)))
+        return cls(Parser(Language(language)), import_types)
 
     def get_diff(self, left: bytes, right: bytes) -> bytes:
         """
@@ -93,12 +110,16 @@ class SourceCodeDiffer:
         left_tree = self._parser.parse(left)
         right_tree = self._parser.parse(right)
 
-        changed_nodes = [
+        relevant_nodes = [
             right_node for right_node in right_tree.root_node.children
-            if not any(node_eq(right_node, left_node) for left_node in left_tree.root_node.children)
+            if (
+                right_node.type in self._import_types
+                or not any(node_eq(right_node, left_node) for left_node in left_tree.root_node.children)
+            )
         ]
+        has_relevant_change = any(node.type not in self._import_types for node in relevant_nodes)
 
-        return generate_program(changed_nodes)
+        return generate_program(relevant_nodes) if has_relevant_change else bytes()
 
 
 @dataclass

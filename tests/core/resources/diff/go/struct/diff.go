@@ -1,14 +1,14 @@
 
 
-
-
-
-
-
-
-
-
-
+import (
+	"bufio"
+	"fmt"
+	"math/rand"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+)
 
 type Game struct {
 	min   int

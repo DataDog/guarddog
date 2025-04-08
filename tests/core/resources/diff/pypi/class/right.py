@@ -5,6 +5,7 @@ A guessing game.
 import random
 import sys
 
+
 class Game:
     def __init__(self, min=1, max=100):
         self.min = min
