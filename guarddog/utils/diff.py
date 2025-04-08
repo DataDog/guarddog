@@ -6,10 +6,7 @@ from dataclasses import dataclass
 import filecmp
 import functools
 import logging
-import os
 from pathlib import Path
-import shutil
-import sys
 from typing_extensions import Self
 
 from tree_sitter import Language, Node, Parser
