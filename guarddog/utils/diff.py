@@ -112,6 +112,7 @@ class SourceCodeDiffer:
         left_tree = self._parser.parse(left)
         right_tree = self._parser.parse(right)
 
+        # The relevant nodes are import statements and anything changed or added at the top level
         relevant_nodes = [
             right_node for right_node in right_tree.root_node.children
             if (
@@ -121,6 +122,7 @@ class SourceCodeDiffer:
         ]
         has_relevant_change = any(node.type not in self._import_types for node in relevant_nodes)
 
+        # Don't emit a program if the only relevant nodes were import statements
         return generate_program(relevant_nodes) if has_relevant_change else bytes()
 
 
