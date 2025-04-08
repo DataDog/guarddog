@@ -10,11 +10,12 @@ import os
 from pathlib import Path
 import shutil
 import sys
+from typing_extensions import Self
+
 from tree_sitter import Language, Node, Parser
 import tree_sitter_go as ts_go
 import tree_sitter_javascript as ts_javascript
 import tree_sitter_python as ts_python
-from typing_extensions import Self
 
 from guarddog.ecosystems import ECOSYSTEM
 
@@ -152,47 +153,3 @@ class DirectoryDiff:
             as_relative_right(changed),
             as_relative_right(funny)
         )
-
-    def copy_added(self, dst_dir: Path):
-        """
-        Copy all added files and directories into `dst_dir` while preserving
-        the original directory structure.
-
-        Args:
-            * `dst_dir` (Path): The directory to copy into.
-        """
-        self._copy("added", from_right=True, dst_dir=dst_dir)
-
-    def copy_funny_from_right(self, dst_dir: Path):
-        """
-        Copy all funny files and directories from the right-hand side directory
-        into `dst_dir` while preserving the original directory structure.
-
-        Args:
-            * `dst_dir` (Path): The directory to copy into.
-        """
-        self._copy("funny", from_right=True, dst_dir=dst_dir)
-
-    def _copy(self, target: str, from_right: bool, dst_dir: Path):
-        src_dir = self.right if from_right else self.left
-
-        targets = None
-        match target:
-            case "added" if from_right:
-                targets = self.added
-            case "funny":
-                targets = self.funny
-        if targets is None:
-            log.error("An invalid DirectoryDiff copy operation was attempted")
-            sys.exit(1)
-
-        for path in targets:
-            src_path = src_dir / path
-            dst_path = dst_dir / path
-            if src_path.is_dir():
-                shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
-            elif src_path.is_file():
-                os.makedirs(dst_path.parent, exist_ok=True)
-                shutil.copy(src_path, dst_path)
-            else:
-                log.warning(f"Skipping strange path {path} while copying diff items")

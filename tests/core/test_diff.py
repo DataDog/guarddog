@@ -60,6 +60,7 @@ def test_source_code_diff_no_change(ecosystem: ECOSYSTEM, test_name):
 
     assert not result
 
+
 def _fixes_for_ecosystem(ecosystem: ECOSYSTEM) -> tuple[str, str]:
     # TODO(ikretz): Replace with `__str__` implementation for `ECOSYSTEM`
     match ecosystem:

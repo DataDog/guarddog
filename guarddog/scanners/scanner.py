@@ -358,6 +358,18 @@ class PackageScanner:
             for dir in temp_dirs:
                 dir.cleanup()
 
+        def copy_all(paths: set[Path], src_dir: Path, dst_dir: Path):
+            for path in paths:
+                src_path = src_dir / path
+                dst_path = dst_dir / path
+                if src_path.is_dir():
+                    shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+                elif src_path.is_file():
+                    os.makedirs(dst_path.parent, exist_ok=True)
+                    shutil.copy(src_path, dst_path)
+                else:
+                    log.warning(f"Skipping strange path {path} while copying items")
+
         try:
             source_differ = SourceCodeDiffer.from_ecosystem(self.ecosystem())
         except Exception as e:
@@ -382,8 +394,8 @@ class PackageScanner:
         diff = DirectoryDiff.from_directories(Path(old_version_path), Path(new_version_path))
         diff_dir = tempfile.TemporaryDirectory()
 
-        diff.copy_added(Path(diff_dir.name))
-        diff.copy_funny_from_right(Path(diff_dir.name))
+        copy_all(diff.added, diff.right, Path(diff_dir.name))
+        copy_all(diff.funny, diff.right, Path(diff_dir.name))
 
         for path in diff.changed:
             old_path = diff.left / path
