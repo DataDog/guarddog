@@ -2,7 +2,7 @@
 
 
 
-
+import { createInterface } from "readline";
 
 class Game {
   constructor(min = 1, max = 100) {
@@ -10,7 +10,7 @@ class Game {
     this.max = max;
     // Rename this attribute
     this.value = this.getRandomInt(this.min, this.max);
-    this.rl = readline.createInterface({
+    this.rl = createInterface({
       input: process.stdin,
       output: process.stdout
     });

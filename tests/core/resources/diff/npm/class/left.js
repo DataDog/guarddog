@@ -2,14 +2,14 @@
  * A guessing game.
  */
 
-const readline = require('readline');
+import { createInterface } from "readline";
 
 class Game {
   constructor(min = 1, max = 100) {
     this.min = min;
     this.max = max;
     this.target = this.getRandomInt(this.min, this.max);
-    this.rl = readline.createInterface({
+    this.rl = createInterface({
       input: process.stdin,
       output: process.stdout
     });
