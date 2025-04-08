@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import sys
-import tempfile
+from tempfile import TemporaryDirectory
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
@@ -335,7 +335,7 @@ class PackageScanner:
         if base_dir is not None:
             return self._scan_remote(name, base_dir, version, rules, write_package_info)
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        with TemporaryDirectory() as tmpdirname:
             # Directory to download compressed and uncompressed package
             return self._scan_remote(
                 name, tmpdirname, version, rules, write_package_info
@@ -354,10 +354,6 @@ class PackageScanner:
         Returns:
             dict: A `dict` mapping rule names to the findings the rule produced during analysis
         """
-        def release_temp_dirs(temp_dirs: list) -> None:
-            for dir in temp_dirs:
-                dir.cleanup()
-
         def copy_all(paths: set[Path], src_dir: Path, dst_dir: Path):
             for path in paths:
                 src_path = src_dir / path
@@ -370,51 +366,39 @@ class PackageScanner:
                 else:
                     log.warning(f"Skipping strange path {path} while copying items")
 
-        try:
-            source_differ = SourceCodeDiffer.from_ecosystem(self.ecosystem())
-        except Exception as e:
-            log.debug(f"Failed to initialize source file differ: {e}")
-            return {"issues": 0, "errors": {"diff-scan": str(e)}}
-
-        old_version_dir = tempfile.TemporaryDirectory()
-        new_version_dir = tempfile.TemporaryDirectory()
-
-        try:
-            _, old_version_path = self.download_and_get_package_info(
-                old_version_dir.name, name, old_version
-            )
-            _, new_version_path = self.download_and_get_package_info(
-                new_version_dir.name, name, new_version
-            )
-        except Exception as e:
-            release_temp_dirs([old_version_dir, new_version_dir])
-            log.debug("Unable to download package, ignoring: " + str(e))
-            return {"issues": 0, "errors": {"download-package": str(e)}}
-
-        diff = DirectoryDiff.from_directories(Path(old_version_path), Path(new_version_path))
-        diff_dir = tempfile.TemporaryDirectory()
-
-        copy_all(diff.added, diff.right, Path(diff_dir.name))
-        copy_all(diff.funny, diff.right, Path(diff_dir.name))
-
-        for path in diff.changed:
-            old_path = diff.left / path
-            new_path = diff.right / path
-            diff_path = Path(diff_dir.name) / path
-            os.makedirs(diff_path.parent, exist_ok=True)
+        with TemporaryDirectory() as old_dir, TemporaryDirectory() as new_dir, TemporaryDirectory() as diff_dir:
+            try:
+                source_differ = SourceCodeDiffer.from_ecosystem(self.ecosystem())
+            except Exception as e:
+                log.debug(f"Failed to initialize source file differ: {e}")
+                return {"issues": 0, "errors": {"diff-scan": str(e)}}
 
             try:
-                with open(old_path, 'rb') as old, open(new_path, 'rb') as new, open(diff_path, 'wb') as d:
-                    d.write(source_differ.get_diff(old.read(), new.read()))
+                _, old_dir = self.download_and_get_package_info(old_dir, name, old_version)
+                _, new_dir = self.download_and_get_package_info(new_dir, name, new_version)
             except Exception as e:
-                log.info(f"Failed to diff file {path}, analyzing original file: {e}")
-                shutil.copy(new_path, diff_path)
+                log.debug("Unable to download package, ignoring: " + str(e))
+                return {"issues": 0, "errors": {"download-package": str(e)}}
 
-        results = self.analyzer.analyze_sourcecode(diff_dir.name, rules=rules)
+            diff = DirectoryDiff.from_directories(Path(old_dir), Path(new_dir))
 
-        release_temp_dirs([old_version_dir, new_version_dir, diff_dir])
+            copy_all(diff.added, diff.right, Path(diff_dir))
+            copy_all(diff.funny, diff.right, Path(diff_dir))
 
-        return results
+            for path in diff.changed:
+                old_path = diff.left / path
+                new_path = diff.right / path
+                diff_path = Path(diff_dir) / path
+                os.makedirs(diff_path.parent, exist_ok=True)
+
+                try:
+                    with open(old_path, 'rb') as old, open(new_path, 'rb') as new, open(diff_path, 'wb') as d:
+                        d.write(source_differ.get_diff(old.read(), new.read()))
+                except Exception as e:
+                    log.info(f"Failed to diff file {path}, analyzing original file: {e}")
+                    shutil.copy(new_path, diff_path)
+
+            return self.analyzer.analyze_sourcecode(diff_dir, rules=rules)
 
     def download_compressed(self, url, archive_path, target_path):
         """Downloads a compressed file and extracts it
