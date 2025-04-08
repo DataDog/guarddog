@@ -78,11 +78,12 @@ class SourceCodeDiffer:
             * `right` (bytes): The source code to be diffed.
 
         Returns:
-            A minimal, syntactically valid program containing all lines in `right` that had
-            changes with respect to `left`.
+            A nearly minimal, syntactically valid program containing all lines in `right`
+            that had changes with respect to `left`.
 
-            The returned program is minimal in the sense that it only contains the top-level
-            definitions in `right` that had at least one change with respect to `left`.
+            The returned program is "nearly" minimal in the sense that it only contains the
+            top-level statements in `right` that had at least one change with respect to
+            `left`, plus all import statements at this level.
 
         Raises:
             ValueError: The inputs could not be correctly parsed by the `SourceCodeDiffer`.
@@ -92,18 +93,19 @@ class SourceCodeDiffer:
 
         def generate_program(nodes: list[Node]) -> bytes:
             program = bytearray()
-            line, column = 0, 0
+            row, column = 0, 0
 
             for node in nodes:
-                while line < node.start_point[0]:
+                start_row, start_column = node.start_point
+                while row < start_row:
                     program.extend(b'\n')
-                    line += 1
-                while column < node.start_point[1]:
+                    row += 1
+                while column < start_column:
                     program.extend(b' ')
                     column += 1
                 if node.text:
                     program.extend(node.text)
-                line, column = node.end_point[0], node.end_point[1]
+                row, column = node.end_point
 
             return bytes(program)
 
