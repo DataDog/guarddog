@@ -131,10 +131,15 @@ class DirectoryDiff:
     """
     The structured results of recursively diffing two directories.
     """
+    # Path to the left-hand side directory in the diff
     left: Path
+    # Path to the right-hand side directory in the diff
     right: Path
+    # Relative paths added in right
     added: set[Path]
+    # Relative paths of files in both left and right that had changes
     changed: set[Path]
+    # Relative paths in both left and right that could not be compared
     funny: set[Path]
 
     @classmethod
