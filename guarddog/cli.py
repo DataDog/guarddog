@@ -222,7 +222,7 @@ def _scan(
     try:
         if diff:
             log.debug(f"Diff scan: considering that '{identifier}' is a remote target")
-            result |= scanner.scan_diff(identifier, diff, version, rule_param)
+            result |= scanner.scan_diff_remote(identifier, diff, version, rule_param)
         elif os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
             result |= scanner.scan_local(identifier, rule_param)

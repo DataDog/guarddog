@@ -341,15 +341,14 @@ class PackageScanner:
                 name, tmpdirname, version, rules, write_package_info
             )
 
-    def scan_diff(self, name, old_version, new_version=None, rules=None) -> dict:
+    def scan_diff_local(self, old_dir, new_dir, rules=None) -> dict:
         """
-        Perform a diff scan between the two given versions.
+        Perform a local diff scan between the two given distributions of a package.
 
         Args:
-            * `name` (str): The name of the package as found on PyPI
-            * `old_version` (str): The version of the package to diff against
-            * `new_version` (str, optional): The version of the package to scan
-            * `rules` (set, optional): The set of rule names to use (default: all rules used)
+            * `old_dir` (str): The directory containing the distribution to diff against
+            * `new_dir` (str): The directory containing the distrubution to diff and scan
+            * `rules` (set, optional): The set of rule names to use (default: all rules)
 
         Returns:
             dict: A `dict` mapping rule names to the findings the rule produced during analysis
@@ -366,19 +365,12 @@ class PackageScanner:
                 else:
                     log.warning(f"Skipping strange path {path} while copying items")
 
-        with TemporaryDirectory() as old_dir, TemporaryDirectory() as new_dir, TemporaryDirectory() as diff_dir:
+        with TemporaryDirectory() as diff_dir:
             try:
                 source_differ = SourceCodeDiffer.from_ecosystem(self.ecosystem())
             except Exception as e:
                 log.debug(f"Failed to initialize source file differ: {e}")
                 return {"issues": 0, "errors": {"diff-scan": str(e)}}
-
-            try:
-                _, old_dir = self.download_and_get_package_info(old_dir, name, old_version)
-                _, new_dir = self.download_and_get_package_info(new_dir, name, new_version)
-            except Exception as e:
-                log.debug("Unable to download package, ignoring: " + str(e))
-                return {"issues": 0, "errors": {"download-package": str(e)}}
 
             diff = DirectoryDiff.from_directories(Path(old_dir), Path(new_dir))
 
@@ -398,7 +390,30 @@ class PackageScanner:
                     log.info(f"Failed to diff file {path}, analyzing original file: {e}")
                     shutil.copy(new_path, diff_path)
 
-            return self.analyzer.analyze_sourcecode(diff_dir, rules=rules)
+            return self.scan_local(diff_dir, rules=rules)
+
+    def scan_diff_remote(self, name, old_version, new_version=None, rules=None) -> dict:
+        """
+        Perform a remote diff scan between the two given versions of `name`.
+
+        Args:
+            * `name` (str): The name of the package as found on the package registry
+            * `old_version` (str): The version of the package to diff against
+            * `new_version` (str, optional): The version of the package to diff and scan
+            * `rules` (set, optional): The set of rule names to use (default: all rules)
+
+        Returns:
+            dict: A `dict` mapping rule names to the findings the rule produced during analysis
+        """
+        with TemporaryDirectory() as old_dir, TemporaryDirectory() as new_dir:
+            try:
+                _, old_dir = self.download_and_get_package_info(old_dir, name, old_version)
+                _, new_dir = self.download_and_get_package_info(new_dir, name, new_version)
+            except Exception as e:
+                log.debug("Unable to download package, ignoring: " + str(e))
+                return {"issues": 0, "errors": {"download-package": str(e)}}
+
+            return self.scan_diff_local(old_dir, new_dir, rules=rules)
 
     def download_compressed(self, url, archive_path, target_path):
         """Downloads a compressed file and extracts it

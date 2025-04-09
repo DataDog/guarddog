@@ -29,7 +29,7 @@ class TestCli(unittest.TestCase):
         """
         Test that the CLI identifies diff scans correctly
         """
-        with mock.patch.object(scanner.PackageScanner, 'scan_diff', return_value={}) as _:
+        with mock.patch.object(scanner.PackageScanner, 'scan_diff_remote', return_value={}) as _:
             with self.assertLogs("guarddog", level="DEBUG") as cm:
                 guarddog.cli._scan("foo", "0.2.0", "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
             self.assertIn(
