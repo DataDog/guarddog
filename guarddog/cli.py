@@ -235,21 +235,21 @@ def _scan(
 
     result = {"package": identifier}
     try:
-        match is_local_target(identifier), diff is None:
-            case True, True:
+        match is_local_target(identifier), diff:
+            case True, None:
                 log.debug(f"Considering that '{identifier}' is a local scan target")
                 with prepare_local_target(identifier) as target:
                     result |= scanner.scan_local(target, rule_param)
-            case True, False:
+            case True, _:
                 log.debug(f"Considering that '{identifier}' is a local diff scan target")
                 if not is_local_target(diff):
                     raise RuntimeError("Cannot use remote targets in local diff scan")
                 with prepare_local_target(identifier) as target, prepare_local_target(diff) as diff_target:
                     result |= scanner.scan_diff_local(diff_target, target, rule_param)
-            case False, True:
+            case False, None:
                 log.debug(f"Considering that '{identifier}' is a remote scan target")
                 result |= scanner.scan_remote(identifier, version, rule_param)
-            case False, False:
+            case False, _:
                 log.debug(f"Considering that '{identifier}' is a remote diff scan target")
                 if is_local_target(diff):
                     raise RuntimeError("Cannot use local targets in remote diff scan")
