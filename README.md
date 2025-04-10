@@ -57,8 +57,11 @@ guarddog pypi scan /tmp/triage.tar.gz
 # Scan a local package directory
 guarddog pypi scan /tmp/triage/
 
-# Scan code changes between two versions of a package (remote targets only)
+# Scan code changes between two remote versions of a package
 guarddog pypi scan requests --version 2.32.3 --diff 2.32.2
+
+# Scan code changes between two local versions of a package
+guarddog npm scan /tmp/axios_1.8.4/ --diff /tmp/axios_1.8.3.tar.gz
 
 # Scan every package referenced in a requirements.txt file of a local folder
 guarddog pypi verify workspace/guarddog/requirements.txt
