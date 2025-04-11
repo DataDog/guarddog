@@ -277,8 +277,10 @@ class Analyzer:
 
     def _invoke_semgrep(self, target: str, rules: Iterable[str]):
         try:
-            SEMGREP_MAX_TARGET_BYTES = int(os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT))
-            SEMGREP_TIMEOUT = int(os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT))
+            SEMGREP_MAX_TARGET_BYTES = int(
+                os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT))
+            SEMGREP_TIMEOUT = int(
+                os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT))
             cmd = ["semgrep"]
             for rule in rules:
                 cmd.extend(["--config", rule])

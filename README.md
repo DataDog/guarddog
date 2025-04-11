@@ -339,7 +339,7 @@ Guarddog uses `Semgrep`, a powerful static analysis tool that scans code for pat
 The `max_target_bytes` setting, which controls the maximum size of a file that Semgrep will analyze, can be adjusted using the environment variable `GUARDDOG_SEMGREP_MAX_TARGET_BYTES`. 
 By default, this value is set to 10MB; files exceeding this limit will be skipped during analysis to optimize performance and resource usage.
 
-Additionally, the timeout setting, which specifies the maximum time in seconds that Semgrep will spend running a rule on a single file,  can be configured via the GUARDDOG_SEMGREP_TIMEOUT environment variable. The default value is 10 seconds.
+Additionally, the timeout setting, which specifies the maximum time in seconds that Semgrep will spend running a rule on a single file,  can be configured via the `GUARDDOG_SEMGREP_TIMEOUT` environment variable. The default value is 10 seconds.
 
 
 ## Maintainers
