@@ -13,9 +13,12 @@ from guarddog.analyzer.sourcecode import get_sourcecode_rules, SempgrepRule, Yar
 from guarddog.utils.config import YARA_EXT_EXCLUDE
 from guarddog.ecosystems import ECOSYSTEM
 
-SEMGREP_MAX_TARGET_BYTES = 10_000_000
-SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
+MAX_BYTES_DEFAULT = 10_000_000
+SEMGREP_TIMEOUT_DEFAULT = 10
 
+SOURCECODE_RULES_PATH = os.path.join(
+    os.path.dirname(__file__), "sourcecode"
+)
 log = logging.getLogger("guarddog")
 
 
@@ -274,12 +277,17 @@ class Analyzer:
 
     def _invoke_semgrep(self, target: str, rules: Iterable[str]):
         try:
+            SEMGREP_MAX_TARGET_BYTES = int(
+                os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT))
+            SEMGREP_TIMEOUT = int(
+                os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT))
             cmd = ["semgrep"]
             for rule in rules:
                 cmd.extend(["--config", rule])
 
             for excluded in self.exclude:
                 cmd.append(f"--exclude='{excluded}'")
+            cmd.append(f"--timeout={SEMGREP_TIMEOUT}")
             cmd.append("--no-git-ignore")
             cmd.append("--json")
             cmd.append("--quiet")
@@ -302,6 +310,8 @@ output: {e.output}
             raise Exception(error_message)
         except json.JSONDecodeError as e:
             raise Exception("unable to parse semgrep JSON output: " + str(e))
+        except ValueError as e:
+            raise Exception("Invalid environment variable value: " + str(e))
 
     def _format_semgrep_response(self, response, rule=None, targetpath=None):
         """
