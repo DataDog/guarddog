@@ -15,7 +15,7 @@ from guarddog.ecosystems import ECOSYSTEM
 
 SEMGREP_MAX_TARGET_BYTES = int(
     os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", 10_000_000)
-)  # default to 10MB if no env variable foundSOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
+)  # default to 10MB if no env variable found SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 SEMGREP_TIMEOUT = 10  # maximum time to spend running a rule on a single file in seconds.
 
 log = logging.getLogger("guarddog")
@@ -282,7 +282,7 @@ class Analyzer:
 
             for excluded in self.exclude:
                 cmd.append(f"--exclude='{excluded}'")
-            cmd.extend("--timeout", str(SEMGREP_TIMEOUT))
+            cmd.append(f"--timeout={SEMGREP_TIMEOUT}")
             cmd.append("--no-git-ignore")
             cmd.append("--json")
             cmd.append("--quiet")
