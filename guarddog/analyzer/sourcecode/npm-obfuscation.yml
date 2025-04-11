@@ -25,7 +25,8 @@ rules:
             - metavariable-pattern:
                   metavariable: $DEOB
                   pattern: String.fromCharCode
-            - pattern: self[$FN("...")](...)
+            - pattern-either:
+                - pattern: $FN("...")
 
         # Name Mangling
         - pattern-regex: function _0x[a-zA-Z0-9\s]*\(
