@@ -15,9 +15,11 @@ from guarddog.ecosystems import ECOSYSTEM
 
 SEMGREP_MAX_TARGET_BYTES = int(
     os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", 10_000_000)
-)  # default to 10MB if no env variable found SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
+)  # default to 10MB if no env variable found 
 SEMGREP_TIMEOUT = 10  # maximum time to spend running a rule on a single file in seconds.
-SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
+SOURCECODE_RULES_PATH = os.path.join(
+    os.path.dirname(__file__), "sourcecode"
+)
 
 log = logging.getLogger("guarddog")
 
