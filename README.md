@@ -332,6 +332,12 @@ flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --excl
 flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
 
+### Semgrep configuration
+
+Guarddog uses `Semgrep`, a powerful static analysis tool that scans code for patterns. \\
+The `max_target_bytes` setting, which controls the maximum size of a file that Semgrep will analyze, can be adjusted using the environment variable `GUARDDOG_SEMGREP_MAX_TARGET_BYTES`. \\
+By default, this value is set to 10MB; files exceeding this limit will be skipped during analysis to optimize performance and resource usage.
+
 ## Maintainers
 
 Authors:
