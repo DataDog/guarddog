@@ -4,12 +4,13 @@ CLI command that scans a package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
 
+from contextlib import contextmanager
 from functools import reduce
 import json as js
 import logging
 import os
 import sys
-import tempfile
+from tempfile import TemporaryDirectory
 from typing import Optional
 
 import click
@@ -86,6 +87,9 @@ def scan_options(fn):
     )(fn)
     fn = click.option(
         "-v", "--version", default=None, help="Specify a version to scan"
+    )(fn)
+    fn = click.option(
+        "-d", "--diff", default=None, help="Scan only code changes made since a given version"
     )(fn)
     return fn
 
@@ -194,6 +198,7 @@ def _verify(
 def _scan(
     identifier,
     version,
+    diff,
     rules,
     exclude_rules,
     output_format,
@@ -207,6 +212,20 @@ def _scan(
         version (str): version of the package (ex. 1.0.0), defaults to most recent
         rules (list[str]): specific rules to run, defaults to all
     """
+    def is_local_target(identifier: str) -> bool:
+        return os.path.isfile(identifier) or os.path.isdir(identifier)
+
+    @contextmanager
+    def prepare_local_target(identifier: str):
+        handle = None
+        if os.path.isfile(identifier):
+            handle = TemporaryDirectory()
+            safe_extract(identifier, handle.name)
+        try:
+            yield handle.name if handle else identifier
+        finally:
+            if handle:
+                handle.cleanup()
 
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = get_package_scanner(ecosystem)
@@ -216,17 +235,26 @@ def _scan(
 
     result = {"package": identifier}
     try:
-        if os.path.isdir(identifier):
-            log.debug(f"Considering that '{identifier}' is a local directory")
-            result |= scanner.scan_local(identifier, rule_param)
-        elif os.path.isfile(identifier):
-            log.debug(f"Considering that '{identifier}' is a local archive file")
-            with tempfile.TemporaryDirectory() as tempdir:
-                safe_extract(identifier, tempdir)
-                result |= scanner.scan_local(tempdir, rule_param)
-        else:
-            log.debug(f"Considering that '{identifier}' is a remote target")
-            result |= scanner.scan_remote(identifier, version, rule_param)
+        match is_local_target(identifier), diff:
+            case True, None:
+                log.debug(f"Considering that '{identifier}' is a local scan target")
+                with prepare_local_target(identifier) as target:
+                    result |= scanner.scan_local(target, rule_param)
+            case True, _:
+                log.debug(f"Considering that '{identifier}' is a local diff scan target")
+                if not is_local_target(diff):
+                    raise RuntimeError("Cannot use remote targets in local diff scan")
+                with prepare_local_target(identifier) as target, prepare_local_target(diff) as diff_target:
+                    result |= scanner.scan_diff_local(diff_target, target, rule_param)
+            case False, None:
+                log.debug(f"Considering that '{identifier}' is a remote scan target")
+                result |= scanner.scan_remote(identifier, version, rule_param)
+            case False, _:
+                log.debug(f"Considering that '{identifier}' is a remote diff scan target")
+                if is_local_target(diff):
+                    raise RuntimeError("Cannot use local targets in remote diff scan")
+                result |= scanner.scan_diff_remote(identifier, diff, version, rule_param)
+
     except Exception as e:
         log.error(f"Error occurred while scanning target {identifier}: '{e}'\n")
         sys.exit(1)
@@ -288,11 +316,12 @@ class CliEcosystem(click.Group):
         @scan_options
         @rule_options
         def scan_ecosystem(
-            target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+            target, version, diff, rules, exclude_rules, output_format, exit_non_zero_on_finding
         ):
             return _scan(
                 target,
                 version,
+                diff,
                 rules,
                 exclude_rules,
                 output_format,

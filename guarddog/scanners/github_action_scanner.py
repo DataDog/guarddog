@@ -15,6 +15,9 @@ class GithubActionScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.GITHUB_ACTION))
 
+    def ecosystem(self) -> ECOSYSTEM:
+        return ECOSYSTEM.GITHUB_ACTION
+
     def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
         repo = self._get_repo(package_name)
         tarball_url = self._get_git_tarball_url(repo, version)

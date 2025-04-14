@@ -12,6 +12,9 @@ class PypiPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.PYPI))
 
+    def ecosystem(self) -> ECOSYSTEM:
+        return ECOSYSTEM.PYPI
+
     def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
         extract_dir = self.download_package(package_name, directory, version)
         return get_package_info(package_name), extract_dir

@@ -2,8 +2,10 @@ import concurrent.futures
 import json
 import logging
 import os
+from pathlib import Path
+import shutil
 import sys
-import tempfile
+from tempfile import TemporaryDirectory
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
@@ -11,8 +13,10 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from guarddog.analyzer.analyzer import Analyzer
+from guarddog.ecosystems import ECOSYSTEM
 from guarddog.utils.archives import safe_extract
 from guarddog.utils.config import PARALLELISM
+from guarddog.utils.diff import DirectoryDiff, SourceCodeDiffer
 
 log = logging.getLogger("guarddog")
 
@@ -239,6 +243,13 @@ class PackageScanner:
         super().__init__()
         self.analyzer = analyzer
 
+    @abstractmethod
+    def ecosystem(self) -> ECOSYSTEM:
+        """
+        Return the package ecosystem a `PackageScanner` is intended for.
+        """
+        raise NotImplementedError("ecosystem is not implemented")
+
     def scan_local(
         self, path, rules=None, callback: typing.Callable[[dict], None] = noop
     ) -> dict:
@@ -324,11 +335,85 @@ class PackageScanner:
         if base_dir is not None:
             return self._scan_remote(name, base_dir, version, rules, write_package_info)
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        with TemporaryDirectory() as tmpdirname:
             # Directory to download compressed and uncompressed package
             return self._scan_remote(
                 name, tmpdirname, version, rules, write_package_info
             )
+
+    def scan_diff_local(self, old_dir, new_dir, rules=None) -> dict:
+        """
+        Perform a local diff scan between the two given distributions of a package.
+
+        Args:
+            * `old_dir` (str): The directory containing the distribution to diff against
+            * `new_dir` (str): The directory containing the distrubution to diff and scan
+            * `rules` (set, optional): The set of rule names to use (default: all rules)
+
+        Returns:
+            dict: A `dict` mapping rule names to the findings the rule produced during analysis
+        """
+        def copy_all(paths: set[Path], src_dir: Path, dst_dir: Path):
+            for path in paths:
+                src_path = src_dir / path
+                dst_path = dst_dir / path
+                if src_path.is_dir():
+                    shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+                elif src_path.is_file():
+                    os.makedirs(dst_path.parent, exist_ok=True)
+                    shutil.copy(src_path, dst_path)
+                else:
+                    log.warning(f"Skipping strange path {path} while copying items")
+
+        with TemporaryDirectory() as diff_dir:
+            try:
+                source_differ = SourceCodeDiffer.from_ecosystem(self.ecosystem())
+            except Exception as e:
+                log.debug(f"Failed to initialize source file differ: {e}")
+                return {"issues": 0, "errors": {"diff-scan": str(e)}}
+
+            diff = DirectoryDiff.from_directories(Path(old_dir), Path(new_dir))
+
+            copy_all(diff.added, diff.right, Path(diff_dir))
+            copy_all(diff.funny, diff.right, Path(diff_dir))
+
+            for path in diff.changed:
+                old_path = diff.left / path
+                new_path = diff.right / path
+                diff_path = Path(diff_dir) / path
+                os.makedirs(diff_path.parent, exist_ok=True)
+
+                try:
+                    with open(old_path, 'rb') as old, open(new_path, 'rb') as new, open(diff_path, 'wb') as d:
+                        d.write(source_differ.get_diff(old.read(), new.read()))
+                except Exception as e:
+                    log.info(f"Failed to diff file {path}, analyzing original file: {e}")
+                    shutil.copy(new_path, diff_path)
+
+            return self.scan_local(diff_dir, rules=rules)
+
+    def scan_diff_remote(self, name, old_version, new_version=None, rules=None) -> dict:
+        """
+        Perform a remote diff scan between the two given versions of `name`.
+
+        Args:
+            * `name` (str): The name of the package as found on the package registry
+            * `old_version` (str): The version of the package to diff against
+            * `new_version` (str, optional): The version of the package to diff and scan
+            * `rules` (set, optional): The set of rule names to use (default: all rules)
+
+        Returns:
+            dict: A `dict` mapping rule names to the findings the rule produced during analysis
+        """
+        with TemporaryDirectory() as old_dir, TemporaryDirectory() as new_dir:
+            try:
+                _, old_dir = self.download_and_get_package_info(old_dir, name, old_version)
+                _, new_dir = self.download_and_get_package_info(new_dir, name, new_version)
+            except Exception as e:
+                log.debug("Unable to download package, ignoring: " + str(e))
+                return {"issues": 0, "errors": {"download-package": str(e)}}
+
+            return self.scan_diff_local(old_dir, new_dir, rules=rules)
 
     def download_compressed(self, url, archive_path, target_path):
         """Downloads a compressed file and extracts it
