@@ -169,9 +169,9 @@ configparser==7.1.0 ; python_version >= "3.10" and python_version < "4" \
 defusedxml==0.7.1 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69 \
     --hash=sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61
-deprecated==1.2.15 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:353bc4a8ac4bfc96800ddab349d89c25dec1079f65fd53acdcc1e0b975b21320 \
-    --hash=sha256:683e561a90de76239796e6b6feac66b99030d2dd3fcf61ef996330f14bbb9b0d
+deprecated==1.2.18 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:422b6f6d859da6f2ef57857761bfb392480502a64c3028ca9bbe86085d72115d \
+    --hash=sha256:bd5011788200372a32418f888e326a09ff80d0214bd961147cfed01b5c018eec
 disposable-email-domains==0.0.108 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:4427cb11962dbfc5bb5afddbb6381fb7072eb7abf941bae4c37e414b544ae3c3 \
     --hash=sha256:57a3ae6cfb03ef29f93c6aa069137f57b60cbcb8295d9f82b0158e357b32c799
@@ -229,9 +229,9 @@ opentelemetry-semantic-conventions==0.52b0 ; python_version >= "3.10" and python
 opentelemetry-util-http==0.46b0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:03b6e222642f9c7eae58d9132343e045b50aca9761fcb53709bd2b663571fdf6 \
     --hash=sha256:8dc1949ce63caef08db84ae977fdc1848fe6dc38e6bbaad0ae3e6ecd0d451629
-packaging==21.3 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
-    --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
+packaging==24.2 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
+    --hash=sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f
 peewee==3.16.2 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:10769981198c7311f84a0ca8db892fa213303a8eb1305deb795a71e7bd606a91
 prettytable==3.12.0 ; python_version >= "3.10" and python_version < "4" \
