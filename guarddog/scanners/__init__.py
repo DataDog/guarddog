@@ -9,6 +9,7 @@ from .go_package_scanner import GoModuleScanner
 from .go_project_scanner import GoDependenciesScanner
 from .github_action_scanner import GithubActionScanner
 from .scanner import PackageScanner, ProjectScanner
+from .uv_lock_scanner import UVLockScanner
 from ..ecosystems import ECOSYSTEM
 
 
@@ -57,4 +58,6 @@ def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
             return GoDependenciesScanner()
         case ECOSYSTEM.GITHUB_ACTION:
             return GitHubActionDependencyScanner()
+        case ECOSYSTEM.UV:  
+            return UVLockScanner()
     return None
