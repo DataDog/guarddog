@@ -34,6 +34,8 @@ def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
             return GoModuleScanner()
         case ECOSYSTEM.GITHUB_ACTION:
             return GithubActionScanner()
+        case ECOSYSTEM.UV:
+            return PypiPackageScanner()
     return None
 
 

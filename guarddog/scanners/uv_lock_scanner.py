@@ -12,10 +12,9 @@ from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
 
-
 class UVLockScanner(ProjectScanner):
     """
-    Scans all packages in the uv.lock file of a project
+    Scans all packages in the requirements.txt file of a project
 
     Attributes:
         package_scanner (PackageScanner): Scanner for individual packages
@@ -38,24 +37,25 @@ class UVLockScanner(ProjectScanner):
         sanitized_lines = []
 
         for line in requirements:
-            is_requirement = re.match(r"\w", line)
-            if is_requirement:
-                if "\\" in line:
-                    line = line.replace("\\", "")
-
-                stripped_line = line.strip()
-                if len(stripped_line) > 0:
-                    sanitized_lines.append(stripped_line)
+            stripped_line = line.strip()
+            if not stripped_line or stripped_line.startswith("#"):
+            # Skip empty lines and comments
+             continue
+            if re.match(r"^[a-zA-Z0-9_\-\.]+==[a-zA-Z0-9_\-\.]+$", stripped_line):
+            # Only include valid dependency lines in the format 'name==version'
+                sanitized_lines.append(stripped_line)
+        else:
+            log.warning(f"Skipping invalid requirement line: {line}")
 
         return sanitized_lines
 
-    def parse_lock(self, raw_requirements: str) -> dict[str, set[str]]:
+    def parse_requirements(self, raw_requirements: str) -> dict[str, set[str]]:
         """
         Parses uv.lock specification and finds all valid
         versions of each dependency
 
         Args:
-            raw_requirements (str): contents of uv.lock file
+            requirements (str): contents of uv.lock file
 
         Returns:
             dict: mapping of dependencies to valid versions
@@ -68,28 +68,16 @@ class UVLockScanner(ProjectScanner):
             }
         """
         lock_data = toml.loads(raw_requirements)
-        dependencies = {}
+        requirements = []
         for package in lock_data.get("package", []):
-            package_name = package.get("name")
-            package_version = package.get("version")
-
-            if not package_name or not package_version:
-                log.error(f"Invalid package entry: {package}")
-                continue
-
-            # Find all available versions for the package
-            available_versions = self.find_all_versions(package_name)
-
-            # Match versions based on the specified version
-            matched_versions = self.get_matched_versions(
-                available_versions, package_version
-            )
-
-
-
-        requirements = raw_requirements.splitlines()
+                name = package.get("name")
+                version = package.get("version")
+                if name and version:
+             # Format each dependency as 'name==version'
+                 requirements.append(f"{name}=={version}")
         sanitized_requirements = self._sanitize_requirements(requirements)
         dependencies = {}
+
 
         def get_matched_versions(versions: set[str], semver_range: str) -> set[str]:
             """
@@ -126,12 +114,15 @@ class UVLockScanner(ProjectScanner):
             versions = set(sorted(data["releases"].keys()))
             log.debug(f"Retrieved versions {', '.join(versions)}")
             return versions
+        
+      
 
-        def safe_parse_requirements(req):
+
+        def safe_parse_requirements(requirements):
             """
             This helper function yields one valid requirement line at a time
             """
-            parsed = pkg_resources.parse_requirements(req)
+            parsed = pkg_resources.parse_requirements(requirements)
             while True:
                 try:
                     yield next(parsed)
@@ -174,6 +165,6 @@ class UVLockScanner(ProjectScanner):
         requirement_files = []
         for root, dirs, files in os.walk(directory):
             for name in files:
-                if re.match(r"^uv\.lock$", name, flags=re.IGNORECASE):
+                if re.match(r"^requirements(-dev)?\.txt$", name, flags=re.IGNORECASE):
                     requirement_files.append(os.path.join(root, name))
         return requirement_files

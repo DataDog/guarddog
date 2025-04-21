@@ -16,3 +16,6 @@ def get_metadata_detectors(ecosystem: ECOSYSTEM) -> dict[str, Detector]:
             return GO_METADATA_RULES
         case ECOSYSTEM.GITHUB_ACTION:
             return GITHUB_ACTION_METADATA_RULES
+        case ECOSYSTEM.UV:
+            return PYPI_METADATA_RULES
+
