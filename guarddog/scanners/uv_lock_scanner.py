@@ -3,7 +3,7 @@ import os
 import re
 import pkg_resources
 import requests
-import toml 
+import toml
 from packaging.specifiers import Specifier, Version
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
@@ -11,6 +11,7 @@ from guarddog.scanners.scanner import ProjectScanner
 from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
+
 
 class UVLockScanner(ProjectScanner):
     """
@@ -39,10 +40,8 @@ class UVLockScanner(ProjectScanner):
         for line in requirements:
             stripped_line = line.strip()
             if not stripped_line or stripped_line.startswith("#"):
-            # Skip empty lines and comments
-             continue
+                continue
             if re.match(r"^[a-zA-Z0-9_\-\.]+==[a-zA-Z0-9_\-\.]+$", stripped_line):
-            # Only include valid dependency lines in the format 'name==version'
                 sanitized_lines.append(stripped_line)
         else:
             log.warning(f"Skipping invalid requirement line: {line}")
@@ -70,14 +69,12 @@ class UVLockScanner(ProjectScanner):
         lock_data = toml.loads(raw_requirements)
         requirements = []
         for package in lock_data.get("package", []):
-                name = package.get("name")
-                version = package.get("version")
-                if name and version:
-             # Format each dependency as 'name==version'
-                 requirements.append(f"{name}=={version}")
+            name = package.get("name")
+            version = package.get("version")
+            if name and version:
+                requirements.append(f"{name}=={version}")
         sanitized_requirements = self._sanitize_requirements(requirements)
         dependencies = {}
-
 
         def get_matched_versions(versions: set[str], semver_range: str) -> set[str]:
             """
@@ -114,9 +111,6 @@ class UVLockScanner(ProjectScanner):
             versions = set(sorted(data["releases"].keys()))
             log.debug(f"Retrieved versions {', '.join(versions)}")
             return versions
-        
-      
-
 
         def safe_parse_requirements(requirements):
             """

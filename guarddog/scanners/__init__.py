@@ -60,6 +60,6 @@ def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
             return GoDependenciesScanner()
         case ECOSYSTEM.GITHUB_ACTION:
             return GitHubActionDependencyScanner()
-        case ECOSYSTEM.UV:  
+        case ECOSYSTEM.UV:
             return UVLockScanner()
     return None
