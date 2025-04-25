@@ -4,9 +4,9 @@ attrs==21.4.0 ; python_version >= "3.10" and python_version < "4" \
 boltons==21.0.0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:65e70a79a731a7fe6e98592ecfb5ccf2115873d01dbc576079874629e5c90f13 \
     --hash=sha256:b9bb7b58b2b420bbe11a6025fdef6d3e5edc9f76a42fb467afe7ca212ef9948b
-bracex==2.3.post1 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:351b7f20d56fb9ea91f9b9e9e7664db466eb234188c175fd943f8f755c807e73 \
-    --hash=sha256:e7b23fc8b2cd06d3dec0692baabecb249dda94e06a617901ff03a6c56fd71693
+bracex==2.5 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:0725da5045e8d37ea9592ab3614d8b561e22c3c5fde3964699be672e072ab611 \
+    --hash=sha256:d2fcf4b606a82ac325471affe1706dd9bbaa3536c91ef86a31f6b766f3dad1d0
 certifi==2024.7.4 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:5a1e7645bc0ec61a09e26c36f6106dd4cf40c6db3a1fb6352b0244e7fb057c7b \
     --hash=sha256:c198e21b1289c2ab85ee4e67bb4b4ef3ead0892059901a8d5b622f24a1101e90
@@ -175,9 +175,9 @@ deprecated==1.2.18 ; python_version >= "3.10" and python_version < "4" \
 disposable-email-domains==0.0.108 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:4427cb11962dbfc5bb5afddbb6381fb7072eb7abf941bae4c37e414b544ae3c3 \
     --hash=sha256:57a3ae6cfb03ef29f93c6aa069137f57b60cbcb8295d9f82b0158e357b32c799
-exceptiongroup==1.2.0 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14 \
-    --hash=sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68
+exceptiongroup==1.2.2 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b \
+    --hash=sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc
 face==22.0.0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:344fe31562d0f6f444a45982418f3793d4b14f9abb98ccca1509d22e0a3e7e35 \
     --hash=sha256:d5d692f90bc8f5987b636e47e36384b9bbda499aaf0a77aa0b0bbe834c76923d
