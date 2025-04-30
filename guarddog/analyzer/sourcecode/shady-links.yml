@@ -39,6 +39,8 @@ rules:
             - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(discord\.com|transfer\.sh|filetransfer\.io|sendspace\.com|backblazeb2\.com|paste\.ee|pastebin\.com|hastebin\.com|ghostbin.site|api\.telegram\.org|rentry\.co)\b)
             # complete domains: intel 
             - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(ipinfo\.io|checkip\.dyndns\.org|\bip\.me|jsonip\.com|ipify\.org|ifconfig\.me)\b)
+            # complete domains: malware download
+            - pattern-regex: ((?:https?:\/\/)?[^\n\[\/\?#"']*?(files\.catbox\.moe)\b)
 
             # top-level domains
             - pattern-regex: (https?:\/\/[^\n\[\/\?#"']*?\.(link|xyz|tk|ml|ga|cf|gq|pw|top|club|mw|bd|ke|am|sbs|date|quest|cd|bid|cd|ws|icu|cam|uno|email|stream|zip)\/)
