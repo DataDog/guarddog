@@ -200,8 +200,8 @@ class ProjectScanner:
             for req in requirement_paths:
                 with open(req, "r") as f:
                     self._extend_requirements(dependencies, self.parse_requirements(f.read()))
-            self.scan_dependencies(dependencies, rules, callback)
-            return dependencies
+            results = self.scan_dependencies(dependencies, rules, callback)
+            return results
         except Exception as e:
             log.error(f"Received {e}")
             sys.exit(255)
