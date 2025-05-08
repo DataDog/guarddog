@@ -1,4 +1,4 @@
-""" Package Malware Scanner
+"""Package Malware Scanner
 
 CLI command that scans a package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
@@ -161,7 +161,7 @@ def _verify(
         log.error(f"Command verify is not supported for ecosystem {ecosystem}")
         exit(1)
 
-    dependencies, results = scanner.scan_local(path=path,rules=rule_param )
+    dependencies, results = scanner.scan_local(path=path, rules=rule_param)
 
     rule_docs = list(rule_param or _get_all_rules(ecosystem=ecosystem))
 
@@ -253,6 +253,7 @@ class CliEcosystem(click.Group):
     Class that dynamically represents an ecosystem in click
     It dynamically selects the ruleset to the instantiated ecosystem
     """
+
     def __init__(self, ecosystem: ECOSYSTEM):
         super().__init__()
         self.name = ecosystem.name.lower()
@@ -279,7 +280,12 @@ class CliEcosystem(click.Group):
         @scan_options
         @rule_options
         def scan_ecosystem(
-            target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+            target,
+            version,
+            rules,
+            exclude_rules,
+            output_format,
+            exit_non_zero_on_finding,
         ):
             return _scan(
                 target,
@@ -295,7 +301,9 @@ class CliEcosystem(click.Group):
         @common_options
         @verify_options
         @rule_options
-        def verify_ecosystem(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
+        def verify_ecosystem(
+            target, rules, exclude_rules, output_format, exit_non_zero_on_finding
+        ):
             return _verify(
                 target,
                 rules,
@@ -305,7 +313,9 @@ class CliEcosystem(click.Group):
                 self.ecosystem,
             )
 
-        @click.command("list-rules", help=f"List available rules for {self.ecosystem.name}")
+        @click.command(
+            "list-rules", help=f"List available rules for {self.ecosystem.name}"
+        )
         def list_rules_ecosystem():
             return _list_rules(self.ecosystem)
 
@@ -350,6 +360,8 @@ def scan(
         exit_non_zero_on_finding,
         ECOSYSTEM.PYPI,
     )
+
+
 # Given the results, exit with the appropriate status code
 def exit_with_status_code(results):
     for result in results:

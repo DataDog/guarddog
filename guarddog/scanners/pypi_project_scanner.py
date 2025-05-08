@@ -49,7 +49,7 @@ class PypiRequirementsScanner(ProjectScanner):
 
         return sanitized_lines
 
-    def parse_requirements(self, raw_requirements: str) ->List[Dependency]:
+    def parse_requirements(self, raw_requirements: str) -> List[Dependency]:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
@@ -99,6 +99,7 @@ class PypiRequirementsScanner(ProjectScanner):
             versions = set(sorted(data["releases"].keys()))
             log.debug(f"Retrieved versions {', '.join(versions)}")
             return versions
+
         def safe_parse_requirements(req):
             """
             This helper function yields one valid requirement line at a time
@@ -117,7 +118,9 @@ class PypiRequirementsScanner(ProjectScanner):
                     yield None
 
         try:
-            for idx, requirement in enumerate(safe_parse_requirements(sanitized_requirements)):
+            for idx, requirement in enumerate(
+                safe_parse_requirements(sanitized_requirements)
+            ):
                 if requirement is None:
                     continue
 
@@ -138,7 +141,7 @@ class PypiRequirementsScanner(ProjectScanner):
 
                 dep_versions = list(
                     map(
-                        lambda d: DependencyVersion(version=d, location=idx+1),
+                        lambda d: DependencyVersion(version=d, location=idx + 1),
                         versions,
                     )
                 )
@@ -149,7 +152,7 @@ class PypiRequirementsScanner(ProjectScanner):
                         lambda d: d.name == requirement.project_name,
                         dependencies,
                     ),
-                    None
+                    None,
                 )
                 if not dep:
                     dep = Dependency(name=requirement.project_name, versions=[])

@@ -8,8 +8,7 @@ import requests
 from semantic_version import NpmSpec, Version  # type:ignore
 
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
-from guarddog.scanners.scanner import (Dependency, DependencyVersion,
-                                       ProjectScanner)
+from guarddog.scanners.scanner import Dependency, DependencyVersion, ProjectScanner
 from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
@@ -119,7 +118,7 @@ class NPMRequirementsScanner(ProjectScanner):
 
             dep_versions = list(
                 map(
-                    lambda d: DependencyVersion(version=d, location=idx+1),
+                    lambda d: DependencyVersion(version=d, location=idx + 1),
                     versions,
                 )
             )

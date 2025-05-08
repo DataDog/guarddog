@@ -8,7 +8,7 @@ import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import List, Optional, Set, Tuple
+from typing import List, Optional, Tuple
 
 import requests
 
@@ -29,6 +29,7 @@ class DependencyVersion:
     This class represents the identified dependency versions in a project
     The location of the dependency is also tracked to inform the user where the dependency is specified
     """
+
     version: str
     location: int
 

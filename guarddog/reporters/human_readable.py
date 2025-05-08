@@ -28,7 +28,7 @@ class HumanReadableReporter(BaseReporter):
             yield (f"* {rule}: {errors[rule]}")
 
     @staticmethod
-    def print_scan_results(identifier:str, results:dict) -> Generator:
+    def print_scan_results(identifier: str, results: dict) -> Generator:
 
         def _format_code_line_for_output(code) -> str:
             return "    " + colored(
@@ -37,14 +37,13 @@ class HumanReadableReporter(BaseReporter):
                 "on_red",
                 attrs=["bold"],
             )
+
         num_issues = results.get("issues")
 
         if num_issues == 0:
             yield (
                 "Found "
-                + colored(
-                    "0 potentially malicious indicators", "green", attrs=["bold"]
-                )
+                + colored("0 potentially malicious indicators", "green", attrs=["bold"])
                 + " scanning "
                 + colored(identifier, None, attrs=["bold"])
             )
@@ -66,9 +65,7 @@ class HumanReadableReporter(BaseReporter):
             for finding in findings:
                 description = findings[finding]
                 if isinstance(description, str):  # package metadata
-                    yield (
-                        colored(finding, None, attrs=["bold"]) + ": " + description
-                    )
+                    yield (colored(finding, None, attrs=["bold"]) + ": " + description)
                     yield ("")
                 elif isinstance(description, list):  # semgrep rule result:
                     source_code_findings = description
@@ -100,12 +97,12 @@ class HumanReadableReporter(BaseReporter):
         return (
             "\n".join(
                 HumanReadableReporter.print_scan_results(
-                identifier=scan_results["package"], 
-                results=scan_results)),
+                    identifier=scan_results["package"], results=scan_results
+                )
+            ),
             "\n".join(
-                    HumanReadableReporter.print_errors(
-                        identifier=scan_results["package"], 
-                        results=scan_results
+                HumanReadableReporter.print_errors(
+                    identifier=scan_results["package"], results=scan_results
                 )
             ),
         )
@@ -119,20 +116,23 @@ class HumanReadableReporter(BaseReporter):
     ) -> tuple[str, str]:
         return (
             "\n".join(
-                map(lambda s: "\n".join(
-                    HumanReadableReporter.print_scan_results(
-                        identifier=s["dependency"],
-                        results=s["result"]
+                map(
+                    lambda s: "\n".join(
+                        HumanReadableReporter.print_scan_results(
+                            identifier=s["dependency"], results=s["result"]
+                        ),
                     ),
-                ), scan_results)
+                    scan_results,
+                )
             ),
             "\n".join(
-                map(lambda s: "\n".join(
-                    HumanReadableReporter.print_errors(
-                        identifier=s["dependency"],
-                        results=s["result"]
+                map(
+                    lambda s: "\n".join(
+                        HumanReadableReporter.print_errors(
+                            identifier=s["dependency"], results=s["result"]
+                        ),
                     ),
-                ), scan_results)
-            )
+                    scan_results,
+                )
+            ),
         )
-

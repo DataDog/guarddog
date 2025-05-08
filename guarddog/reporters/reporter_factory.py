@@ -11,12 +11,13 @@ class ReporterType(Enum):
     """
     Enum representing the different types of reporters available.
     """
+
     HUMAN_READABLE = auto()
     SARIF = auto()
     JSON = auto()
 
     @classmethod
-    def from_str(cls, type:Optional[str]) -> "ReporterType":
+    def from_str(cls, type: Optional[str]) -> "ReporterType":
         if type is None:
             return cls.HUMAN_READABLE
         match (type or "").lower():
@@ -40,11 +41,10 @@ class ReporterFactory:
         """
         Create a reporter instance based on the reporter type.
         """
-        match reporter_type :
+        match reporter_type:
             case ReporterType.HUMAN_READABLE:
                 return HumanReadableReporter
             case ReporterType.SARIF:
                 return SarifReporter
             case ReporterType.JSON:
                 return JsonReporter
-
