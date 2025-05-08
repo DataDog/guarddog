@@ -9,6 +9,7 @@ from guarddog.scanners.scanner import DependencyFile
 from typing import List
 from guarddog.reporters.human_readable import HumanReadableReporter
 
+
 class SarifReporter(BaseReporter):
     """
     Sarif is a class that formats and prints scan results in the SARIF format.
@@ -20,13 +21,14 @@ class SarifReporter(BaseReporter):
         rule_names: list[str],
         scan_results: list[dict],
         ecosystem: ECOSYSTEM,
-) -> tuple[str, str]:
+    ) -> tuple[str, str]:
         """
         Report the scans results in the SARIF format.
 
         Args:
             scan_results (dict): The scan results to be reported.
         """
+
         def build_rules_help_list() -> dict:
             """
             Builds a dict with the names of all available rules and their documentation
@@ -64,7 +66,11 @@ class SarifReporter(BaseReporter):
             """
             https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#toolcomponent-object
             """
-            return {"name": f"GuardDog-{ecosystem}", "informationUri":"https://github.com/DataDog/guarddog","rules": rules}
+            return {
+                "name": f"GuardDog-{ecosystem}",
+                "informationUri": "https://github.com/DataDog/guarddog",
+                "rules": rules,
+            }
 
         def get_rule(rule_name: str, rules_documentation) -> dict:
             """
@@ -107,7 +113,9 @@ class SarifReporter(BaseReporter):
             """
             return {"artifactLocation": {"uri": uri}, "region": region}
 
-        def get_region(dependency_files:List[DependencyFile], package: str) -> tuple[DependencyFile, dict]:
+        def get_region(
+            dependency_files: List[DependencyFile], package: str
+        ) -> tuple[DependencyFile, dict]:
             for dependency_file in dependency_files:
                 for d in dependency_file.dependencies:
                     if d.name == package:
@@ -117,7 +125,9 @@ class SarifReporter(BaseReporter):
                             "startColumn": 1,
                             "endColumn": len(package),
                         }
-            raise ValueError(f"Could not find the package {package} in the dependency files")
+            raise ValueError(
+                f"Could not find the package {package} in the dependency files"
+            )
 
         rules_documentation = build_rules_help_list()
         rules = list(map(lambda s: get_rule(s, rules_documentation), rule_names))
@@ -128,7 +138,9 @@ class SarifReporter(BaseReporter):
             if entry["result"]["issues"] == 0:
                 continue
 
-            dep_file, region = get_region(dependency_files=dependency_files, package=entry["dependency"])
+            dep_file, region = get_region(
+                dependency_files=dependency_files, package=entry["dependency"]
+            )
             package_path = dep_file.name
             uri = package_path[2:] if package_path.startswith("./") else package_path
             physical_location = get_physical_location(uri, region)

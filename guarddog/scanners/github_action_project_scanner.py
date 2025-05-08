@@ -76,16 +76,16 @@ class GitHubActionDependencyScanner(ProjectScanner):
             name = action["name"]
             version = action["ref"]
             idx = next(
-                        iter(
-                            [
-                                ix
-                                for ix, line in enumerate(raw_requirements.splitlines())
-                                if name in line
-                            ]
-                        ),
-                        0,
-                    )
-# find the dep with the same name or create a new one
+                iter(
+                    [
+                        ix
+                        for ix, line in enumerate(raw_requirements.splitlines())
+                        if name in line
+                    ]
+                ),
+                0,
+            )
+            # find the dep with the same name or create a new one
             dep_versions = [DependencyVersion(version=version, location=idx + 1)]
 
             dep = next(
@@ -93,7 +93,7 @@ class GitHubActionDependencyScanner(ProjectScanner):
                     lambda d: d.name == name,
                     dependencies,
                 ),
-                None
+                None,
             )
             if not dep:
                 dep = Dependency(name=name, versions=[])
@@ -129,7 +129,9 @@ class GitHubActionDependencyScanner(ProjectScanner):
         requirement_files = []
 
         if not os.path.isdir(os.path.join(directory, ".git")):
-            raise Exception("unable to find github workflows, not called from git directory")
+            raise Exception(
+                "unable to find github workflows, not called from git directory"
+            )
         workflow_folder = os.path.join(directory, ".github/workflows")
         if os.path.isdir(workflow_folder):
             for name in os.listdir(workflow_folder):
