@@ -1,13 +1,14 @@
 import logging
 import os
 import re
+from typing import List
+
 import pkg_resources
 import requests
-from typing import List
 from packaging.specifiers import Specifier, Version
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
-from guarddog.scanners.scanner import Dependency, ProjectScanner, DependencyVersion
+from guarddog.scanners.scanner import Dependency, DependencyVersion, ProjectScanner
 from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
@@ -39,13 +40,16 @@ class PypiRequirementsScanner(ProjectScanner):
 
         for line in requirements:
             is_requirement = re.match(r"\w", line)
-            if is_requirement:
-                if "\\" in line:
-                    line = line.replace("\\", "")
 
-                stripped_line = line.strip()
-                if len(stripped_line) > 0:
-                    sanitized_lines.append(stripped_line)
+            if not is_requirement:
+                sanitized_lines.append("")  # empty line to keep the line number
+                continue
+
+            if "\\" in line:
+                line = line.replace("\\", "")
+
+            stripped_line = line.strip()
+            sanitized_lines.append(stripped_line)
 
         return sanitized_lines
 
@@ -118,9 +122,7 @@ class PypiRequirementsScanner(ProjectScanner):
                     yield None
 
         try:
-            for idx, requirement in enumerate(
-                safe_parse_requirements(sanitized_requirements)
-            ):
+            for requirement in safe_parse_requirements(sanitized_requirements):
                 if requirement is None:
                     continue
 
@@ -138,6 +140,17 @@ class PypiRequirementsScanner(ProjectScanner):
                         f"Package/Version {requirement.project_name} not on PyPI\n"
                     )
                     continue
+
+                idx = next(
+                    iter(
+                        [
+                            ix
+                            for ix, line in enumerate(requirements)
+                            if str(requirement) in line
+                        ]
+                    ),
+                    0,
+                )
 
                 dep_versions = list(
                     map(

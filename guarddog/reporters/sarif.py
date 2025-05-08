@@ -154,10 +154,14 @@ class SarifReporter(BaseReporter):
                     or len(scan_result_details[rule_name]) == 0
                 ):
                     continue
+
                 text = (
                     f"On package: {package} version: {version}\n"
                     + "\n".join(
-                        map(lambda x: x["message"], scan_result_details[rule_name])
+                        map(
+                            lambda x: f"{x['message']} in file {x['location']}",
+                            scan_result_details[rule_name],
+                        )
                     )
                     if isinstance(scan_result_details[rule_name], list)
                     else scan_result_details[rule_name]
