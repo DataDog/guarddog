@@ -7,6 +7,8 @@ import tempfile
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from typing import List, Optional, Set, Tuple
 
 import requests
 
@@ -19,6 +21,48 @@ log = logging.getLogger("guarddog")
 
 def noop(arg: typing.Any) -> None:
     pass
+
+
+@dataclass
+class DependencyVersion:
+    """
+    This class represents the identified dependency versions in a project
+    The location of the dependency is also tracked to inform the user where the dependency is specified
+    """
+    version: str
+    location: int
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.version == other
+        if isinstance(other, DependencyVersion):
+            return self.version == other.version
+        return NotImplemented
+
+    def __repr__(self):
+        return f"DependencyVersion({self.version!r})"
+
+
+@dataclass
+class Dependency:
+    name: str
+    versions: List[DependencyVersion]
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.name == other
+        if isinstance(other, Dependency):
+            return self.name == other.name
+        return NotImplemented
+
+    def __repr__(self):
+        return f"Dependency({self.name!r})"
+
+
+@dataclass
+class DependencyFile:
+    name: str
+    dependencies: List[Dependency]
 
 
 class ProjectScanner:
@@ -47,15 +91,15 @@ class ProjectScanner:
 
     def scan_dependencies(
         self,
-        dependencies: dict[str, set[str]],
+        dependencies: List[Dependency],
         rules=None,
         callback: typing.Callable[[dict], None] = noop,
-    ) :
+    ) -> list[dict]:
         """
         scans each possible dependency and version supplied
 
         Args:
-            dependencies (dict): a mapping of dependency name to set of versions used
+            dependencies a list of dependencies to scan
             rules: list of rules to apply
             callback: callback to call for each result
 
@@ -75,31 +119,32 @@ class ProjectScanner:
             }
         """
 
-        def scan_single_dependency(dependency, version):
+        def scan_single_dependency(dependency: str, version: Optional[str]) -> dict:
             log.debug(f"Scanning {dependency} version {version}")
             result = self.package_scanner.scan_remote(dependency, version, rules)
             return {"dependency": dependency, "version": version, "result": result}
 
         num_workers = PARALLELISM
 
-        log.info(
-            f"Scanning using at most {num_workers} parallel worker threads\n"
-        )
+        log.info(f"Scanning using at most {num_workers} parallel worker threads\n")
         with ThreadPoolExecutor(max_workers=num_workers) as pool:
             try:
                 futures: typing.List[concurrent.futures.Future] = []
-                for dependency, versions in dependencies.items():
-                    assert versions is None or len(versions) > 0
-                    if versions is None:
+                for dependency in dependencies:
+                    versions = dependency.versions
+                    assert versions or len(versions) > 0
+                    if not versions:
                         # this will cause scan_remote to use the latest version
                         futures.append(
-                            pool.submit(scan_single_dependency, dependency, None)
+                            pool.submit(scan_single_dependency, dependency.name, None)
                         )
                     else:
                         futures.extend(
                             map(
                                 lambda version: pool.submit(
-                                    scan_single_dependency, dependency, version
+                                    scan_single_dependency,
+                                    dependency.name,
+                                    version.version,
                                 ),
                                 versions,
                             )
@@ -115,9 +160,11 @@ class ProjectScanner:
                 log.warning("Received keyboard interrupt, cancelling scan\n")
                 pool.shutdown(wait=False, cancel_futures=True)
 
-        return results  # type: ignore
+        return results
 
-    def scan_remote(self, url: str, branch: str, requirements_name: str) -> dict:
+    def scan_remote(
+        self, url: str, branch: str, requirements_name: str
+    ) -> tuple[List[Dependency], list[dict]]:
         """
         Scans remote requirements.txt file
 
@@ -149,18 +196,16 @@ class ProjectScanner:
         req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"
         resp = requests.get(url=req_url, auth=token)
 
-        if resp.status_code == 200:
-            dependencies = self.parse_requirements(resp.content.decode())
-            return self.scan_dependencies(dependencies)
-        else:
-            log.error(
-                f"{req_url} does not exist. Check your link or branch name."
-            )
+        if resp.status_code != 200:
+            log.error(f"{req_url} does not exist. Check your link or branch name.")
             sys.exit(255)
+
+        dependencies = self.parse_requirements(resp.content.decode())
+        return dependencies, self.scan_dependencies(dependencies)
 
     def scan_local(
         self, path, rules=None, callback: typing.Callable[[dict], None] = noop
-    ):
+    ) -> Tuple[List[DependencyFile], list[dict]]:
         """
         Scans a local requirements files (requirements.txt, package.json, etc.)
 
@@ -170,19 +215,9 @@ class ProjectScanner:
             callback: callback to call for each result
 
         Returns:
-            dict: mapping of dependencies to scan results
+            dict: mapping of scan results
+            dict: mapping of declared dependencies
 
-            ex.
-            {
-                ....
-                <dependency-name>: {
-                        issues: ...,
-                        results: {
-                            ...
-                        }
-                    },
-                ...
-            }
         """
 
         requirement_paths = []
@@ -195,36 +230,63 @@ class ProjectScanner:
             else:
                 raise ValueError(f"unable to find file or directory {path}")
 
-            dependencies: dict[str, set[str]] = {}
+            dep_files: List[DependencyFile] = []
 
             for req in requirement_paths:
                 with open(req, "r") as f:
-                    self._extend_requirements(dependencies, self.parse_requirements(f.read()))
-            results = self.scan_dependencies(dependencies, rules, callback)
-            return results
+                    dep_files.append(
+                        DependencyFile(
+                            name=req, dependencies=self.parse_requirements(f.read())
+                        )
+                    )
+            deps_to_scan = [d for d_file in dep_files for d in d_file.dependencies]
+            results = self.scan_dependencies(deps_to_scan, rules, callback)
+            return dep_files, results
         except Exception as e:
             log.error(f"Received {e}")
             sys.exit(255)
 
     @abstractmethod
-    def parse_requirements(
-        self, raw_requirements: str
-    ) -> dict[str, set[str]]:  # returns { package: version }
+    def parse_requirements(self, raw_requirements: str) -> List[Dependency]:
         pass
 
     @abstractmethod
     def find_requirements(
-            self, directory: str,
+        self,
+        directory: str,
     ) -> list[str]:  # returns paths of files
         pass
 
     @staticmethod
-    def _extend_requirements(reqs_a : dict[str, set[str]], reqs_b: dict[str, set[str]]):
-        for name, versions in reqs_b.items():
-            if name not in reqs_a:
-                reqs_a[name] = versions
+    def _extend_requirements(reqs_a: List[Dependency], reqs_b: List[Dependency]):
+        """
+        Extends requirements list reqs_a with entries from reqs_b
+        without repeating items that are already present.
+
+        Args:
+            reqs_a: List of Dependency objects to be extended
+            reqs_b: List of Dependency objects to extend with
+        """
+        # Create a dictionary from reqs_a for easier lookup
+        reqs_a_dict = {dep.name: dep for dep in reqs_a}
+
+        # Extend reqs_a with items from reqs_b without duplication
+        for dep_b in reqs_b:
+            if dep_b.name in reqs_a_dict:
+                # Dependency exists, need to merge versions without duplicates
+                dep_a = reqs_a_dict[dep_b.name]
+
+                # Create a set of existing versions for efficient lookup
+                existing_versions = {v.version for v in dep_a.versions}
+
+                # Add only new versions from dep_b
+                for version_info in dep_b.versions:
+                    if version_info.version not in existing_versions:
+                        dep_a.versions.append(version_info)
+                        existing_versions.add(version_info.version)
             else:
-                reqs_a[name].update(versions)
+                # Dependency doesn't exist in reqs_a, add it
+                reqs_a.append(dep_b)
 
 
 class PackageScanner:

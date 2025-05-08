@@ -3,10 +3,11 @@ import os
 import re
 import pkg_resources
 import requests
+from typing import List
 from packaging.specifiers import Specifier, Version
 
 from guarddog.scanners.pypi_package_scanner import PypiPackageScanner
-from guarddog.scanners.scanner import ProjectScanner
+from guarddog.scanners.scanner import Dependency, ProjectScanner, DependencyVersion
 from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
@@ -48,7 +49,7 @@ class PypiRequirementsScanner(ProjectScanner):
 
         return sanitized_lines
 
-    def parse_requirements(self, raw_requirements: str) -> dict[str, set[str]]:
+    def parse_requirements(self, raw_requirements: str) ->List[Dependency]:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
@@ -58,17 +59,10 @@ class PypiRequirementsScanner(ProjectScanner):
 
         Returns:
             dict: mapping of dependencies to valid versions
-
-            ex.
-            {
-                ....
-                <dependency-name>: [0.0.1, 0.0.2, ...],
-                ...
-            }
         """
         requirements = raw_requirements.splitlines()
         sanitized_requirements = self._sanitize_requirements(requirements)
-        dependencies = {}
+        dependencies: List[Dependency] = []
 
         def get_matched_versions(versions: set[str], semver_range: str) -> set[str]:
             """
@@ -105,7 +99,6 @@ class PypiRequirementsScanner(ProjectScanner):
             versions = set(sorted(data["releases"].keys()))
             log.debug(f"Retrieved versions {', '.join(versions)}")
             return versions
-
         def safe_parse_requirements(req):
             """
             This helper function yields one valid requirement line at a time
@@ -124,7 +117,7 @@ class PypiRequirementsScanner(ProjectScanner):
                     yield None
 
         try:
-            for requirement in safe_parse_requirements(sanitized_requirements):
+            for idx, requirement in enumerate(safe_parse_requirements(sanitized_requirements)):
                 if requirement is None:
                     continue
 
@@ -143,7 +136,27 @@ class PypiRequirementsScanner(ProjectScanner):
                     )
                     continue
 
-                dependencies[requirement.project_name] = versions
+                dep_versions = list(
+                    map(
+                        lambda d: DependencyVersion(version=d, location=idx+1),
+                        versions,
+                    )
+                )
+
+                # find the dep with the same name or create a new one
+                dep = next(
+                    filter(
+                        lambda d: d.name == requirement.project_name,
+                        dependencies,
+                    ),
+                    None
+                )
+                if not dep:
+                    dep = Dependency(name=requirement.project_name, versions=[])
+                    dependencies.append(dep)
+
+                dep.versions.extend(dep_versions)
+
         except Exception as e:
             log.error(f"Received error {str(e)}")
 
