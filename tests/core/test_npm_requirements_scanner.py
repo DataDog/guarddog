@@ -38,7 +38,14 @@ def test_npm_requirements_scanner_github():
         }
     }
     """)
-    assert "express" in result
-    assert "expressjs/express" in result["express"]
-    assert "cors" in result
-    assert "https://github.com/expressjs/cors.git" in result["cors"]
+    lookup = next(
+        filter(lambda r: r.name == "express", result), None
+    )
+    assert lookup is not None
+    assert "expressjs/express" in lookup.versions
+
+    lookup = next(
+        filter(lambda r: r.name == "cors", result), None
+    )
+    assert lookup is not None
+    assert "https://github.com/expressjs/cors.git" in lookup.versions

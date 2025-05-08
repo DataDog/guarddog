@@ -6,6 +6,7 @@ from typing import List
 
 from guarddog.scanners.go_package_scanner import GoModuleScanner
 from guarddog.scanners.scanner import ProjectScanner
+from guarddog.scanners.scanner import Dependency, DependencyVersion
 
 log = logging.getLogger("guarddog")
 
@@ -28,13 +29,39 @@ class GoDependenciesScanner(ProjectScanner):
     def __init__(self) -> None:
         super().__init__(GoModuleScanner())
 
-    def parse_requirements(self, raw_requirements: str) -> dict[str, set[str]]:
+    def parse_requirements(self, raw_requirements: str) -> List[Dependency]:
         main_mod = self.parse_go_mod_file(raw_requirements)
 
-        return {
-            requirement.module: set([requirement.version])
-            for requirement in main_mod.requirements
-        }
+        dependencies: List[Dependency] = []
+        for dependency in main_mod.requirements:
+            version = dependency.version
+            name = dependency.module
+            idx = next(
+                iter(
+                    [
+                        ix
+                        for ix, line in enumerate(raw_requirements.splitlines())
+                        if name in line
+                    ]
+                ),
+                0,
+            )
+
+            dep_versions = [DependencyVersion(version=version, location=idx + 1)]
+
+            dep = next(
+                filter(
+                    lambda d: d.name == name,
+                    dependencies,
+                ),
+                None
+            )
+            if not dep:
+                dep = Dependency(name=name, versions=[])
+                dependencies.append(dep)
+
+            dep.versions.extend(dep_versions)
+        return dependencies
 
     # Read https://go.dev/ref/mod#go-mod-file to learn more about the go.mod syntax
     def parse_go_mod_file(self, go_mod_content: str) -> GoModule:
