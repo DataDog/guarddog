@@ -334,7 +334,7 @@ for e in ECOSYSTEM:
 @verify_options
 @legacy_rules_options
 def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    return _verify(
+    return verify(
         target,
         rules,
         exclude_rules,

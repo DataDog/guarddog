@@ -176,8 +176,8 @@ class ProjectScanner:
                 Defaults to "requirements.txt".
 
         Returns:
-            dict: mapping of dependencies to scan results
-
+            deps: list of dependencies to scan
+            results: mapping of dependencies to scan results
             ex.
             {
                 ....
@@ -216,8 +216,19 @@ class ProjectScanner:
             callback: callback to call for each result
 
         Returns:
-            dict: mapping of scan results
-            dict: mapping of declared dependencies
+            deps: list of dependencies to scan
+            results: mapping of dependencies to scan results
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
 
         """
 
@@ -257,37 +268,6 @@ class ProjectScanner:
         directory: str,
     ) -> list[str]:  # returns paths of files
         pass
-
-    @staticmethod
-    def _extend_requirements(reqs_a: List[Dependency], reqs_b: List[Dependency]):
-        """
-        Extends requirements list reqs_a with entries from reqs_b
-        without repeating items that are already present.
-
-        Args:
-            reqs_a: List of Dependency objects to be extended
-            reqs_b: List of Dependency objects to extend with
-        """
-        # Create a dictionary from reqs_a for easier lookup
-        reqs_a_dict = {dep.name: dep for dep in reqs_a}
-
-        # Extend reqs_a with items from reqs_b without duplication
-        for dep_b in reqs_b:
-            if dep_b.name in reqs_a_dict:
-                # Dependency exists, need to merge versions without duplicates
-                dep_a = reqs_a_dict[dep_b.name]
-
-                # Create a set of existing versions for efficient lookup
-                existing_versions = {v.version for v in dep_a.versions}
-
-                # Add only new versions from dep_b
-                for version_info in dep_b.versions:
-                    if version_info.version not in existing_versions:
-                        dep_a.versions.append(version_info)
-                        existing_versions.add(version_info.version)
-            else:
-                # Dependency doesn't exist in reqs_a, add it
-                reqs_a.append(dep_b)
 
 
 class PackageScanner:
