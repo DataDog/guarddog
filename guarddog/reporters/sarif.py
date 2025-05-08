@@ -179,14 +179,12 @@ class SarifReporter(BaseReporter):
         log = get_sarif_log([runs])
 
         errors = "\n".join(
-            map(
-                lambda r: "\n".join(
-                    HumanReadableReporter.print_errors(
-                        identifier=r["dependency"], results=r["result"]
-                    )
-                ),
-                scan_results,
-            )
+            [
+                HumanReadableReporter.print_errors(
+                    identifier=r["dependency"], results=r["result"]
+                )
+                for r in scan_results
+            ]
         )
 
         return (json.dumps(log, indent=2), errors)

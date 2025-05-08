@@ -1,5 +1,4 @@
 from termcolor import colored
-from typing import Generator
 from guarddog.reporters import BaseReporter
 from typing import List
 from guarddog.scanners.scanner import DependencyFile
@@ -12,23 +11,27 @@ class HumanReadableReporter(BaseReporter):
     """
 
     @staticmethod
-    def print_errors(identifier: str, results: dict) -> Generator:
+    def print_errors(identifier: str, results: dict) -> str:
         errors = results.get("errors", [])
         if not errors:
-            return
-        yield ("")
-        yield (
+            return ""
+
+        lines = []
+        lines.append("")
+        lines.append(
             colored(
                 "Some rules failed to run while scanning " + identifier + ":",
                 "yellow",
             )
         )
-        yield ("")
+        lines.append("")
         for rule in errors:
-            yield (f"* {rule}: {errors[rule]}")
+            lines.append(f"* {rule}: {errors[rule]}")
+
+        return "\n".join(lines)
 
     @staticmethod
-    def print_scan_results(identifier: str, results: dict) -> Generator:
+    def print_scan_results(identifier: str, results: dict) -> str:
 
         def _format_code_line_for_output(code) -> str:
             return "    " + colored(
@@ -39,17 +42,18 @@ class HumanReadableReporter(BaseReporter):
             )
 
         num_issues = results.get("issues")
+        lines = []
 
         if num_issues == 0:
-            yield (
+            lines.append(
                 "Found "
                 + colored("0 potentially malicious indicators", "green", attrs=["bold"])
                 + " scanning "
                 + colored(identifier, None, attrs=["bold"])
             )
-            yield ("")
+            lines.append("")
         else:
-            yield (
+            lines.append(
                 "Found "
                 + colored(
                     str(num_issues) + " potentially malicious indicators",
@@ -59,24 +63,26 @@ class HumanReadableReporter(BaseReporter):
                 + " in "
                 + colored(identifier, None, attrs=["bold"])
             )
-            yield ("")
+            lines.append("")
 
             findings = results.get("results", [])
             for finding in findings:
                 description = findings[finding]
                 if isinstance(description, str):  # package metadata
-                    yield (colored(finding, None, attrs=["bold"]) + ": " + description)
-                    yield ("")
+                    lines.append(
+                        colored(finding, None, attrs=["bold"]) + ": " + description
+                    )
+                    lines.append("")
                 elif isinstance(description, list):  # semgrep rule result:
                     source_code_findings = description
-                    yield (
+                    lines.append(
                         colored(finding, None, attrs=["bold"])
                         + ": found "
                         + str(len(source_code_findings))
                         + " source code matches"
                     )
                     for finding in source_code_findings:
-                        yield (
+                        lines.append(
                             "  * "
                             + finding["message"]
                             + " at "
@@ -84,7 +90,9 @@ class HumanReadableReporter(BaseReporter):
                             + "\n    "
                             + _format_code_line_for_output(finding["code"])
                         )
-                    yield ("")
+                    lines.append("")
+
+        return "\n".join(lines)
 
     @staticmethod
     def render_scan(scan_results: dict) -> tuple[str, str]:
@@ -95,15 +103,11 @@ class HumanReadableReporter(BaseReporter):
             scan_results (dict): The scan results to be reported.
         """
         return (
-            "\n".join(
-                HumanReadableReporter.print_scan_results(
-                    identifier=scan_results["package"], results=scan_results
-                )
+            HumanReadableReporter.print_scan_results(
+                identifier=scan_results["package"], results=scan_results
             ),
-            "\n".join(
-                HumanReadableReporter.print_errors(
-                    identifier=scan_results["package"], results=scan_results
-                )
+            HumanReadableReporter.print_errors(
+                identifier=scan_results["package"], results=scan_results
             ),
         )
 
@@ -116,23 +120,19 @@ class HumanReadableReporter(BaseReporter):
     ) -> tuple[str, str]:
         return (
             "\n".join(
-                map(
-                    lambda s: "\n".join(
-                        HumanReadableReporter.print_scan_results(
-                            identifier=s["dependency"], results=s["result"]
-                        ),
-                    ),
-                    scan_results,
-                )
+                [
+                    HumanReadableReporter.print_scan_results(
+                        identifier=s["dependency"], results=s["result"]
+                    )
+                    for s in scan_results
+                ]
             ),
             "\n".join(
-                map(
-                    lambda s: "\n".join(
-                        HumanReadableReporter.print_errors(
-                            identifier=s["dependency"], results=s["result"]
-                        ),
-                    ),
-                    scan_results,
-                )
+                [
+                    HumanReadableReporter.print_errors(
+                        identifier=s["dependency"], results=s["result"]
+                    )
+                    for s in scan_results
+                ]
             ),
         )
