@@ -7,6 +7,8 @@ from sarif.loader import load_sarif_file
 
 from guarddog.cli import _verify
 from guarddog.ecosystems import ECOSYSTEM
+from guarddog.reporters.sarif import SarifReporter
+from guarddog.scanners.scanner import Dependency, DependencyFile, DependencyVersion
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -137,24 +139,32 @@ pypi_local_scan_results = [
 )
 def test_sarif_output(manifest, ecosystem, local_scan_results, warning_count):
 
-    def monkey_localscan(*args, **kwargs):
-        return local_scan_results
+    def build_dependencies():
+        return [
+            DependencyFile(
+                file_path=manifest,
+                dependencies=[
+                    Dependency(
+                        name=r["dependency"],
+                        versions={
+                            DependencyVersion(version=r["version"], location=1)
+                        },
+                    )
+                    for r in local_scan_results
+                ],
+            )
+        ]
 
-    MonkeyPatch().setattr(
-        "guarddog.scanners.scanner.ProjectScanner.scan_local", monkey_localscan
+    stdout, _ = SarifReporter.render_verify(
+        dependency_files=build_dependencies(),
+        rule_names=[],
+        scan_results=local_scan_results,
+        ecosystem=ecosystem,
     )
 
-    raw_output = _verify(
-        os.path.join(dir_path, "..", "core", "resources", manifest),
-        (),
-        (),
-        "sarif",
-        False,
-        ecosystem,
-    )
     with tempfile.TemporaryDirectory() as tmp_dirname:
         with open(os.path.join(tmp_dirname, "results.sarif"), "w") as fd:
-            fd.write(raw_output)
+            fd.write(stdout)
         sarif_data = load_sarif_file(os.path.join(tmp_dirname, "results.sarif"))
         stats_warning = sarif_data.get_report().get_issue_count_for_severity("warning")
         assert stats_warning == warning_count
