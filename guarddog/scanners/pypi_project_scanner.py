@@ -168,10 +168,10 @@ class PypiRequirementsScanner(ProjectScanner):
                     None,
                 )
                 if not dep:
-                    dep = Dependency(name=requirement.project_name, versions=[])
+                    dep = Dependency(name=requirement.project_name, versions=set())
                     dependencies.append(dep)
 
-                dep.versions.extend(dep_versions)
+                dep.versions.update(dep_versions)
 
         except Exception as e:
             log.error(f"Received error {str(e)}")

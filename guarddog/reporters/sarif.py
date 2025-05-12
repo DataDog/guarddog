@@ -120,8 +120,8 @@ class SarifReporter(BaseReporter):
                 for d in dependency_file.dependencies:
                     if d.name == package:
                         return dependency_file, {
-                            "startLine": d.versions[0].location,
-                            "endLine": d.versions[0].location,
+                            "startLine": list(d.versions)[0].location,
+                            "endLine": list(d.versions)[0].location,
                             "startColumn": 1,
                             "endColumn": len(package),
                         }

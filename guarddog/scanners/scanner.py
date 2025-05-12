@@ -8,7 +8,7 @@ import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Set, Optional, Tuple
 
 import requests
 
@@ -39,6 +39,9 @@ class DependencyVersion:
         if isinstance(other, DependencyVersion):
             return self.version == other.version
         return NotImplemented
+        
+    def __hash__(self):
+        return hash(self.version)
 
     def __repr__(self):
         return f"DependencyVersion({self.version!r})"
@@ -47,7 +50,7 @@ class DependencyVersion:
 @dataclass
 class Dependency:
     name: str
-    versions: List[DependencyVersion]
+    versions: Set[DependencyVersion]
 
     def __eq__(self, other):
         if isinstance(other, str):
