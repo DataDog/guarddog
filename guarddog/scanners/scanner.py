@@ -2,13 +2,12 @@ import concurrent.futures
 import json
 import logging
 import os
-import sys
 import tempfile
 import typing
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import List, Set, Optional, Tuple
+from typing import List, Optional, Set, Tuple
 
 import requests
 
@@ -26,11 +25,15 @@ def noop(arg: typing.Any) -> None:
 @dataclass
 class DependencyVersion:
     """
-    This class represents the identified dependency versions in a project
-    The location of the dependency is also tracked to inform the user where the dependency is specified
+    This class represents the identified dependency versions in a project,
+    usually defined in a specification file (requirements.txt, package.json, etc.)
+
+    Attributes:
+        version (str): The version of the dependency. e.g., "1.0.0"
+        location (int): This indicates the line number in the specification file where the dependency is defined.
     """
 
-    version: str
+    version: str  # the version number of the dependency
     location: int
 
     def __eq__(self, other):
@@ -39,7 +42,7 @@ class DependencyVersion:
         if isinstance(other, DependencyVersion):
             return self.version == other.version
         return NotImplemented
-        
+
     def __hash__(self):
         return hash(self.version)
 
@@ -49,6 +52,13 @@ class DependencyVersion:
 
 @dataclass
 class Dependency:
+    """
+    This class represents a dependency in a project, usually defined in a specification file
+
+    Attributes:
+        name (str): The name of the dependency. e.g., "requests"
+        versions (Set[DependencyVersion]): A set of identified versions of the dependency.
+    """
     name: str
     versions: Set[DependencyVersion]
 
@@ -65,211 +75,12 @@ class Dependency:
 
 @dataclass
 class DependencyFile:
-    name: str
+    """
+    This class represents a specification file for a project (requirements.txt, package.json, etc.)
+    """
+
+    file_path: str
     dependencies: List[Dependency]
-
-
-class ProjectScanner:
-    def __init__(self, package_scanner):
-        super().__init__()
-        self.package_scanner = package_scanner
-
-    def _authenticate_by_access_token(self) -> tuple[str, str]:
-        """
-        Gives GitHub authentication through access token
-
-        Returns:
-            tuple[str, str]: username, personal access token
-        """
-
-        user = os.getenv("GIT_USERNAME")
-        personal_access_token = os.getenv("GH_TOKEN")
-        if not user or not personal_access_token:
-            log.error(
-                """WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN
-                (generate a personal access token in Github settings > developer)
-                as environment variables before proceeding."""
-            )
-            exit(1)
-        return (user, personal_access_token)
-
-    def scan_dependencies(
-        self,
-        dependencies: List[Dependency],
-        rules=None,
-        callback: typing.Callable[[dict], None] = noop,
-    ) -> list[dict]:
-        """
-        scans each possible dependency and version supplied
-
-        Args:
-            dependencies a list of dependencies to scan
-            rules: list of rules to apply
-            callback: callback to call for each result
-
-        Returns:
-            dict: mapping of dependencies to scan results
-
-            ex.
-            {
-                ....
-                <dependency-name>: {
-                        issues: ...,
-                        results: {
-                            ...
-                        }
-                    },
-                ...
-            }
-        """
-
-        def scan_single_dependency(dependency: str, version: Optional[str]) -> dict:
-            log.debug(f"Scanning {dependency} version {version}")
-            result = self.package_scanner.scan_remote(dependency, version, rules)
-            return {"dependency": dependency, "version": version, "result": result}
-
-        num_workers = PARALLELISM
-
-        log.info(f"Scanning using at most {num_workers} parallel worker threads\n")
-        with ThreadPoolExecutor(max_workers=num_workers) as pool:
-            try:
-                futures: typing.List[concurrent.futures.Future] = []
-                for dependency in dependencies:
-                    versions = dependency.versions
-                    if not versions:
-                        # this will cause scan_remote to use the latest version
-                        futures.append(
-                            pool.submit(scan_single_dependency, dependency.name, None)
-                        )
-                    else:
-                        futures.extend(
-                            map(
-                                lambda version: pool.submit(
-                                    scan_single_dependency,
-                                    dependency.name,
-                                    version.version,
-                                ),
-                                versions,
-                            )
-                        )
-
-                results = []
-                for future in concurrent.futures.as_completed(futures):
-                    result = future.result()
-                    if callback is not None:
-                        callback(result)
-                    results.append(result)
-            except KeyboardInterrupt:
-                log.warning("Received keyboard interrupt, cancelling scan\n")
-                pool.shutdown(wait=False, cancel_futures=True)
-
-        return results
-
-    def scan_remote(
-        self, url: str, branch: str, requirements_name: str
-    ) -> tuple[List[Dependency], list[dict]]:
-        """
-        Scans remote requirements.txt file
-
-        Args:
-            url (str): url of the GitHub repo
-            branch (str): branch containing requirements.txt
-            requirements_name (str, optional): name of requirements file.
-                Defaults to "requirements.txt".
-
-        Returns:
-            deps: list of dependencies to scan
-            results: mapping of dependencies to scan results
-            ex.
-            {
-                ....
-                <dependency-name>: {
-                        issues: ...,
-                        results: {
-                            ...
-                        }
-                    },
-                ...
-            }
-        """
-
-        token = self._authenticate_by_access_token()
-        githubusercontent_url = url.replace("github", "raw.githubusercontent")
-
-        req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"
-        resp = requests.get(url=req_url, auth=token)
-
-        if resp.status_code != 200:
-            log.error(f"{req_url} does not exist. Check your link or branch name.")
-            sys.exit(255)
-
-        dependencies = self.parse_requirements(resp.content.decode())
-        return dependencies, self.scan_dependencies(dependencies)
-
-    def scan_local(
-        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
-    ) -> Tuple[List[DependencyFile], list[dict]]:
-        """
-        Scans a local requirements files (requirements.txt, package.json, etc.)
-
-        Args:
-            path (str): path to requirements file or directory to search
-            rules: list of rules to apply
-            callback: callback to call for each result
-
-        Returns:
-            deps: list of dependencies to scan
-            results: mapping of dependencies to scan results
-            ex.
-            {
-                ....
-                <dependency-name>: {
-                        issues: ...,
-                        results: {
-                            ...
-                        }
-                    },
-                ...
-            }
-
-        """
-
-        requirement_paths = []
-
-        try:
-            if os.path.isfile(path):
-                requirement_paths.append(path)
-            elif os.path.isdir(path):
-                requirement_paths.extend(self.find_requirements(path))
-            else:
-                raise ValueError(f"unable to find file or directory {path}")
-
-            dep_files: List[DependencyFile] = []
-
-            for req in requirement_paths:
-                with open(req, "r") as f:
-                    dep_files.append(
-                        DependencyFile(
-                            name=req, dependencies=self.parse_requirements(f.read())
-                        )
-                    )
-            deps_to_scan = [d for d_file in dep_files for d in d_file.dependencies]
-            results = self.scan_dependencies(deps_to_scan, rules, callback)
-            return dep_files, results
-        except Exception as e:
-            log.error(f"Received {e}")
-            sys.exit(255)
-
-    @abstractmethod
-    def parse_requirements(self, raw_requirements: str) -> List[Dependency]:
-        pass
-
-    @abstractmethod
-    def find_requirements(
-        self,
-        directory: str,
-    ) -> list[str]:  # returns paths of files
-        pass
 
 
 class PackageScanner:
@@ -396,3 +207,202 @@ class PackageScanner:
         finally:
             log.debug(f"Removing temporary archive file {archive_path}")
             os.remove(archive_path)
+
+
+class ProjectScanner:
+    def __init__(self, package_scanner: PackageScanner):
+        super().__init__()
+        self.package_scanner = package_scanner
+
+    def _authenticate_by_access_token(self) -> tuple[str, str]:
+        """
+        Gives GitHub authentication through access token
+
+        Returns:
+            tuple[str, str]: username, personal access token
+        """
+
+        user = os.getenv("GIT_USERNAME")
+        personal_access_token = os.getenv("GH_TOKEN")
+        if not user or not personal_access_token:
+            log.error(
+                """WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN
+                (generate a personal access token in Github settings > developer)
+                as environment variables before proceeding."""
+            )
+            exit(1)
+        return (user, personal_access_token)
+
+    def scan_dependencies(
+        self,
+        dependencies: List[Dependency],
+        rules=None,
+        callback: typing.Callable[[dict], None] = noop,
+    ) -> list[dict]:
+        """
+        scans each possible dependency and version supplied
+
+        Args:
+            dependencies a list of dependencies to scan
+            rules: list of rules to apply
+            callback: callback to call for each result
+
+        Returns:
+            dict: mapping of dependencies to scan results
+
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+        """
+
+        def scan_single_dependency(dependency: str, version: Optional[str]) -> dict:
+            log.debug(f"Scanning {dependency} version {version}")
+            result = self.package_scanner.scan_remote(dependency, version, rules)
+            return {"dependency": dependency, "version": version, "result": result}
+
+        num_workers = PARALLELISM
+
+        log.info(f"Scanning using at most {num_workers} parallel worker threads\n")
+        with ThreadPoolExecutor(max_workers=num_workers) as pool:
+            try:
+                futures: typing.List[concurrent.futures.Future] = []
+                for dependency in dependencies:
+                    versions = dependency.versions
+                    if not versions:
+                        # this will cause scan_remote to use the latest version
+                        futures.append(
+                            pool.submit(scan_single_dependency, dependency.name, None)
+                        )
+                    else:
+                        futures.extend(
+                            map(
+                                lambda version: pool.submit(
+                                    scan_single_dependency,
+                                    dependency.name,
+                                    version.version,
+                                ),
+                                versions,
+                            )
+                        )
+
+                results = []
+                for future in concurrent.futures.as_completed(futures):
+                    result = future.result()
+                    if callback is not None:
+                        callback(result)
+                    results.append(result)
+            except KeyboardInterrupt:
+                log.warning("Received keyboard interrupt, cancelling scan\n")
+                pool.shutdown(wait=False, cancel_futures=True)
+
+        return results
+
+    def scan_remote(
+        self, url: str, branch: str, requirements_name: str
+    ) -> tuple[List[Dependency], list[dict]]:
+        """
+        Scans remote requirements.txt file
+
+        Args:
+            url (str): url of the GitHub repo
+            branch (str): branch containing requirements.txt
+            requirements_name (str, optional): name of requirements file.
+                Defaults to "requirements.txt".
+
+        Returns:
+            deps: list of dependencies to scan
+            results: mapping of dependencies to scan results
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+        """
+
+        token = self._authenticate_by_access_token()
+        githubusercontent_url = url.replace("github", "raw.githubusercontent")
+        req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"
+        resp = requests.get(url=req_url, auth=token)
+        resp.raise_for_status()
+        dependencies = self.parse_requirements(resp.content.decode())
+        return dependencies, self.scan_dependencies(dependencies)
+
+    def scan_local(
+        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
+    ) -> Tuple[List[DependencyFile], list[dict]]:
+        """
+        Scans a local requirements files (requirements.txt, package.json, etc.)
+
+        Args:
+            path (str): path to requirements file or directory to search
+            rules: list of rules to apply
+            callback: callback to call for each result
+
+        Returns:
+            deps: list of dependencies to scan
+            results: mapping of dependencies to scan results
+            ex.
+            {
+                ....
+                <dependency-name>: {
+                        issues: ...,
+                        results: {
+                            ...
+                        }
+                    },
+                ...
+            }
+
+        """
+
+        requirement_paths = []
+
+        try:
+            if os.path.isfile(path):
+                requirement_paths.append(path)
+            elif os.path.isdir(path):
+                requirement_paths.extend(self.find_requirements(path))
+            else:
+                raise ValueError(f"unable to find file or directory {path}")
+
+            dep_files: List[DependencyFile] = []
+
+            for req in requirement_paths:
+                with open(req, "r") as f:
+                    dep_files.append(
+                        DependencyFile(
+                            file_path=req,
+                            dependencies=self.parse_requirements(f.read()),
+                        )
+                    )
+            deps_to_scan = [d for d_file in dep_files for d in d_file.dependencies]
+            results = self.scan_dependencies(deps_to_scan, rules, callback)
+            return dep_files, results
+        except Exception as e:
+            log.error(f"Error while scanning. Received {e}")
+            raise e
+
+    @abstractmethod
+    def parse_requirements(self, raw_requirements: str) -> List[Dependency]:
+        pass
+
+    @abstractmethod
+    def find_requirements(
+        self,
+        directory: str,
+    ) -> list[str]:  # returns paths of files
+        pass

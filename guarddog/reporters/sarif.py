@@ -141,7 +141,7 @@ class SarifReporter(BaseReporter):
             dep_file, region = get_region(
                 dependency_files=dependency_files, package=entry["dependency"]
             )
-            package_path = dep_file.name
+            package_path = dep_file.file_path
             uri = package_path[2:] if package_path.startswith("./") else package_path
             physical_location = get_physical_location(uri, region)
             location = get_location(physical_location)
