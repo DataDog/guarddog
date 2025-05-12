@@ -133,7 +133,6 @@ class ProjectScanner:
                 futures: typing.List[concurrent.futures.Future] = []
                 for dependency in dependencies:
                     versions = dependency.versions
-                    assert versions or len(versions) > 0
                     if not versions:
                         # this will cause scan_remote to use the latest version
                         futures.append(
