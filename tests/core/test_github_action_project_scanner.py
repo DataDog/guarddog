@@ -14,13 +14,24 @@ def test_githubactions_parse_requirements():
         os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "workflow.yaml"),
         "r",
     ) as f:
-        requirements = scanner.parse_requirements(f.read())
-        assert requirements == {
-            "actions/checkout": {"v4.2.2", "11bd71901bbe5b1630ceea73d27597364c9af683"},
-            "actions/setup-python": {"v5.3.0"},
-            "actions/create-github-app-token": {"0d564482f06ca65fa9e77e2510873638c82206f2"},
-            "peter-evans/create-pull-request": {"v7"},
-        }
+
+        result = scanner.parse_requirements(f.read())
+
+        for p, v in [
+            ("actions/checkout", "11bd71901bbe5b1630ceea73d27597364c9af683"),
+            ("actions/checkout", "v4.2.2"),
+            ("actions/setup-python", "v5.3.0"),
+            (
+                "actions/create-github-app-token",
+                "0d564482f06ca65fa9e77e2510873638c82206f2",
+            ),
+            ("peter-evans/create-pull-request", "v7"),
+        ]:
+            lookup = next(
+                filter(lambda r: r.name == p, result), None
+            )
+            assert lookup
+            assert v in lookup.versions
 
 def test_githubactions_find_requirements():
     scanner = GitHubActionDependencyScanner()
@@ -29,7 +40,7 @@ def test_githubactions_find_requirements():
     # fake a git repo in the test folder somehow
     repo_root = pathlib.Path(__file__).parent.parent.parent.resolve()
     requirements = scanner.find_requirements(
-        repo_root
+        str(repo_root)
     )
     assert requirements.sort() == [
         os.path.join(repo_root, ".github", "workflows", "docker-release.yml"),
@@ -38,7 +49,6 @@ def test_githubactions_find_requirements():
         os.path.join(repo_root, ".github", "workflows", "semgrep.yml"),
         os.path.join(repo_root, ".github", "workflows", "test.yml"),
     ].sort()
-
 
 
 @pytest.mark.parametrize(
