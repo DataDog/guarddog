@@ -8,6 +8,7 @@ import re
 
 from guarddog.scanners.github_action_scanner import GithubActionScanner
 from guarddog.scanners.scanner import ProjectScanner
+from guarddog.scanners.scanner import Dependency, DependencyVersion
 
 log = logging.getLogger("guarddog")
 
@@ -67,17 +68,40 @@ class GitHubActionDependencyScanner(ProjectScanner):
     def __init__(self) -> None:
         super().__init__(GithubActionScanner())
 
-    def parse_requirements(self, raw_requirements: str) -> dict[str, set[str]]:
+    def parse_requirements(self, raw_requirements: str) -> List[Dependency]:
         actions = self.parse_workflow_3rd_party_actions(raw_requirements)
+        dependencies: List[Dependency] = []
 
-        requirements: dict[str, set[str]] = {}
         for action in actions:
-            repo, version = action["name"], action["ref"]
-            if repo in requirements:
-                requirements[repo].add(version)
-            else:
-                requirements[repo] = {version}
-        return requirements
+            name = action["name"]
+            version = action["ref"]
+            idx = next(
+                iter(
+                    [
+                        ix
+                        for ix, line in enumerate(raw_requirements.splitlines())
+                        if name in line
+                    ]
+                ),
+                0,
+            )
+            # find the dep with the same name or create a new one
+            dep_versions = [DependencyVersion(version=version, location=idx + 1)]
+
+            dep = next(
+                filter(
+                    lambda d: d.name == name,
+                    dependencies,
+                ),
+                None,
+            )
+            if not dep:
+                dep = Dependency(name=name, versions=set())
+                dependencies.append(dep)
+
+            dep.versions.update(dep_versions)
+
+        return dependencies
 
     def parse_workflow_3rd_party_actions(
         self, workflow_file: str
@@ -105,7 +129,9 @@ class GitHubActionDependencyScanner(ProjectScanner):
         requirement_files = []
 
         if not os.path.isdir(os.path.join(directory, ".git")):
-            raise Exception("unable to find github workflows, not called from git directory")
+            raise Exception(
+                "unable to find github workflows, not called from git directory"
+            )
         workflow_folder = os.path.join(directory, ".github/workflows")
         if os.path.isdir(workflow_folder):
             for name in os.listdir(workflow_folder):

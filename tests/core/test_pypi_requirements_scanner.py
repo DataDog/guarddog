@@ -10,10 +10,17 @@ def test_requirements_scanner():
     result = scanner.parse_requirements(
         "\n".join(["not-a-real-package==1.0.0", "flask==2.2.2"])
     )
-    assert "not-a-real-package" not in result  # ignoring non existing packages
-    assert "flask" in result
+    assert "not-a-real-package" not in result
 
-def test_npm_find_requirements():
+    for p, v in [("flask", "2.2.2")]:
+        lookup = next(
+            filter(lambda r: r.name == p, result), None
+        )
+        assert lookup
+        assert v in lookup.versions
+
+
+def test_pypi_find_requirements():
     scanner = PypiRequirementsScanner()
 
 
@@ -35,7 +42,10 @@ def test_requirements_scanner_on_git_url_packages():
             ]
         )
     )
-    assert "guarddog" in result
-    assert "git+https://github.com/DataDog/guarddog.git" in result["guarddog"]
+    lookup = next(
+        filter(lambda r: r.name == "guarddog", result), None
+    )
+    assert lookup is not None
+    assert "git+https://github.com/DataDog/guarddog.git" in [v.version for v in lookup.versions]
     assert "flask" in result
     assert len(result) == 2
