@@ -96,10 +96,10 @@ class GitHubActionDependencyScanner(ProjectScanner):
                 None,
             )
             if not dep:
-                dep = Dependency(name=name, versions=[])
+                dep = Dependency(name=name, versions=set())
                 dependencies.append(dep)
 
-            dep.versions.extend(dep_versions)
+            dep.versions.update(dep_versions)
 
         return dependencies
 

@@ -142,13 +142,13 @@ def test_sarif_output(manifest, ecosystem, local_scan_results, warning_count):
     def build_dependencies():
         return [
             DependencyFile(
-                name="some/requirements.txt",
+                name=manifest,
                 dependencies=[
                     Dependency(
                         name=r["dependency"],
-                        versions=[
-                            DependencyVersion(version=r["version"], location="1")
-                        ],
+                        versions={
+                            DependencyVersion(version=r["version"], location=1)
+                        },
                     )
                     for r in local_scan_results
                 ],

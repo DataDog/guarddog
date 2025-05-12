@@ -132,10 +132,10 @@ class NPMRequirementsScanner(ProjectScanner):
                 None,
             )
             if not dep:
-                dep = Dependency(name=package, versions=[])
+                dep = Dependency(name=package, versions=set())
                 dependencies.append(dep)
 
-            dep.versions.extend(dep_versions)
+            dep.versions.update(dep_versions)
 
         return dependencies
 
