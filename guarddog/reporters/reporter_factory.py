@@ -18,10 +18,10 @@ class ReporterType(Enum):
 
     @classmethod
     def from_str(cls, type: Optional[str]) -> "ReporterType":
-        if type is None:
+        if not type:
             return cls.HUMAN_READABLE
-        match (type or "").lower():
-            case "":
+        match (type).lower():
+            case "human_readable":
                 return cls.HUMAN_READABLE
             case "sarif":
                 return cls.SARIF
