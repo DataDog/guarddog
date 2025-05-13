@@ -39,6 +39,7 @@ def test_requirements_scanner_on_git_url_packages():
                 "https://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820+49a8884-cp34-none-win_amd64.whl",
                 "guarddog @ git+https://github.com/DataDog/guarddog.git",
                 "git+https://github.com/DataDog/guarddog.git",
+                "requests",
             ]
         )
     )
@@ -48,4 +49,10 @@ def test_requirements_scanner_on_git_url_packages():
     assert lookup is not None
     assert "git+https://github.com/DataDog/guarddog.git" in [v.version for v in lookup.versions]
     assert "flask" in result
-    assert len(result) == 2
+    assert len(result) == 3
+    lookup = next(
+        filter(lambda r: r.name == "requests", result), None
+    )
+    assert lookup is not None
+    assert len(lookup.versions) == 1
+ 
