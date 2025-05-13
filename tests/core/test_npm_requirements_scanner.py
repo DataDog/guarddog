@@ -10,12 +10,18 @@ def test_npm_requirements_scanner():
     {
         "dependencies": {
             "non-existing": "*",
-            "express": "4.x"
+            "express": "4.x",
+            "cors": "*"
         }
     }
     """)
     assert "non-existing" not in result  # ignoring non existing packages
     assert "express" in result
+    lookup = next(
+        filter(lambda r: r.name == "cors", result), None
+    )
+    assert lookup is not None
+    assert len(lookup.versions) == 1
 
 
 def test_npm_find_requirements():

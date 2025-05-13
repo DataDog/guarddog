@@ -76,8 +76,11 @@ class PypiRequirementsScanner(ProjectScanner):
 
             # Filters to specified versions
             try:
-                spec = Specifier(semver_range)
-                result = [Version(m) for m in spec.filter(versions)]
+                matching_versions = versions
+                if semver_range:
+                    spec = Specifier(semver_range)
+                    matching_versions = set(spec.filter(versions))
+                result = [Version(m) for m in matching_versions]
             except ValueError:
                 # use it raw
                 return set([semver_range])
