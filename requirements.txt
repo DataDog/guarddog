@@ -220,9 +220,9 @@ opentelemetry-instrumentation==0.46b0 ; python_version >= "3.10" and python_vers
 opentelemetry-proto==1.25.0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:35b6ef9dc4a9f7853ecc5006738ad40443701e52c26099e197895cbda8b815a3 \
     --hash=sha256:f07e3341c78d835d9b86665903b199893befa5e98866f63d22b00d0b7ca4972f
-opentelemetry-sdk==1.25.0 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:ce7fc319c57707ef5bf8b74fb9f8ebdb8bfafbe11898410e0d2a761d08a98ec7 \
-    --hash=sha256:d97ff7ec4b351692e9d5a15af570c693b8715ad78b8aafbec5c7100fe966b4c9
+opentelemetry-sdk==1.33.0 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:a7fc56d1e07b218fcc316b24d21b59d3f1967b2ca22c217b05da3a26b797cc68 \
+    --hash=sha256:bed376b6d37fbf00688bb65edfee817dd01d48b8559212831437529a6066049a
 opentelemetry-semantic-conventions==0.46b0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:6daef4ef9fa51d51855d9f8e0ccd3a1bd59e0e545abe99ac6203804e36ab3e07 \
     --hash=sha256:fbc982ecbb6a6e90869b15c1673be90bd18c8a56ff1cffc0864e38e2edffaefa
