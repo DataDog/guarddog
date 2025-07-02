@@ -1,0 +1,30 @@
+rules:
+  - id: maven-clipboard-access
+    languages:
+      - java
+    message: This package accesses the clipboard, which can indicate it's trying to steal sensitive data or overwrite cryptocurrency addresses
+    metadata:
+      description: Identify when a package reads or write data from the clipboard
+    patterns:
+      # building a clipboard object 
+      - pattern-either: 
+        - pattern-inside: | 
+            $CLIP = <... java.awt.Toolkit.getDefaultToolkit().getSystemClipboard() ...> ;
+            ...
+        - pattern-inside: |
+            class $CLASS {
+              ...
+              java.awt.datatransfer.Clipboard $CLIP = ... ;
+              ...
+            }
+      - pattern-either:
+        - pattern: $CLIP.setContents(...)
+        - pattern: $CLIP.addFlavorListener(...)
+        - pattern: $CLIP.getData(...)
+        # read clipboard 
+        - patterns: 
+          - pattern-inside: |
+              $DATA = $CLIP.getContents(...) ;
+              ...
+          - pattern: $DATA.getTransferData(...)
+    severity: WARNING
