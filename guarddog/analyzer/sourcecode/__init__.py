@@ -80,6 +80,8 @@ for file_name in semgrep_rule_file_names:
                         ecosystems.add(ECOSYSTEM.GITHUB_ACTION)
                     case "go":
                         ecosystems.add(ECOSYSTEM.GO)
+                    case "java":
+                        ecosystems.add(ECOSYSTEM.MAVEN)
                     case _:
                         continue
 
