@@ -1,5 +1,5 @@
 rules:
-  - id: maven-event-listening
+  - id: maven-event-listener
     languages:
       - java
     message: This code installs a global AWT event listener, which can indicate it's attempting to log keyboard input or monitor user behavior without consent. This technique is commonly used by keyloggers or spyware.
