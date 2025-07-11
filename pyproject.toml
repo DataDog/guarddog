@@ -12,8 +12,6 @@ guarddog = "guarddog.cli:cli"
 
 [tool.poetry.dependencies]
 click = "^8.1.3"
-click-option-group = "^0.5.5"
-colorama = "^0.4.6"  # used by click
 configparser = ">=5.3,<8.0"
 disposable-email-domains = ">=0.0.103,<0.0.121"
 prettytable="^3.6.0"
@@ -51,5 +49,3 @@ testpaths = [
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-
