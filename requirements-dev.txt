@@ -787,9 +787,9 @@ opentelemetry-exporter-otlp-proto-http==1.25.0 ; python_version >= "3.10" and py
 opentelemetry-instrumentation-requests==0.46b0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:a8c2472800d8686f3f286cd524b8746b386154092e85a791ba14110d1acc9b81 \
     --hash=sha256:ef0ad63bfd0d52631daaf7d687e763dbd89b465f5cb052f12a4e67e5e3d181e4
-opentelemetry-instrumentation==0.46b0 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:89cd721b9c18c014ca848ccd11181e6b3fd3f6c7669e35d59c48dc527408c18b \
-    --hash=sha256:974e0888fb2a1e01c38fbacc9483d024bb1132aad92d6d24e2e5543887a7adda
+opentelemetry-instrumentation==0.56b0 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:948967f7c8f5bdc6e43512ba74c9ae14acb48eb72a35b61afe8db9909f743be3 \
+    --hash=sha256:d2dbb3021188ca0ec8c5606349ee9a2919239627e8341d4d37f1d21ec3291d11
 opentelemetry-proto==1.25.0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:35b6ef9dc4a9f7853ecc5006738ad40443701e52c26099e197895cbda8b815a3 \
     --hash=sha256:f07e3341c78d835d9b86665903b199893befa5e98866f63d22b00d0b7ca4972f
