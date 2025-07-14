@@ -19,7 +19,7 @@ python = ">=3.10,<4"
 python-dateutil = "^2.8.2"
 python-whois = ">=0.8,<0.10"
 # 1.12+ requires new version of libgit2 which is not avaiable in Alpine
-pygit2 = ">=1.11,<1.18"
+pygit2 = ">=1.11,<1.19"
 pyyaml = "^6.0"
 requests = "^2.29.0"
 semantic-version = "^2.10.0"
