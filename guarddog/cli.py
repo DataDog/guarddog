@@ -48,7 +48,7 @@ def legacy_rules_options(fn):
         lambda a, b: a | b,
         map(
             lambda e: set(r.id for r in get_sourcecode_rules(e))
-            | set(get_metadata_detectors(e).keys()),
+            | set((get_metadata_detectors(e) or dict()).keys()),
             [e for e in ECOSYSTEM],
         ),
     )
@@ -120,7 +120,7 @@ def cli(log_level):
 
 def _get_all_rules(ecosystem: ECOSYSTEM) -> set[str]:
     return set(r.id for r in get_sourcecode_rules(ecosystem)) | set(
-        get_metadata_detectors(ecosystem).keys()
+        (get_metadata_detectors(ecosystem) or dict()).keys()
     )
 
 

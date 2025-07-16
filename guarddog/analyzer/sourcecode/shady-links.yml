@@ -59,4 +59,5 @@ rules:
       - python
       - typescript
       - go
+      - java
     severity: WARNING

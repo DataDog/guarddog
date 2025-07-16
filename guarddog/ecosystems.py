@@ -6,6 +6,7 @@ class ECOSYSTEM(Enum):
     NPM = "npm"
     GO = "go"
     GITHUB_ACTION = "github-action"
+    MAVEN = "maven"
 
 
 def get_friendly_name(ecosystem: ECOSYSTEM) -> str:
@@ -18,5 +19,7 @@ def get_friendly_name(ecosystem: ECOSYSTEM) -> str:
             return "go"
         case ECOSYSTEM.GITHUB_ACTION:
             return "GitHub Action"
+        case ECOSYSTEM.MAVEN:
+            return "maven"
         case _:
             return ecosystem.value

@@ -1,0 +1,15 @@
+rules:
+  - id: maven-event-listener
+    languages:
+      - java
+    message: This code installs a global AWT event listener, which can indicate it's attempting to log keyboard input or monitor user behavior without consent. This technique is commonly used by keyloggers or spyware.
+    metadata:
+      description: Identify when a package passively observe events being dispatched in the AWT, system-wide
+    patterns:
+      - pattern-inside: |
+          import java.awt.event.AWTEventListener;
+          ...
+      - pattern: $LISTENER = new AWTEventListener() {...} ;
+      - pattern: $LISTENER
+
+    severity: WARNING
