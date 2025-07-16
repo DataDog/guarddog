@@ -1,4 +1,6 @@
 # Maven-specific metadata security rules
 # Currently empty - rules can be added here in the future
 
-MAVEN_METADATA_RULES = {} 
+from guarddog.analyzer.metadata.detector import Detector
+
+MAVEN_METADATA_RULES: dict[str, Detector] = {}
