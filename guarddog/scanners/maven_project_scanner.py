@@ -59,7 +59,7 @@ class MavenProjectScanner(ProjectScanner):
                     if artifact_id in line:
                         idx = i + 1
                         break
-                
+
                 from guarddog.scanners.scanner import DependencyVersion
                 dep_version = DependencyVersion(version=version_text, location=idx)
 
@@ -88,4 +88,4 @@ class MavenProjectScanner(ProjectScanner):
             for name in files:
                 if name == 'pom.xml':
                     requirement_files.append(os.path.join(root, name))
-        return requirement_files 
+        return requirement_files
