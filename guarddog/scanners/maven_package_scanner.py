@@ -160,10 +160,12 @@ class MavenPackageScanner(PackageScanner):
             
             # Extract to a subdirectory
             extract_dir = os.path.join(path, "extracted")
-            if not os.path.exists(extract_dir):
-                os.makedirs(extract_dir)
-                safe_extract(jar_path, extract_dir)
-                log.debug(f"Extracted JAR {jar_file} to {extract_dir}")
+            # Clear existing extract directory to avoid stale files
+            if os.path.exists(extract_dir):
+                shutil.rmtree(extract_dir)
+            os.makedirs(extract_dir)
+            safe_extract(jar_path, extract_dir)
+            log.debug(f"Extracted JAR {jar_file} to {extract_dir}")
             
             # Look for pom.xml in extracted content or in the original directory
             extracted_pom = os.path.join(extract_dir, "META-INF", "maven")

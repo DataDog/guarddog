@@ -81,7 +81,7 @@ class MavenProjectScanner(ProjectScanner):
 
         return dependencies
 
-    def find_requirements(self, directory: str) -> list[str]:
+    def find_requirements(self, directory: str) -> List[str]:
         # The relevant file is pom.xml
         requirement_files = []
         for root, dirs, files in os.walk(directory):
