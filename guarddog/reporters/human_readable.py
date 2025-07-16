@@ -44,6 +44,8 @@ class HumanReadableReporter(BaseReporter):
         num_issues = results.get("issues")
         lines = []
 
+        package_info = results.get("package_info")
+        
         if num_issues == 0:
             lines.append(
                 "Found "
