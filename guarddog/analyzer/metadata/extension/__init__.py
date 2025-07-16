@@ -15,4 +15,4 @@ classes: list[Type[Detector]] = [
 
 for detectorClass in classes:
     detectorInstance = detectorClass()  # type: ignore
-    EXTENSION_METADATA_RULES[detectorInstance.get_name()] = detectorInstance 
+    EXTENSION_METADATA_RULES[detectorInstance.get_name()] = detectorInstance
