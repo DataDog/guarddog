@@ -95,7 +95,12 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        return {"issues": issues, "errors": errors, "results": results, "path": path}
+        output = {"issues": issues, "errors": errors, "results": results, "path": path}
+        # Including extension info - pending discussion
+        # if info is not None:
+        #     output["package_info"] = info
+
+        return output
 
     def analyze_metadata(self, path: str, info, rules=None, name: Optional[str] = None,
                          version: Optional[str] = None) -> dict:
@@ -183,6 +188,11 @@ class Analyzer:
 
         rule_results: defaultdict[dict, list[dict]] = defaultdict(list)
 
+        # Define verbose rules that should only show "file-level" triggers
+        verbose_rules = {
+            "DETECT_FILE_obfuscator_dot_io",
+        }
+
         rules_path = {
             rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
             for rule_name in all_rules
@@ -206,26 +216,46 @@ class Analyzer:
 
                     matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
-                        for s in m.strings:
-                            for i in s.instances:
+                        rule_name = m.rule
+                        
+                        if rule_name in verbose_rules:
+                            # For verbose rules, we only show that the rule was triggered in the matching file
+                            # We're logging appearances once instead of issue-counting
+                            file_already_reported = any(
+                                finding["location"].startswith(scan_file_target_relpath + ":")
+                                for finding in rule_results[rule_name]
+                            )
+                            
+                            if not file_already_reported:
                                 finding = {
-                                    "location": f"{scan_file_target_relpath}:{i.offset}",
-                                    "code": self.trim_code_snippet(str(i.matched_data)),
-                                    'message': m.meta.get("description", f"{m.rule} rule matched")
+                                    "location": f"{scan_file_target_relpath}:1",
+                                    "code": f"Rule triggered in file (matches hidden for brevity)",
+                                    'message': m.meta.get("description", f"{rule_name} rule matched")
                                 }
+                                issues += 1
+                                rule_results[rule_name].append(finding)
+                        else:
+                            # For non-verbose rules, show detailed matches as before
+                            for s in m.strings:
+                                for i in s.instances:
+                                    finding = {
+                                        "location": f"{scan_file_target_relpath}:{i.offset}",
+                                        "code": self.trim_code_snippet(str(i.matched_data)),
+                                        'message': m.meta.get("description", f"{rule_name} rule matched")
+                                    }
 
-                                # since yara can match the multiple times in the same file
-                                # leading to finding several times the same word or pattern
-                                # this dedup the matches
-                                if [
-                                    f
-                                    for f in rule_results[m.rule]
-                                    if finding["code"] == f["code"]
-                                ]:
-                                    continue
+                                    # since yara can match the multiple times in the same file
+                                    # leading to finding several times the same word or pattern
+                                    # this dedup the matches
+                                    if [
+                                        f
+                                        for f in rule_results[rule_name]
+                                        if finding["code"] == f["code"]
+                                    ]:
+                                        continue
 
-                                issues += len(m.strings)
-                                rule_results[m.rule].append(finding)
+                                    issues += len(m.strings)
+                                    rule_results[rule_name].append(finding)
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 

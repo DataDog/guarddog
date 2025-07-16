@@ -22,6 +22,7 @@ class SourceCodeRule:
     id: str
     file: str
     description: str
+    ecosystem: ECOSYSTEM
 
 
 @dataclass
@@ -38,7 +39,6 @@ class SempgrepRule(SourceCodeRule):
     Semgrep rule are language specific
     Content of rule in yaml format is accessible through rule_content
     """
-    ecosystem: ECOSYSTEM
     rule_content: dict
 
 
@@ -54,7 +54,7 @@ def get_sourcecode_rules(
     for rule in SOURCECODE_RULES:
         if kind and not isinstance(rule, kind):
             continue
-        if not (getattr(rule, "ecosystem", ecosystem) == ecosystem):
+        if rule.ecosystem != ecosystem:
             continue
         yield rule
 
@@ -78,6 +78,7 @@ for file_name in semgrep_rule_file_names:
                     case "javascript" | "typescript" | "json":
                         ecosystems.add(ECOSYSTEM.NPM)
                         ecosystems.add(ECOSYSTEM.GITHUB_ACTION)
+                        ecosystems.add(ECOSYSTEM.EXTENSION)
                     case "go":
                         ecosystems.add(ECOSYSTEM.GO)
                     case _:
@@ -111,9 +112,17 @@ for file_name in yara_rule_file_names:
     rule_id = pathlib.Path(file_name).stem
     description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
 
+    # Default to EXTENSION for general YARA rules (can be adjusted as when other ecosystems are supported)
+    rule_ecosystem = ECOSYSTEM.EXTENSION
+
     with open(os.path.join(current_dir, file_name), "r") as fd:
         match = re.search(description_regex, fd.read())
         rule_description = ""
         if match:
             rule_description = match.group(1)
-        SOURCECODE_RULES.append(YaraRule(id=rule_id, file=file_name, description=rule_description))
+        SOURCECODE_RULES.append(YaraRule(
+            id=rule_id, 
+            file=file_name, 
+            description=rule_description,
+            ecosystem=rule_ecosystem
+        ))
