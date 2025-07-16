@@ -67,7 +67,13 @@ class Analyzer:
             ".semgrep_logs",
         ]
 
-    def analyze(self, path, info=None, rules=None, name: Optional[str] = None, version: Optional[str] = None) -> dict:
+    def analyze(
+            self,
+            path,
+            info=None,
+            rules=None,
+            name: Optional[str] = None,
+            version: Optional[str] = None) -> dict:
         """
         Analyzes a package in the given path
 
@@ -87,7 +93,8 @@ class Analyzer:
         sourcecode_results = None
 
         # populate results, errors, and number of issues
-        metadata_results = self.analyze_metadata(path, info, rules, name, version)
+        metadata_results = self.analyze_metadata(
+            path, info, rules, name, version)
         sourcecode_results = self.analyze_sourcecode(path, rules)
 
         # Concatenate dictionaries together
@@ -95,15 +102,24 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        output = {"issues": issues, "errors": errors, "results": results, "path": path}
+        output = {
+            "issues": issues,
+            "errors": errors,
+            "results": results,
+            "path": path}
         # Including extension info - pending discussion
         # if info is not None:
         #     output["package_info"] = info
 
         return output
 
-    def analyze_metadata(self, path: str, info, rules=None, name: Optional[str] = None,
-                         version: Optional[str] = None) -> dict:
+    def analyze_metadata(
+            self,
+            path: str,
+            info,
+            rules=None,
+            name: Optional[str] = None,
+            version: Optional[str] = None) -> dict:
         """
         Analyzes the metadata of a given package
 
@@ -132,7 +148,8 @@ class Analyzer:
         for rule in all_rules:
             try:
                 log.debug(f"Running rule {rule} against package '{name}'")
-                rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
+                rule_matches, message = self.metadata_detectors[rule].detect(
+                    info, path, name, version)
                 results[rule] = None
                 if rule_matches:
                     issues += 1
@@ -162,7 +179,11 @@ class Analyzer:
         results = semgrepscan_results["results"] | yarascan_results["results"]
         errors = semgrepscan_results["errors"] | yarascan_results["errors"]
 
-        return {"issues": issues, "errors": errors, "results": results, "path": path}
+        return {
+            "issues": issues,
+            "errors": errors,
+            "results": results,
+            "path": path}
 
     def analyze_yara(self, path: str, rules: Optional[set] = None) -> dict:
         """
@@ -212,30 +233,34 @@ class Analyzer:
                         continue
 
                     scan_file_target_abspath = os.path.join(root, f)
-                    scan_file_target_relpath = os.path.relpath(scan_file_target_abspath, path)
+                    scan_file_target_relpath = os.path.relpath(
+                        scan_file_target_abspath, path)
 
                     matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
                         rule_name = m.rule
-                        
+
                         if rule_name in verbose_rules:
                             # For verbose rules, we only show that the rule was triggered in the matching file
-                            # We're logging appearances once instead of issue-counting
+                            # We're logging appearances once instead of
+                            # issue-counting
                             file_already_reported = any(
                                 finding["location"].startswith(scan_file_target_relpath + ":")
                                 for finding in rule_results[rule_name]
                             )
-                            
+
                             if not file_already_reported:
                                 finding = {
                                     "location": f"{scan_file_target_relpath}:1",
-                                    "code": f"Rule triggered in file (matches hidden for brevity)",
-                                    'message': m.meta.get("description", f"{rule_name} rule matched")
-                                }
+                                    "code": f'{"Rule triggered in file (matches hidden for brevity)"}',
+                                    'message': m.meta.get(
+                                        "description",
+                                        f"{rule_name} rule matched")}
                                 issues += 1
                                 rule_results[rule_name].append(finding)
                         else:
-                            # For non-verbose rules, show detailed matches as before
+                            # For non-verbose rules, show detailed matches as
+                            # before
                             for s in m.strings:
                                 for i in s.instances:
                                     finding = {
@@ -259,7 +284,10 @@ class Analyzer:
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
-        return {"results": results | rule_results, "errors": errors, "issues": issues}
+        return {
+            "results": results | rule_results,
+            "errors": errors,
+            "issues": issues}
 
     def analyze_semgrep(self, path, rules=None) -> dict:
         """
@@ -284,10 +312,8 @@ class Analyzer:
         errors = {}
         issues = 0
 
-        rules_path = list(map(
-            lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"),
-            all_rules
-        ))
+        rules_path = list(map(lambda rule_name: os.path.join(
+            SOURCECODE_RULES_PATH, f"{rule_name}.yml"), all_rules))
 
         if len(rules_path) == 0:
             log.debug("No semgrep code rules to run")
@@ -296,7 +322,8 @@ class Analyzer:
         try:
             log.debug(f"Running semgrep code rules against {path}")
             response = self._invoke_semgrep(target=path, rules=rules_path)
-            rule_results = self._format_semgrep_response(response, targetpath=targetpath)
+            rule_results = self._format_semgrep_response(
+                response, targetpath=targetpath)
             issues += sum(len(res) for res in rule_results.values())
 
             results = results | rule_results
@@ -308,7 +335,9 @@ class Analyzer:
     def _invoke_semgrep(self, target: str, rules: Iterable[str]):
         try:
             SEMGREP_MAX_TARGET_BYTES = int(
-                os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT))
+                os.getenv(
+                    "GUARDDOG_SEMGREP_MAX_TARGET_BYTES",
+                    MAX_BYTES_DEFAULT))
             SEMGREP_TIMEOUT = int(
                 os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT))
             cmd = ["semgrep"]
@@ -325,7 +354,11 @@ class Analyzer:
             cmd.append(f"--max-target-bytes={SEMGREP_MAX_TARGET_BYTES}")
             cmd.append(target)
             log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
-            result = subprocess.run(cmd, capture_output=True, check=True, encoding="utf-8")
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                check=True,
+                encoding="utf-8")
             return json.loads(str(result.stdout))
         except FileNotFoundError:
             raise Exception("unable to find semgrep binary")
@@ -379,9 +412,9 @@ output: {e.output}
             file_path = os.path.abspath(result["path"])
             code = self.trim_code_snippet(
                 self.get_snippet(
-                    file_path=file_path, start_line=start_line, end_line=end_line
-                )
-            )
+                    file_path=file_path,
+                    start_line=start_line,
+                    end_line=end_line))
             if targetpath:
                 file_path = os.path.relpath(file_path, targetpath)
 
@@ -400,7 +433,11 @@ output: {e.output}
 
         return results
 
-    def get_snippet(self, file_path: str, start_line: int, end_line: int) -> str:
+    def get_snippet(
+            self,
+            file_path: str,
+            start_line: int,
+            end_line: int) -> str:
         """
         Returns the code snippet between start_line and stop_line in a file
 

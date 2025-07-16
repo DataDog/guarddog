@@ -44,15 +44,18 @@ class HumanReadableReporter(BaseReporter):
         num_issues = results.get("issues")
         lines = []
 
-        package_info = results.get("package_info")
-        
         if num_issues == 0:
             lines.append(
                 "Found "
-                + colored("0 potentially malicious indicators", "green", attrs=["bold"])
+                + colored(
+                    "0 potentially malicious indicators",
+                    "green",
+                    attrs=["bold"])
                 + " scanning "
-                + colored(identifier, None, attrs=["bold"])
-            )
+                + colored(
+                    identifier,
+                    None,
+                    attrs=["bold"]))
             lines.append("")
         else:
             lines.append(
@@ -72,8 +75,12 @@ class HumanReadableReporter(BaseReporter):
                 description = findings[finding]
                 if isinstance(description, str):  # package metadata
                     lines.append(
-                        colored(finding, None, attrs=["bold"]) + ": " + description
-                    )
+                        colored(
+                            finding,
+                            None,
+                            attrs=["bold"])
+                        + ": "
+                        + description)
                     lines.append("")
                 elif isinstance(description, list):  # semgrep rule result:
                     source_code_findings = description

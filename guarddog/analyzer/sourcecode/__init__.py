@@ -13,7 +13,8 @@ current_dir = pathlib.Path(__file__).parent.resolve()
 
 
 # These data class aim to reduce the spreading of the logic
-# Instead of using the a dict as a structure and parse it difffently depending on the type
+# Instead of using the a dict as a structure and parse it difffently
+# depending on the type
 @dataclass
 class SourceCodeRule:
     """
@@ -85,7 +86,8 @@ for file_name in semgrep_rule_file_names:
                         continue
 
                 for ecosystem in ecosystems:
-                    # avoids duplicates when multiple languages are supported by a rule
+                    # avoids duplicates when multiple languages are supported
+                    # by a rule
                     if not next(
                         filter(
                             lambda r: r.id == rule["id"],
@@ -97,11 +99,14 @@ for file_name in semgrep_rule_file_names:
                             SempgrepRule(
                                 id=rule["id"],
                                 ecosystem=ecosystem,
-                                description=rule.get("metadata", {}).get("description", ""),
+                                description=rule.get(
+                                    "metadata",
+                                    {}).get(
+                                    "description",
+                                    ""),
                                 file=file_name,
                                 rule_content=rule,
-                            )
-                        )
+                            ))
 
 yara_rule_file_names = list(
     filter(lambda x: x.endswith("yar"), os.listdir(current_dir))
@@ -112,7 +117,8 @@ for file_name in yara_rule_file_names:
     rule_id = pathlib.Path(file_name).stem
     description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
 
-    # Default to EXTENSION for general YARA rules (can be adjusted as when other ecosystems are supported)
+    # Default to EXTENSION for general YARA rules (can be adjusted as when
+    # other ecosystems are supported)
     rule_ecosystem = ECOSYSTEM.EXTENSION
 
     with open(os.path.join(current_dir, file_name), "r") as fd:
@@ -121,8 +127,8 @@ for file_name in yara_rule_file_names:
         if match:
             rule_description = match.group(1)
         SOURCECODE_RULES.append(YaraRule(
-            id=rule_id, 
-            file=file_name, 
+            id=rule_id,
+            file=file_name,
             description=rule_description,
             ecosystem=rule_ecosystem
         ))
