@@ -74,13 +74,7 @@ class HumanReadableReporter(BaseReporter):
             for finding in findings:
                 description = findings[finding]
                 if isinstance(description, str):  # package metadata
-                    lines.append(
-                        colored(
-                            finding,
-                            None,
-                            attrs=["bold"])
-                        + ": "
-                        + description)
+                    lines.append(colored(finding, None, attrs=["bold"]) + ": " + description)
                     lines.append("")
                 elif isinstance(description, list):  # semgrep rule result:
                     source_code_findings = description

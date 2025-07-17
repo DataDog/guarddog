@@ -93,8 +93,7 @@ class Analyzer:
         sourcecode_results = None
 
         # populate results, errors, and number of issues
-        metadata_results = self.analyze_metadata(
-            path, info, rules, name, version)
+        metadata_results = self.analyze_metadata(path, info, rules, name, version)
         sourcecode_results = self.analyze_sourcecode(path, rules)
 
         # Concatenate dictionaries together
@@ -102,16 +101,11 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        output = {
+        return {
             "issues": issues,
             "errors": errors,
             "results": results,
             "path": path}
-        # Including extension info - pending discussion
-        # if info is not None:
-        #     output["package_info"] = info
-
-        return output
 
     def analyze_metadata(
             self,
@@ -148,8 +142,7 @@ class Analyzer:
         for rule in all_rules:
             try:
                 log.debug(f"Running rule {rule} against package '{name}'")
-                rule_matches, message = self.metadata_detectors[rule].detect(
-                    info, path, name, version)
+                rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
                 results[rule] = None
                 if rule_matches:
                     issues += 1
@@ -209,11 +202,6 @@ class Analyzer:
 
         rule_results: defaultdict[dict, list[dict]] = defaultdict(list)
 
-        # Define verbose rules that should only show "file-level" triggers
-        verbose_rules = {
-            "DETECT_FILE_obfuscator_dot_io",
-        }
-
         rules_path = {
             rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
             for rule_name in all_rules
@@ -233,54 +221,32 @@ class Analyzer:
                         continue
 
                     scan_file_target_abspath = os.path.join(root, f)
-                    scan_file_target_relpath = os.path.relpath(
-                        scan_file_target_abspath, path)
+                    scan_file_target_relpath = os.path.relpath(scan_file_target_abspath, path)
 
                     matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
                         rule_name = m.rule
 
-                        if rule_name in verbose_rules:
-                            # For verbose rules, we only show that the rule was triggered in the matching file
-                            # We're logging appearances once instead of
-                            # issue-counting
-                            file_already_reported = any(
-                                finding["location"].startswith(scan_file_target_relpath + ":")
-                                for finding in rule_results[rule_name]
-                            )
-
-                            if not file_already_reported:
+                        for s in m.strings:
+                            for i in s.instances:
                                 finding = {
-                                    "location": f"{scan_file_target_relpath}:1",
-                                    "code": f'{"Rule triggered in file (matches hidden for brevity)"}',
-                                    'message': m.meta.get(
-                                        "description",
-                                        f"{rule_name} rule matched")}
-                                issues += 1
+                                    "location": f"{scan_file_target_relpath}:{i.offset}",
+                                    "code": self.trim_code_snippet(str(i.matched_data)),
+                                    'message': m.meta.get("description", f"{rule_name} rule matched")
+                                }
+
+                                # since yara can match the multiple times in the same file
+                                # leading to finding several times the same word or pattern
+                                # this dedup the matches
+                                if [
+                                    f
+                                    for f in rule_results[rule_name]
+                                    if finding["code"] == f["code"]
+                                ]:
+                                    continue
+
+                                issues += len(m.strings)
                                 rule_results[rule_name].append(finding)
-                        else:
-                            # For non-verbose rules, show detailed matches as
-                            # before
-                            for s in m.strings:
-                                for i in s.instances:
-                                    finding = {
-                                        "location": f"{scan_file_target_relpath}:{i.offset}",
-                                        "code": self.trim_code_snippet(str(i.matched_data)),
-                                        'message': m.meta.get("description", f"{rule_name} rule matched")
-                                    }
-
-                                    # since yara can match the multiple times in the same file
-                                    # leading to finding several times the same word or pattern
-                                    # this dedup the matches
-                                    if [
-                                        f
-                                        for f in rule_results[rule_name]
-                                        if finding["code"] == f["code"]
-                                    ]:
-                                        continue
-
-                                    issues += len(m.strings)
-                                    rule_results[rule_name].append(finding)
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
@@ -312,8 +278,7 @@ class Analyzer:
         errors = {}
         issues = 0
 
-        rules_path = list(map(lambda rule_name: os.path.join(
-            SOURCECODE_RULES_PATH, f"{rule_name}.yml"), all_rules))
+        rules_path = list(map(lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"), all_rules))
 
         if len(rules_path) == 0:
             log.debug("No semgrep code rules to run")
@@ -322,8 +287,7 @@ class Analyzer:
         try:
             log.debug(f"Running semgrep code rules against {path}")
             response = self._invoke_semgrep(target=path, rules=rules_path)
-            rule_results = self._format_semgrep_response(
-                response, targetpath=targetpath)
+            rule_results = self._format_semgrep_response(response, targetpath=targetpath)
             issues += sum(len(res) for res in rule_results.values())
 
             results = results | rule_results

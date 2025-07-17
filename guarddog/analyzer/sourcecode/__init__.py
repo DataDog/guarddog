@@ -99,11 +99,7 @@ for file_name in semgrep_rule_file_names:
                             SempgrepRule(
                                 id=rule["id"],
                                 ecosystem=ecosystem,
-                                description=rule.get(
-                                    "metadata",
-                                    {}).get(
-                                    "description",
-                                    ""),
+                                description=rule.get("metadata", {}).get("description", ""),
                                 file=file_name,
                                 rule_content=rule,
                             ))
@@ -117,18 +113,22 @@ for file_name in yara_rule_file_names:
     rule_id = pathlib.Path(file_name).stem
     description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
 
-    # Default to EXTENSION for general YARA rules (can be adjusted as when
-    # other ecosystems are supported)
-    rule_ecosystem = ECOSYSTEM.EXTENSION
+    rule_ecosystems = []
+    if file_name.startswith("extension_"):
+        rule_ecosystems = [ECOSYSTEM.EXTENSION]
+    else:
+        # If no specific ecosystem prefix, default to all ecosystems
+        rule_ecosystems = [ECOSYSTEM.PYPI, ECOSYSTEM.NPM, ECOSYSTEM.GO, ECOSYSTEM.GITHUB_ACTION, ECOSYSTEM.EXTENSION]
 
     with open(os.path.join(current_dir, file_name), "r") as fd:
         match = re.search(description_regex, fd.read())
         rule_description = ""
         if match:
             rule_description = match.group(1)
-        SOURCECODE_RULES.append(YaraRule(
-            id=rule_id,
-            file=file_name,
-            description=rule_description,
-            ecosystem=rule_ecosystem
-        ))
+        for ecosystem in rule_ecosystems:
+            SOURCECODE_RULES.append(YaraRule(
+                id=rule_id,
+                file=file_name,
+                description=rule_description,
+                ecosystem=ecosystem
+            ))
