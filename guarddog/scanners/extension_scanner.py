@@ -17,6 +17,7 @@ MARKETPLACE_HEADERS = {
     "Accept": "application/json;api-version=3.0-preview.1"
 }
 MARKETPLACE_DOWNLOAD_LINK_ASSET_TYPE = "Microsoft.VisualStudio.Services.VSIXPackage"
+VSIX_FILE_EXTENSION = ".vsix"
 
 
 class ExtensionScanner(PackageScanner):
@@ -39,14 +40,10 @@ class ExtensionScanner(PackageScanner):
         Returns:
             Tuple of (extension metadata(manifest and marketplace) info, extracted_path)
         """
-        marketplace_metadata, vsix_url = self._get_marketplace_info_and_url(
-            package_name, version)
+        marketplace_metadata, vsix_url = self._get_marketplace_info_and_url(package_name, version)
 
-        file_extension = ".vsix"
-        vsix_path = os.path.join(
-            directory, package_name.replace(
-                "/", "-") + file_extension)
-        extracted_path = vsix_path.removesuffix(file_extension)
+        vsix_path = os.path.join(directory, package_name.replace("/", "-") + VSIX_FILE_EXTENSION)
+        extracted_path = vsix_path.removesuffix(VSIX_FILE_EXTENSION)
 
         log.debug(f"Downloading VSCode extension from {vsix_url}")
 
@@ -63,7 +60,9 @@ class ExtensionScanner(PackageScanner):
         return combined_metadata, extracted_path
 
     def _get_marketplace_info_and_url(
-            self, package_name: str, version: typing.Optional[str] = None) -> typing.Tuple[dict, str]:
+            self,
+            package_name: str,
+            version: typing.Optional[str] = None) -> typing.Tuple[dict, str]:
         """Get marketplace metadata and VSIX download URL"""
         payload = {
             "filters": [
@@ -84,21 +83,20 @@ class ExtensionScanner(PackageScanner):
             headers=MARKETPLACE_HEADERS,
             json=payload)
 
-        if response.status_code != 200:
-            raise Exception(
-                f"Received status code: {response.status_code} from VSCode Marketplace")
+        response.raise_for_status()
 
         data = response.json()
 
         if not data.get("results") or not data["results"][0].get("extensions"):
-            raise Exception(
+            raise ValueError(
                 f"Extension {package_name} not found in marketplace")
 
         extension_info = data["results"][0]["extensions"][0]
         versions = extension_info.get("versions", [])
 
         if not versions:
-            raise Exception("No versions available for this extension")
+            raise ValueError(
+                f"No versions available for this extension: {package_name}")
 
         target_version = None
         if version is None:
@@ -110,20 +108,20 @@ class ExtensionScanner(PackageScanner):
                     target_version = v
                     break
             if target_version is None:
-                raise Exception(f"Version {version} not found for extension")
+                raise ValueError(
+                    f"Version {version} not found for extension: {package_name}")
 
         # Extract download URL
         files = target_version.get("files", [])
         vsix_url = None
         for file_info in files:
-            if file_info.get(
-                    "assetType") == MARKETPLACE_DOWNLOAD_LINK_ASSET_TYPE:
+            if file_info.get("assetType") == MARKETPLACE_DOWNLOAD_LINK_ASSET_TYPE:
                 vsix_url = file_info.get("source")
                 break
 
         if not vsix_url:
-            raise Exception(
-                "No VSIX download link available for this extension")
+            raise ValueError(
+                f"No VSIX download link available for this extension: {package_name}")
 
         # Extract statistics from the statistics array
         stats = {stat["statisticName"]: stat["value"]
@@ -132,15 +130,13 @@ class ExtensionScanner(PackageScanner):
         # TODO: it might be interesting to add heuristics regarding the rating
         # cound and the weghtedRating (see the ranking algo hack)
         marketplace_metadata = {
-            "extensionName": extension_info.get(
-                "extensionName", ""), "flags": extension_info.get(
-                "flags", []), "download_count": int(
-                stats.get(
-                    "downloadCount", 0)), "publisher": extension_info.get(
-                        "publisher", {}), "publisher_flags": extension_info.get(
-                            "publisher_flags", ""), "publisher_domain": extension_info.get(
-                                "domain", ""), "publisher_isDomainVerified": extension_info.get(
-                                    "publisher_isDomainVerified", False), }
+            "extensionName": extension_info.get("extensionName", ""),
+            "flags": extension_info.get("flags", []),
+            "download_count": int(stats.get("downloadCount", 0)),
+            "publisher": extension_info.get("publisher", {}),
+            "publisher_flags": extension_info.get("publisher_flags", ""),
+            "publisher_domain": extension_info.get("domain", ""),
+            "publisher_isDomainVerified": extension_info.get("publisher_isDomainVerified", False), }
 
         return marketplace_metadata, vsix_url
 
@@ -165,13 +161,12 @@ class ExtensionScanner(PackageScanner):
                 manifest_data = json.load(f)
             log.debug(
                 f"Successfully parsed package.json with {len(manifest_data)} keys")
-        except (json.JSONDecodeError, IOError) as e:
+        except Exception as e:
             log.warning(
                 f"Failed to read manifest from {package_json_path}: {e}")
             return {}
 
-        registered_commands = manifest_data.get(
-            "contributes", {}).get("commands", [])
+        registered_commands = manifest_data.get("contributes", {}).get("commands", [])
         extracted_metadata = {
             "name": manifest_data.get("name", ""),
             "displayName": manifest_data.get("displayName", ""),

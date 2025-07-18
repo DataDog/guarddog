@@ -23,7 +23,7 @@ class SourceCodeRule:
     id: str
     file: str
     description: str
-    ecosystem: ECOSYSTEM
+    ecosystem: Optional[ECOSYSTEM]  # None means "any ecosystem"
 
 
 @dataclass
@@ -44,8 +44,7 @@ class SempgrepRule(SourceCodeRule):
 
 
 def get_sourcecode_rules(
-    ecosystem: ECOSYSTEM, kind: Optional[type] = None
-) -> Iterable[SourceCodeRule]:
+        ecosystem: ECOSYSTEM, kind: Optional[type] = None) -> Iterable[SourceCodeRule]:
     """
     This function returns the source code rules for a given ecosystem and kind.
     Args:
@@ -55,7 +54,8 @@ def get_sourcecode_rules(
     for rule in SOURCECODE_RULES:
         if kind and not isinstance(rule, kind):
             continue
-        if rule.ecosystem != ecosystem:
+        # Include rules that match the specific ecosystem OR rules that apply to any ecosystem (None)
+        if rule.ecosystem is not None and rule.ecosystem != ecosystem:
             continue
         yield rule
 
@@ -113,22 +113,22 @@ for file_name in yara_rule_file_names:
     rule_id = pathlib.Path(file_name).stem
     description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
 
-    rule_ecosystems = []
+    # Determine ecosystem based on filename prefix
     if file_name.startswith("extension_"):
-        rule_ecosystems = [ECOSYSTEM.EXTENSION]
+        rule_ecosystem = ECOSYSTEM.EXTENSION
     else:
-        # If no specific ecosystem prefix, default to all ecosystems
-        rule_ecosystems = [ECOSYSTEM.PYPI, ECOSYSTEM.NPM, ECOSYSTEM.GO, ECOSYSTEM.GITHUB_ACTION, ECOSYSTEM.EXTENSION]
+        # If no specific ecosystem prefix, apply to any ecosystem
+        rule_ecosystem = None
 
     with open(os.path.join(current_dir, file_name), "r") as fd:
         match = re.search(description_regex, fd.read())
         rule_description = ""
         if match:
             rule_description = match.group(1)
-        for ecosystem in rule_ecosystems:
-            SOURCECODE_RULES.append(YaraRule(
-                id=rule_id,
-                file=file_name,
-                description=rule_description,
-                ecosystem=ecosystem
-            ))
+
+        SOURCECODE_RULES.append(YaraRule(
+            id=rule_id,
+            file=file_name,
+            description=rule_description,
+            ecosystem=rule_ecosystem
+        ))

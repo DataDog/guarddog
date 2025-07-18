@@ -225,14 +225,13 @@ class Analyzer:
 
                     matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
-                        rule_name = m.rule
 
                         for s in m.strings:
                             for i in s.instances:
                                 finding = {
                                     "location": f"{scan_file_target_relpath}:{i.offset}",
                                     "code": self.trim_code_snippet(str(i.matched_data)),
-                                    'message': m.meta.get("description", f"{rule_name} rule matched")
+                                    'message': m.meta.get("description", f"{m.rule} rule matched")
                                 }
 
                                 # since yara can match the multiple times in the same file
@@ -240,13 +239,13 @@ class Analyzer:
                                 # this dedup the matches
                                 if [
                                     f
-                                    for f in rule_results[rule_name]
+                                    for f in rule_results[m.rule]
                                     if finding["code"] == f["code"]
                                 ]:
                                     continue
 
                                 issues += len(m.strings)
-                                rule_results[rule_name].append(finding)
+                                rule_results[m.rule].append(finding)
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
@@ -278,7 +277,8 @@ class Analyzer:
         errors = {}
         issues = 0
 
-        rules_path = list(map(lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"), all_rules))
+        rules_path = list(map(
+            lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"), all_rules))
 
         if len(rules_path) == 0:
             log.debug("No semgrep code rules to run")
@@ -299,9 +299,7 @@ class Analyzer:
     def _invoke_semgrep(self, target: str, rules: Iterable[str]):
         try:
             SEMGREP_MAX_TARGET_BYTES = int(
-                os.getenv(
-                    "GUARDDOG_SEMGREP_MAX_TARGET_BYTES",
-                    MAX_BYTES_DEFAULT))
+                os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT))
             SEMGREP_TIMEOUT = int(
                 os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT))
             cmd = ["semgrep"]
@@ -318,11 +316,7 @@ class Analyzer:
             cmd.append(f"--max-target-bytes={SEMGREP_MAX_TARGET_BYTES}")
             cmd.append(target)
             log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                check=True,
-                encoding="utf-8")
+            result = subprocess.run(cmd, capture_output=True, check=True, encoding="utf-8")
             return json.loads(str(result.stdout))
         except FileNotFoundError:
             raise Exception("unable to find semgrep binary")
