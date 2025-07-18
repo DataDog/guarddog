@@ -6,9 +6,9 @@
   <img src="./docs/images/logo.png" alt="GuardDog" width="300" />
 </p>
 
-GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages or Go modules. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
+GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
 
-GuardDog can be used to scan local or remote PyPI and npm packages or Go modules using any of the available [heuristics](#heuristics).
+GuardDog can be used to scan local or remote PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions using any of the available [heuristics](#heuristics).
 
 It downloads and scans code from:
 
@@ -16,6 +16,7 @@ It downloads and scans code from:
 * PyPI: Source files (tar.gz) packages hosted in [PyPI.org](https://pypi.org/)
 * Go: GoLang source files of repositories hosted in [GitHub.com](https://github.com)
 * GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
+* VSCode Extensions: Extensions (.vsix) packages hosted in [marketplace.visualstudio.com](https://marketplace.visualstudio.com/)
 
 ![GuardDog demo usage](docs/images/demo.png)
 
@@ -77,6 +78,15 @@ guarddog go verify /tmp/repo/go.mod
 guarddog github_action scan DataDog/synthetics-ci-github-action
 
 guarddog github_action verify /tmp/repo/.github/workflows/main.yml
+
+# Scan VSCode extensions from the marketplace
+guarddog extension scan ms-python.python
+
+# Scan a specific version of a VSCode extension
+guarddog extension scan ms-python.python --version 2023.20.0
+
+# Scan a local VSCode extension directory or VSIX archive
+guarddog extension scan /tmp/my-extension/
 
 # Run in debug mode
 guarddog --log-level debug npm scan express
@@ -163,9 +173,9 @@ Source code heuristics:
 | **Heuristic** | **Description** |
 |:-------------:|:---------------:|
 | shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
-| go-exec-base64 | Identify Base64-decoded content being passed to execution functions |
-| go-exec-download | Identify Go code that downloads potentially executable files |
-| go-exfiltrate-sensitive-data | Identify Go code that reads and exfiltrates sensitive|
+| go-exec-base64 | Identify Base64-decoded content being passed to execution functions in Go |
+| go-exfiltrate-sensitive-data | This rule identifies when a package reads and exfiltrates sensitive data from the local system. |
+| go-exec-download | This rule downloads and executes a remote binary after setting executable permissions. |
 
 Metadata heuristics:
 
@@ -175,9 +185,6 @@ Metadata heuristics:
 
 
 ### GitHub Action
-
-For GitHub Actions that are implemented in JavaScript,
-GuardDog will run the same source code heuristics as for npm packages.
 
 Source code heuristics:
 
