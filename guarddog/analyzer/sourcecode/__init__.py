@@ -114,6 +114,7 @@ for file_name in yara_rule_file_names:
     description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
 
     # Determine ecosystem based on filename prefix
+    rule_ecosystem: Optional[ECOSYSTEM]
     if file_name.startswith("extension_"):
         rule_ecosystem = ECOSYSTEM.EXTENSION
     else:
