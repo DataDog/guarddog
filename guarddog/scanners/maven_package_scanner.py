@@ -7,7 +7,7 @@ import requests
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
-from guarddog.utils.archives import safe_extract
+from guarddog.utils.archives import safe_extract, is_supported_archive
 
 log = logging.getLogger("guarddog")
 
@@ -18,129 +18,70 @@ class MavenPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.MAVEN))
 
-    def _get_path_for_artifact(self, package_name: str, version: str, classifier: typing.Optional[str] = None,
-                               extension: str = "jar") -> str:
-        group_id, artifact_id = package_name.split(":")
-        group_path = group_id.replace(".", "/")
-        artifact_path = os.path.join(group_path, artifact_id, version)
+    def download_and_get_package_info(
+        self, directory: str, package_name: str, version=None
+    ) -> typing.Tuple[dict, str]:
+        if version is None:
+            raise ValueError("Version must be specified for Maven packages")
+        if not directory:
+            directory = package_name.split(":")[-1]
 
-        file_name = f"{artifact_id}-{version}"
-        if classifier:
-            file_name += f"-{classifier}"
-        file_name += f".{extension}"
+        jar_path, pom_path = self.download_package(package_name, directory, version)
+        # decompress jar
+        if is_supported_archive(jar_path):
+            log.debug(f"Extracting {jar_path} into {directory}...")
+            safe_extract(source_archive=jar_path, target_directory=directory)
+            os.remove(jar_path)
+        # decompile jar
+        # analyse resulting files
 
-        return os.path.join(artifact_path, file_name)
-
-    def _get_maven_central_url(self, package_name: str, version: str, classifier: typing.Optional[str] = None,
-                               extension: str = "jar") -> str:
-        """Get the Maven Central URL for an artifact"""
-        artifact_path = self._get_path_for_artifact(package_name, version, classifier, extension)
-        return f"{MAVEN_CENTRAL_BASE_URL}/{artifact_path}"
-
-    def _parse_pom(self, pom_path: str) -> dict:
+    def download_package(
+        package_name: str, directory: str, version: str
+    ) -> tuple[str, str]:
+        """
+        Downloads the Maven package .jar and pom for the specified version
+        in directory
+        Args:
+            * `package_name` (str): group_id:artifact_id of the package on Maven
+            * `version` (str): version of the package
+            * `directory` (str): name of the dir to host the package. Created if does not exist
+        Returns:
+            Paths of the downloded jar file and the corresponding downloaded pom.xml
+        """
         try:
-            tree = ET.parse(pom_path)
-        except ET.ParseError as e:
-            log.warning(f"Could not parse pom.xml at {pom_path}: {e}")
-            return {}
+            group_id, artifact_id = package_name.split(":")
+        except ValueError:
+            raise Exception(
+                f"Invalid package format: '{package_name}'. Expected 'groupId:artifactId'"
+            )
 
-        root = tree.getroot()
+        group_path = group_id.replace(".", "/")
 
-        namespace = ""
-        if '}' in root.tag:
-            namespace = root.tag.split('}')[0].strip('{')
+        # urls to download pom and jar
+        base_url = f"{MAVEN_CENTRAL_BASE_URL}/{group_path}/{artifact_id}/{version}"
+        jar_url = f"{base_url}/{artifact_id}-{version}.jar"
+        pom_url = f"{base_url}/{artifact_id}-{version}.pom"
 
-        def find_text(elem, tag):
-            ns_tag = f"{{{namespace}}}{tag}" if namespace else tag
-            found = elem.find(ns_tag)
-            return found.text if found is not None else None
+        # destination files
+        os.makedirs(directory, exist_ok=True)
+        jar_path = os.path.join(directory, f"{artifact_id}-{version}.jar")
+        pom_path = os.path.join(directory, "pom.xml")
 
-        group_id = find_text(root, "groupId")
-        artifact_id = find_text(root, "artifactId")
-        version = find_text(root, "version")
+        # We could also use the dowload_decompressed method from scanner.py
+        try:
+            for url, path in [(jar_url, jar_path), (pom_url, pom_path)]:
+                r = requests.get(url, stream=True)
+                if r.status_code != 200:
+                    raise Exception(
+                        f"Failed to download Maven package from {url} (status {r.status_code})"
+                    )
+                with open(path, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
 
-        parent = root.find(f"{{{namespace}}}parent" if namespace else "parent")
-        if parent is not None:
-            if not group_id:
-                group_id = find_text(parent, "groupId")
-            if not version:
-                version = find_text(parent, "version")
+            log.debug(f"Downloaded JAR to: {jar_path}")
+            log.debug(f"Downloaded POM to: {pom_path}")
+            return jar_path, pom_path
 
-        if not artifact_id:
-            log.warning(f"Could not extract artifactId from {pom_path}")
-
-        name = f"{group_id}:{artifact_id}" if group_id and artifact_id else (artifact_id or "unknown")
-
-        return {
-            "info": {
-                "name": name,
-                "version": version or "unknown"
-            }
-        }
-
-    def download_package(self, package_name: str, directory: str, version: typing.Optional[str] = None) -> str:
-        if version is None:
-            raise ValueError("Version must be specified for Maven packages")
-
-        _, artifact_id = package_name.split(":")
-
-        sources_url = self._get_maven_central_url(package_name, version, classifier="sources", extension="jar")
-        regular_url = self._get_maven_central_url(package_name, version, classifier=None, extension="jar")
-
-        jar_to_download = None
-        jar_type = None
-
-        log.debug(f"Trying to download sources JAR from {sources_url}")
-        response = requests.head(sources_url)
-        if response.status_code == 200:
-            jar_to_download = sources_url
-            jar_type = "sources"
-            log.debug(f"Found sources JAR for {package_name}:{version}")
-        else:
-            log.debug(f"Sources JAR not found, trying regular JAR from {regular_url}")
-            response = requests.head(regular_url)
-            if response.status_code == 200:
-                jar_to_download = regular_url
-                jar_type = "regular"
-                log.debug(f"Found regular JAR for {package_name}:{version}")
-            else:
-                raise FileNotFoundError(f"Could not find JAR for {package_name}:{version} on Maven Central. "
-                                        f"Checked sources at {sources_url} and regular at {regular_url}")
-
-        destination_jar = os.path.join(directory, f"{artifact_id}-{version}-{jar_type}.jar")
-        log.debug(f"Downloading JAR from {jar_to_download} to {destination_jar}")
-        
-        response = requests.get(jar_to_download, stream=True)
-        response.raise_for_status()
-        
-        with open(destination_jar, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-
-        unzippedpath = os.path.join(directory, package_name.replace(":", "_"))
-        safe_extract(destination_jar, unzippedpath)
-        return unzippedpath
-
-    def download_and_get_package_info(self, directory: str, package_name: str,
-                                      version: typing.Optional[str] = None) -> typing.Tuple[dict, str]:
-        if version is None:
-            raise ValueError("Version must be specified for Maven packages")
-
-        extract_dir = self.download_package(package_name, directory, version)
-
-        pom_url = self._get_maven_central_url(package_name, version, classifier=None, extension="pom")
-        pom_path = os.path.join(directory, f"{package_name.replace(':', '_')}.pom")
-        
-        log.debug(f"Downloading POM from {pom_url} to {pom_path}")
-        response = requests.get(pom_url)
-        if response.status_code != 200:
-            raise FileNotFoundError(f"Could not find POM for {package_name}:{version} on Maven Central. "
-                                    f"URL: {pom_url}")
-
-        with open(pom_path, "w", encoding="utf-8") as f:
-            f.write(response.text)
-
-        package_info = self._parse_pom(pom_path)
-        package_info.setdefault("info", {})["version"] = version
-
-        return package_info, extract_dir
+        except Exception as e:
+            raise Exception(f"Error retrieving Maven package: {e}")
