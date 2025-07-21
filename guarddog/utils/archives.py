@@ -26,7 +26,7 @@ def is_supported_archive(path: str) -> bool:
         return any(path.endswith(ext) for ext in tar_exts)
 
     def is_zip_archive(path: str) -> bool:
-        return any(path.endswith(ext) for ext in [".zip", ".whl", ".egg"])
+        return any(path.endswith(ext) for ext in [".zip", ".whl", ".egg", ".jar"])
 
     return is_tar_archive(path) or is_zip_archive(path)
 
