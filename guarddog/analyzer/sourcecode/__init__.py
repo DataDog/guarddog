@@ -11,10 +11,13 @@ from guarddog.ecosystems import ECOSYSTEM
 
 current_dir = pathlib.Path(__file__).parent.resolve()
 
+EXTENSION_YARA_PREFIX = "extension_"
 
 # These data class aim to reduce the spreading of the logic
 # Instead of using the a dict as a structure and parse it difffently
 # depending on the type
+
+
 @dataclass
 class SourceCodeRule:
     """
@@ -114,12 +117,7 @@ for file_name in yara_rule_file_names:
     description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
 
     # Determine ecosystem based on filename prefix
-    rule_ecosystem: Optional[ECOSYSTEM]
-    if file_name.startswith("extension_"):
-        rule_ecosystem = ECOSYSTEM.EXTENSION
-    else:
-        # If no specific ecosystem prefix, apply to any ecosystem
-        rule_ecosystem = None
+    rule_ecosystem: Optional[ECOSYSTEM] = ECOSYSTEM.EXTENSION if file_name.startswith(EXTENSION_YARA_PREFIX) else None
 
     with open(os.path.join(current_dir, file_name), "r") as fd:
         match = re.search(description_regex, fd.read())
