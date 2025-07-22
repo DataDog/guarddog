@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 import typing
 import xml.etree.ElementTree as ET
 import requests
@@ -33,7 +34,10 @@ class MavenPackageScanner(PackageScanner):
             * `directory` (str): name of the dir to host the package. Created if does not exist
         Returns:
             * `package_info` (dict): necessary metadata for analysis
-            * `path` (str): path to the local package
+            * `path` (str): path to the local package:
+                - pom.xml
+                - decompressed/decompressed_jar
+                - decompiled/decompiled_java_files
         """
         if version is None:
             raise ValueError("Version must be specified for Maven packages")
@@ -53,13 +57,17 @@ class MavenPackageScanner(PackageScanner):
         # decompress jar
         if is_supported_archive(jar_path):
             log.debug(f"Extracting {jar_path} into {directory}...")
-            safe_extract(source_archive=jar_path, target_directory=directory)
-            # os.remove(jar_path)
+            decompressed_path: str = os.path.join(directory, "decompressed")
+            safe_extract(source_archive=jar_path, target_directory=decompressed_path)
 
         # decompile jar
+        decompiled_path: str = os.path.join(directory, "decompiled")
+        self.decompile_jar(jar_path, decompiled_path)
 
         # diff between retrieved and decompressed pom
-        jar_pom: tuple[bool, str] | None = self.diff_pom()
+        jar_pom: tuple[bool, str] | None = self.diff_pom(
+            directory, group_id, artifact_id, pom_path
+        )
         if jar_pom:
             same, pom_jar_path = jar_pom
             if same:
@@ -151,3 +159,35 @@ class MavenPackageScanner(PackageScanner):
             return filecmp.cmp(jar_pom, pom_path), jar_pom
         else:
             return
+
+    def decompile_jar(self, jar_path: str, dest_path: str, cfr_jar_path: str):
+        """
+        Decompiles the .jar file using CFR decompiler.
+        Args:
+            - `jar_path` (str): path of the .jar to decompile
+            - `dest_path` (str): path of the destination folder
+            to store the resulting .class files
+            - `cfr_jar_path` (str): Path to cfr.jar decompiler
+        """
+        if not os.path.isfile(jar_path):
+            raise FileNotFoundError(f"JAR file not found: {jar_path}")
+        if not os.path.isfile(cfr_jar_path):
+            raise FileNotFoundError(f"CFR decompiler not found: {cfr_jar_path}")
+
+        os.makedirs(dest_path, exist_ok=True)
+
+        command = [
+            "java",
+            "-jar",
+            cfr_jar_path,
+            jar_path,
+            "--outputdir",
+            dest_path,
+            "--silent",
+        ]
+
+        try:
+            subprocess.run(command, check=True)
+            log.debug(f"Decompiled JAR written to: {os.path.abspath(dest_path)}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error running CFR: {e}")
