@@ -2,7 +2,6 @@ rule DETECT_FILE_powershell_policy_bypass
 {
     meta:
         author = "T HAMDOUNI, Datadog"
-        credits = ""
         description = "Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting"
 
     strings:
