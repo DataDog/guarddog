@@ -23,19 +23,15 @@ def test_download_and_get_package_info():
                 break
         assert package_json_found, "package.json should exist in the extracted extension"
         
-        assert "manifest" in data
-        assert "marketplace" in data
-        assert data["source"] == "remote"
+        # data now contains raw marketplace API response
+        assert "results" in data
+        assert len(data["results"]) > 0
+        assert "extensions" in data["results"][0]
+        assert len(data["results"][0]["extensions"]) > 0
         
-        marketplace = data["marketplace"]
-        assert "extensionName" in marketplace
-        assert "download_count" in marketplace
-        assert "publisher" in marketplace
-        
-        manifest = data["manifest"]
-        assert "name" in manifest
-        assert "version" in manifest
-        assert "publisher" in manifest
+        extension = data["results"][0]["extensions"][0]
+        assert "extensionName" in extension
+        assert "publisher" in extension
 
 
 def test_download_and_get_package_info_with_version():
@@ -45,8 +41,12 @@ def test_download_and_get_package_info_with_version():
         assert path
         assert path.endswith("/gerane.Theme-FlatlandMonokai")
         
-        manifest = data["manifest"]
-        assert "version" in manifest
+        # data now contains raw marketplace API response
+        assert "results" in data
+        assert len(data["results"]) > 0
+        extension = data["results"][0]["extensions"][0]
+        assert "versions" in extension
+        assert len(extension["versions"]) > 0
         # Note: We're using a relatively stable extension that hasn't been updated in a long while
 
 
@@ -101,26 +101,3 @@ def test_scan_local_extension_directory():
         assert "issues" in result
         assert "results" in result
 
-
-def test_extract_manifest_metadata_nested_package_json():
-    scanner = ExtensionScanner()
-    
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        nested_dir = os.path.join(tmpdirname, "some", "nested", "path")
-        os.makedirs(nested_dir)
-        
-        package_json = {
-            "name": "nested-extension",
-            "version": "2.0.0",
-            "publisher": "nested-publisher"
-        }
-        
-        package_json_path = os.path.join(nested_dir, "package.json")
-        with open(package_json_path, 'w') as f:
-            json.dump(package_json, f)
-        
-        manifest = scanner._extract_manifest_metadata(tmpdirname)
-        
-        assert manifest["name"] == "nested-extension"
-        assert manifest["version"] == "2.0.0"
-        assert manifest["publisher"] == "nested-publisher" 
