@@ -5,11 +5,11 @@ import typing
 import xml.etree.ElementTree as ET
 import requests
 import filecmp
+import zipfile
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
 from guarddog.scanners.scanner import PackageScanner
-from guarddog.utils.archives import safe_extract, is_supported_archive
 
 log = logging.getLogger("guarddog")
 
@@ -57,10 +57,17 @@ class MavenPackageScanner(PackageScanner):
         )
 
         # decompress jar
-        if is_supported_archive(jar_path):
+        decompressed_path: str = ""
+        if jar_path.endswith(".jar"):
             log.debug(f"Extracting {jar_path} into {directory}...")
-            decompressed_path: str = os.path.join(directory, "decompressed")
-            safe_extract(source_archive=jar_path, target_directory=decompressed_path)
+            decompressed_path = os.path.join(directory, "decompressed")
+            self.extract_jar(jar_path, decompressed_path)
+        else:
+            log.debug(f"Could not extract {jar_path}")
+        if os.path.exists(decompressed_path) and os.path.getsize(decompressed_path) > 0:
+            log.debug(f"Successfully extracted jar in {decompressed_path}.")
+        else:
+            log.error(f"The project could not be extracted from {jar_path}")
 
         # decompile jar
         decompiled_path: str = os.path.join(directory, "decompiled")
@@ -84,6 +91,7 @@ class MavenPackageScanner(PackageScanner):
         package_info: dict = self.get_package_info(
             pom_path, decompressed_path, decompiled_path, group_id, artifact_id, version
         )
+        log.debug(f"Package info: {package_info}")
         return package_info, directory
 
     def download_package(
@@ -132,14 +140,33 @@ class MavenPackageScanner(PackageScanner):
         except Exception as e:
             raise Exception(f"Error retrieving Maven package: {e}")
 
+    def extract_jar(self, jar_path: str, output_dir: str):
+        """
+        Extract a jar archive file with zipfile
+        - `jar_path` (str): path to the jar to extract
+        - `output_dir` (str): directory to decompress the jar to
+        """
+        with zipfile.ZipFile(jar_path, "r") as jar:
+            log.debug("Extracting jar package...")
+            for file in jar.namelist():
+                safe_path = os.path.join(output_dir, file)
+                if file.endswith("/"):  # It's a directory
+                    os.makedirs(safe_path, exist_ok=True)
+                    continue
+                os.makedirs(os.path.dirname(safe_path), exist_ok=True)
+                with open(safe_path, "wb") as f:
+                    f.write(jar.read(file))
+        log.debug(f"extracted to {output_dir}")
+
     def find_pom(self, path: str, groupId: str, artifactId: str) -> str | None:
         """
         Finds the pom.xml in the package at `path` if exists
         """
-        pom_path = os.path.join(
-            path, "META-INF", "maven", groupId, artifactId, "pom.xml"
-        )
-        if os.path.exists(pom_path):
+        pom_dir = os.path.join(path, "META-INF", "maven", groupId, artifactId)
+        log.debug(f"Looking for pom.xml in {os.listdir(pom_dir)}")
+        pom_path = os.path.join(pom_dir, "pom.xml")
+        if os.path.isfile(pom_path):
+            log.debug(f"Found pom.xml in decompressed project: {pom_path}")
             return pom_path
         else:
             print(f"No pom.xml found at {pom_path}")
@@ -240,6 +267,8 @@ class MavenPackageScanner(PackageScanner):
                 email = dev.find("mvn:email", ns)
                 if email is not None and email.text:
                     emails.append(email.text.strip())
+            if not emails:
+                log.debug("No email found in the pom.")
 
         except ET.ParseError as e:
             log.warning(f"Failed to parse POM: {pom_path}, error: {e}")
