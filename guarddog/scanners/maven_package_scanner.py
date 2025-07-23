@@ -82,9 +82,9 @@ class MavenPackageScanner(PackageScanner):
             if same:
                 log.debug("Same pom.xml in Maven and decompressed project!")
             else:
-                print("The 2 found pom.xml for the project differ.")
-                print(f"\t -pom retrived from Maven: {pom_path}")
-                print(f"\t -pom found in decompressed package: {pom_jar_path}")
+                log.warning("The 2 found pom.xml for the project differ.")
+                log.warning(f"\t -pom retrived from Maven: {pom_path}")
+                log.warning(f"\t -pom found in decompressed package: {pom_jar_path}")
                 pom_path = pom_jar_path
 
         # package_info
@@ -169,7 +169,7 @@ class MavenPackageScanner(PackageScanner):
             log.debug(f"Found pom.xml in decompressed project: {pom_path}")
             return pom_path
         else:
-            print(f"No pom.xml found at {pom_path}")
+            log.warning(f"No pom.xml found at {pom_path}")
             return None
 
     def diff_pom(
@@ -226,7 +226,7 @@ class MavenPackageScanner(PackageScanner):
             subprocess.run(command, check=True)
             log.debug(f"Decompiled JAR written to: {os.path.abspath(dest_path)}")
         except subprocess.CalledProcessError as e:
-            print(f"Error running CFR: {e}")
+            log.error(f"Error running CFR: {e}")
 
     def get_package_info(
         self,
