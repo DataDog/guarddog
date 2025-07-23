@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 import requests
 import filecmp
 import zipfile
+import shutil
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
@@ -86,6 +87,8 @@ class MavenPackageScanner(PackageScanner):
                 log.warning(f"\t -pom retrived from Maven: {pom_path}")
                 log.warning(f"\t -pom found in decompressed package: {pom_jar_path}")
                 pom_path = pom_jar_path
+        # move pom file in decompiled project for source code analysis
+        shutil.move(pom_path, decompiled_path)
 
         # package_info
         package_info: dict = self.get_package_info(
