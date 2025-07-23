@@ -67,7 +67,13 @@ class Analyzer:
             ".semgrep_logs",
         ]
 
-    def analyze(self, path, info=None, rules=None, name: Optional[str] = None, version: Optional[str] = None) -> dict:
+    def analyze(
+            self,
+            path,
+            info=None,
+            rules=None,
+            name: Optional[str] = None,
+            version: Optional[str] = None) -> dict:
         """
         Analyzes a package in the given path
 
@@ -95,10 +101,19 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        return {"issues": issues, "errors": errors, "results": results, "path": path}
+        return {
+            "issues": issues,
+            "errors": errors,
+            "results": results,
+            "path": path}
 
-    def analyze_metadata(self, path: str, info, rules=None, name: Optional[str] = None,
-                         version: Optional[str] = None) -> dict:
+    def analyze_metadata(
+            self,
+            path: str,
+            info,
+            rules=None,
+            name: Optional[str] = None,
+            version: Optional[str] = None) -> dict:
         """
         Analyzes the metadata of a given package
 
@@ -157,7 +172,11 @@ class Analyzer:
         results = semgrepscan_results["results"] | yarascan_results["results"]
         errors = semgrepscan_results["errors"] | yarascan_results["errors"]
 
-        return {"issues": issues, "errors": errors, "results": results, "path": path}
+        return {
+            "issues": issues,
+            "errors": errors,
+            "results": results,
+            "path": path}
 
     def analyze_yara(self, path: str, rules: Optional[set] = None) -> dict:
         """
@@ -206,6 +225,7 @@ class Analyzer:
 
                     matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
+
                         for s in m.strings:
                             for i in s.instances:
                                 finding = {
@@ -229,7 +249,10 @@ class Analyzer:
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
-        return {"results": results | rule_results, "errors": errors, "issues": issues}
+        return {
+            "results": results | rule_results,
+            "errors": errors,
+            "issues": issues}
 
     def analyze_semgrep(self, path, rules=None) -> dict:
         """
@@ -255,9 +278,7 @@ class Analyzer:
         issues = 0
 
         rules_path = list(map(
-            lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"),
-            all_rules
-        ))
+            lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"), all_rules))
 
         if len(rules_path) == 0:
             log.debug("No semgrep code rules to run")
@@ -349,9 +370,9 @@ output: {e.output}
             file_path = os.path.abspath(result["path"])
             code = self.trim_code_snippet(
                 self.get_snippet(
-                    file_path=file_path, start_line=start_line, end_line=end_line
-                )
-            )
+                    file_path=file_path,
+                    start_line=start_line,
+                    end_line=end_line))
             if targetpath:
                 file_path = os.path.relpath(file_path, targetpath)
 
@@ -370,7 +391,11 @@ output: {e.output}
 
         return results
 
-    def get_snippet(self, file_path: str, start_line: int, end_line: int) -> str:
+    def get_snippet(
+            self,
+            file_path: str,
+            start_line: int,
+            end_line: int) -> str:
         """
         Returns the code snippet between start_line and stop_line in a file
 

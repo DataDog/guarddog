@@ -11,9 +11,13 @@ from guarddog.ecosystems import ECOSYSTEM
 
 current_dir = pathlib.Path(__file__).parent.resolve()
 
+EXTENSION_YARA_PREFIX = "extension_"
 
 # These data class aim to reduce the spreading of the logic
-# Instead of using the a dict as a structure and parse it difffently depending on the type
+# Instead of using the a dict as a structure and parse it difffently
+# depending on the type
+
+
 @dataclass
 class SourceCodeRule:
     """
@@ -22,6 +26,7 @@ class SourceCodeRule:
     id: str
     file: str
     description: str
+    ecosystem: Optional[ECOSYSTEM]  # None means "any ecosystem"
 
 
 @dataclass
@@ -38,13 +43,11 @@ class SempgrepRule(SourceCodeRule):
     Semgrep rule are language specific
     Content of rule in yaml format is accessible through rule_content
     """
-    ecosystem: ECOSYSTEM
     rule_content: dict
 
 
 def get_sourcecode_rules(
-    ecosystem: ECOSYSTEM, kind: Optional[type] = None
-) -> Iterable[SourceCodeRule]:
+        ecosystem: ECOSYSTEM, kind: Optional[type] = None) -> Iterable[SourceCodeRule]:
     """
     This function returns the source code rules for a given ecosystem and kind.
     Args:
@@ -54,7 +57,8 @@ def get_sourcecode_rules(
     for rule in SOURCECODE_RULES:
         if kind and not isinstance(rule, kind):
             continue
-        if not (getattr(rule, "ecosystem", ecosystem) == ecosystem):
+        # Include rules that match the specific ecosystem OR rules that apply to any ecosystem (None)
+        if rule.ecosystem is not None and rule.ecosystem != ecosystem:
             continue
         yield rule
 
@@ -78,13 +82,15 @@ for file_name in semgrep_rule_file_names:
                     case "javascript" | "typescript" | "json":
                         ecosystems.add(ECOSYSTEM.NPM)
                         ecosystems.add(ECOSYSTEM.GITHUB_ACTION)
+                        ecosystems.add(ECOSYSTEM.EXTENSION)
                     case "go":
                         ecosystems.add(ECOSYSTEM.GO)
                     case _:
                         continue
 
                 for ecosystem in ecosystems:
-                    # avoids duplicates when multiple languages are supported by a rule
+                    # avoids duplicates when multiple languages are supported
+                    # by a rule
                     if not next(
                         filter(
                             lambda r: r.id == rule["id"],
@@ -99,8 +105,7 @@ for file_name in semgrep_rule_file_names:
                                 description=rule.get("metadata", {}).get("description", ""),
                                 file=file_name,
                                 rule_content=rule,
-                            )
-                        )
+                            ))
 
 yara_rule_file_names = list(
     filter(lambda x: x.endswith("yar"), os.listdir(current_dir))
@@ -111,9 +116,18 @@ for file_name in yara_rule_file_names:
     rule_id = pathlib.Path(file_name).stem
     description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
 
+    # Determine ecosystem based on filename prefix
+    rule_ecosystem: Optional[ECOSYSTEM] = ECOSYSTEM.EXTENSION if file_name.startswith(EXTENSION_YARA_PREFIX) else None
+
     with open(os.path.join(current_dir, file_name), "r") as fd:
         match = re.search(description_regex, fd.read())
         rule_description = ""
         if match:
             rule_description = match.group(1)
-        SOURCECODE_RULES.append(YaraRule(id=rule_id, file=file_name, description=rule_description))
+
+        SOURCECODE_RULES.append(YaraRule(
+            id=rule_id,
+            file=file_name,
+            description=rule_description,
+            ecosystem=rule_ecosystem
+        ))
