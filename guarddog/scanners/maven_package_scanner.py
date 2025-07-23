@@ -92,7 +92,7 @@ class MavenPackageScanner(PackageScanner):
             pom_path, decompressed_path, decompiled_path, group_id, artifact_id, version
         )
         log.debug(f"Package info: {package_info}")
-        return package_info, directory
+        return package_info, decompiled_path
 
     def download_package(
         self, group_id: str, artifact_id: str, directory: str, version: str
