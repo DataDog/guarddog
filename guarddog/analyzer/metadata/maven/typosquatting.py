@@ -222,7 +222,6 @@ class MavenTyposquatDetector(TyposquatDetector):
                     # If we get no packages, we might have hit the end
                     break
                 
-                # Be respectful to the server
                 time.sleep(0.5)
                 
             log.info(f"Scraped {len(all_packages)} packages from mvnrepository.com")
@@ -243,7 +242,7 @@ class MavenTyposquatDetector(TyposquatDetector):
                         deps = self._get_deps_dev_dependencies(package, version)
                         dependency_packages.update(deps)
                     
-                    # Rate limiting
+                
                     time.sleep(0.1)
                 
                 all_packages.update(dependency_packages)
@@ -352,6 +351,10 @@ class MavenTyposquatDetector(TyposquatDetector):
                 similar_package_names
             )
         return False, None
+
+
+
+
 
     def _get_confused_forms(self, package_name) -> list:
         """
@@ -490,7 +493,5 @@ class MavenTyposquatDetector(TyposquatDetector):
 
 
 if __name__ == "__main__":
-    # Test Maven typosquatting detector following PyPI/NPM pattern
     detector = MavenTyposquatDetector()
     packages = detector._get_top_packages()
-    print(f"Loaded {len(packages)} packages following PyPI/NPM pattern") 
