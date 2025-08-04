@@ -55,8 +55,13 @@ rules:
       # dll injection
       - pattern-either:
         - pattern: ....WriteProcessMemory
+        - pattern: getattr(..., "WriteProcessMemory")
         - pattern: ....CreateRemoteThread
+        - pattern: getattr(..., "CreateRemoteThread")
         - pattern: ....LoadLibraryA
+        - pattern: getattr(..., "LoadLibraryA")
+        - pattern: ....CDLL
+        - pattern: getattr(..., "CDLL")
 
       # phantom dll
       - patterns:
