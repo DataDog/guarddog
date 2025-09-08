@@ -123,6 +123,7 @@ rules:
       include:
         - "*/setup.py"
         - "*/code-execution.py"
+        - "*/__init__.py"
     severity: WARNING
 
 
