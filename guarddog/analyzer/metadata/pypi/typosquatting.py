@@ -50,7 +50,6 @@ class PypiTyposquatDetector(TyposquatDetector):
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
         top_packages_information = self._get_top_packages_local(top_packages_path)
-        top_packages_information = top_packages_information["rows"]
 
         if top_packages_information is None:
             top_packages_information = self._get_top_packages_network(popular_packages_url)
@@ -58,12 +57,12 @@ class PypiTyposquatDetector(TyposquatDetector):
             with open(top_packages_path, "w+") as f:
                 json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
 
-            top_packages_information = top_packages_information["rows"]
+        top_packages_information = top_packages_information["rows"]
+        return set(map(self.get_safe_name, top_packages_information))
 
-        def get_safe_name(package):
-            return packaging.utils.canonicalize_name(package["project"])
-
-        return set(map(get_safe_name, top_packages_information))
+    @staticmethod
+    def get_safe_name(package):
+        return packaging.utils.canonicalize_name(package["project"])
 
     def _get_top_packages_local(self, path: str) -> list[dict]:
         try:
