@@ -36,19 +36,29 @@ class NPMTyposquatDetector(TyposquatDetector):
         top_packages_information = None
 
         if top_packages_filename in os.listdir(resources_dir):
-            update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
-
-            if datetime.now() - update_time <= timedelta(days=30):
-                with open(top_packages_path, "r") as top_packages_file:
-                    top_packages_information = json.load(top_packages_file)
+            top_packages_information = self._get_top_packages_local(top_packages_path)
 
         if top_packages_information is None:
-            response = requests.get(popular_packages_url).json()
-            top_packages_information = list([i["name"] for i in response[0:8000]])
+            top_packages_information = self._get_top_packages_network(popular_packages_url)
             with open(top_packages_path, "w+") as f:
                 json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
 
         return set(top_packages_information)
+
+    def _get_top_packages_local(self, top_packages_path: str) -> list[dict]:
+        update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
+
+        if datetime.now() - update_time <= timedelta(days=30):
+            with open(top_packages_path, "r") as top_packages_file:
+                top_packages_information = json.load(top_packages_file)
+        
+        return top_packages_information
+
+    def _get_top_packages_network(self, popular_packages_url: tuple[str]) -> list[dict]:
+        response = requests.get(popular_packages_url).json()
+        top_packages_information = list([i["name"] for i in response[0:8000]])
+
+        return top_packages_information
 
     def detect(
         self,
