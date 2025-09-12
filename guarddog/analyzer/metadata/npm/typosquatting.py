@@ -35,7 +35,9 @@ class NPMTyposquatDetector(TyposquatDetector):
         top_packages_information = self._get_top_packages_local(top_packages_path)
 
         if self._file_is_expired(top_packages_path, days=30):
-            top_packages_information = self._get_top_packages_network(popular_packages_url)
+            new_information = self._get_top_packages_network(popular_packages_url)
+            if new_information is not None:
+                top_packages_information = new_information
 
             with open(top_packages_path, "w+") as f:
                 json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
@@ -58,13 +60,18 @@ class NPMTyposquatDetector(TyposquatDetector):
             pass # TODO: log error
 
     def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
-        response = requests.get(url)
-        response.raise_for_status()
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
 
-        response_data = response.json()
-        result = list([i["name"] for i in response_data[0:8000]])
+            response_data = response.json()
+            result = list([i["name"] for i in response_data[0:8000]])
 
-        return result
+            return result
+        except json.JSONDecodeError as e:
+            pass # TODO: log error
+        except requests.exceptions.RequestException as e:
+            pass # TODO: log error
 
     def detect(
         self,
