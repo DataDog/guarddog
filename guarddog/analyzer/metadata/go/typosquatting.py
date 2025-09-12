@@ -37,11 +37,11 @@ class GoTyposquatDetector(TyposquatDetector):
 
         return set(top_packages_information)
 
-    def _get_top_packages_local(self, top_packages_path: str) -> list[dict]:
-        with open(top_packages_path, "r") as top_packages_file:
-            top_packages_information = json.load(top_packages_file)
+    def _get_top_packages_local(self, path: str) -> list[dict]:
+        with open(path, "r") as f:
+            result = json.load(f)
         
-        return top_packages_information
+        return result
 
     def detect(
         self,

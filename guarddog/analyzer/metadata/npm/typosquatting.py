@@ -45,20 +45,20 @@ class NPMTyposquatDetector(TyposquatDetector):
 
         return set(top_packages_information)
 
-    def _get_top_packages_local(self, top_packages_path: str) -> list[dict]:
-        update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
+    def _get_top_packages_local(self, path: str) -> list[dict]:
+        update_time = datetime.fromtimestamp(os.path.getmtime(path))
 
         if datetime.now() - update_time <= timedelta(days=30):
-            with open(top_packages_path, "r") as top_packages_file:
-                top_packages_information = json.load(top_packages_file)
+            with open(path, "r") as f:
+                result = json.load(f)
         
-        return top_packages_information
+        return result
 
-    def _get_top_packages_network(self, popular_packages_url: tuple[str]) -> list[dict]:
-        response = requests.get(popular_packages_url).json()
-        top_packages_information = list([i["name"] for i in response[0:8000]])
+    def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
+        response = requests.get(url).json()
+        result = list([i["name"] for i in response[0:8000]])
 
-        return top_packages_information
+        return result
 
     def detect(
         self,
