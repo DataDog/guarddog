@@ -50,14 +50,16 @@ class PypiTyposquatDetector(TyposquatDetector):
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
         top_packages_information = self._get_top_packages_local(top_packages_path)
+        top_packages_information = top_packages_information["rows"]
 
         if self._file_is_expired(top_packages_path, days=30):
-            top_packages_information = self._get_top_packages_network(popular_packages_url)
+            new_information = self._get_top_packages_network(popular_packages_url)
+            if new_information is not None:
+                top_packages_information = new_information["rows"]
 
             with open(top_packages_path, "w+") as f:
                 json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
 
-        top_packages_information = top_packages_information["rows"]
         return set(map(self.get_safe_name, top_packages_information))
 
     @staticmethod
@@ -80,13 +82,18 @@ class PypiTyposquatDetector(TyposquatDetector):
             pass # TODO: log error
 
     def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
-        response = requests.get(url)
-        response.raise_for_status()
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
 
-        response_data = response.json()
-        result = response_data
+            response_data = response.json()
+            result = response_data
 
-        return result
+            return result
+        except json.JSONDecodeError as e:
+            pass # TODO: log error
+        except requests.exceptions.RequestException as e:
+            pass # TODO: log error
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, Optional[str]]:
