@@ -78,8 +78,8 @@ class PypiTyposquatDetector(TyposquatDetector):
             with open(path, "r") as f:
                 result = json.load(f)
                 return result
-        except FileNotFoundError as e:
-            pass # TODO: log error
+        except FileNotFoundError:
+            log.error(f"File not found: {path}")
 
     def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
         try:
@@ -90,10 +90,10 @@ class PypiTyposquatDetector(TyposquatDetector):
             result = response_data
 
             return result
-        except json.JSONDecodeError as e:
-            pass # TODO: log error
+        except json.JSONDecodeError:
+            log.error(f"Couldn`t convert to json: \"{response.text}\"")
         except requests.exceptions.RequestException as e:
-            pass # TODO: log error
+            log.error(f"Network error: {e}")
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, Optional[str]]:

@@ -1,9 +1,12 @@
 import json
+import logging
 import os
 from typing import Optional
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
+
+log = logging.getLogger("guarddog")
 
 
 class GoTyposquatDetector(TyposquatDetector):
@@ -38,8 +41,8 @@ class GoTyposquatDetector(TyposquatDetector):
             with open(path, "r") as f:
                 result = json.load(f)
                 return result
-        except FileNotFoundError as e:
-            pass # TODO: log error
+        except FileNotFoundError:
+            log.error(f"File not found: {path}")
 
     def detect(
         self,

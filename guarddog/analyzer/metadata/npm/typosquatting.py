@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from datetime import datetime, timedelta
 from typing import Optional
@@ -6,6 +7,8 @@ from typing import Optional
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 import requests
+
+log = logging.getLogger("guarddog")
 
 
 class NPMTyposquatDetector(TyposquatDetector):
@@ -56,8 +59,8 @@ class NPMTyposquatDetector(TyposquatDetector):
             with open(path, "r") as f:
                 result = json.load(f)
                 return result
-        except FileNotFoundError as e:
-            pass # TODO: log error
+        except FileNotFoundError:
+            log.error(f"File not found: {path}")
 
     def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
         try:
@@ -68,10 +71,10 @@ class NPMTyposquatDetector(TyposquatDetector):
             result = list([i["name"] for i in response_data[0:8000]])
 
             return result
-        except json.JSONDecodeError as e:
-            pass # TODO: log error
+        except json.JSONDecodeError:
+            log.error(f"Couldn`t convert to json: \"{response.text}\"")
         except requests.exceptions.RequestException as e:
-            pass # TODO: log error
+            log.error(f"Network error: {e}")
 
     def detect(
         self,
