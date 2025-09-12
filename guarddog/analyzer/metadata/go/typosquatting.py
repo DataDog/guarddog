@@ -25,11 +25,7 @@ class GoTyposquatDetector(TyposquatDetector):
             )
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
-
-        top_packages_information = None
-
-        if top_packages_filename in os.listdir(resources_dir):
-            top_packages_information = self._get_top_packages_local(top_packages_path)
+        top_packages_information = self._get_top_packages_local(top_packages_path)
 
         if top_packages_information is None:
             raise Exception(
@@ -38,10 +34,12 @@ class GoTyposquatDetector(TyposquatDetector):
         return set(top_packages_information)
 
     def _get_top_packages_local(self, path: str) -> list[dict]:
-        with open(path, "r") as f:
-            result = json.load(f)
-        
-        return result
+        try:
+            with open(path, "r") as f:
+                result = json.load(f)
+                return result
+        except FileNotFoundError as e:
+            pass # TODO: log error
 
     def detect(
         self,

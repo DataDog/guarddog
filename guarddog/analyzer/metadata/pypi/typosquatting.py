@@ -49,12 +49,8 @@ class PypiTyposquatDetector(TyposquatDetector):
             resources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources"))
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
-
-        top_packages_information = None
-
-        if top_packages_filename in os.listdir(resources_dir):
-            top_packages_information = self._get_top_packages_local(top_packages_path)
-            top_packages_information = top_packages_information["rows"]
+        top_packages_information = self._get_top_packages_local(top_packages_path)
+        top_packages_information = top_packages_information["rows"]
 
         if top_packages_information is None:
             top_packages_information = self._get_top_packages_network(popular_packages_url)
@@ -70,13 +66,15 @@ class PypiTyposquatDetector(TyposquatDetector):
         return set(map(get_safe_name, top_packages_information))
 
     def _get_top_packages_local(self, path: str) -> list[dict]:
-        update_time = datetime.fromtimestamp(os.path.getmtime(path))
+        try:
+            update_time = datetime.fromtimestamp(os.path.getmtime(path))
 
-        if datetime.now() - update_time <= timedelta(days=30):
-            with open(path, "r") as f:
-                result = json.load(f)
-        
-        return result
+            if datetime.now() - update_time <= timedelta(days=30):
+                with open(path, "r") as f:
+                    result = json.load(f)
+                    return result
+        except FileNotFoundError as e:
+            pass # TODO: log error
 
     def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
         response = requests.get(url).json()
