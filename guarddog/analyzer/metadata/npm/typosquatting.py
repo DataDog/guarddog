@@ -34,21 +34,26 @@ class NPMTyposquatDetector(TyposquatDetector):
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
         top_packages_information = self._get_top_packages_local(top_packages_path)
 
-        if top_packages_information is None:
+        if self._file_is_expired(top_packages_path, days=30):
             top_packages_information = self._get_top_packages_network(popular_packages_url)
+
             with open(top_packages_path, "w+") as f:
                 json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
 
         return set(top_packages_information)
 
-    def _get_top_packages_local(self, path: str) -> list[dict]:
+    def _file_is_expired(self, path: str, days: int) -> bool:
         try:
             update_time = datetime.fromtimestamp(os.path.getmtime(path))
+            return datetime.now() - update_time > timedelta(days=days)
+        except FileNotFoundError:
+            pass # just skip
 
-            if datetime.now() - update_time <= timedelta(days=30):
-                with open(path, "r") as f:
-                    result = json.load(f)
-                    return result
+    def _get_top_packages_local(self, path: str) -> list[dict]:
+        try:
+            with open(path, "r") as f:
+                result = json.load(f)
+                return result
         except FileNotFoundError as e:
             pass # TODO: log error
 
