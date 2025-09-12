@@ -58,8 +58,11 @@ class NPMTyposquatDetector(TyposquatDetector):
             pass # TODO: log error
 
     def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
-        response = requests.get(url).json()
-        result = list([i["name"] for i in response[0:8000]])
+        response = requests.get(url)
+        response.raise_for_status()
+
+        response_data = response.json()
+        result = list([i["name"] for i in response_data[0:8000]])
 
         return result
 

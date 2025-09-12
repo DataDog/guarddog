@@ -80,8 +80,11 @@ class PypiTyposquatDetector(TyposquatDetector):
             pass # TODO: log error
 
     def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
-        response = requests.get(url).json()
-        result = response
+        response = requests.get(url)
+        response.raise_for_status()
+
+        response_data = response.json()
+        result = response_data
 
         return result
 
