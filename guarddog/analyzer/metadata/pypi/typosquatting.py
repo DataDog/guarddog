@@ -39,7 +39,9 @@ class PypiTyposquatDetector(TyposquatDetector):
                 }
         """
 
-        popular_packages_url = "https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json"
+        popular_packages_url = (
+            "https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json"
+        )
 
         top_packages_filename = "top_pypi_packages.json"
         resources_dir = TOP_PACKAGES_CACHE_LOCATION
@@ -51,23 +53,36 @@ class PypiTyposquatDetector(TyposquatDetector):
         top_packages_information = None
 
         if top_packages_filename in os.listdir(resources_dir):
-            update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
-
-            if datetime.now() - update_time <= timedelta(days=30):
-                with open(top_packages_path, "r") as top_packages_file:
-                    top_packages_information = json.load(top_packages_file)["rows"]
+            top_packages_information = self._get_top_packages_local(top_packages_path)
+            top_packages_information = top_packages_information["rows"]
 
         if top_packages_information is None:
-            response = requests.get(popular_packages_url).json()
-            with open(top_packages_path, "w+") as f:
-                json.dump(response, f, ensure_ascii=False, indent=4)
+            top_packages_information = self._get_top_packages_network(popular_packages_url)
 
-            top_packages_information = response["rows"]
+            with open(top_packages_path, "w+") as f:
+                json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
+
+            top_packages_information = top_packages_information["rows"]
 
         def get_safe_name(package):
             return packaging.utils.canonicalize_name(package["project"])
 
         return set(map(get_safe_name, top_packages_information))
+
+    def _get_top_packages_local(self, top_packages_path: str) -> list[dict]:
+        update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
+
+        if datetime.now() - update_time <= timedelta(days=30):
+            with open(top_packages_path, "r") as top_packages_file:
+                top_packages_information = json.load(top_packages_file)
+        
+        return top_packages_information
+
+    def _get_top_packages_network(self, popular_packages_url: tuple[str]) -> list[dict]:
+        response = requests.get(popular_packages_url).json()
+        top_packages_information = response
+
+        return top_packages_information
 
     def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
                version: Optional[str] = None) -> tuple[bool, Optional[str]]:

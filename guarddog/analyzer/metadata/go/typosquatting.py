@@ -29,14 +29,19 @@ class GoTyposquatDetector(TyposquatDetector):
         top_packages_information = None
 
         if top_packages_filename in os.listdir(resources_dir):
-            with open(top_packages_path, "r") as top_packages_file:
-                top_packages_information = json.load(top_packages_file)
+            top_packages_information = self._get_top_packages_local(top_packages_path)
 
         if top_packages_information is None:
             raise Exception(
                 f"Could not retrieve top Go packages from {top_packages_path}")
 
         return set(top_packages_information)
+
+    def _get_top_packages_local(self, top_packages_path: str) -> list[dict]:
+        with open(top_packages_path, "r") as top_packages_file:
+            top_packages_information = json.load(top_packages_file)
+        
+        return top_packages_information
 
     def detect(
         self,
