@@ -119,6 +119,7 @@ Source code heuristics:
 | steganography | Identify when a package retrieves hidden data from an image and executes it |
 | code-execution | Identify when an OS command is executed in the setup.py file |
 | cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
+| api-obfuscation | Identify when a package leverages some API obfuscation techniques |
 
 Metadata heuristics:
 
