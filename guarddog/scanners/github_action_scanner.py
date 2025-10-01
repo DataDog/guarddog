@@ -15,7 +15,9 @@ class GithubActionScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.GITHUB_ACTION))
 
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
+    def download_and_get_package_info(
+        self, directory: str, package_name: str, version=None
+    ) -> typing.Tuple[dict, str]:
         repo = self._get_repo(package_name)
         tarball_url = self._get_git_tarball_url(repo, version)
 
@@ -25,7 +27,9 @@ class GithubActionScanner(PackageScanner):
         if file_extension == "":
             file_extension = ".zip"
 
-        zippath = os.path.join(directory, package_name.replace("/", "-") + file_extension)
+        zippath = os.path.join(
+            directory, package_name.replace("/", "-") + file_extension
+        )
         unzippedpath = zippath.removesuffix(file_extension)
         self.download_compressed(tarball_url, zippath, unzippedpath)
 

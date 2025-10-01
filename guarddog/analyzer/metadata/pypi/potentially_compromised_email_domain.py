@@ -1,4 +1,4 @@
-""" Compromised Email Detector
+"""Compromised Email Detector
 
 Detects if a maintainer's email domain might have been compromised.
 """
@@ -9,8 +9,9 @@ from typing import Optional
 from dateutil import parser
 from packaging import version
 
-from guarddog.analyzer.metadata.potentially_compromised_email_domain import \
-    PotentiallyCompromisedEmailDomainDetector
+from guarddog.analyzer.metadata.potentially_compromised_email_domain import (
+    PotentiallyCompromisedEmailDomainDetector,
+)
 
 from .utils import get_email_addresses
 

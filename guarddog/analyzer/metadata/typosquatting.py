@@ -5,14 +5,16 @@ from guarddog.analyzer.metadata.detector import Detector
 
 
 class TyposquatDetector(Detector):
-    MESSAGE_TEMPLATE = "This package closely resembles the following package names, and might be a typosquatting " \
-                       "attempt: %s"
+    MESSAGE_TEMPLATE = (
+        "This package closely resembles the following package names, and might be a typosquatting "
+        "attempt: %s"
+    )
 
     def __init__(self) -> None:
         self.popular_packages = self._get_top_packages()  # Find top PyPI packages
         super().__init__(
             name="typosquatting",
-            description="Identify packages that are named closely to an highly popular package"
+            description="Identify packages that are named closely to an highly popular package",
         )
 
     @abc.abstractmethod
@@ -37,19 +39,19 @@ class TyposquatDetector(Detector):
         # Addition to name2
         if len(name1) > len(name2):
             for i in range(len(name1)):
-                if name1[:i] + name1[i + 1:] == name2:
+                if name1[:i] + name1[i + 1 :] == name2:
                     return True
 
         # Addition to name1
         elif len(name2) > len(name1):
             for i in range(len(name2)):
-                if name2[:i] + name2[i + 1:] == name1:
+                if name2[:i] + name2[i + 1 :] == name1:
                     return True
 
         # Edit character
         else:
             for i in range(len(name1)):
-                if name1[:i] + name1[i + 1:] == name2[:i] + name2[i + 1:]:
+                if name1[:i] + name1[i + 1 :] == name2[:i] + name2[i + 1 :]:
                     return True
 
         return False
@@ -68,7 +70,7 @@ class TyposquatDetector(Detector):
 
         if len(name1) == len(name2):
             for i in range(len(name1) - 1):
-                swapped_name1 = name1[:i] + name1[i + 1] + name1[i] + name1[i + 2:]
+                swapped_name1 = name1[:i] + name1[i + 1] + name1[i] + name1[i + 2 :]
                 if swapped_name1 == name2:
                     return True
 
@@ -106,7 +108,9 @@ class TyposquatDetector(Detector):
             bool: True
         """
 
-        return self._is_distance_one_Levenshtein(package1, package2) or self._is_swapped_typo(package1, package2)
+        return self._is_distance_one_Levenshtein(
+            package1, package2
+        ) or self._is_swapped_typo(package1, package2)
 
     @abc.abstractmethod
     def _get_confused_forms(self, package_name) -> list:

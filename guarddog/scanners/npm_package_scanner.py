@@ -17,9 +17,13 @@ class NPMPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.NPM))
 
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
+    def download_and_get_package_info(
+        self, directory: str, package_name: str, version=None
+    ) -> typing.Tuple[dict, str]:
         git_target = None
-        if urlparse(package_name).hostname is not None and package_name.endswith('.git'):
+        if urlparse(package_name).hostname is not None and package_name.endswith(
+            ".git"
+        ):
             git_target = package_name
 
         if not package_name.startswith("@") and package_name.count("/") == 1:
@@ -33,7 +37,9 @@ class NPMPackageScanner(PackageScanner):
         response = requests.get(url)
 
         if response.status_code != 200:
-            raise Exception("Received status code: " + str(response.status_code) + " from npm")
+            raise Exception(
+                "Received status code: " + str(response.status_code) + " from npm"
+            )
         data = response.json()
         if "name" not in data:
             raise Exception(f"Error retrieving package: {package_name}")
@@ -45,7 +51,9 @@ class NPMPackageScanner(PackageScanner):
 
         tarball_url = details["dist"]["tarball"]
         file_extension = pathlib.Path(tarball_url).suffix
-        zippath = os.path.join(directory, package_name.replace("/", "-") + file_extension)
+        zippath = os.path.join(
+            directory, package_name.replace("/", "-") + file_extension
+        )
         unzippedpath = zippath.removesuffix(file_extension)
         self.download_compressed(tarball_url, zippath, unzippedpath)
 

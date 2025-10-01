@@ -79,7 +79,7 @@ class NPMTyposquatDetector(TyposquatDetector):
         return False, None
 
     def _get_confused_forms(self, package_name) -> list:
-        """ Gets confused terms for npm packages.
+        """Gets confused terms for npm packages.
         Currently, there are no confused terms for npm packages.
         """
         return []
