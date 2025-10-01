@@ -49,6 +49,6 @@ def test_source_codde_analyzer_yara_exec(rule_name: str):
             if not f.startswith(f"{rule_name}."):
                 continue
 
-            # testing file against against rule
+            # testing file against rule
             print(f"Testing YARA rule: {rule_name}")
             assert test_scan_rule.match(os.path.join(root, f))
