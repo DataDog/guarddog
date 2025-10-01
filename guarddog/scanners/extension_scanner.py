@@ -10,10 +10,12 @@ from guarddog.scanners.scanner import PackageScanner, noop
 
 log = logging.getLogger("guarddog")
 
-MARKETPLACE_URL = "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery"
+MARKETPLACE_URL = (
+    "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery"
+)
 MARKETPLACE_HEADERS = {
     "Content-Type": "application/json",
-    "Accept": "application/json;api-version=3.0-preview.1"
+    "Accept": "application/json;api-version=3.0-preview.1",
 }
 MARKETPLACE_DOWNLOAD_LINK_ASSET_TYPE = "Microsoft.VisualStudio.Services.VSIXPackage"
 VSIX_FILE_EXTENSION = ".vsix"
@@ -31,11 +33,9 @@ class ExtensionScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.EXTENSION))
 
-    def download_and_get_package_info(self,
-                                      directory: str,
-                                      package_name: str,
-                                      version=None) -> typing.Tuple[dict,
-                                                                    str]:
+    def download_and_get_package_info(
+        self, directory: str, package_name: str, version=None
+    ) -> typing.Tuple[dict, str]:
         """
         Downloads a VSCode extension from the marketplace and extracts it
 
@@ -47,9 +47,13 @@ class ExtensionScanner(PackageScanner):
         Returns:
             Tuple of (marketplace API response, extracted_path)
         """
-        marketplace_data, vsix_url = self._get_marketplace_info_and_url(package_name, version)
+        marketplace_data, vsix_url = self._get_marketplace_info_and_url(
+            package_name, version
+        )
 
-        vsix_path = os.path.join(directory, package_name.replace("/", "-") + VSIX_FILE_EXTENSION)
+        vsix_path = os.path.join(
+            directory, package_name.replace("/", "-") + VSIX_FILE_EXTENSION
+        )
         extracted_path = vsix_path.removesuffix(VSIX_FILE_EXTENSION)
 
         log.debug(f"Downloading VSCode extension from {vsix_url}")
@@ -59,9 +63,8 @@ class ExtensionScanner(PackageScanner):
         return marketplace_data, extracted_path
 
     def _get_marketplace_info_and_url(
-            self,
-            package_name: str,
-            version: typing.Optional[str] = None) -> typing.Tuple[dict, str]:
+        self, package_name: str, version: typing.Optional[str] = None
+    ) -> typing.Tuple[dict, str]:
         """Get marketplace metadata and VSIX download URL"""
         payload = {
             "filters": [
@@ -69,33 +72,32 @@ class ExtensionScanner(PackageScanner):
                     "criteria": [
                         {
                             "filterType": MARKETPLACE_FILTER_TYPE_EXTENSION_NAME,
-                            "value": package_name
+                            "value": package_name,
                         }
                     ]
                 }
             ],
-            "flags": MARKETPLACE_FLAGS_FULL_METADATA
+            "flags": MARKETPLACE_FLAGS_FULL_METADATA,
         }
 
         response = requests.post(
-            MARKETPLACE_URL,
-            headers=MARKETPLACE_HEADERS,
-            json=payload)
+            MARKETPLACE_URL, headers=MARKETPLACE_HEADERS, json=payload
+        )
 
         response.raise_for_status()
 
         data = response.json()
 
         if not data.get("results") or not data["results"][0].get("extensions"):
-            raise ValueError(
-                f"Extension {package_name} not found in marketplace")
+            raise ValueError(f"Extension {package_name} not found in marketplace")
 
         extension_info = data["results"][0]["extensions"][0]
         versions = extension_info.get("versions", [])
 
         if not versions:
             raise ValueError(
-                f"No versions available for this extension: {package_name}")
+                f"No versions available for this extension: {package_name}"
+            )
 
         target_version = None
         if version is None:
@@ -108,7 +110,8 @@ class ExtensionScanner(PackageScanner):
                     break
             if target_version is None:
                 raise ValueError(
-                    f"Version {version} not found for extension: {package_name}")
+                    f"Version {version} not found for extension: {package_name}"
+                )
 
         # Extract download URL
         files = target_version.get("files", [])
@@ -120,11 +123,14 @@ class ExtensionScanner(PackageScanner):
 
         if not vsix_url:
             raise ValueError(
-                f"No VSIX download link available for this extension: {package_name}")
+                f"No VSIX download link available for this extension: {package_name}"
+            )
 
         return data, vsix_url
 
-    def scan_local(self, path: str, rules=None, callback: typing.Callable[[dict], None] = noop) -> dict:
+    def scan_local(
+        self, path: str, rules=None, callback: typing.Callable[[dict], None] = noop
+    ) -> dict:
         """
         Scan a local VSCode extension directory
 

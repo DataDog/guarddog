@@ -59,6 +59,7 @@ class Dependency:
         name (str): The name of the dependency. e.g., "requests"
         versions (Set[DependencyVersion]): A set of identified versions of the dependency.
     """
+
     name: str
     versions: Set[DependencyVersion]
 

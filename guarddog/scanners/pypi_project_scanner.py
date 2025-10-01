@@ -138,9 +138,7 @@ class PypiRequirementsScanner(ProjectScanner):
                 )
 
                 if len(versions) == 0:
-                    log.error(
-                        f"Package/Version {requirement.name} not on PyPI\n"
-                    )
+                    log.error(f"Package/Version {requirement.name} not on PyPI\n")
                     continue
 
                 idx = next(

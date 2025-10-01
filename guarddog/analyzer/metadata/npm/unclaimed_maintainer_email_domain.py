@@ -1,7 +1,8 @@
 from typing import Optional
 
-from guarddog.analyzer.metadata.unclaimed_maintainer_email_domain import \
-    UnclaimedMaintainerEmailDomainDetector
+from guarddog.analyzer.metadata.unclaimed_maintainer_email_domain import (
+    UnclaimedMaintainerEmailDomainDetector,
+)
 
 from .utils import NPM_API_MAINTAINER_EMAIL_WARNING, get_email_addresses
 
