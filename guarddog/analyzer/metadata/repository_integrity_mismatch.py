@@ -12,7 +12,8 @@ class IntegrityMismatch(Detector):
     def __init__(self):
         super().__init__(
             name="repository_integrity_mismatch",
-            description="Identify packages with a linked GitHub repository where the package has extra unexpected files",
+            description="Identify packages with a linked GitHub repository "
+            "where the package has extra unexpected files",
         )
 
     @abstractmethod

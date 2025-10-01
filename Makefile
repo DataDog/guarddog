@@ -10,8 +10,8 @@ lint:
 	flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 
 format:
-	black guarddog --check
-	black scripts --check
+	black --check guardog && black guarddog || (black guarddog && exit 1)
+	black --check scripts && black scripts || (black scripts && exit 1)
 
 test-semgrep-rules:
 	semgrep --metrics off --quiet --test --config guarddog/analyzer/sourcecode tests/analyzer/sourcecode
