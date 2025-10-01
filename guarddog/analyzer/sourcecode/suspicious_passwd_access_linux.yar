@@ -1,4 +1,4 @@
-rule DETECT_FILE_powershell_policy_bypass
+rule suspicious_passwd_access_linux
 {
     meta:
         author = "T HAMDOUNI, Datadog"

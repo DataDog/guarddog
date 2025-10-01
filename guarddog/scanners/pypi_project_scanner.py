@@ -3,7 +3,7 @@ import os
 import re
 from typing import List
 
-import pkg_resources
+from packaging.requirements import Requirement
 import requests
 from packaging.specifiers import Specifier, Version
 
@@ -111,12 +111,11 @@ class PypiRequirementsScanner(ProjectScanner):
             """
             This helper function yields one valid requirement line at a time
             """
-            parsed = pkg_resources.parse_requirements(req)
-            while True:
+            for req_line in req:
+                if not req_line.strip():
+                    continue
                 try:
-                    yield next(parsed)
-                except StopIteration:
-                    break
+                    yield Requirement(req_line)
                 except Exception as e:
                     log.error(
                         f"Error when parsing requirements, received error {str(e)}. This entry will be "
@@ -130,7 +129,7 @@ class PypiRequirementsScanner(ProjectScanner):
                     continue
 
                 versions = get_matched_versions(
-                    find_all_versions(requirement.project_name),
+                    find_all_versions(requirement.name),
                     (
                         requirement.url
                         if requirement.url
@@ -140,7 +139,7 @@ class PypiRequirementsScanner(ProjectScanner):
 
                 if len(versions) == 0:
                     log.error(
-                        f"Package/Version {requirement.project_name} not on PyPI\n"
+                        f"Package/Version {requirement.name} not on PyPI\n"
                     )
                     continue
 
@@ -165,13 +164,13 @@ class PypiRequirementsScanner(ProjectScanner):
                 # find the dep with the same name or create a new one
                 dep = next(
                     filter(
-                        lambda d: d.name == requirement.project_name,
+                        lambda d: d.name == requirement.name,
                         dependencies,
                     ),
                     None,
                 )
                 if not dep:
-                    dep = Dependency(name=requirement.project_name, versions=set())
+                    dep = Dependency(name=requirement.name, versions=set())
                     dependencies.append(dep)
 
                 dep.versions.update(dep_versions)
