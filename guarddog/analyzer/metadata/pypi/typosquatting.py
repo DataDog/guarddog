@@ -59,8 +59,8 @@ class PypiTyposquatDetector(TyposquatDetector):
             if new_information is not None:
                 top_packages_information = new_information["rows"]
 
-            with open(top_packages_path, "w+") as f:
-                json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
+                with open(top_packages_path, "w+") as f:
+                    json.dump(new_information, f, ensure_ascii=False, indent=4)
 
         return set(map(self.get_safe_name, top_packages_information))
 
