@@ -11,8 +11,13 @@ class Detector:
 
     # returns (ruleMatches, message)
     @abstractmethod
-    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, Optional[str]]:
+    def detect(
+        self,
+        package_info,
+        path: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> tuple[bool, Optional[str]]:
         pass  # pragma: no cover
 
     def get_name(self) -> str:

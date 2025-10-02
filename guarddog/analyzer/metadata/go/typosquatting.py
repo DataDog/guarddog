@@ -32,7 +32,8 @@ class GoTyposquatDetector(TyposquatDetector):
 
         if top_packages_information is None:
             raise Exception(
-                f"Could not retrieve top Go packages from {top_packages_path}")
+                f"Could not retrieve top Go packages from {top_packages_path}"
+            )
 
         return set(top_packages_information)
 
@@ -110,8 +111,8 @@ class GoTyposquatDetector(TyposquatDetector):
                 continue
 
             # Get form when replacing or removing go/golang term
-            replaced_form = terms[:i] + [confused_term] + terms[i + 1:]
-            removed_form = terms[:i] + terms[i + 1:]
+            replaced_form = terms[:i] + [confused_term] + terms[i + 1 :]
+            removed_form = terms[:i] + terms[i + 1 :]
 
             for form in (replaced_form, removed_form):
                 confused_forms.append("-".join(form))
