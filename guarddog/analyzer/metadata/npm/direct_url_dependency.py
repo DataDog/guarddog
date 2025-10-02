@@ -1,7 +1,8 @@
-""" Direct URL Dependency Detector
+"""Direct URL Dependency Detector
 
 Detects if a package depends on direct URL dependencies
 """
+
 from typing import Optional
 import re
 

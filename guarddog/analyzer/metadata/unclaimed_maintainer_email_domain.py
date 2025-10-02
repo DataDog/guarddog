@@ -20,8 +20,13 @@ class UnclaimedMaintainerEmailDomainDetector(Detector):
         )
         self.ecosystem = ecosystem
 
-    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+    def detect(
+        self,
+        package_info,
+        path: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> tuple[bool, str]:
         """
         Uses a package's information to determine
         if the maintainer's email domain is unclaimed and thus exposed to hijacking

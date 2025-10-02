@@ -46,7 +46,9 @@ class PypiTyposquatDetector(TyposquatDetector):
         top_packages_filename = "top_pypi_packages.json"
         resources_dir = TOP_PACKAGES_CACHE_LOCATION
         if resources_dir is None:
-            resources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources"))
+            resources_dir = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "resources")
+            )
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
         top_packages_information = self._get_top_packages_local(top_packages_path)
@@ -95,8 +97,13 @@ class PypiTyposquatDetector(TyposquatDetector):
         except requests.exceptions.RequestException as e:
             log.error(f"Network error: {e}")
 
-    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, Optional[str]]:
+    def detect(
+        self,
+        package_info,
+        path: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> tuple[bool, Optional[str]]:
         """
         Uses a package's information from PyPI's JSON API to determine the
         package is attempting a typosquatting attack
@@ -111,10 +118,14 @@ class PypiTyposquatDetector(TyposquatDetector):
             @param **kwargs:
         """
         log.debug(f"Running typosquatting heuristic on PyPI package {name}")
-        normalized_name = packaging.utils.canonicalize_name(package_info["info"]["name"])
+        normalized_name = packaging.utils.canonicalize_name(
+            package_info["info"]["name"]
+        )
         similar_package_names = self.get_typosquatted_package(normalized_name)
         if len(similar_package_names) > 0:
-            return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(similar_package_names)
+            return True, TyposquatDetector.MESSAGE_TEMPLATE % ", ".join(
+                similar_package_names
+            )
         return False, None
 
     def _get_confused_forms(self, package_name) -> list:
@@ -147,8 +158,8 @@ class PypiTyposquatDetector(TyposquatDetector):
                 continue
 
             # Get form when replacing or removing py/python term
-            replaced_form = terms[:i] + [confused_term] + terms[i + 1:]
-            removed_form = terms[:i] + terms[i + 1:]
+            replaced_form = terms[:i] + [confused_term] + terms[i + 1 :]
+            removed_form = terms[:i] + terms[i + 1 :]
 
             for form in (replaced_form, removed_form):
                 confused_forms.append("-".join(form))

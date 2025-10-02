@@ -23,6 +23,7 @@ class SourceCodeRule:
     """
     Base class for source code rules
     """
+
     id: str
     file: str
     description: str
@@ -34,6 +35,7 @@ class YaraRule(SourceCodeRule):
     """
     Yara rule just reimplements base
     """
+
     pass
 
 
@@ -43,11 +45,13 @@ class SempgrepRule(SourceCodeRule):
     Semgrep rule are language specific
     Content of rule in yaml format is accessible through rule_content
     """
+
     rule_content: dict
 
 
 def get_sourcecode_rules(
-        ecosystem: ECOSYSTEM, kind: Optional[type] = None) -> Iterable[SourceCodeRule]:
+    ecosystem: ECOSYSTEM, kind: Optional[type] = None
+) -> Iterable[SourceCodeRule]:
     """
     This function returns the source code rules for a given ecosystem and kind.
     Args:
@@ -102,10 +106,13 @@ for file_name in semgrep_rule_file_names:
                             SempgrepRule(
                                 id=rule["id"],
                                 ecosystem=ecosystem,
-                                description=rule.get("metadata", {}).get("description", ""),
+                                description=rule.get("metadata", {}).get(
+                                    "description", ""
+                                ),
                                 file=file_name,
                                 rule_content=rule,
-                            ))
+                            )
+                        )
 
 yara_rule_file_names = list(
     filter(lambda x: x.endswith("yar"), os.listdir(current_dir))
@@ -114,10 +121,14 @@ yara_rule_file_names = list(
 # refer to README.md for more information
 for file_name in yara_rule_file_names:
     rule_id = pathlib.Path(file_name).stem
-    description_regex = fr'\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"'
+    description_regex = (
+        rf"\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\""
+    )
 
     # Determine ecosystem based on filename prefix
-    rule_ecosystem: Optional[ECOSYSTEM] = ECOSYSTEM.EXTENSION if file_name.startswith(EXTENSION_YARA_PREFIX) else None
+    rule_ecosystem: Optional[ECOSYSTEM] = (
+        ECOSYSTEM.EXTENSION if file_name.startswith(EXTENSION_YARA_PREFIX) else None
+    )
 
     with open(os.path.join(current_dir, file_name), "r") as fd:
         match = re.search(description_regex, fd.read())
@@ -125,9 +136,11 @@ for file_name in yara_rule_file_names:
         if match:
             rule_description = match.group(1)
 
-        SOURCECODE_RULES.append(YaraRule(
-            id=rule_id,
-            file=file_name,
-            description=rule_description,
-            ecosystem=rule_ecosystem
-        ))
+        SOURCECODE_RULES.append(
+            YaraRule(
+                id=rule_id,
+                file=file_name,
+                description=rule_description,
+                ecosystem=rule_ecosystem,
+            )
+        )

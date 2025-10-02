@@ -25,7 +25,9 @@ def get_package_info(name: str) -> dict:
 
     # Check if package file exists
     if response.status_code != 200:
-        raise Exception("Received status code: " + str(response.status_code) + " from PyPI")
+        raise Exception(
+            "Received status code: " + str(response.status_code) + " from PyPI"
+        )
 
     data = response.json()
 
