@@ -41,7 +41,9 @@ class DeceptiveAuthorDetector(Detector):
         # read internal maintained list of placeholder email domains
         # this domains are usually used by authors who want to don't want to reveal their real email
         placeholder_email_domains_data = None
-        with open(placeholder_email_domains_path, "r") as placeholder_email_domains_file:
+        with open(
+            placeholder_email_domains_path, "r"
+        ) as placeholder_email_domains_file:
             placeholder_email_domains_data = set(
                 placeholder_email_domains_file.read().split("\n")
             )

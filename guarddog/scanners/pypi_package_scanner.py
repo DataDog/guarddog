@@ -12,7 +12,9 @@ class PypiPackageScanner(PackageScanner):
     def __init__(self) -> None:
         super().__init__(Analyzer(ECOSYSTEM.PYPI))
 
-    def download_and_get_package_info(self, directory: str, package_name: str, version=None) -> typing.Tuple[dict, str]:
+    def download_and_get_package_info(
+        self, directory: str, package_name: str, version=None
+    ) -> typing.Tuple[dict, str]:
         extract_dir = self.download_package(package_name, directory, version)
         return get_package_info(package_name), extract_dir
 
@@ -40,7 +42,9 @@ class PypiPackageScanner(PackageScanner):
             version = data["info"]["version"]
 
         if version not in releases:
-            raise Exception(f"Version {version} for package {package_name} doesn't exist.")
+            raise Exception(
+                f"Version {version} for package {package_name} doesn't exist."
+            )
 
         files = releases[version]
         url, file_extension = None, None
@@ -52,7 +56,9 @@ class PypiPackageScanner(PackageScanner):
                 break
 
         if not (url and file_extension):
-            raise Exception(f"Compressed file for {package_name} does not exist on PyPI.")
+            raise Exception(
+                f"Compressed file for {package_name} does not exist on PyPI."
+            )
 
         # Path to compressed package
         zippath = os.path.join(directory, package_name + file_extension)

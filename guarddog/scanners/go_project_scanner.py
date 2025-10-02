@@ -54,7 +54,7 @@ class GoDependenciesScanner(ProjectScanner):
                     lambda d: d.name == name,
                     dependencies,
                 ),
-                None
+                None,
             )
             if not dep:
                 dep = Dependency(name=name, versions=set())

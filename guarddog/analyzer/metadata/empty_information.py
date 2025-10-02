@@ -15,12 +15,17 @@ class EmptyInfoDetector(Detector):
     def __init__(self):
         super().__init__(
             name="empty_information",
-            description="Identify packages with an empty description field"
+            description="Identify packages with an empty description field",
         )
 
     @abstractmethod
-    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+    def detect(
+        self,
+        package_info,
+        path: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> tuple[bool, str]:
         """
         Uses a package's information from PyPI's JSON API to determine
         if the package has an empty description

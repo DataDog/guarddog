@@ -9,5 +9,5 @@ class ReleaseZeroDetector(Detector):
     def __init__(self):
         super().__init__(
             name="release_zero",
-            description="Identify packages with an release version that's 0.0 or 0.0.0"
+            description="Identify packages with an release version that's 0.0 or 0.0.0",
         )

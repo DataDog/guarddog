@@ -15,10 +15,10 @@ class BundledBinary(Detector):
     # magic bytes are the first few bytes of a file that can be used to identify the file type
     # regardless of their extension
     magic_bytes = {
-        "exe": b"\x4D\x5A",
-        "elf": b"\x7F\x45\x4C\x46",
-        "macho32": b"\xFE\xED\xFA\xCE",
-        "macho64": b"\xFE\xED\xFA\xCF",
+        "exe": b"\x4d\x5a",
+        "elf": b"\x7f\x45\x4c\x46",
+        "macho32": b"\xfe\xed\xfa\xce",
+        "macho64": b"\xfe\xed\xfa\xcf",
     }
 
     def __init__(self):
@@ -40,7 +40,7 @@ class BundledBinary(Detector):
         def sha256(file: str) -> str:
             with open(file, "rb") as f:
                 hasher = hashlib.sha256()
-                while (chunk := f.read(4096)):
+                while chunk := f.read(4096):
                     hasher.update(chunk)
                 return hasher.hexdigest()
 
@@ -65,7 +65,7 @@ class BundledBinary(Detector):
         if not bin_files:
             return False, ""
 
-        output_lines = '\n'.join(
+        output_lines = "\n".join(
             f"{digest}: {', '.join(files)}" for digest, files in bin_files.items()
         )
         return True, f"Binary file/s detected in package:\n{output_lines}"
