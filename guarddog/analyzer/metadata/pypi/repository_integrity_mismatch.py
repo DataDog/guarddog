@@ -1,7 +1,8 @@
-""" Empty Information Detector
+"""Empty Information Detector
 
 Detects if a package contains an empty description
 """
+
 import configparser
 import hashlib
 import logging
@@ -15,8 +16,8 @@ import urllib3.util
 
 from guarddog.analyzer.metadata.repository_integrity_mismatch import IntegrityMismatch
 
-GH_REPO_REGEX = r'(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/)(?:[\w-]+)'
-GH_REPO_OWNER_REGEX = r'(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)'
+GH_REPO_REGEX = r"(?:https?://)?(?:www\.)?github\.com/(?:[\w-]+/)(?:[\w-]+)"
+GH_REPO_OWNER_REGEX = r"(?:https?://)?(?:www\.)?github\.com/([\w-]+)/([\w-]+)"
 
 log = logging.getLogger("guarddog")
 
@@ -60,8 +61,10 @@ def find_best_github_candidate(all_candidates_and_highlighted_link, name):
     for entry in clean_candidates:
         owner, repo = extract_owner_and_repo(entry)
         if repo is not None and (
-                # Idea: replace by if two strings have a Levenshtein distance < X% of string length
-                repo.lower() in name.lower() or name.lower() in repo.lower()):
+            # Idea: replace by if two strings have a Levenshtein distance < X% of string length
+            repo.lower() in name.lower()
+            or name.lower() in repo.lower()
+        ):
             return entry
     return None
 
@@ -88,7 +91,7 @@ def dict_generator(indict, pre=None):
 
 
 def get_file_hash(path):
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         # Read the contents of the file
         file_contents = f.read()
         # Create a hash object
@@ -169,10 +172,12 @@ def find_mismatch_for_tag(repo, tag, base_path, repo_path):
         repo_root = os.path.join(repo_path, relative_path)
         if not os.path.exists(repo_root):
             continue
-        repo_files = list(filter(
-            lambda x: os.path.isfile(os.path.join(repo_root, x)),
-            os.listdir(repo_root)
-        ))
+        repo_files = list(
+            filter(
+                lambda x: os.path.isfile(os.path.join(repo_root, x)),
+                os.listdir(repo_root),
+            )
+        )
         for file_name in repo_files:
             if file_name not in files:  # ignore files we don't have in the distribution
                 continue
@@ -184,7 +189,7 @@ def find_mismatch_for_tag(repo, tag, base_path, repo_path):
                 res = {
                     "file": os.path.join(relative_path, file_name),
                     "repo_sha256": repo_hash,
-                    "pkg_sha256": pkg_hash
+                    "pkg_sha256": pkg_hash,
                 }
                 mismatch.append(res)
     return mismatch
@@ -199,7 +204,7 @@ def find_suitable_tags_in_list(tags, version):
 
 
 def find_suitable_tags(repo, version):
-    tags_regex = re.compile('^refs/tags/(.*)')
+    tags_regex = re.compile("^refs/tags/(.*)")
     tags = []
     for ref in repo.references:
         match = tags_regex.match(ref)
@@ -221,26 +226,39 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
     * Does not check for extraneous files in the release artifacts
     * Does not run it parallel, so can be slow for large code bases
     """
+
     RULE_NAME = "repository_integrity_mismatch"
 
-    def detect(self, package_info, path: Optional[str] = None, name: Optional[str] = None,
-               version: Optional[str] = None) -> tuple[bool, str]:
+    def detect(
+        self,
+        package_info,
+        path: Optional[str] = None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> tuple[bool, str]:
         if name is None:
             raise Exception("Detector needs the name of the package")
         if path is None:
             raise Exception("Detector needs the path of the package")
 
-        log.debug(f"Running repository integrity mismatch heuristic on PyPI package {name} version {version}")
+        log.debug(
+            f"Running repository integrity mismatch heuristic on PyPI package {name} version {version}"
+        )
         # let's extract a source repository (GitHub only for now) if we can
         github_urls, best_github_candidate = find_github_candidates(package_info)
         if len(github_urls) == 0:
             return False, "Could not find any GitHub url in the project's description"
         # now, let's find the right url
 
-        github_url = find_best_github_candidate((github_urls, best_github_candidate), name)
+        github_url = find_best_github_candidate(
+            (github_urls, best_github_candidate), name
+        )
 
         if github_url is None:
-            return False, "Could not find a good GitHub url in the project's description"
+            return (
+                False,
+                "Could not find a good GitHub url in the project's description",
+            )
 
         log.debug(f"Using GitHub URL {github_url}")
         # ok, now let's try to find the version! (I need to know which version we are scanning)
@@ -257,10 +275,14 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
             repo = pygit2.clone_repository(url=github_url, path=repo_path)
         except pygit2.GitError as git_error:
             # Handle generic Git-related errors
-            raise Exception(f"Error while cloning repository {str(git_error)} with github url {github_url}")
+            raise Exception(
+                f"Error while cloning repository {str(git_error)} with github url {github_url}"
+            )
         except Exception as e:
             # Catch any other unexpected exceptions
-            raise Exception(f"An unexpected error occurred: {str(e)}.  github url {github_url}")
+            raise Exception(
+                f"An unexpected error occurred: {str(e)}.  github url {github_url}"
+            )
 
         tag_candidates = find_suitable_tags(repo, version)
 
@@ -280,16 +302,20 @@ class PypiIntegrityMismatchDetector(IntegrityMismatch):
         #  should be good, let's open the sources
         base_dir_name = None
         for entry in os.listdir(path):
-            if entry.lower().startswith(name.lower().replace('-', '_')) or entry.lower().startswith(name.lower()):
+            if entry.lower().startswith(
+                name.lower().replace("-", "_")
+            ) or entry.lower().startswith(name.lower()):
                 base_dir_name = entry
-        if base_dir_name is None or base_dir_name == "sources":  # I am not sure how we can get there
+        if (
+            base_dir_name is None or base_dir_name == "sources"
+        ):  # I am not sure how we can get there
             raise Exception("something went wrong when opening the package")
         base_path = os.path.join(path, base_dir_name)
 
         mismatch = find_mismatch_for_tag(repo, target_tag, base_path, repo_path)
-        message = "\n".join(map(
-            lambda x: "* " + x["file"],
-            mismatch
-        ))
-        return len(mismatch) > 0, f"Some files present in the package are different from the ones on GitHub for " \
-                                  f"the same version of the package: \n{message}"
+        message = "\n".join(map(lambda x: "* " + x["file"], mismatch))
+        return (
+            len(mismatch) > 0,
+            f"Some files present in the package are different from the ones on GitHub for "
+            f"the same version of the package: \n{message}",
+        )

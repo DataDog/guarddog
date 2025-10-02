@@ -16,9 +16,7 @@ from guarddog.ecosystems import ECOSYSTEM
 MAX_BYTES_DEFAULT = 10_000_000
 SEMGREP_TIMEOUT_DEFAULT = 10
 
-SOURCECODE_RULES_PATH = os.path.join(
-    os.path.dirname(__file__), "sourcecode"
-)
+SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 log = logging.getLogger("guarddog")
 
 
@@ -68,12 +66,13 @@ class Analyzer:
         ]
 
     def analyze(
-            self,
-            path,
-            info=None,
-            rules=None,
-            name: Optional[str] = None,
-            version: Optional[str] = None) -> dict:
+        self,
+        path,
+        info=None,
+        rules=None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> dict:
         """
         Analyzes a package in the given path
 
@@ -101,19 +100,16 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        return {
-            "issues": issues,
-            "errors": errors,
-            "results": results,
-            "path": path}
+        return {"issues": issues, "errors": errors, "results": results, "path": path}
 
     def analyze_metadata(
-            self,
-            path: str,
-            info,
-            rules=None,
-            name: Optional[str] = None,
-            version: Optional[str] = None) -> dict:
+        self,
+        path: str,
+        info,
+        rules=None,
+        name: Optional[str] = None,
+        version: Optional[str] = None,
+    ) -> dict:
         """
         Analyzes the metadata of a given package
 
@@ -142,7 +138,9 @@ class Analyzer:
         for rule in all_rules:
             try:
                 log.debug(f"Running rule {rule} against package '{name}'")
-                rule_matches, message = self.metadata_detectors[rule].detect(info, path, name, version)
+                rule_matches, message = self.metadata_detectors[rule].detect(
+                    info, path, name, version
+                )
                 results[rule] = None
                 if rule_matches:
                     issues += 1
@@ -172,11 +170,7 @@ class Analyzer:
         results = semgrepscan_results["results"] | yarascan_results["results"]
         errors = semgrepscan_results["errors"] | yarascan_results["errors"]
 
-        return {
-            "issues": issues,
-            "errors": errors,
-            "results": results,
-            "path": path}
+        return {"issues": issues, "errors": errors, "results": results, "path": path}
 
     def analyze_yara(self, path: str, rules: Optional[set] = None) -> dict:
         """
@@ -221,7 +215,9 @@ class Analyzer:
                         continue
 
                     scan_file_target_abspath = os.path.join(root, f)
-                    scan_file_target_relpath = os.path.relpath(scan_file_target_abspath, path)
+                    scan_file_target_relpath = os.path.relpath(
+                        scan_file_target_abspath, path
+                    )
 
                     matches = scan_rules.match(scan_file_target_abspath)
                     for m in matches:
@@ -231,7 +227,9 @@ class Analyzer:
                                 finding = {
                                     "location": f"{scan_file_target_relpath}:{i.offset}",
                                     "code": self.trim_code_snippet(str(i.matched_data)),
-                                    'message': m.meta.get("description", f"{m.rule} rule matched")
+                                    "message": m.meta.get(
+                                        "description", f"{m.rule} rule matched"
+                                    ),
                                 }
 
                                 # since yara can match the multiple times in the same file
@@ -249,10 +247,7 @@ class Analyzer:
         except Exception as e:
             errors["rules-all"] = f"failed to run rule: {str(e)}"
 
-        return {
-            "results": results | rule_results,
-            "errors": errors,
-            "issues": issues}
+        return {"results": results | rule_results, "errors": errors, "issues": issues}
 
     def analyze_semgrep(self, path, rules=None) -> dict:
         """
@@ -277,8 +272,14 @@ class Analyzer:
         errors = {}
         issues = 0
 
-        rules_path = list(map(
-            lambda rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yml"), all_rules))
+        rules_path = list(
+            map(
+                lambda rule_name: os.path.join(
+                    SOURCECODE_RULES_PATH, f"{rule_name}.yml"
+                ),
+                all_rules,
+            )
+        )
 
         if len(rules_path) == 0:
             log.debug("No semgrep code rules to run")
@@ -287,7 +288,9 @@ class Analyzer:
         try:
             log.debug(f"Running semgrep code rules against {path}")
             response = self._invoke_semgrep(target=path, rules=rules_path)
-            rule_results = self._format_semgrep_response(response, targetpath=targetpath)
+            rule_results = self._format_semgrep_response(
+                response, targetpath=targetpath
+            )
             issues += sum(len(res) for res in rule_results.values())
 
             results = results | rule_results
@@ -299,9 +302,11 @@ class Analyzer:
     def _invoke_semgrep(self, target: str, rules: Iterable[str]):
         try:
             SEMGREP_MAX_TARGET_BYTES = int(
-                os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT))
+                os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT)
+            )
             SEMGREP_TIMEOUT = int(
-                os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT))
+                os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT)
+            )
             cmd = ["semgrep"]
             for rule in rules:
                 cmd.extend(["--config", rule])
@@ -316,7 +321,9 @@ class Analyzer:
             cmd.append(f"--max-target-bytes={SEMGREP_MAX_TARGET_BYTES}")
             cmd.append(target)
             log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
-            result = subprocess.run(cmd, capture_output=True, check=True, encoding="utf-8")
+            result = subprocess.run(
+                cmd, capture_output=True, check=True, encoding="utf-8"
+            )
             return json.loads(str(result.stdout))
         except FileNotFoundError:
             raise Exception("unable to find semgrep binary")
@@ -370,18 +377,18 @@ output: {e.output}
             file_path = os.path.abspath(result["path"])
             code = self.trim_code_snippet(
                 self.get_snippet(
-                    file_path=file_path,
-                    start_line=start_line,
-                    end_line=end_line))
+                    file_path=file_path, start_line=start_line, end_line=end_line
+                )
+            )
             if targetpath:
                 file_path = os.path.relpath(file_path, targetpath)
 
             location = file_path + ":" + str(start_line)
 
             finding = {
-                'location': location,
-                'code': code,
-                'message': result["extra"]["message"]
+                "location": location,
+                "code": code,
+                "message": result["extra"]["message"],
             }
 
             rule_results = results[rule_name]
@@ -391,11 +398,7 @@ output: {e.output}
 
         return results
 
-    def get_snippet(
-            self,
-            file_path: str,
-            start_line: int,
-            end_line: int) -> str:
+    def get_snippet(self, file_path: str, start_line: int, end_line: int) -> str:
         """
         Returns the code snippet between start_line and stop_line in a file
 
@@ -409,7 +412,7 @@ output: {e.output}
         """
         snippet = []
         try:
-            with open(file_path, 'r') as file:
+            with open(file_path, "r") as file:
                 for current_line_number, line in enumerate(file, start=1):
                     if start_line <= current_line_number <= end_line:
                         snippet.append(line)
@@ -420,12 +423,12 @@ output: {e.output}
         except Exception as e:
             log.error(f"Error reading file {file_path}: {str(e)}")
 
-        return ''.join(snippet)
+        return "".join(snippet)
 
     # Makes sure the matching code to be displayed isn't too long
     def trim_code_snippet(self, code):
         THRESHOLD = 250
         if len(code) > THRESHOLD:
-            return code[: THRESHOLD - 10] + '...' + code[len(code) - 10:]
+            return code[: THRESHOLD - 10] + "..." + code[len(code) - 10 :]
         else:
             return code

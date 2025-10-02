@@ -1,4 +1,4 @@
-""" Deceptive Author Detector
+"""Deceptive Author Detector
 
 Detects when an author of is using a disposable email
 """
