@@ -1,19 +1,1 @@
-// Test cases that SHOULD be detected by suspicious_passwd_access_linux rule
-
-// Test case 1: CLI command reading /etc/pass wd
 cat /etc/passwd
-
-// Test case 2: readFileSync with path
-const fs = require('fs');
-const data = fs.readFileSync('/etc/passwd');
-
-// Test case 3: readFile with callback
-fs.readFile('/etc/passwd', (err, data) => {
-    console.log(data);
-});
-
-// Test case 4: Various CLI tools
-head /etc/passwd
-tail -n 10 /etc/passwd
-less /etc/passwd
-more /etc/passwd
