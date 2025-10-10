@@ -28,7 +28,7 @@ class TestUnclaimedMaintainerEmailDomain:
     def test_email_domain_doesnt_exist(self):
         def mock_whois(domain):
             import whois
-            raise whois.parser.PywhoisError('No match for "nope.com".')
+            raise whois.exceptions.PywhoisError('No match for "nope.com".')
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
         # should work exactly the same for NPM
