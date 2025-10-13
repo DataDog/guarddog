@@ -371,11 +371,13 @@ Additionally, the timeout setting, which specifies the maximum time in seconds t
 
 ## Maintainers
 
-Authors:
+* [Sebastian Obregoso](https://www.linkedin.com/in/sebastianobregoso/)
+* [Ian Kretz](https://github.com/ikretz)
+* [Tesnim Hamdouni](https://github.com/tesnim5hamdouni)
+
+## Authors
 * [Ellen Wang](https://www.linkedin.com/in/ellen-wang-4bb5961a0/)
 * [Christophe Tafani-Dereeper](https://github.com/christophetd)
-* [Vladimir de Turckheim](https://www.linkedin.com/in/vladimirdeturckheim/)
-* [Sebastian Obregoso](https://www.linkedin.com/in/sebastianobregoso/)
 
 ## Acknowledgments
 
