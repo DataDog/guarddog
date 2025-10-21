@@ -73,7 +73,7 @@ class PypiTyposquatDetector(TyposquatDetector):
             update_time = datetime.fromtimestamp(os.path.getmtime(path))
             return datetime.now() - update_time > timedelta(days=days)
         except FileNotFoundError:
-            pass # just skip
+            pass  # just skip
 
     def _get_top_packages_local(self, path: str) -> list[dict]:
         try:
