@@ -52,17 +52,18 @@ class NPMTyposquatDetector(TyposquatDetector):
             update_time = datetime.fromtimestamp(os.path.getmtime(path))
             return datetime.now() - update_time > timedelta(days=days)
         except FileNotFoundError:
-            pass  # just skip
+            return True
 
-    def _get_top_packages_local(self, path: str) -> list[dict]:
+    def _get_top_packages_local(self, path: str) -> list[dict] | None:
         try:
             with open(path, "r") as f:
                 result = json.load(f)
                 return result
         except FileNotFoundError:
             log.error(f"File not found: {path}")
+            return None
 
-    def _get_top_packages_network(self, url: tuple[str]) -> list[dict]:
+    def _get_top_packages_network(self, url: tuple[str]) -> list[dict] | None:
         try:
             response = requests.get(url)
             response.raise_for_status()
@@ -73,8 +74,10 @@ class NPMTyposquatDetector(TyposquatDetector):
             return result
         except json.JSONDecodeError:
             log.error(f"Couldn`t convert to json: \"{response.text}\"")
+            return None
         except requests.exceptions.RequestException as e:
             log.error(f"Network error: {e}")
+            return None
 
     def detect(
         self,

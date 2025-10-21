@@ -37,13 +37,14 @@ class GoTyposquatDetector(TyposquatDetector):
 
         return set(top_packages_information)
 
-    def _get_top_packages_local(self, path: str) -> list[dict]:
+    def _get_top_packages_local(self, path: str) -> list[dict] | None:
         try:
             with open(path, "r") as f:
                 result = json.load(f)
                 return result
         except FileNotFoundError:
             log.error(f"File not found: {path}")
+            return None
 
     def detect(
         self,
