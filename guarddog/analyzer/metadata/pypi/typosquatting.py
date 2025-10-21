@@ -52,12 +52,11 @@ class PypiTyposquatDetector(TyposquatDetector):
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
         top_packages_information = self._get_top_packages_local(top_packages_path)
-        top_packages_information = top_packages_information["rows"]
 
         if self._file_is_expired(top_packages_path, days=30):
             new_information = self._get_top_packages_network(popular_packages_url)
             if new_information is not None:
-                top_packages_information = new_information["rows"]
+                top_packages_information = new_information
 
                 with open(top_packages_path, "w+") as f:
                     json.dump(new_information, f, ensure_ascii=False, indent=4)
@@ -79,7 +78,7 @@ class PypiTyposquatDetector(TyposquatDetector):
         try:
             with open(path, "r") as f:
                 result = json.load(f)
-                return result
+                return self.extract_information(result)
         except FileNotFoundError:
             log.error(f"File not found: {path}")
             return None
@@ -92,13 +91,19 @@ class PypiTyposquatDetector(TyposquatDetector):
             response_data = response.json()
             result = response_data
 
-            return result
+            return self.extract_information(result)
         except json.JSONDecodeError:
             log.error(f"Couldn`t convert to json: \"{response.text}\"")
             return None
         except requests.exceptions.RequestException as e:
             log.error(f"Network error: {e}")
             return None
+
+    @staticmethod
+    def extract_information(data: dict | None) -> list[dict] | None:
+        if data is not None:
+            return data.get("rows")
+        return None
 
     def detect(
         self,
