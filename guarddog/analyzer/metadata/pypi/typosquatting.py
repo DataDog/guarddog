@@ -84,7 +84,7 @@ class PypiTyposquatDetector(TyposquatDetector):
             log.error(f"File not found: {path}")
             return None
 
-    def _get_top_packages_network(self, url: tuple[str]) -> list[dict] | None:
+    def _get_top_packages_network(self, url: str) -> list[dict] | None:
         try:
             response = requests.get(url)
             response.raise_for_status()
