@@ -75,7 +75,7 @@ class NPMTyposquatDetector(TyposquatDetector):
 
             return result
         except json.JSONDecodeError:
-            log.error(f"Couldn`t convert to json: \"{response.text}\"")
+            log.error(f'Couldn`t convert to json: "{response.text}"')
             return None
         except requests.exceptions.RequestException as e:
             log.error(f"Network error: {e}")
