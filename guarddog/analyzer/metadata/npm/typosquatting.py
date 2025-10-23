@@ -45,6 +45,8 @@ class NPMTyposquatDetector(TyposquatDetector):
                 with open(top_packages_path, "w+") as f:
                     json.dump(new_information, f, ensure_ascii=False, indent=4)
 
+        if top_packages_information is None:
+            return set()
         return set(top_packages_information)
 
     def _file_is_expired(self, path: str, days: int) -> bool:

@@ -61,6 +61,8 @@ class PypiTyposquatDetector(TyposquatDetector):
                 with open(top_packages_path, "w+") as f:
                     json.dump(new_information, f, ensure_ascii=False, indent=4)
 
+        if top_packages_information is None:
+            return set()
         return set(map(self.get_safe_name, top_packages_information))
 
     @staticmethod
