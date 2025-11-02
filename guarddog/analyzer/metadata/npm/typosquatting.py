@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from datetime import datetime, timedelta
 from typing import Optional
@@ -6,6 +7,8 @@ from typing import Optional
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 import requests
+
+log = logging.getLogger("guarddog")
 
 
 class NPMTyposquatDetector(TyposquatDetector):
@@ -32,23 +35,51 @@ class NPMTyposquatDetector(TyposquatDetector):
             )
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
+        top_packages_information = self._get_top_packages_local(top_packages_path)
 
-        top_packages_information = None
+        if self._file_is_expired(top_packages_path, days=30):
+            new_information = self._get_top_packages_network(popular_packages_url)
+            if new_information is not None:
+                top_packages_information = new_information
 
-        if top_packages_filename in os.listdir(resources_dir):
-            update_time = datetime.fromtimestamp(os.path.getmtime(top_packages_path))
-
-            if datetime.now() - update_time <= timedelta(days=30):
-                with open(top_packages_path, "r") as top_packages_file:
-                    top_packages_information = json.load(top_packages_file)
+                with open(top_packages_path, "w+") as f:
+                    json.dump(new_information, f, ensure_ascii=False, indent=4)
 
         if top_packages_information is None:
-            response = requests.get(popular_packages_url).json()
-            top_packages_information = list([i["name"] for i in response[0:8000]])
-            with open(top_packages_path, "w+") as f:
-                json.dump(top_packages_information, f, ensure_ascii=False, indent=4)
-
+            return set()
         return set(top_packages_information)
+
+    def _file_is_expired(self, path: str, days: int) -> bool:
+        try:
+            update_time = datetime.fromtimestamp(os.path.getmtime(path))
+            return datetime.now() - update_time > timedelta(days=days)
+        except FileNotFoundError:
+            return True
+
+    def _get_top_packages_local(self, path: str) -> list[dict] | None:
+        try:
+            with open(path, "r") as f:
+                result = json.load(f)
+                return result
+        except FileNotFoundError:
+            log.error(f"File not found: {path}")
+            return None
+
+    def _get_top_packages_network(self, url: str) -> list[dict] | None:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+
+            response_data = response.json()
+            result = list([i["name"] for i in response_data[0:8000]])
+
+            return result
+        except json.JSONDecodeError:
+            log.error(f'Couldn`t convert to json: "{response.text}"')
+            return None
+        except requests.exceptions.RequestException as e:
+            log.error(f"Network error: {e}")
+            return None
 
     def detect(
         self,
