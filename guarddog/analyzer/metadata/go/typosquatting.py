@@ -1,9 +1,12 @@
 import json
+import logging
 import os
 from typing import Optional
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
+
+log = logging.getLogger("guarddog")
 
 
 class GoTyposquatDetector(TyposquatDetector):
@@ -25,12 +28,7 @@ class GoTyposquatDetector(TyposquatDetector):
             )
 
         top_packages_path = os.path.join(resources_dir, top_packages_filename)
-
-        top_packages_information = None
-
-        if top_packages_filename in os.listdir(resources_dir):
-            with open(top_packages_path, "r") as top_packages_file:
-                top_packages_information = json.load(top_packages_file)
+        top_packages_information = self._get_top_packages_local(top_packages_path)
 
         if top_packages_information is None:
             raise Exception(
@@ -38,6 +36,15 @@ class GoTyposquatDetector(TyposquatDetector):
             )
 
         return set(top_packages_information)
+
+    def _get_top_packages_local(self, path: str) -> list[dict] | None:
+        try:
+            with open(path, "r") as f:
+                result = json.load(f)
+                return result
+        except FileNotFoundError:
+            log.error(f"File not found: {path}")
+            return None
 
     def detect(
         self,
