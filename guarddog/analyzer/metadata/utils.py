@@ -26,7 +26,7 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
 
     try:
         domain_information = whois.whois(domain)
-    except whois.parser.PywhoisError as e:
+    except whois.exceptions.PywhoisError as e:
         # The domain doesn't exist at all, if that's the case we consider it vulnerable
         # since someone could register it
         return None, (not str(e).lower().startswith("no match for"))
