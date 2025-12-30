@@ -3,6 +3,10 @@
     RULEID cases:
       - obfuscated version of 1337c package
 """
+import os
+import requests
+from sys import platform
+import base64
 
 def send():
     try:
@@ -17,6 +21,18 @@ def send():
             # os.system('start '+filename)
             # ruleid: api-obfuscation
             os.__dict__['startfile']('start '+filename)
+            # Variations based on string obfuscation:
+            # ruleid: api-obfuscation
+            os.__dict__['start' + 'file']('start '+filename)  # string concatenation
+            # ruleid: api-obfuscation
+            func = 'startfile'
+            os.__dict__[func]()  # pass string via variable
+            # ruleid: api-obfuscation
+            os.__dict__[base64.b64decode('c3RhcnRmaWxl').decode('utf-8')]('start '+filename)  # base64 encoding
+            # ruleid: api-obfuscation
+            os.__dict__[bytes.fromhex('737461727466696c65').decode('utf-8')]('start '+filename)  # hex encoding
+            # ruleid: api-obfuscation
+            os.__dict__["\x67\x65\x74\x63\x77\x64"]()  # hex encoding
 
             # ruleid: api-obfuscation
             os.__dict__['startfile'].__call__('start '+filename)
