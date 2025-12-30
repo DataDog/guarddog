@@ -7,7 +7,9 @@ from guarddog.analyzer.metadata.bundled_binary import BundledBinary
 from guarddog.analyzer.metadata.npm import NPMBundledBinary
 from guarddog.analyzer.metadata.pypi import PypiBundledBinary
 from tests.analyzer.metadata.resources.sample_project_info import (
-    PYPI_PACKAGE_INFO, generate_pypi_project_info)
+    PYPI_PACKAGE_INFO,
+    generate_pypi_project_info,
+)
 
 pypi_detector = PypiBundledBinary()
 npm_detector = NPMBundledBinary()
@@ -15,12 +17,12 @@ npm_detector = NPMBundledBinary()
 
 class TestBundleBinary:
     nonempty_information = PYPI_PACKAGE_INFO
-    binary_sample_exe = b"\x4D\x5A" + b"0x90" * 10  # exe magic number plus nop sled
+    binary_sample_exe = b"\x4d\x5a" + b"0x90" * 10  # exe magic number plus nop sled
     binary_sample_elf = (
-        b"\x7F\x45\x4C\x46" + b"0x90" * 10
+        b"\x7f\x45\x4c\x46" + b"0x90" * 10
     )  # elf magic number plus nop sled
-    binary_sample_macho32 = b"\xFE\xED\xFA\xCE" + b"0x90" * 10
-    binary_sample_macho64 = b"\xFE\xED\xFA\xCF" + b"0x90" * 10
+    binary_sample_macho32 = b"\xfe\xed\xfa\xce" + b"0x90" * 10
+    binary_sample_macho64 = b"\xfe\xed\xfa\xcf" + b"0x90" * 10
 
     @pytest.mark.parametrize(
         "detector",

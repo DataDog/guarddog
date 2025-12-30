@@ -19,7 +19,7 @@ yara_ruleset: set[str] = set(
 
 @pytest.mark.parametrize("rule_name", yara_ruleset)
 def test_source_codde_analyzer_yara_compile(rule_name: str):
-    """ 
+    """
     This function compiles all yara rules in the soucecode folder
     """
 

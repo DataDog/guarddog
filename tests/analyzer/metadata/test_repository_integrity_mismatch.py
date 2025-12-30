@@ -17,15 +17,18 @@ def test_no_github_links():
 def test_no_good_homepage_link():
     current_info = deepcopy(PYPI_PACKAGE_INFO)
     current_info["info"]["home_page"] = ""
-    current_info["info"]["project_urls"] = {
-        "Download": "UNKNOWN",
-        "Homepage": "https://github.com/pypa/samplproject",
+    current_info["info"]["project_urls"] = (
+        {
+            "Download": "UNKNOWN",
+            "Homepage": "https://github.com/pypa/samplproject",
         },
+    )
     current_info["info"]["summary"] = "https://github.com/pypa/sampleproject"
     detector = PypiIntegrityMismatchDetector()
     match, message = detector.detect(current_info, name="mypackage", path="")
     assert not match
     assert message == "Could not find a good GitHub url in the project's description"
+
 
 def test_no_good_github_links():
     current_info = deepcopy(PYPI_PACKAGE_INFO)

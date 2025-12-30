@@ -170,6 +170,7 @@ def f():
     # This is comment that mentions LD_PRELOAD
     pass
 
+
 def f():
     here = os.path.abspath(os.path.dirname(__file__))
     ct = getattr(sys.modules[__name__], "ctypes")
