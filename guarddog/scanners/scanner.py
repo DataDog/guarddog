@@ -117,10 +117,46 @@ class PackageScanner:
         if rules is not None:
             rules = set(rules)
 
-        results = self.analyzer.analyze_sourcecode(path, rules=rules)
-        callback(results)
+        sourcecode_results = self.analyzer.analyze_sourcecode(path, rules=rules)
+        callback(sourcecode_results)
 
-        return results
+        # Calculate risk-based score for sourcecode results
+        risk_score = self.analyzer.calculate_package_risk_score(sourcecode_results)
+
+        # Extract and format risks for top-level output
+        risk_objects = risk_score.pop("_risks", [])
+        formatted_risks = [
+            {
+                "name": risk.name,
+                "category": risk.category,
+                "severity": risk.severity.value,
+                "mitre_tactics": risk.mitre_tactics,
+                "threat_identifies": risk.threat_finding.identifies,
+                "threat_rule": risk.threat_finding.rule_name,
+                "threat_description": risk.threat_finding.message or "",
+                "threat_location": risk.threat_finding.location or "",
+                "threat_code": risk.threat_finding.code_snippet or "",
+                "capability_identifies": (
+                    risk.capability_finding.identifies
+                    if risk.capability_finding
+                    else None
+                ),
+                "capability_rule": (
+                    risk.capability_finding.rule_name
+                    if risk.capability_finding
+                    else None
+                ),
+                "file_path": risk.threat_finding.file_path,
+            }
+            for risk in risk_objects
+        ]
+
+        # Add risk score to results
+        return {
+            **sourcecode_results,
+            "risk_score": risk_score,
+            "risks": formatted_risks,  # Top-level only, not inside risk_score
+        }
 
     @abstractmethod
     def download_and_get_package_info(

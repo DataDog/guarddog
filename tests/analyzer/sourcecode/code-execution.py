@@ -1,13 +1,12 @@
-""" Tests for code-execution rule
+"""Tests for code-execution rule
 
-    OK cases:
-        - Executing python files to extract version information
-        - Os.system used for setup purposes
-        - Executing git commands
-    RULEID cases:
-        - executing bash commands
+OK cases:
+    - Executing python files to extract version information
+    - Os.system used for setup purposes
+    - Executing git commands
+RULEID cases:
+    - executing bash commands
 """
-
 
 """ OK: Executing python files to extract version information
 """
@@ -57,7 +56,9 @@ def get_version():
 call(["python", "-m", "unittest", "discover"])
 
 # ok: code-execution
-subprocess.check_output(["pkg-config", optional_args, pkg_option, package]).decode("utf8").split()
+subprocess.check_output(["pkg-config", optional_args, pkg_option, package]).decode(
+    "utf8"
+).split()
 
 # ok: code-execution
 os.system("python setup.py sdist bdist_wheel")
@@ -99,7 +100,12 @@ docker_build = subprocess.Popen(
 def RunCustomCommand(command_list):
     print("Running command: %s" % command_list)
     # ruleid: code-execution
-    p = subprocess.Popen(command_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(
+        command_list,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
 
 
 # ok: code-execution
@@ -137,7 +143,7 @@ subprocess.check_output(["git", "describe", "--tags"]).strip()
 """ RULEID: executing bash commands
 """
 # ruleid: code-execution
-os.system('start ' + filename)
+os.system("start " + filename)
 
 # ruleid: code-execution
 os.system(
@@ -165,23 +171,41 @@ if line.startswith("DANGEROUS"):
 
 
 # ruleid: code-execution
-__import__('builtins').exec(__import__('builtins').compile(__import__('base64').b64decode("foo"),'<string>','exec'))
+__import__("builtins").exec(
+    __import__("builtins").compile(
+        __import__("base64").b64decode("foo"), "<string>", "exec"
+    )
+)
 
 
-from builtins import *;
+from builtins import *
+
 # ruleid: code-execution
-OOO0O0OOOOO000oOo0oOoOo0,llIIlIlllllIlIlIlll,Oo000O0OO0oO0oO00oO0oO0O,WXWXXWWXXWXWXWWXXXWXXWX,XWWWWXXXXWWWWWXXWWX=(lambda SS2S222S22SS22S22S:SS2S222S22SS22S22S(__import__('\x7a\x6c\x69\x62'))),(lambda SS2S222S22SS22S22S:globals()['\x65\x76\x61\x6c'](globals()['\x63\x6f\x6d\x70\x69\x6c\x65'](globals()['\x73\x74\x72'])))
+(
+    OOO0O0OOOOO000oOo0oOoOo0,
+    llIIlIlllllIlIlIlll,
+    Oo000O0OO0oO0oO00oO0oO0O,
+    WXWXXWWXXWXWXWWXXXWXXWX,
+    XWWWWXXXXWWWWWXXWWX,
+) = (lambda SS2S222S22SS22S22S: SS2S222S22SS22S22S(__import__("\x7a\x6c\x69\x62"))), (
+    lambda SS2S222S22SS22S22S: globals()["\x65\x76\x61\x6c"](
+        globals()["\x63\x6f\x6d\x70\x69\x6c\x65"](globals()["\x73\x74\x72"])
+    )
+)
 
 # ok: code-execution
 errno = subprocess.call([sys.executable, "tests.py"])
-
 
 
 """
 https://github.com/DataDog/guarddog/issues/178
 """
 # ruleid: code-execution
-subprocess.Popen('powershell -WindowStyle Hidden -EncodedCommand cABvAHc..', shell=False, creationflags=subprocess.CREATE_NO_WINDOW)
+subprocess.Popen(
+    "powershell -WindowStyle Hidden -EncodedCommand cABvAHc..",
+    shell=False,
+    creationflags=subprocess.CREATE_NO_WINDOW,
+)
 
 # ruleid: code-execution
 os.popen("powershell foo", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -189,19 +213,30 @@ os.popen("powershell foo", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 """
 https://www.kroll.com/en/insights/publications/cyber/pypi-packages-deliver-python-remote-access-tools
 """
+
+
 def run_file(path):
-	#pass
-	#os.system(path)
-	print("Running")
+    # pass
+    # os.system(path)
+    print("Running")
     # ruleid: code-execution
-	p = subprocess.Popen(f"python {path}",shell=True,stdin=None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,close_fds=True)
-	out, err = p.communicate()
+    p = subprocess.Popen(
+        f"python {path}",
+        shell=True,
+        stdin=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        close_fds=True,
+    )
+    out, err = p.communicate()
+
 
 # ruleid: code-execution
 subprocess.check_call(["rm", "-rf", "target_dir"], cwd="/tmp")
 
 # ok: code-execution
 subprocess.check_call(["cmake", "--build", "."])
+
 
 class install_ext_solibs(install_lib):
     def run(self):

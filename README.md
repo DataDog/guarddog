@@ -6,9 +6,9 @@
   <img src="./docs/images/logo.png" alt="GuardDog" width="300" />
 </p>
 
-GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
+GuardDog is a CLI tool that identifies malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs static analysis on package source code (through Semgrep and YARA rules) and analyzes package metadata to detect supply chain attacks.
 
-GuardDog can be used to scan local or remote PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions using any of the available [heuristics](#heuristics).
+**What makes GuardDog different:** Instead of just listing suspicious patterns, GuardDog correlates findings to identify actual **risks** based on attack chains. A package needs both the **capability** to perform an action (e.g., network access) and a **threat indicator** (e.g., suspicious domain) in the same file to be flagged as high risk.
 
 It downloads and scans code from:
 
@@ -19,6 +19,45 @@ It downloads and scans code from:
 * VSCode Extensions: Extensions (.vsix) packages hosted in [marketplace.visualstudio.com](https://marketplace.visualstudio.com/)
 
 ![GuardDog demo usage](docs/images/demo.png)
+
+## How GuardDog Works
+
+GuardDog uses a **risk-based detection model** that correlates code capabilities with threat indicators:
+
+1. **Detection**: Rules identify either **capabilities** (what code *can* do) or **threats** (suspicious indicators)
+2. **Correlation**: Capabilities and threats found in the same file form **risks**
+3. **Scoring**: Risks are scored (0-10) based on attack chain completeness and sophistication
+4. **Reporting**: Packages receive a severity rating (low/medium/high) with detailed risk breakdown
+
+### Why This Approach?
+
+Traditional SAST tools flag every suspicious pattern independently, leading to alert fatigue. GuardDog understands that:
+
+- **Capability alone** isn't malicious (network libraries should make HTTP requests)
+- **Threat indicators alone** might be false positives (test fixtures, documentation)
+- **Capability + Threat together** indicates actual risk (code that can *and will* do something malicious)
+
+### Risk Scoring
+
+Packages receive a score from **0-10** based on four factors:
+
+| Factor | Weight | Description |
+|--------|--------|-------------|
+| **Severity** | 25% | Highest severity finding (low/medium/high) |
+| **Attack Chain** | 30% | Presence of complete attack stages (early → mid/late) |
+| **Confidence** | 25% | How certain we are about detections |
+| **Sophistication** | 20% | Use of evasion techniques (obfuscation, anti-debugging) |
+
+**Score Labels:**
+- **0**: No risks detected
+- **1-3**: Low risk (single-stage threats, low confidence)
+- **4-6**: Medium risk (partial attack chain or sophisticated single stage)
+- **7-10**: High risk (complete attack chain with high confidence)
+
+**Attack Chain Stages** (based on MITRE ATT&CK):
+- **Early**: Initial access, execution capabilities
+- **Mid**: Persistence, defense evasion, credential access
+- **Late**: Command & control, exfiltration, impact
 
 ## Getting started
 
@@ -220,17 +259,100 @@ Source code heuristics:
 | extension_powershell_policy_bypass |  |
 <!-- END_RULE_LIST -->
 
-## Custom Rules
+## Writing Custom Rules
 
-Guarddog allows to implement custom sourcecode rules.
-Sourcecode rules live under the [guarddog/analyzer/sourcecode](guarddog/analyzer/sourcecode) directory, and supported formats are [Semgrep](https://github.com/semgrep/semgrep) or [Yara](https://github.com/VirusTotal/yara).
+GuardDog supports custom rules in both [Semgrep](https://github.com/semgrep/semgrep) and [YARA](https://github.com/VirusTotal/yara) formats. Rules live under the [guarddog/analyzer/sourcecode](guarddog/analyzer/sourcecode) directory.
 
-* Semgrep rules are language-dependent, and Guarddog will import all `.yml` rules where the language matches the ecosystem selected by the user in CLI.
-* Yara rules on the other hand are language agnostic, therefore all matching `.yar` rules present will be imported.
+* **Semgrep rules** (`.yml`): Language-dependent, imported when language matches the selected ecosystem
+* **YARA rules** (`.yar`): Language-agnostic, all rules are imported
 
-Is possible then to write your own rule and drop it into that directory, Guarddog will allow you to select it or exclude it as any built-in rule as well as appending the findings to its output.
+### Metadata Schema for Risk-Based Scoring
 
-For example, you can create the following semgrep rule:
+To participate in GuardDog's risk correlation and scoring, rules must include specific metadata:
+
+#### Required Fields
+
+```yaml
+identifies: "capability.{category}[.{specificity}]"  # or "threat.{category}[.{specificity}]"
+severity: "low" | "medium" | "high"
+mitre_tactics: ["tactic1", "tactic2"]  # MITRE ATT&CK tactics
+description: "Human-readable description"
+```
+
+#### Optional Fields (default to `medium`)
+
+```yaml
+confidence: "low" | "medium" | "high"        # Detection certainty
+sophistication: "low" | "medium" | "high"    # Technique advancement level
+```
+
+### Understanding `identifies`
+
+The `identifies` field determines how rules participate in risk formation:
+
+**Format:** `{type}.{category}[.{specificity}]`
+
+- **Type**: `capability` (what code *can* do) or `threat` (suspicious indicator)
+- **Category**: `network`, `filesystem`, `process`, or `runtime`
+- **Specificity** (optional): Adds detail like `outbound`, `read`, `obfuscation`
+
+**Examples:**
+- `capability.network` - General network capability
+- `capability.network.outbound` - Specific outbound network capability
+- `threat.filesystem.read` - Threat involving filesystem reads
+- `threat.runtime.obfuscation` - Runtime threat (needs no capability)
+
+### Risk Formation
+
+**Risks form when capability + threat match in the same file:**
+
+1. **Same category**: `network` + `network`, `filesystem` + `filesystem`
+2. **Specificity compatibility**:
+   - General matches specific: `threat.network` + `capability.network.outbound` ✅
+   - Exact match: `threat.network.outbound` + `capability.network.outbound` ✅
+   - Conflict: `threat.network.outbound` + `capability.network.inbound` ❌
+
+3. **Exception**: `threat.runtime.*` rules automatically form risks without needing a capability
+
+### YARA Rule Example
+
+```yara
+rule sample_threat_rule {
+  meta:
+    identifies = "threat.category.specificity"
+    severity = "high"
+    mitre_tactics = ["execution", "defense-evasion"]
+    confidence = "high"
+    sophistication = "medium"
+    description = "Description of what this detects"
+
+  strings:
+    $pattern1 = "suspicious_pattern"
+    $pattern2 = /regex[0-9]+/
+
+  condition:
+    any of them
+}
+```
+
+```yara
+rule sample_capability_rule {
+  meta:
+    identifies = "capability.category"
+    severity = "low"
+    mitre_tactics = []  # Capabilities typically don't map to tactics
+    description = "Detects a code capability"
+
+  strings:
+    $api_call = "api_function"
+
+  condition:
+    $api_call
+}
+```
+
+### Semgrep Rule Example
+
 ```yaml
 rules:
   - id: sample-rule
@@ -238,30 +360,54 @@ rules:
       - python
     message: Output message when rule matches
     metadata:
-      description: Description used in the CLI help
+      identifies: "threat.category.specificity"
+      severity: "high"
+      mitre_tactics: ["execution"]
+      confidence: "high"
+      sophistication: "medium"
+      description: "Description used in the CLI help"
     patterns:
-        YOUR RULE HEURISTICS GO HERE
+      - pattern: suspicious_code_pattern(...)
     severity: WARNING
 ```
 
-Then you'll need to save it as `sample-rule.yml` and note that the id must match the filename
+### Metadata Guidelines
 
-In the case of Yara, you can create the following rule:
-```
-rule sample-rule
-{
-  meta:
-    description = "Description used in the output message"
-    target_entity = "file"
-  strings:
-    $exec = "exec"
-  condition:
-    1 of them
-}
-```
-Then you'll need to save it as `sample-rule.yar`.
+**Severity** (impact of finding):
+- `low`: Minor concern, common patterns
+- `medium`: Moderately suspicious
+- `high`: Clearly malicious or high impact
 
-Note that in both cases, the rule id must match the filename
+**Confidence** (detection certainty):
+- `low`: Generic patterns, potential false positives
+- `medium`: Reasonably specific
+- `high`: Very specific, minimal false positives
+
+**Sophistication** (technique advancement):
+- `low`: Basic/common techniques
+- `medium`: Moderate evasion or complexity
+- `high`: Advanced techniques, APT-level
+
+**MITRE Tactics** (attack stages, order matters):
+- **Early stage**: `initial-access`, `execution`, `reconnaissance`
+- **Mid stage**: `defense-evasion`, `credential-access`, `persistence`, `privilege-escalation`
+- **Late stage**: `command-and-control`, `exfiltration`, `impact`, `lateral-movement`
+
+First tactic is primary for scoring. List multiple tactics if detection is ambiguous.
+
+### Testing Rules
+
+After creating your rule file (ensure filename matches rule ID), test it:
+
+```bash
+# Scan with specific rules
+guarddog pypi scan package-name --rules my-rule
+
+# Exclude specific rules
+guarddog pypi scan package-name --exclude-rules my-rule
+```
+
+Note: Rule ID must match the filename (without extension)
 
 ## Running GuardDog in a GitHub Action
 

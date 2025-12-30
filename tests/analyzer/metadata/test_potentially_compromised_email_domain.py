@@ -9,21 +9,27 @@ from _pytest.monkeypatch import MonkeyPatch
 
 import guarddog.analyzer.metadata.utils
 from guarddog.analyzer.metadata.npm import NPMPotentiallyCompromisedEmailDomainDetector
-from guarddog.analyzer.metadata.pypi import PypiPotentiallyCompromisedEmailDomainDetector
+from guarddog.analyzer.metadata.pypi import (
+    PypiPotentiallyCompromisedEmailDomainDetector,
+)
 from tests.analyzer.metadata.resources.sample_project_info import (
     PYPI_PACKAGE_INFO,
     generate_pypi_project_info,
-    generate_npm_project_info
-    )
+    generate_npm_project_info,
+)
 
 from tests.analyzer.metadata.utils import MockWhoIs
 
 
-with open(os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"), "r") as file:
+with open(
+    os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"),
+    "r",
+) as file:
     NPM_PACKAGE_INFO = json.load(file)
 
 pypi_detector = PypiPotentiallyCompromisedEmailDomainDetector()
 npm_detector = NPMPotentiallyCompromisedEmailDomainDetector()
+
 
 # required because mocking in tests will cause get_domain_creation_date()
 # to return different results for a same domain
@@ -31,10 +37,13 @@ npm_detector = NPMPotentiallyCompromisedEmailDomainDetector()
 def clear_caches():
     guarddog.analyzer.metadata.utils.get_domain_creation_date.cache_clear()
 
+
 class TestCompromisedEmail:
 
-    @pytest.mark.parametrize("package_info, detector",
-                             [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
+    @pytest.mark.parametrize(
+        "package_info, detector",
+        [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)],
+    )
     def test_compromised(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime.today())
@@ -43,8 +52,10 @@ class TestCompromisedEmail:
         compromised, _ = detector.detect(package_info)
         assert compromised
 
-    @pytest.mark.parametrize("package_info, detector",
-                             [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)])
+    @pytest.mark.parametrize(
+        "package_info, detector",
+        [(PYPI_PACKAGE_INFO, pypi_detector), (NPM_PACKAGE_INFO, npm_detector)],
+    )
     def test_safe(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
@@ -56,6 +67,7 @@ class TestCompromisedEmail:
     def test_email_domain_doesnt_exist(self):
         def mock_whois(domain):
             import whois
+
             raise whois.exceptions.PywhoisError('No match for "nope.com".')
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
@@ -63,14 +75,14 @@ class TestCompromisedEmail:
         assert not compromised
 
     empty_author_pypi = generate_pypi_project_info("author_email", None)
-    empty_author_npm = generate_npm_project_info("maintainters", [{
-        "name": "john doe",
-        "email": None
-    }])
+    empty_author_npm = generate_npm_project_info(
+        "maintainters", [{"name": "john doe", "email": None}]
+    )
 
-
-    @pytest.mark.parametrize("package_info, detector",
-                             [(empty_author_pypi, pypi_detector), (empty_author_npm, npm_detector)])
+    @pytest.mark.parametrize(
+        "package_info, detector",
+        [(empty_author_pypi, pypi_detector), (empty_author_npm, npm_detector)],
+    )
     def test_email_domain_none(self, package_info, detector):
         def mock_whois(domain):
             return MockWhoIs(datetime(1990, 1, 31))
@@ -85,10 +97,14 @@ class TestCompromisedEmail:
         """
         current_info = deepcopy(PYPI_PACKAGE_INFO)
 
-        current_info["releases"] = {"1.0": [{
-            "upload_time": "2023-03-06T00:41:25",
-            "upload_time_iso_8601": "2023-03-06T00:41:25.953817Z"
-        }]}
+        current_info["releases"] = {
+            "1.0": [
+                {
+                    "upload_time": "2023-03-06T00:41:25",
+                    "upload_time_iso_8601": "2023-03-06T00:41:25.953817Z",
+                }
+            ]
+        }
         try:
             pypi_detector.detect(current_info)
             pass  # we expect no exception to be thrown

@@ -59,18 +59,20 @@ class TestCli(unittest.TestCase):
             with mock.patch("os.listdir") as listdir:
                 listdir.return_value = []
                 with self.assertLogs("guarddog", level="DEBUG") as cm:
-                    guarddog.cli._scan(directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                    guarddog.cli._scan(
+                        directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI
+                    )
                 self.assertIn(
                     f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
-                    cm.output
+                    cm.output,
                 )
                 self.assertNotIn(
                     f"DEBUG:guarddog:Considering that '{directory}' is a local archive file",
-                    cm.output
+                    cm.output,
                 )
                 self.assertNotIn(
                     f"DEBUG:guarddog:Considering that '{directory}' is a remote target",
-                    cm.output
+                    cm.output,
                 )
 
         # `directory` is neither a directory nor a file
@@ -78,20 +80,24 @@ class TestCli(unittest.TestCase):
             isdir.return_value = False
             with mock.patch("os.path.isfile") as isfile:
                 isfile.return_value = False
-                with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_local", return_value={}
+                ) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
-                        guarddog.cli._scan(directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                        guarddog.cli._scan(
+                            directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI
+                        )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
-                        cm.output
+                        cm.output,
                     )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{directory}' is a local archive file",
-                        cm.output
+                        cm.output,
                     )
                     self.assertIn(
                         f"DEBUG:guarddog:Considering that '{directory}' is a remote target",
-                        cm.output
+                        cm.output,
                     )
 
     def _test_local_file_template(self, filename: str):
@@ -106,24 +112,34 @@ class TestCli(unittest.TestCase):
                     is_tar.return_value = False
                     with mock.patch("zipfile.is_zipfile") as is_zip:
                         is_zip.return_value = False
-                        with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
+                        with mock.patch.object(
+                            scanner.PackageScanner, "scan_local", return_value={}
+                        ) as _:
                             try:
                                 with self.assertLogs("guarddog", level="DEBUG") as cm:
-                                    guarddog.cli._scan(filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                                    guarddog.cli._scan(
+                                        filename,
+                                        "0.1.0",
+                                        (),
+                                        (),
+                                        None,
+                                        False,
+                                        ECOSYSTEM.PYPI,
+                                    )
                             # Since is_tar_archive and is_zip_archive have been
                             # patched accordingly, we always end up here
                             except SystemExit:
                                 self.assertNotIn(
                                     f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
-                                    cm.output
+                                    cm.output,
                                 )
                                 self.assertIn(
                                     f"DEBUG:guarddog:Considering that '{filename}' is a local archive file",
-                                    cm.output
+                                    cm.output,
                                 )
                                 self.assertNotIn(
                                     f"DEBUG:guarddog:Considering that '{filename}' is a remote target",
-                                    cm.output
+                                    cm.output,
                                 )
 
         # `filename` is neither a directory nor a file
@@ -131,20 +147,24 @@ class TestCli(unittest.TestCase):
             isdir.return_value = False
             with mock.patch("os.path.isfile") as isfile:
                 isfile.return_value = False
-                with mock.patch.object(scanner.PackageScanner, 'scan_local', return_value={}) as _:
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_local", return_value={}
+                ) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
-                        guarddog.cli._scan(filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI)
+                        guarddog.cli._scan(
+                            filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI
+                        )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
-                        cm.output
+                        cm.output,
                     )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{filename}' is a local archive file",
-                        cm.output
+                        cm.output,
                     )
                     self.assertIn(
                         f"DEBUG:guarddog:Considering that '{filename}' is a remote target",
-                        cm.output
+                        cm.output,
                     )
 
 

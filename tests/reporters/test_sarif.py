@@ -130,6 +130,7 @@ pypi_local_scan_results = [
     }
 ]
 
+
 @pytest.mark.parametrize(
     "manifest, ecosystem, local_scan_results, warning_count",
     [
@@ -146,9 +147,7 @@ def test_sarif_output(manifest, ecosystem, local_scan_results, warning_count):
                 dependencies=[
                     Dependency(
                         name=r["dependency"],
-                        versions={
-                            DependencyVersion(version=r["version"], location=1)
-                        },
+                        versions={DependencyVersion(version=r["version"], location=1)},
                     )
                     for r in local_scan_results
                 ],

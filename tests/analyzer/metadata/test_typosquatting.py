@@ -3,7 +3,10 @@ import pytest
 from guarddog.analyzer.metadata.go import GoTyposquatDetector
 from guarddog.analyzer.metadata.npm import NPMTyposquatDetector
 from guarddog.analyzer.metadata.pypi import PypiTyposquatDetector
-from tests.analyzer.metadata.resources.sample_project_info import generate_pypi_project_info, generate_npm_project_info
+from tests.analyzer.metadata.resources.sample_project_info import (
+    generate_pypi_project_info,
+    generate_npm_project_info,
+)
 
 
 class TestTyposquatting:
@@ -37,7 +40,7 @@ class TestTyposquatting:
         ("wich-boxed-primitive", "which-boxed-primitive"),
         ("twetnacl", "tweetnacl"),
         ("jest-watchers", "jest-watcher"),
-        ("shpk", "sshpk")
+        ("shpk", "sshpk"),
     ]
 
     golang_typosquats = [
@@ -45,10 +48,10 @@ class TestTyposquatting:
         ("gitlab.com/sirupsen/logrus", "github.com/sirupsen/logrus"),
         ("github.com/sretchr/testify", "github.com/stretchr/testify"),
         ("github.com/go-jwt/jwt", "github.com/golang-jwt/jwt"),
-        ("github.com/gin-golangnic/gin", "github.com/gin-gonic/gin")
+        ("github.com/gin-golangnic/gin", "github.com/gin-gonic/gin"),
     ]
 
-    negative_cases = ["hello-world", "foo"] 
+    negative_cases = ["hello-world", "foo"]
     same_names = ["pip", "Numpy", "openCv-python", "requests_oauthlib"]
 
     @pytest.mark.parametrize("typo_name, real_name", pypi_typosquats)

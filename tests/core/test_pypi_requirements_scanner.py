@@ -13,9 +13,7 @@ def test_requirements_scanner():
     assert "not-a-real-package" not in result
 
     for p, v in [("flask", "2.2.2")]:
-        lookup = next(
-            filter(lambda r: r.name == p, result), None
-        )
+        lookup = next(filter(lambda r: r.name == p, result), None)
         assert lookup
         assert v in lookup.versions
 
@@ -23,11 +21,15 @@ def test_requirements_scanner():
 def test_pypi_find_requirements():
     scanner = PypiRequirementsScanner()
 
-
     requirements = scanner.find_requirements(
         os.path.join(pathlib.Path(__file__).parent.resolve(), "resources")
     )
-    assert requirements == [os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "requirements.txt")]
+    assert requirements == [
+        os.path.join(
+            pathlib.Path(__file__).parent.resolve(), "resources", "requirements.txt"
+        )
+    ]
+
 
 # Regression test for https://github.com/DataDog/guarddog/issues/88
 def test_requirements_scanner_on_git_url_packages():
@@ -43,16 +45,13 @@ def test_requirements_scanner_on_git_url_packages():
             ]
         )
     )
-    lookup = next(
-        filter(lambda r: r.name == "guarddog", result), None
-    )
+    lookup = next(filter(lambda r: r.name == "guarddog", result), None)
     assert lookup is not None
-    assert "git+https://github.com/DataDog/guarddog.git" in [v.version for v in lookup.versions]
+    assert "git+https://github.com/DataDog/guarddog.git" in [
+        v.version for v in lookup.versions
+    ]
     assert "flask" in result
     assert len(result) == 3
-    lookup = next(
-        filter(lambda r: r.name == "requests", result), None
-    )
+    lookup = next(filter(lambda r: r.name == "requests", result), None)
     assert lookup is not None
     assert len(lookup.versions) == 1
- 
