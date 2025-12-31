@@ -5,7 +5,7 @@ rule threat_runtime_obfuscation_base64exec
         description = "Detects base64 decoding followed by code execution"
         identifies = "threat.runtime.obfuscation.base64exec"
         severity = "high"
-        mitre_tactics = "defense-evasion,execution"
+        mitre_tactics = "defense-evasion"
         specificity = "medium"
         sophistication = "medium"
 

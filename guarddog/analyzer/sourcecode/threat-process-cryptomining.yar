@@ -5,7 +5,7 @@ rule threat_process_cryptomining
         description = "Detects cryptocurrency mining activity"
         identifies = "threat.process.cryptomining"
         severity = "high"
-        mitre_tactics = "impact,resource-development"
+        mitre_tactics = "impact"
         specificity = "high"
         sophistication = "medium"
         max_hits = 3

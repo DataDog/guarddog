@@ -5,7 +5,7 @@ rule threat_runtime_obfuscation_steganography
         description = "Detects steganography decode followed by code execution"
         identifies = "threat.runtime.obfuscation.steganography"
         severity = "high"
-        mitre_tactics = "defense-evasion,execution"
+        mitre_tactics = "defense-evasion"
         specificity = "high"
         sophistication = "high"
 

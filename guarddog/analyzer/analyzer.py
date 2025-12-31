@@ -318,8 +318,13 @@ class Analyzer:
                                         scan_file_target_abspath, i.offset
                                     )
 
+                                    # Convert byte offset to line number for better readability
+                                    line_number = self.get_line_number_from_offset(
+                                        scan_file_target_abspath, i.offset
+                                    )
+
                                     finding = {
-                                        "location": f"{scan_file_target_relpath}:{i.offset}",
+                                        "location": f"{scan_file_target_relpath}:{line_number}",
                                         "code": self.trim_code_snippet(line_of_code),
                                         "message": m.meta.get(
                                             "description", f"{m.rule} rule matched"
@@ -548,6 +553,28 @@ output: {e.output}
             return code[: THRESHOLD - 10] + "..." + code[len(code) - 10 :]
         else:
             return code
+
+    def get_line_number_from_offset(self, file_path: str, offset: int) -> int:
+        """
+        Convert a byte offset to a line number in a file
+
+        Args:
+            file_path: Path to the file
+            offset: Byte offset in the file
+
+        Returns:
+            Line number (1-indexed) at the given offset
+        """
+        try:
+            with open(file_path, 'rb') as f:
+                content = f.read(offset)
+
+            # Count newlines up to the offset
+            line_number = content.count(b'\n') + 1
+            return line_number
+        except Exception as e:
+            log.debug(f"Failed to get line number at offset {offset} from {file_path}: {e}")
+            return offset  # Fallback to offset if conversion fails
 
     def get_line_at_offset(self, file_path: str, offset: int) -> str:
         """

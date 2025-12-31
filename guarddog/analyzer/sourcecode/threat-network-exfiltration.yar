@@ -5,7 +5,7 @@ rule threat_network_outbound
         description = "Detects URLs to suspicious domains often used for exfiltration or C2"
         identifies = "threat.network.outbound"
         severity = "high"
-        mitre_tactics = "exfiltration,command-and-control"
+        mitre_tactics = "exfiltration"
         specificity = "medium"
         sophistication = "medium"
 

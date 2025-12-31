@@ -5,54 +5,29 @@ rule threat_network_outbound_shady_links
         description = "Detects URLs to URL shorteners, file sharing, and suspicious services"
         identifies = "threat.network.outbound.shady_links"
         severity = "medium"
-        mitre_tactics = "command-and-control,exfiltration"
+        mitre_tactics = "command-and-control"
         specificity = "medium"
         sophistication = "low"
 
         max_hits = 5
     strings:
-        // URL shorteners
-        $short_bitly = "bit.ly" nocase
-        $short_tinyurl = "tinyurl.com" nocase
-        $short_goo_gl = "goo.gl" nocase
-        $short_ow_ly = "ow.ly" nocase
-        $short_is_gd = "is.gd" nocase
-        $short_buff_ly = "buff.ly" nocase
+        // URL shorteners - complete domains
+        $shortener = /(\b|^|[\s"'(])(https??:\/\/)??[a-zA-Z0-9.-]*?(bit\.ly)\b/ nocase
 
-        // Tunneling/forwarding services
-        $tunnel_ngrok = "ngrok.io" nocase
-        $tunnel_ngrok_free = "ngrok-free.app" nocase
-        $tunnel_localhost = "localhost.run" nocase
-        $tunnel_serveo = "serveo.net" nocase
+        // Ephemeral/tunnels - complete domains (group 1)
+        $ephemeral1 = /(\b|^|[\s"'(])(https??:\/\/)??[a-zA-Z0-9.-]*?(workers\.dev|appdomain\.cloud|ngrok\.io|termbin\.com|localhost\.run|webhook\.(site|cool)|oastify\.com|burpcollaborator\.(me|net)|trycloudflare\.com)\b/ nocase
 
-        // File sharing / paste services
-        $paste_pastebin = "pastebin.com" nocase
-        $paste_hastebin = "hastebin.com" nocase
-        $paste_ghostbin = "ghostbin.com" nocase
-        $paste_dpaste = "dpaste.com" nocase
-        $file_transfer = "transfer.sh" nocase
-        $file_anonfiles = "anonfiles.com" nocase
-        $file_fileio = "file.io" nocase
+        // Ephemeral/tunnels - complete domains (group 2)
+        $ephemeral2 = /(\b|^|[\s"'(])(https??:\/\/)??[a-zA-Z0-9.-]*?(oast\.(pro|live|site|online|fun|me)|ply\.gg|pipedream\.net|dnslog\.cn|webhook-test\.com|typedwebhook\.tools|beeceptor\.com|ngrok-free\.(app|dev))\b/ nocase
 
-        // Temporary email
-        $tempmail = "temp-mail.org" nocase
-        $guerrilla = "guerrillamail.com" nocase
-        $tenmin = "10minutemail.com" nocase
+        // Exfiltration services - complete domains
+        $exfil = /(\b|^|[\s"'(])(https??:\/\/)??[a-zA-Z0-9.-]*?(discord\.com|transfer\.sh|filetransfer\.io|sendspace\.com|backblazeb2\.com|paste\.ee|pastebin\.com|hastebin\.com|ghostbin\.site|api\.telegram\.org|rentry\.co)\b/ nocase
 
-        // Suspicious TLDs
-        $tld_xyz = /https?:\/\/[^\s\/]+\.xyz/ nocase
-        $tld_tk = /https?:\/\/[^\s\/]+\.tk/ nocase
-        $tld_ml = /https?:\/\/[^\s\/]+\.ml/ nocase
-        $tld_ga = /https?:\/\/[^\s\/]+\.ga/ nocase
-        $tld_cf = /https?:\/\/[^\s\/]+\.cf/ nocase
-        $tld_gq = /https?:\/\/[^\s\/]+\.gq/ nocase
-        $tld_pw = /https?:\/\/[^\s\/]+\.pw/ nocase
-        $tld_top = /https?:\/\/[^\s\/]+\.top/ nocase
+        // Intel/IP lookup services - complete domains
+        $intel = /(\b|^|[\s"'(])(https??:\/\/)??[a-zA-Z0-9.-]*?(ipinfo\.io|checkip\.dyndns\.org|ip\.me|jsonip\.com|ipify\.org|ifconfig\.me)\b/ nocase
 
-        // Communication platforms (when used from server-side code)
-        $discord_webhook = "discord.com/api/webhooks" nocase
-        $telegram_bot = "api.telegram.org/bot" nocase
-        $slack_webhook = "hooks.slack.com" nocase
+        // Malware download services - complete domains
+        $malware_dl = /(\b|^|[\s"'(])(https??:\/\/)??[a-zA-Z0-9.-]*?(files\.catbox\.moe)\b/ nocase
 
     condition:
         any of them

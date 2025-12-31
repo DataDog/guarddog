@@ -5,7 +5,7 @@ rule threat_process_injection_dll
         description = "Detects DLL injection, hijacking, and side-loading techniques"
         identifies = "threat.process.injection.dll"
         severity = "high"
-        mitre_tactics = "defense-evasion,privilege-escalation,persistence"
+        mitre_tactics = "defense-evasion"
         specificity = "high"
         sophistication = "high"
 
