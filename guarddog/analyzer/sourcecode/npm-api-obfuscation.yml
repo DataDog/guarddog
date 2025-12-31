@@ -16,7 +16,6 @@ rules:
         # 5) module[Object.keys(module).find(name => name === "function")]()
         # 6) Object.entries(module).find(([name, value]) => name === "function")[1]()
         # 7) Object.entries(module).filter(([k]) => k === 'function')[0][1]()
-        # 8) import("module").then((mod) => { mod.function(...) })
         # Each of these can also use .call(), .apply(), .bind() variants as well:
         # e.g., module["function"].call({}, ...), module["function"].apply({}, [...]), module["function"].bind({})(...)
         - pattern: $MODULE[$FUNCTION]($...ARGS)
