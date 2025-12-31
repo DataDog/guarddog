@@ -12,7 +12,8 @@ rules:
         # 1) __dict__ access patterns: $MODULE.__dict__[$METHOD](...) / .__call__(...)
         # 2) __getattribute__ patterns: $MODULE.__getattribute__($METHOD)(...) / .__call__(...)
         # 3) getattr patterns: getattr($MODULE, $METHOD)(...) / .__call__(...)
-        # It also covers the case where $MODULE is imported as __import__('mod')
+        # It also covers the case where $MODULE is imported as __import__($mod),
+        # where $mod is a generic expression (e.g., string literal, variable, etc.)
         - patterns:
           - pattern-either:
               - pattern: $MODULE.__dict__[$METHOD]($...ARGS)
@@ -23,7 +24,7 @@ rules:
               - pattern: getattr($MODULE, $METHOD).__call__($...ARGS)
           - metavariable-regex:
               metavariable: $MODULE
-              regex: "^[A-Za-z_][A-Za-z0-9_\\.]*$|^__import__\\([\"'][A-Za-z_][A-Za-z0-9_]*[\"']\\)$"
+              regex: "^[A-Za-z_][A-Za-z0-9_\\.]*$|^__import__\\(.*\\)$"
 
         # --- Additional Cases: __import__('mod').method(...) / .__call__(...)
         - patterns:
