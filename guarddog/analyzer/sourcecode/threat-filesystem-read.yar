@@ -5,7 +5,7 @@ rule threat_filesystem_read
         description = "Detects access to sensitive files (credentials, configs, keys)"
         identifies = "threat.filesystem.read"
         severity = "high"
-        mitre_tactics = "credential-access,collection"
+        mitre_tactics = "credential-access"
         specificity = "medium"
         sophistication = "low"
 

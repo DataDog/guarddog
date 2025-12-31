@@ -1,14 +1,15 @@
-rule capability_process_spawn_silent
+rule threat_process_spawn_silent
 {
     meta:
         author = "GuardDog Team, Datadog"
         description = "Detects silent process execution (hidden output, detached processes)"
-        identifies = "capability.process.spawn.silent"
-        severity = "medium"
-        specificity = "medium"
+        identifies = "threat.process.spawn.silent"
+        severity = "low"
+        mitre_tactics = "defense-evasion"
+        specificity = "high"
         sophistication = "medium"
 
-        max_hits = 1
+        max_hits = 3
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
         // Python - subprocess with DEVNULL

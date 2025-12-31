@@ -5,7 +5,7 @@ rule threat_runtime_keylogging
         description = "Detects keylogging and input capture patterns"
         identifies = "threat.runtime.keylogging"
         severity = "high"
-        mitre_tactics = "credential-access,collection"
+        mitre_tactics = "credential-access"
         specificity = "high"
         sophistication = "medium"
         max_hits = 3

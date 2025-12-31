@@ -5,7 +5,7 @@ rule threat_process_memory
         description = "Detects memory scraping and credential dumping from process memory"
         identifies = "threat.process.memory"
         severity = "high"
-        mitre_tactics = "credential-access,defense-evasion"
+        mitre_tactics = "credential-access"
         specificity = "high"
         sophistication = "high"
         max_hits = 3
