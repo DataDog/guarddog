@@ -63,7 +63,7 @@ ATTACK_PHASES = {
 }
 
 # Valid categories for the identifies field (system resources only)
-VALID_CATEGORIES = {"network", "filesystem", "process", "runtime"}
+VALID_CATEGORIES = {"network", "filesystem", "process", "runtime", "system"}
 
 # Valid types for the identifies field
 VALID_TYPES = {"capability", "threat"}

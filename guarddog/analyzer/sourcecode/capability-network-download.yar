@@ -12,18 +12,18 @@ rule capability_network_download
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
         // Python - downloading
-        $py_urlretrieve = "urllib.request.urlretrieve(" nocase
-        $py_urlopen = "urllib.request.urlopen(" nocase
-        $py_requests_get = "requests.get(" nocase
-        $py_requests_download = "requests.download(" nocase
-        $py_wget = "wget.download(" nocase
+        $py_urlretrieve = /urllib\.request\.urlretrieve\s*\(/ nocase
+        $py_urlopen = /urllib\.request\.urlopen\s*\(/ nocase
+        $py_requests_get = /\brequests\.get\s*\(/ nocase
+        $py_requests_download = /\brequests\.download\s*\(/ nocase
+        $py_wget = /\bwget\.download\s*\(/ nocase
 
         // JavaScript/Node.js - downloading
-        $js_https_get = /https?\.(get|request)\(/ nocase
-        $js_axios = /axios\.(get|download)\(/ nocase
-        $js_fetch = "fetch(" nocase
+        $js_https_get = /https?\.(get|request)\b\s*\(/ nocase
+        $js_axios = /axios\.(get|download)\b\s*\(/ nocase
+        $js_fetch = /\bfetch\s*\(/ nocase
         $js_node_fetch = "node-fetch" nocase
-        $js_got = "got(" nocase
+        $js_got = /\bgot\s*\(/ nocase
 
         // Go - HTTP downloads
         $go_http_get = "http.Get(" nocase
