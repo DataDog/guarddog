@@ -1,9 +1,9 @@
-rule threat_runtime_collection
+rule threat_system_collection
 {
     meta:
         author = "GuardDog Team, Datadog"
         description = "Detects active collection of system information (hostname, platform, architecture, user)"
-        identifies = "threat.runtime.collection"
+        identifies = "threat.system.info"
         severity = "low"
         mitre_tactics = "collection"
         specificity = "medium"

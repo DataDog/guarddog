@@ -1,9 +1,9 @@
-rule capability_runtime_system
+rule capability_system
 {
     meta:
         author = "GuardDog Team, Datadog"
         description = "Detects importing of system information modules"
-        identifies = "capability.runtime.system"
+        identifies = "capability.system"
         severity = "low"
         specificity = "low"
         sophistication = "low"
