@@ -114,6 +114,26 @@ rules:
           - pattern-either:
               - pattern: globals()['eval']($ARG1)
               - pattern: globals()['\x65\x76\x61\x6c']($ARG1) # that's "eval" in hexadecimal
+              
+          # vars() indirection to access builtins
+          - pattern: vars(__builtins__)['compile']($ARG1, ...)
+          - pattern: vars(__builtins__)['exec']($ARG1)
+          - pattern: vars(__builtins__)['eval']($ARG1)
+
+          # vars().get() variant
+          - pattern: vars(__builtins__).get('compile')($ARG1, ...)
+          - pattern: vars(__builtins__).get('exec')($ARG1)
+          - pattern: vars(__builtins__).get('eval')($ARG1)
+
+          # vars/globals combinations
+          - pattern: vars(globals()['__builtins__'])['exec']($ARG1)
+          - pattern: vars(globals()['__builtins__'])['eval']($ARG1)
+          - pattern: vars(locals()['__builtins__'])['exec']($ARG1)
+          - pattern: vars(locals()['__builtins__'])['eval']($ARG1)
+
+          # Direct compile() calls
+          - pattern: compile($ARG1, '<string>', 'exec')
+          - pattern: compile($ARG1, '<string>', 'eval')
 
       - metavariable-pattern:
           metavariable: $ARG1
