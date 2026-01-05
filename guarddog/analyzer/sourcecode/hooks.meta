@@ -1,0 +1,24 @@
+// Private rules for detecting install hooks
+// These patterns are reused across capability and threat rules
+
+rule has_npm_hook
+{
+    strings:
+        $npm_preinstall = /"preinstall"[\s]*:[\s]*"[^"]+/ nocase
+        $npm_install = /"install"[\s]*:[\s]*"[^"]+/ nocase
+        $npm_postinstall = /"postinstall"[\s]*:[\s]*"[^"]+/ nocase
+        $npm_prepack = /"prepack"[\s]*:[\s]*"[^"]+/ nocase
+        $npm_prepare = /"prepare"[\s]*:[\s]*"[^"]+/ nocase
+    condition:
+        any of them
+}
+
+rule has_python_hook
+{
+    strings:
+        $py_cmdclass_install = /cmdclass\s*=\s*\{[^}]*['"]install['"]\s*:/ nocase
+        $py_cmdclass_develop = /cmdclass\s*=\s*\{[^}]*['"]develop['"]\s*:/ nocase
+        $py_cmdclass_egg_info = /cmdclass\s*=\s*\{[^}]*['"]egg_info['"]\s*:/ nocase
+    condition:
+        any of them
+}

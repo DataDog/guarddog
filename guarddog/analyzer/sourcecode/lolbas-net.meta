@@ -1,0 +1,18 @@
+// Private rule for LOLBAS network tools detection
+// These patterns are reused across multiple threat and capability rules
+
+rule lolbas_net
+{
+    strings:
+        // HTTP clients
+        $curl = /\bcurl\b/ nocase
+        $wget = /\bwget\b/ nocase
+
+        // Network utilities
+        $nc = /\bnc\b/ nocase
+        $netcat = /\bnetcat\b/ nocase
+        $telnet = /\btelnet\b/ nocase
+
+    condition:
+        any of them
+}
