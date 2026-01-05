@@ -1,0 +1,31 @@
+// Private rule for LOLBAS process execution tools detection
+// These patterns are reused across multiple threat and capability rules
+
+rule lolbas_proc
+{
+    strings:
+        // Unix shells
+        $bash = /\bbash\b/ nocase
+        $sh = /\bsh\b/ nocase
+        $zsh = /\bzsh\b/ nocase
+        $dash = /\bdash\b/ nocase
+        $ksh = /\bksh\b/ nocase
+
+        // Scripting languages
+        $python = /\bpython[0-9]?\b/ nocase
+        $node = /\bnode(js)?\b/ nocase
+        $perl = /\bperl\b/ nocase
+        $ruby = /\bruby\b/ nocase
+        $php = /\bphp\b/ nocase
+
+        // Modern runtimes
+        $bun = /\bbun\b/ nocase
+        $deno = /\bdeno\b/ nocase
+
+        // Compiled languages
+        $java = /\bjava\b/ nocase
+        $javac = /\bjavac\b/ nocase
+
+    condition:
+        any of them
+}

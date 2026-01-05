@@ -1,3 +1,5 @@
+include "lolbas-net.meta"
+
 private rule has_process_spawn
 {
     strings:
@@ -30,20 +32,13 @@ rule capability_network_lolbas
         max_hits = 1
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
-        // Unix/Linux LOLBAS tools anywhere within strings
-        $curl = /['"][^'"]*\bcurl\b[^'"]*['"]/ nocase
-        $wget = /['"][^'"]*\bwget\b[^'"]*['"]/ nocase
-        $nc = /['"][^'"]*\bnc\b[^'"]*['"]/ nocase
-        $netcat = /['"][^'"]*\bnetcat\b[^'"]*['"]/ nocase
-        $socat = /['"][^'"]*\bsocat\b[^'"]*['"]/ nocase
-
         // Windows LOLBAS tools anywhere within strings
-        $certutil = /['"][^'"]*certutil[^'"]*['"]/ nocase
-        $bitsadmin = /['"][^'"]*bitsadmin[^'"]*['"]/ nocase
+        $certutil = /['"][^'"]*\bcertutil\b[^'"]*['"]/ nocase
+        $bitsadmin = /['"][^'"]*\bbitsadmin\b[^'"]*['"]/ nocase
         $powershell_web = /['"][^'"]*Invoke-WebRequest[^'"]*['"]/ nocase
         $powershell_rest = /['"][^'"]*Invoke-RestMethod[^'"]*['"]/ nocase
+        $socat = /['"][^'"]*\bsocat\b[^'"]*['"]/ nocase
 
     condition:
-        has_process_spawn and any of ($curl, $wget, $nc, $netcat, $socat,
-                                       $certutil, $bitsadmin, $powershell_*)
+        has_process_spawn and (lolbas_net or any of ($certutil, $bitsadmin, $powershell_*, $socat))
 }

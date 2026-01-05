@@ -1,9 +1,9 @@
-rule threat_system_collection
+rule threat_runtime_system_info
 {
     meta:
         author = "GuardDog Team, Datadog"
         description = "Detects active collection of system information (hostname, platform, architecture, user)"
-        identifies = "threat.system.info"
+        identifies = "threat.runtime.system.info"
         severity = "low"
         mitre_tactics = "collection"
         specificity = "medium"
@@ -33,11 +33,11 @@ rule threat_system_collection
         $js_tmpdir = /\.tmpdir\s*\(\s*\)/ nocase
 
         // Go - unique system info function calls
-        $go_goos = /runtime\.GOOS\b/ nocase
-        $go_goarch = /runtime\.GOARCH\b/ nocase
-        $go_hostname = /os\.Hostname\s*\(\s*\)/ nocase
-        $go_getenv = /os\.Getenv\s*\(/ nocase
-        $go_user_current = /user\.Current\s*\(\s*\)/ nocase
+        $go_goos = /\.GOOS\b/ nocase
+        $go_goarch = /\.GOARCH\b/ nocase
+        $go_hostname = /\.Hostname\s*\(\s*\)/ nocase
+        $go_getenv = /\.Getenv\s*\(/ nocase
+        $go_user_current = /\.Current\s*\(\s*\)/ nocase
 
     condition:
         any of them
