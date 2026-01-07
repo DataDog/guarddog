@@ -45,14 +45,14 @@ Packages receive a score from **0-10** based on four factors:
 |--------|--------|-------------|
 | **Severity** | 25% | Highest severity finding (low/medium/high) |
 | **Attack Chain** | 30% | Presence of complete attack stages (early → mid/late) |
-| **Confidence** | 25% | How certain we are about detections |
+| **Specificity** | 25% | How specific patterns are (vs generic/common code) |
 | **Sophistication** | 20% | Use of evasion techniques (obfuscation, anti-debugging) |
 
 **Score Labels:**
 - **0**: No risks detected
-- **1-3**: Low risk (single-stage threats, low confidence)
+- **1-3**: Low risk (single-stage threats, low specificity)
 - **4-6**: Medium risk (partial attack chain or sophisticated single stage)
-- **7-10**: High risk (complete attack chain with high confidence)
+- **7-10**: High risk (complete attack chain with high specificity)
 
 **Attack Chain Stages** (based on MITRE ATT&CK):
 - **Early**: Initial access, execution capabilities
@@ -282,7 +282,7 @@ description: "Human-readable description"
 #### Optional Fields (default to `medium`)
 
 ```yaml
-confidence: "low" | "medium" | "high"        # Detection certainty
+specificity: "low" | "medium" | "high"       # Pattern specificity
 sophistication: "low" | "medium" | "high"    # Technique advancement level
 ```
 
@@ -322,7 +322,7 @@ rule sample_threat_rule {
     identifies = "threat.category.specificity"
     severity = "high"
     mitre_tactics = ["execution", "defense-evasion"]
-    confidence = "high"
+    specificity = "high"
     sophistication = "medium"
     description = "Description of what this detects"
 
@@ -363,7 +363,7 @@ rules:
       identifies: "threat.category.specificity"
       severity: "high"
       mitre_tactics: ["execution"]
-      confidence: "high"
+      specificity: "high"
       sophistication: "medium"
       description: "Description used in the CLI help"
     patterns:
@@ -378,10 +378,10 @@ rules:
 - `medium`: Moderately suspicious
 - `high`: Clearly malicious or high impact
 
-**Confidence** (detection certainty):
-- `low`: Generic patterns, potential false positives
-- `medium`: Reasonably specific
-- `high`: Very specific, minimal false positives
+**Specificity** (how specific the pattern is to malware vs legitimate code):
+- `low`: Generic patterns that appear in legitimate code frequently
+- `medium`: Reasonably specific, some false positives expected
+- `high`: Very specific to that kind of threat, minimal false positives
 
 **Sophistication** (technique advancement):
 - `low`: Basic/common techniques
