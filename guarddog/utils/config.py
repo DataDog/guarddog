@@ -39,3 +39,25 @@ YARA_EXT_EXCLUDE: list[str] = os.environ.get(
     "ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,rst,csv,sql,pdf,doc,docx,ppt,"
     "pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info,d.ts",
 ).split(",")
+
+"""
+This parameter specifies the maximum uncompressed size allowed for archive extraction
+- Default: 2 GB in bytes
+"""
+MAX_UNCOMPRESSED_SIZE: int = int(
+    os.environ.get("GUARDDOG_MAX_UNCOMPRESSED_SIZE", 2 * 1024 * 1024 * 1024)
+)
+
+"""
+This parameter specifies the maximum compression ratio allowed for archive extraction
+- Default: 100 (100:1 ratio)
+"""
+MAX_COMPRESSION_RATIO: float = float(
+    os.environ.get("GUARDDOG_MAX_COMPRESSION_RATIO", 100)
+)
+
+"""
+This parameter specifies the maximum number of files allowed in an archive
+- Default: 100000
+"""
+MAX_FILE_COUNT: int = int(os.environ.get("GUARDDOG_MAX_FILE_COUNT", 100000))
