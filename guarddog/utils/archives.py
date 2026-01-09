@@ -74,6 +74,6 @@ def safe_extract(source_archive: str, target_directory: str) -> None:
                 # Note: zip.extract cleans up any malicious file name
                 # such as directory traversal attempts This is not the
                 # case of zipfile.extractall
-                zip.extract(file, path=os.path.join(target_directory, file))
+                zip.extract(file, path=target_directory)
     else:
         raise ValueError(f"unsupported archive extension: {source_archive}")
