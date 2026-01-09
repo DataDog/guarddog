@@ -60,6 +60,4 @@ MAX_COMPRESSION_RATIO: float = float(
 This parameter specifies the maximum number of files allowed in an archive
 - Default: 100000
 """
-MAX_FILE_COUNT: int = int(
-    os.environ.get("GUARDDOG_MAX_FILE_COUNT", 100000)
-)
+MAX_FILE_COUNT: int = int(os.environ.get("GUARDDOG_MAX_FILE_COUNT", 100000))
