@@ -42,10 +42,10 @@ YARA_EXT_EXCLUDE: list[str] = os.environ.get(
 
 """
 This parameter specifies the maximum uncompressed size allowed for archive extraction
-- Default: 10737418240 (10 GB in bytes)
+- Default: 2 GB in bytes
 """
 MAX_UNCOMPRESSED_SIZE: int = int(
-    os.environ.get("GUARDDOG_MAX_UNCOMPRESSED_SIZE", 10 * 1024 * 1024 * 1024)
+    os.environ.get("GUARDDOG_MAX_UNCOMPRESSED_SIZE", 2 * 1024 * 1024 * 1024)
 )
 
 """

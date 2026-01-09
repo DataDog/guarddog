@@ -184,11 +184,13 @@ def safe_extract(
                 # Check for unsafe symlinks (zip don't supports hardlinks)
                 if _is_unsafe_symlink(member, zip_file):
                     # we avoid unsafe files extraction but scan the rest of the package
+                    log.warning(f"Archived file {member.filename} is an unsafe symlink. Skipping extraction")
                     continue
 
                 # Check for device files
                 if _is_device(member):
                     # we avoid unsafe files extraction but scan the rest of the package
+                    log.warning(f"Archived file {member.filename} is a device file type. Skipping extraction")
                     continue
 
                 # Extract file safely using zip.extract which handles path sanitization
