@@ -15,88 +15,6 @@ from guarddog.utils.config import (
 log = logging.getLogger("guarddog")
 
 
-def _is_unsafe_symlink(target_directory: str, zip_info: zipfile.ZipInfo) -> bool:
-    """
-    Check if a zip entry is a symlink pointing outside the target directory.
-    
-    @param target_directory: The base directory where extraction occurs
-    @param zip_info: The ZipInfo object to check
-    @return: True if the symlink is unsafe, False otherwise
-    """
-    # Check if this is a symlink (Unix file type 0o120000)
-    if zip_info.external_attr >> 16 != 0o120000:
-        return False
-    
-    # For symlinks, we need to read the link target from the archive content
-    # This would require additional zip file reading, so we conservatively
-    # block all symlinks for security
-    return True
-
-
-def _is_unsafe_link(target_directory: str, zip_info: zipfile.ZipInfo, zip_file: zipfile.ZipFile) -> bool:
-    """
-    Check if a zip entry is a hard link pointing outside the target directory.
-    
-    Note: ZIP format doesn't natively support hard links like TAR does,
-    but we check external attributes for completeness.
-    
-    @param target_directory: The base directory where extraction occurs
-    @param zip_info: The ZipInfo object to check
-    @param zip_file: The ZipFile object to read link contents if needed
-    @return: True if the link is unsafe, False otherwise
-    """
-    # ZIP format doesn't have native hard link support like TAR
-    # Hard links would need to be stored as special files with external_attr
-    # For now, return False as this is not a common attack vector in ZIP files
-    return False
-
-
-def _is_device(zip_info: zipfile.ZipInfo) -> bool:
-    """
-    Check if a zip entry is a device file (character or block device).
-    
-    @param zip_info: The ZipInfo object to check
-    @return: True if this is a device file, False otherwise
-    """
-    file_type = zip_info.external_attr >> 16
-    # Check for character device (0o020000) or block device (0o060000)
-    return file_type == 0o020000 or file_type == 0o060000
-
-
-def _check_compression_bomb(
-    file_count: int,
-    total_size: int,
-    archive_size: int,
-) -> None:
-    """
-    Checks for compression bombs and file descriptor exhaustion attacks.
-
-    @param file_count: Number of files in the archive
-    @param total_size: Total uncompressed size in bytes
-    @param archive_size: Compressed archive size in bytes
-    @raise ValueError: If any safety limit is exceeded
-    """
-    if file_count > MAX_FILE_COUNT:
-        raise ValueError(
-            f"Archive contains {file_count} files, exceeding maximum allowed "
-            f"count ({MAX_FILE_COUNT}). Possible file descriptor exhaustion attack."
-        )
-    
-    if total_size > MAX_UNCOMPRESSED_SIZE:
-        raise ValueError(
-            f"Archive uncompressed size ({total_size} bytes) exceeds maximum allowed "
-            f"size ({MAX_UNCOMPRESSED_SIZE} bytes). Possible compression bomb."
-        )
-    
-    if archive_size > 0:
-        compression_ratio = total_size / archive_size
-        if compression_ratio > MAX_COMPRESSION_RATIO:
-            raise ValueError(
-                f"Archive compression ratio ({compression_ratio:.1f}:1) exceeds maximum "
-                f"allowed ratio ({MAX_COMPRESSION_RATIO}:1). Possible compression bomb."
-            )
-
-
 def is_supported_archive(path: str) -> bool:
     """
     Decide whether a file contains a supported archive based on its
@@ -138,6 +56,81 @@ def safe_extract(
     @raise ValueError           If the archive type is unsupported or exceeds safety limits
 
     """
+    
+    def _check_compression_bomb(
+        file_count: int,
+        total_size: int,
+        archive_size: int,
+    ) -> None:
+        """
+        Checks for compression bombs and file descriptor exhaustion attacks.
+
+        @param file_count: Number of files in the archive
+        @param total_size: Total uncompressed size in bytes
+        @param archive_size: Compressed archive size in bytes
+        @raise ValueError: If any safety limit is exceeded
+        """
+        if file_count > MAX_FILE_COUNT:
+            raise ValueError(
+                f"Archive contains {file_count} files, exceeding maximum allowed "
+                f"count ({MAX_FILE_COUNT}). Possible file descriptor exhaustion attack."
+            )
+        
+        if total_size > MAX_UNCOMPRESSED_SIZE:
+            raise ValueError(
+                f"Archive uncompressed size ({total_size} bytes) exceeds maximum allowed "
+                f"size ({MAX_UNCOMPRESSED_SIZE} bytes). Possible compression bomb."
+            )
+        
+        if archive_size > 0:
+            compression_ratio = total_size / archive_size
+            if compression_ratio > MAX_COMPRESSION_RATIO:
+                raise ValueError(
+                    f"Archive compression ratio ({compression_ratio:.1f}:1) exceeds maximum "
+                    f"allowed ratio ({MAX_COMPRESSION_RATIO}:1). Possible compression bomb."
+                )
+    
+    def _is_unsafe_symlink(zip_info: zipfile.ZipInfo, zip_file: zipfile.ZipFile) -> bool:
+        """
+        Check if a zip entry is a symlink pointing outside the target directory.
+        
+        Follows the same logic as tarsafe: reads the symlink target and checks if
+        the resolved path would be outside the extraction directory.
+        
+        @param zip_info: The ZipInfo object to check
+        @param zip_file: The ZipFile object to read the symlink target
+        @return: True if the symlink is unsafe, False otherwise
+        """
+        # Check if this is a symlink
+        # external_attr stores Unix file mode in upper 16 bits
+        attr = zip_info.external_attr >> 16
+        # Mask with 0o170000 to get just the file type bits
+        # 0o120000 = symbolic link
+        if (attr & 0o170000) != 0o120000:
+            return False
+        
+        linkname = zip_file.read(zip_info).decode('utf-8')
+        
+        symlink_file = pathlib.Path(os.path.normpath(os.path.join(target_directory, linkname)))
+        if not os.path.abspath(os.path.join(target_directory, symlink_file)).startswith(target_directory):
+            return True
+        
+        return False
+    
+    def _is_device(zip_info: zipfile.ZipInfo) -> bool:
+        """
+        Check if a zip entry is a device file (character or block device).
+        
+        @param zip_info: The ZipInfo object to check
+        @return: True if this is a device file, False otherwise
+        """
+        # external_attr stores Unix file mode in upper 16 bits
+        # Mask with 0o170000 to get just the file type bits
+        attr = zip_info.external_attr >> 16
+        file_type = attr & 0o170000
+        # Check for character device (0o020000) or block device (0o060000)
+        return file_type == 0o020000 or file_type == 0o060000
+    
     log.debug(f"Extracting archive {source_archive} to directory {target_directory}")
     
     archive_size = os.path.getsize(source_archive)
@@ -182,26 +175,15 @@ def safe_extract(
             
             # Validate and extract each file safely
             for member in zip_file.infolist():
-                # Check for unsafe symlinks
-                if _is_unsafe_symlink(target_directory, member):
-                    raise ValueError(
-                        f"Unsafe symlink in archive: {member.filename}. "
-                        f"Symlink may point outside extraction directory."
-                    )
-                
-                # Check for unsafe hard links
-                if _is_unsafe_link(target_directory, member, zip_file):
-                    raise ValueError(
-                        f"Unsafe link in archive: {member.filename}. "
-                        f"Link may point outside extraction directory."
-                    )
+                # Check for unsafe symlinks (zip don't supports hardlinks)
+                if _is_unsafe_symlink(member, zip_file):
+                    # we avoid unsafe files extraction but scan the rest of the package
+                    continue
                 
                 # Check for device files
                 if _is_device(member):
-                    raise ValueError(
-                        f"Device file in archive: {member.filename}. "
-                        f"Device files are not allowed."
-                    )
+                    # we avoid unsafe files extraction but scan the rest of the package
+                    continue
                 
                 # Extract file safely using zip.extract which handles path sanitization
                 zip_file.extract(member, path=target_directory)
