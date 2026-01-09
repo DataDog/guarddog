@@ -359,15 +359,37 @@ flake8 guarddog --count --select=E9,F63,F7,F82 --show-source --statistics --excl
 flake8 guarddog --count --max-line-length=120 --statistics --exclude tests/analyzer/sourcecode,tests/analyzer/metadata/resources,evaluator/data --ignore=E203,W503
 ```
 
-### Semgrep configuration
+### Configuration via Environment Variables
 
-Guarddog uses `Semgrep`, a powerful static analysis tool that scans code for patterns. 
+GuardDog's behavior can be customized using environment variables:
 
-The `max_target_bytes` setting, which controls the maximum size of a file that Semgrep will analyze, can be adjusted using the environment variable `GUARDDOG_SEMGREP_MAX_TARGET_BYTES`. 
-By default, this value is set to 10MB; files exceeding this limit will be skipped during analysis to optimize performance and resource usage.
+#### General Configuration
 
-Additionally, the timeout setting, which specifies the maximum time in seconds that Semgrep will spend running a rule on a single file,  can be configured via the `GUARDDOG_SEMGREP_TIMEOUT` environment variable. The default value is 10 seconds.
+| Environment Variable | Description | Default Value |
+|---------------------|-------------|---------------|
+| `GUARDDOG_PARALLELISM` | Number of threads to use for parallel processing | Number of CPUs available |
+| `GUARDDOG_VERIFY_EXHAUSTIVE_DEPENDENCIES` | Analyze all possible versions of dependencies (`true`/`false`) | `false` |
+| `GUARDDOG_TOP_PACKAGES_CACHE_LOCATION` | Location of the top packages cache directory | `guarddog/analyzer/metadata/resources` |
+| `GUARDDOG_YARA_EXT_EXCLUDE` | Comma-separated list of file extensions to exclude from YARA scanning | `ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,csv,sql,pdf,doc,docx,ppt,pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info,d.ts` |
 
+#### Semgrep Configuration
+
+GuardDog uses `Semgrep`, a powerful static analysis tool that scans code for patterns. 
+
+| Environment Variable | Description | Default Value |
+|---------------------|-------------|---------------|
+| `GUARDDOG_SEMGREP_MAX_TARGET_BYTES` | Maximum size of a file that Semgrep will analyze (files exceeding this will be skipped) | 10MB (10485760 bytes) |
+| `GUARDDOG_SEMGREP_TIMEOUT` | Maximum time in seconds that Semgrep will spend running a rule on a single file | 10 seconds |
+
+#### Archive Extraction Security Limits
+
+GuardDog implements multiple security checks when extracting package archives to protect against compression bombs and file descriptor exhaustion attacks:
+
+| Environment Variable | Description | Default Value |
+|---------------------|-------------|---------------|
+| `GUARDDOG_MAX_UNCOMPRESSED_SIZE` | Maximum allowed uncompressed size in bytes (prevents disk space exhaustion) | 10737418240 (10 GB) |
+| `GUARDDOG_MAX_COMPRESSION_RATIO` | Maximum allowed compression ratio (detects suspicious compression patterns) | 100 (100:1) |
+| `GUARDDOG_MAX_FILE_COUNT` | Maximum number of files allowed in an archive (prevents file descriptor/inode exhaustion) | 100000 |
 
 ## Maintainers
 
