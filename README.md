@@ -387,7 +387,7 @@ GuardDog implements multiple security checks when extracting package archives to
 
 | Environment Variable | Description | Default Value |
 |---------------------|-------------|---------------|
-| `GUARDDOG_MAX_UNCOMPRESSED_SIZE` | Maximum allowed uncompressed size in bytes (prevents disk space exhaustion) | 10737418240 (10 GB) |
+| `GUARDDOG_MAX_UNCOMPRESSED_SIZE` | Maximum allowed uncompressed size in bytes (prevents disk space exhaustion) | 2147483648 (2 GB) |
 | `GUARDDOG_MAX_COMPRESSION_RATIO` | Maximum allowed compression ratio (detects suspicious compression patterns) | 100 (100:1) |
 | `GUARDDOG_MAX_FILE_COUNT` | Maximum number of files allowed in an archive (prevents file descriptor/inode exhaustion) | 100000 |
 
