@@ -56,4 +56,23 @@ rules:
           - pattern: __import__("base64").b64decode(...)
           - pattern: marshal.loads(zlib.decompress(...))
           - pattern: $FUNC("...").decrypt(...)
+
+          # codecs.decode with base64 (all valid aliases)
+          - pattern: codecs.decode(..., 'base64')
+          - pattern: codecs.decode(..., 'base_64')
+          - pattern: codecs.decode(..., 'base-64')
+          - pattern: codecs.decode(..., 'BASE64')
+          - pattern: codecs.decode(..., 'BASE_64')
+          - pattern: codecs.decode(..., 'BASE-64')
+
+          # importlib + base64 module
+          - pattern: importlib.import_module('base64').b64decode(...)
+
+          # importlib + codecs module (all base64 aliases)
+          - pattern: importlib.import_module('codecs').decode(..., 'base64')
+          - pattern: importlib.import_module('codecs').decode(..., 'base_64')
+          - pattern: importlib.import_module('codecs').decode(..., 'base-64')
+          - pattern: importlib.import_module('codecs').decode(..., 'BASE64')
+          - pattern: importlib.import_module('codecs').decode(..., 'BASE_64')
+          - pattern: importlib.import_module('codecs').decode(..., 'BASE-64')
     severity: WARNING

@@ -115,3 +115,51 @@ __import__("builtins").exec(
 
 # ruleid: exec-base64
 exec(Fernet(b'E15Vxxx=').decrypt(b'gAAAxxx='))
+
+""" RULEID: codecs.decode with base64 encoding (all aliases)
+"""
+import codecs
+# ruleid: exec-base64
+exec(codecs.decode(b"test", 'base64'))
+
+# ruleid: exec-base64
+exec(codecs.decode(b"test", 'base_64'))
+
+# ruleid: exec-base64
+exec(codecs.decode(b"test", 'base-64'))
+
+# ruleid: exec-base64
+exec(codecs.decode(b"test", 'BASE64'))
+
+# ruleid: exec-base64
+exec(codecs.decode(b"test", 'BASE_64'))
+
+# ruleid: exec-base64
+exec(codecs.decode(b"test", 'BASE-64'))
+
+""" RULEID: importlib dynamic import (inline only)
+"""
+import importlib
+# ruleid: exec-base64
+exec(importlib.import_module('base64').b64decode("test"))
+
+""" RULEID: importlib + codecs (inline only)
+"""
+import importlib
+# ruleid: exec-base64
+exec(importlib.import_module('codecs').decode(b"test", 'base64'))
+
+# ruleid: exec-base64
+exec(importlib.import_module('codecs').decode(b"test", 'base_64'))
+
+# ruleid: exec-base64
+exec(importlib.import_module('codecs').decode(b"test", 'base-64'))
+
+# ruleid: exec-base64
+exec(importlib.import_module('codecs').decode(b"test", 'BASE64'))
+
+# ruleid: exec-base64
+exec(importlib.import_module('codecs').decode(b"test", 'BASE_64'))
+
+# ruleid: exec-base64
+exec(importlib.import_module('codecs').decode(b"test", 'BASE-64'))
