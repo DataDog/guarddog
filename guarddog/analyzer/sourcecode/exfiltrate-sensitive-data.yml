@@ -21,13 +21,13 @@ rules:
               regex: ([\"\'].*(.aws/credentials|.docker/config.json)[\"\'])
       - patterns:
           - pattern-either:
-              - pattern: os.getenv($ENVVAR)
+              - pattern: os.getenv($ENVVAR, ...)
               - pattern: os.environ[$ENVVAR]
-              - pattern: os.environ.get($ENVVAR)
+              - pattern: os.environ.get($ENVVAR, ...)
 
-              - pattern: getenv($ENVVAR)
+              - pattern: getenv($ENVVAR, ...)
               - pattern: environ[$ENVVAR]
-              - pattern: environ.get($ENVVAR)
+              - pattern: environ.get($ENVVAR, ...)
           - metavariable-regex:
               metavariable: $ENVVAR
               regex: ([\"\'](AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN)[\"\'])
@@ -54,6 +54,32 @@ rules:
               - pattern-inside: $S = socket.socket(...); ...
               - pattern-inside: $S.connect(...); ...
               - pattern-inside: $S.send(...)
+          # DNS exfiltration - socket module (built-in)
+          - pattern-inside: socket.gethostbyname(...)
+          - pattern-inside: socket.getaddrinfo(...)
+          - pattern-inside: socket.gethostbyname_ex(...)
+          # DNS exfiltration - dnspython library (direct calls)
+          - pattern-inside: dns.resolver.query(...)
+          - pattern-inside: dns.resolver.resolve(...)
+          - pattern-inside: dns.query.udp(...)
+          - pattern-inside: dns.query.tcp(...)
+          # DNS exfiltration - dnspython Resolver instance
+          - patterns:
+              - pattern-inside: |
+                  $R = dns.resolver.Resolver()
+                  ...
+              - pattern-inside: $R.query(...)
+          - patterns:
+              - pattern-inside: |
+                  $R = dns.resolver.Resolver()
+                  ...
+              - pattern-inside: $R.resolve(...)
+          # DNS exfiltration - aiodns (async)
+          - patterns:
+              - pattern-inside: |
+                  $R = aiodns.DNSResolver()
+                  ...
+              - pattern-inside: $R.query(...)
     languages:
       - python
     severity: WARNING
