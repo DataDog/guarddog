@@ -24,8 +24,8 @@ def send():
             # Variations based on string obfuscation:
             # ruleid: api-obfuscation
             os.__dict__['start' + 'file']('start '+filename)  # string concatenation
-            # ruleid: api-obfuscation
             func = 'startfile'
+            # ruleid: api-obfuscation
             os.__dict__[func]()  # pass string via variable
             # ruleid: api-obfuscation
             os.__dict__[base64.b64decode('c3RhcnRmaWxl').decode('utf-8')]('start '+filename)  # base64 encoding
