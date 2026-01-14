@@ -1,42 +1,37 @@
 rules:
-    - id: api-obfuscation
-      languages:
-        - python
-      message: This package uses obfuscated API calls that may evade static analysis detection
-      metadata:
-        description: Identify obfuscated API calls using alternative Python syntax patterns
-      severity: WARNING
-      patterns:
-        - pattern-either:
-          # Covered cases:
-          # 1) __dict__ access patterns: $MODULE.__dict__[$METHOD](...) / .__call__(...)
-          # 2) __getattribute__ patterns: $MODULE.__getattribute__($METHOD)(...) / .__call__(...)
-          # 3) getattr patterns: getattr($MODULE, $METHOD)(...) / .__call__(...)
-          # It also covers the case where $MODULE is imported as __import__('mod')
-          - patterns:
-              - pattern-either:
-                  - pattern: $MODULE.__dict__[$METHOD]($...ARGS)
-                  - pattern: $MODULE.__dict__[$METHOD].__call__($...ARGS)
-                  - pattern: $MODULE.__getattribute__($METHOD)($...ARGS)
-                  - pattern: $MODULE.__getattribute__($METHOD).__call__($...ARGS)
-                  - pattern: getattr($MODULE, $METHOD)($...ARGS)
-                  - pattern: getattr($MODULE, $METHOD).__call__($...ARGS)
-              - metavariable-regex:
-                  metavariable: $MODULE
-                  regex: "^[A-Za-z_][A-Za-z0-9_\\.]*$|^__import__\\([\"'][A-Za-z_][A-Za-z0-9_]*[\"']\\)$"
-              - metavariable-regex:
-                  metavariable: $METHOD
-                  regex: "^[\"'][A-Za-z_][A-Za-z0-9_]*[\"']$"
+  - id: api-obfuscation
+    languages:
+      - python
+    message: This package uses obfuscated API calls that may evade static analysis detection
+    metadata:
+      description: Identify obfuscated API calls using alternative Python syntax patterns
+    severity: WARNING
+    patterns:
+      - pattern-either:
+        # Covered cases:
+        # 1) __dict__ access patterns: $MODULE.__dict__[$METHOD](...) / .__call__(...)
+        # 2) __getattribute__ patterns: $MODULE.__getattribute__($METHOD)(...) / .__call__(...)
+        # 3) getattr patterns: getattr($MODULE, $METHOD)(...) / .__call__(...)
+        # It also covers the case where $MODULE is imported as __import__($mod),
+        # where $mod is a generic expression (e.g., string literal, variable, etc.)
+        - patterns:
+          - pattern-either:
+              - pattern: $MODULE.__dict__[$METHOD]($...ARGS)
+              - pattern: $MODULE.__dict__[$METHOD].__call__($...ARGS)
+              - pattern: $MODULE.__getattribute__($METHOD)($...ARGS)
+              - pattern: $MODULE.__getattribute__($METHOD).__call__($...ARGS)
+              - pattern: getattr($MODULE, $METHOD)($...ARGS)
+              - pattern: getattr($MODULE, $METHOD).__call__($...ARGS)
+          - metavariable-regex:
+              metavariable: $MODULE
+              regex: "^[A-Za-z_][A-Za-z0-9_\\.]*$|^__import__\\(.*\\)$"
 
-          # --- Additional Cases: __import__('mod').method(...) / .__call__(...)
-          - patterns:
-              - pattern-either:
-                  - pattern: __import__($MODULE).$METHOD($...ARGS)
-                  - pattern: __import__($MODULE).$METHOD.__call__($...ARGS)
-              - metavariable-regex:
-                  metavariable: $MODULE
-                  regex: "^[\"'][A-Za-z_][A-Za-z0-9_]*[\"']$"
-              - metavariable-regex:
-                  metavariable: $METHOD
-                  # avoid matching __getattribute__
-                  regex: "[^(__getattribute__)][A-Za-z_][A-Za-z0-9_]*"
+        # --- Additional Cases: __import__('mod').method(...) / .__call__(...)
+        - patterns:
+          - pattern-either:
+              - pattern: __import__($MODULE).$METHOD($...ARGS)
+              - pattern: __import__($MODULE).$METHOD.__call__($...ARGS)
+          - metavariable-regex:
+              metavariable: $METHOD
+              # avoid matching __getattribute__
+              regex: "[^(__getattribute__)][A-Za-z_][A-Za-z0-9_]*"

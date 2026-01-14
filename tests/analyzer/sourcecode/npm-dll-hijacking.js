@@ -3,8 +3,8 @@ function f() {
   try {
     process.chdir("E:\\Games\\ALT1Games\\TwelveSky1");
     var injector = require("./build/release/injector");
-    // ruleid: npm-dll-hijacking
     if (
+      // ruleid: npm-dll-hijacking
       injector.executeInject(
         "TwelveSky.exe alt1games.twelvesky1:/test/test/0/18/0/2/1024/768",
         "E:\\Games\\ALT1Games\\TwelveSky1\\TSX_Client.dll"
