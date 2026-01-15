@@ -1,0 +1,29 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    actioncable (7.0.4)
+      actionpack (= 7.0.4)
+      activesupport (= 7.0.4)
+      nio4r (~> 2.0)
+      websocket-driver (>= 0.6.1)
+    actionpack (7.0.4)
+      actionview (= 7.0.4)
+      activesupport (= 7.0.4)
+      rack (~> 2.0, >= 2.2.0)
+    activesupport (7.0.4)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+    rake (13.0.6)
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  actioncable (~> 7.0)
+  rake
+
+BUNDLED WITH
+   2.3.7

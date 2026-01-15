@@ -11,7 +11,7 @@ def test_no_github_links():
     detector = PypiIntegrityMismatchDetector()
     match, message = detector.detect(current_info, name="", path="")
     assert not match
-    assert message == "Could not find any GitHub url in the project's description"
+    assert message == "Could not find a GitHub URL in the package metadata"
 
 
 def test_no_good_homepage_link():
@@ -25,7 +25,7 @@ def test_no_good_homepage_link():
     detector = PypiIntegrityMismatchDetector()
     match, message = detector.detect(current_info, name="mypackage", path="")
     assert not match
-    assert message == "Could not find a good GitHub url in the project's description"
+    assert message == "Could not find a GitHub URL in the package metadata"
 
 def test_no_good_github_links():
     current_info = deepcopy(PYPI_PACKAGE_INFO)
@@ -35,7 +35,7 @@ def test_no_good_github_links():
     detector = PypiIntegrityMismatchDetector()
     match, message = detector.detect(current_info, name="mypackage", path="")
     assert not match
-    assert message == "Could not find a good GitHub url in the project's description"
+    assert message == "Could not find a GitHub URL in the package metadata"
 
 
 def test_empty_homepage_urls():
