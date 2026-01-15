@@ -135,7 +135,7 @@ class IntegrityMismatch(Detector):
             f"Files in package differ from GitHub repository for version {version}:\n{message}",
         )
 
-    def find_suitable_tags(self, repo: str, version: str) -> list[str]:
+    def find_suitable_tags(self, repo, version: str) -> List[str]:
         """
         Find git tags that match the given version.
 
@@ -161,7 +161,10 @@ class IntegrityMismatch(Detector):
         return tag_candidates
 
     def exclude_result(
-        self, file_name: str, repo_root: str = None, pkg_root: str = None
+        self,
+        file_name: str,
+        repo_root: Optional[str] = None,
+        pkg_root: Optional[str] = None,
     ) -> bool:
         """
         Check if a file should be excluded from integrity checking.
