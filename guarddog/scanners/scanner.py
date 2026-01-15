@@ -187,24 +187,50 @@ class PackageScanner:
                 name, tmpdirname, version, rules, write_package_info
             )
 
+    def _fetch_archive(self, url: str, archive_path: str) -> None:
+        """Downloads an archive file from a URL.
+
+        This method can be overridden by subclasses if custom download logic is needed.
+
+        Args:
+            url (str): download link
+            archive_path (str): path to save the downloaded file
+        """
+        log.debug(f"Downloading package archive from {url}")
+        response = requests.get(url, stream=True)
+
+        with open(archive_path, "wb") as f:
+            f.write(response.raw.read())
+
+    def _extract_archive(self, archive_path: str, target_path: str) -> None:
+        """Extracts an archive file to a target directory.
+
+        This method can be overridden by subclasses to handle special archive formats
+        (e.g., nested archives like .gem files).
+
+        Args:
+            archive_path (str): path to the archive file
+            target_path (str): directory to extract files into
+        """
+        safe_extract(archive_path, target_path)
+        log.debug(f"Successfully extracted files to {target_path}")
+
     def download_compressed(self, url, archive_path, target_path):
-        """Downloads a compressed file and extracts it
+        """Downloads a compressed file and extracts it.
+
+        This is a template method that orchestrates the download, extraction, and cleanup
+        process. Subclasses can override individual steps (_fetch_archive, _extract_archive)
+        to customize behavior.
 
         Args:
             url (str): download link
             archive_path (str): path to download compressed file
             target_path (str): path to unzip compressed file
         """
-
-        log.debug(f"Downloading package archive from {url} into {target_path}")
-        response = requests.get(url, stream=True)
-
-        with open(archive_path, "wb") as f:
-            f.write(response.raw.read())
+        self._fetch_archive(url, archive_path)
 
         try:
-            safe_extract(archive_path, target_path)
-            log.debug(f"Successfully extracted files to {target_path}")
+            self._extract_archive(archive_path, target_path)
         finally:
             log.debug(f"Removing temporary archive file {archive_path}")
             os.remove(archive_path)

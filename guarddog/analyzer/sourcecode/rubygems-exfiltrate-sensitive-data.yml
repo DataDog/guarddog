@@ -1,0 +1,70 @@
+rules:
+  - id: rubygems-exfiltrate-sensitive-data
+    languages:
+      - ruby
+    mode: taint
+    message: |
+      This package reads sensitive data and sends it to a remote server.
+      This could indicate credential theft or data exfiltration.
+    metadata:
+      description: Identify when a package reads and exfiltrates sensitive data from the local system
+    pattern-sources:
+      - pattern-either:
+          # Environment variables
+          - pattern: ENV
+          - pattern: ENV[...]
+          - pattern: ENV.fetch(...)
+          - pattern: ENV.to_h
+          - pattern: ENV.to_hash
+
+          # Specific sensitive env vars
+          - pattern: ENV['HOME']
+          - pattern: ENV['USER']
+          - pattern: ENV['USERNAME']
+          - pattern: ENV['AWS_ACCESS_KEY_ID']
+          - pattern: ENV['AWS_SECRET_ACCESS_KEY']
+          - pattern: ENV['AWS_SESSION_TOKEN']
+          - pattern: ENV['GITHUB_TOKEN']
+          - pattern: ENV['GH_TOKEN']
+
+          # System info
+          - pattern: Socket.gethostname
+          - pattern: Etc.getlogin
+          - pattern: Etc.getpwuid(...)
+
+          # Reading sensitive files
+          - pattern: File.read("~/.ssh/...")
+          - pattern: File.read("~/.aws/...")
+          - pattern: File.read("~/.netrc")
+          - pattern: File.read("~/.git-credentials")
+
+          # Dir patterns for sensitive locations
+          - pattern: Dir.home
+          - pattern: Dir.glob("~/.ssh/*")
+          - pattern: Dir.glob("~/.aws/*")
+    pattern-sinks:
+      - pattern-either:
+          # Net::HTTP
+          - pattern: Net::HTTP.post(...)
+          - pattern: Net::HTTP.post_form(...)
+          - pattern: $HTTP.request(...)
+          - pattern: $HTTP.post(...)
+          - pattern: $HTTP.put(...)
+
+          # open-uri
+          - pattern: URI.open(...)
+          - pattern: OpenURI.open_uri(...)
+
+          # HTTParty, Faraday, RestClient
+          - pattern: HTTParty.post(...)
+          - pattern: HTTParty.put(...)
+          - pattern: Faraday.post(...)
+          - pattern: Faraday.put(...)
+          - pattern: RestClient.post(...)
+          - pattern: RestClient.put(...)
+
+          # Socket
+          - pattern: $SOCKET.write(...)
+          - pattern: $SOCKET.send(...)
+          - pattern: TCPSocket.new(...)
+    severity: WARNING

@@ -1,0 +1,38 @@
+rules:
+  - id: rubygems-serialize-environment
+    languages:
+      - ruby
+    message: |
+      This package serializes the entire ENV hash, which may indicate
+      an attempt to steal environment variables including secrets and credentials.
+    metadata:
+      description: Identify when a package serializes ENV to exfiltrate environment variables
+    patterns:
+      - pattern-either:
+          # JSON serialization
+          - pattern: ENV.to_h.to_json
+          - pattern: ENV.to_hash.to_json
+          - pattern: JSON.dump(ENV)
+          - pattern: JSON.dump(ENV.to_h)
+          - pattern: JSON.dump(ENV.to_hash)
+          - pattern: JSON.generate(ENV)
+          - pattern: JSON.generate(ENV.to_h)
+          - pattern: JSON.generate(ENV.to_hash)
+
+          # YAML serialization
+          - pattern: ENV.to_h.to_yaml
+          - pattern: ENV.to_hash.to_yaml
+          - pattern: YAML.dump(ENV)
+          - pattern: YAML.dump(ENV.to_h)
+          - pattern: YAML.dump(ENV.to_hash)
+
+          # Marshal serialization
+          - pattern: Marshal.dump(ENV)
+          - pattern: Marshal.dump(ENV.to_h)
+          - pattern: Marshal.dump(ENV.to_hash)
+
+          # Converting to string for sending
+          - pattern: ENV.to_h.inspect
+          - pattern: ENV.to_hash.inspect
+          - pattern: ENV.inspect
+    severity: WARNING

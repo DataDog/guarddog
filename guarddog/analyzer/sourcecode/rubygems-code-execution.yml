@@ -1,0 +1,67 @@
+rules:
+  - id: rubygems-code-execution
+    languages:
+      - ruby
+    message: |
+      This package executes OS commands. While this can be legitimate,
+      it is commonly used by malicious packages to run arbitrary code.
+    metadata:
+      description: Identify when a gem executes OS commands
+    patterns:
+      - pattern-either:
+          # Kernel methods for command execution
+          - pattern: system(...)
+          - pattern: exec(...)
+          - pattern: spawn(...)
+          - pattern: Kernel.system(...)
+          - pattern: Kernel.exec(...)
+          - pattern: Kernel.spawn(...)
+
+          # Backtick execution - semgrep uses pattern for this
+          - pattern: "`...`"
+
+          # %x{} command execution
+          - pattern: "%x{...}"
+          - pattern: "%x[...]"
+          - pattern: "%x(...)"
+
+          # Open3 module
+          - pattern: Open3.capture2(...)
+          - pattern: Open3.capture2e(...)
+          - pattern: Open3.capture3(...)
+          - pattern: Open3.pipeline(...)
+          - pattern: Open3.pipeline_r(...)
+          - pattern: Open3.pipeline_rw(...)
+          - pattern: Open3.pipeline_start(...)
+          - pattern: Open3.pipeline_w(...)
+          - pattern: Open3.popen2(...)
+          - pattern: Open3.popen2e(...)
+          - pattern: Open3.popen3(...)
+
+          # IO.popen
+          - pattern: IO.popen(...)
+
+          # Process.spawn
+          - pattern: Process.spawn(...)
+          - pattern: Process.exec(...)
+
+          # PTY for pseudo-terminal
+          - pattern: PTY.spawn(...)
+
+          # eval with dynamic content
+          - patterns:
+              - pattern-either:
+                  - pattern: eval($ARG)
+                  - pattern: instance_eval($ARG)
+                  - pattern: class_eval($ARG)
+                  - pattern: module_eval($ARG)
+              - pattern-not: eval("...")
+              - pattern-not: instance_eval("...")
+              - pattern-not: class_eval("...")
+              - pattern-not: module_eval("...")
+    severity: WARNING
+    paths:
+      include:
+        - "*.gemspec"
+        - "**/extconf.rb"
+        - "**/Rakefile"
