@@ -14,9 +14,7 @@ class RubyGemsEmptyInfoDetector(EmptyInfoDetector):
         name: Optional[str] = None,
         version: Optional[str] = None,
     ) -> tuple[bool, str]:
-        log.debug(
-            f"Running RubyGems empty description heuristic on package {name}"
-        )
+        log.debug(f"Running RubyGems empty description heuristic on package {name}")
         info = package_info.get("info", "")
         if info is None:
             info = ""

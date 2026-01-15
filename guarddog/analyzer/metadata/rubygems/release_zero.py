@@ -14,9 +14,7 @@ class RubyGemsReleaseZeroDetector(ReleaseZeroDetector):
         name: Optional[str] = None,
         version: Optional[str] = None,
     ) -> tuple[bool, str]:
-        log.debug(
-            f"Running zero version heuristic on RubyGems package {name}"
-        )
+        log.debug(f"Running zero version heuristic on RubyGems package {name}")
         gem_version = package_info.get("version", "")
         return (
             gem_version in ["0.0.0", "0.0"],

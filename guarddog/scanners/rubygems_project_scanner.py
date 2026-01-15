@@ -62,9 +62,7 @@ class RubyGemsRequirementsScanner(ProjectScanner):
                     dep = Dependency(name=name, versions=set())
                     dependencies.append(dep)
 
-                dep.versions.add(
-                    DependencyVersion(version=version, location=idx + 1)
-                )
+                dep.versions.add(DependencyVersion(version=version, location=idx + 1))
 
         return dependencies
 

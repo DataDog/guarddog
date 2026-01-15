@@ -56,13 +56,13 @@ def extract_email_address_domain(email_address: str):
         raise ValueError(f"Invalid email address: {email_address}")
 
 
-def get_file_hash(path: str) -> tuple[str,list[str]]:
+def get_file_hash(path: str) -> tuple[str, list[str]]:
     """
     Gets the sha256 of the file
 
     Args:
         path (str): Full file path
-    
+
     Returns:
         str: The SHA256 hash of the file as a hexadecimal string
         list: The file contents as a list of lines
