@@ -3,6 +3,10 @@
 RULEID cases:
   - obfuscated version of 1337c package
 """
+import os
+import requests
+from sys import platform
+import base64
 
 
 def send():

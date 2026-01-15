@@ -15,6 +15,7 @@ It downloads and scans code from:
 * NPM: Packages hosted in [npmjs.org](https://www.npmjs.com/)
 * PyPI: Source files (tar.gz) packages hosted in [PyPI.org](https://pypi.org/)
 * Go: GoLang source files of repositories hosted in [GitHub.com](https://github.com)
+* RubyGems: Gem packages hosted in [rubygems.org](https://rubygems.org/)
 * GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
 * VSCode Extensions: Extensions (.vsix) packages hosted in [marketplace.visualstudio.com](https://marketplace.visualstudio.com/)
 
@@ -106,12 +107,17 @@ guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
 # Output JSON to standard output - works for every command
 guarddog pypi scan requests --output-format=json
 
-# All the commands also work on npm, go
+# All the commands also work on npm, go, rubygems
 guarddog npm scan express
 
 guarddog go scan github.com/DataDog/dd-trace-go
 
 guarddog go verify /tmp/repo/go.mod
+
+# Scan RubyGems packages
+guarddog rubygems scan rails
+
+guarddog rubygems verify /tmp/repo/Gemfile.lock
 
 # Additionally can support scanning GitHub actions that are implemented in JavaScript
 guarddog github_action scan DataDog/synthetics-ci-github-action
@@ -160,6 +166,7 @@ Source code heuristics:
 | code-execution | Identify when an OS command is executed in the setup.py file |
 | unicode | Identify suspicious unicode characters |
 | cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
+| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
 
 Metadata heuristics:
 
@@ -191,6 +198,7 @@ Source code heuristics:
 | npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
 | npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
+| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
 
 Metadata heuristics:
 
@@ -217,6 +225,7 @@ Source code heuristics:
 | go-exec-base64 | Identify Base64-decoded content being passed to execution functions in Go |
 | go-exfiltrate-sensitive-data | This rule identifies when a package reads and exfiltrates sensitive data from the local system. |
 | go-exec-download | This rule downloads and executes a remote binary after setting executable permissions. |
+| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
 
 Metadata heuristics:
 
@@ -240,6 +249,7 @@ Source code heuristics:
 | npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
 | npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
+| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
 ### Extension
 
 Source code heuristics:
@@ -255,8 +265,32 @@ Source code heuristics:
 | npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
 | npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
 | npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
-| extension_suspicious_passwd_access_linux |  |
-| extension_powershell_policy_bypass |  |
+| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
+### RubyGems
+
+Source code heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| rubygems-code-execution | Identify when a gem executes OS commands |
+| rubygems-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
+| rubygems-serialize-environment | Identify when a package serializes ENV to exfiltrate environment variables |
+| rubygems-network-on-require | Identify when a gem makes network requests when required |
+| rubygems-install-hook | Identify when a gem registers installation hooks |
+| rubygems-exec-base64 | Identify when a package dynamically executes base64-encoded code |
+| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
+
+Metadata heuristics:
+
+| **Heuristic** | **Description** |
+|:-------------:|:---------------:|
+| typosquatting | Identify packages that are named closely to an highly popular package |
+| empty_information | Identify packages with an empty description field |
+| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
+| bundled_binary | Identify packages bundling binaries |
+| repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
+
+
 <!-- END_RULE_LIST -->
 
 ## Writing Custom Rules
