@@ -122,6 +122,8 @@ for file_name in semgrep_rule_file_names:
                         ecosystems.add(ECOSYSTEM.EXTENSION)
                     case "go":
                         ecosystems.add(ECOSYSTEM.GO)
+                    case "ruby":
+                        ecosystems.add(ECOSYSTEM.RUBYGEMS)
                     case _:
                         continue
 

