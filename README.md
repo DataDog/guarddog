@@ -1,9 +1,9 @@
 # GuardDog
 
-[![Test](https://github.com/DataDog/guarddog/actions/workflows/test.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/test.yml) [![Static analysis](https://github.com/DataDog/guarddog/actions/workflows/semgrep.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/semgrep.yml)
+[![Test](https://github.com/DataDog/guarddog/actions/workflows/checks.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/checks.yml)
 
 <p align="center">
-  <img src="./docs/images/logo.png" alt="GuardDog" width="300" />
+  <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
 </p>
 
 GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages, Go modules, RubyGems, GitHub actions, or VSCode extensions. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
@@ -19,7 +19,7 @@ It downloads and scans code from:
 * GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
 * VSCode Extensions: Extensions (.vsix) packages hosted in [marketplace.visualstudio.com](https://marketplace.visualstudio.com/)
 
-![GuardDog demo usage](docs/images/demo.png)
+![GuardDog demo usage](https://github.com/DataDog/guarddog/blob/main/docs/images/demo.png?raw=true)
 
 ## Getting started
 
