@@ -42,13 +42,17 @@ def test_githubactions_find_requirements():
     requirements = scanner.find_requirements(
         str(repo_root)
     )
-    assert requirements.sort() == [
-        os.path.join(repo_root, ".github", "workflows", "docker-release.yml"),
+    requirements.sort()
+    expected = [
+        os.path.join(repo_root, ".github", "workflows", "checks.yml"),
+        os.path.join(repo_root, ".github", "workflows", "docker-publish.yml"),
         os.path.join(repo_root, ".github", "workflows", "guarddog.yml"),
-        os.path.join(repo_root, ".github", "workflows", "pypi-release.yml"),
-        os.path.join(repo_root, ".github", "workflows", "semgrep.yml"),
-        os.path.join(repo_root, ".github", "workflows", "test.yml"),
-    ].sort()
+        os.path.join(repo_root, ".github", "workflows", "pr.yml"),
+        os.path.join(repo_root, ".github", "workflows", "pypi-publish.yml"),
+        os.path.join(repo_root, ".github", "workflows", "tag-release.yml"),
+    ]
+    expected.sort()
+    assert requirements == expected
 
 
 @pytest.mark.parametrize(
