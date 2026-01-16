@@ -3,9 +3,9 @@ name = "guarddog"
 description = "GuardDog is a CLI tool for identifying malicious open source packages"
 authors = ["Ellen Wang", "Christophe Tafani-Dereeper"]
 license = "Apache-2.0"
-readme = "pypi.rst"
+readme = "README.md"
 repository = "https://github.com/DataDog/guarddog"
-version = "0.0.0"
+version = "2.8.0"
 
 [tool.poetry.scripts]
 guarddog = "guarddog.cli:cli"
