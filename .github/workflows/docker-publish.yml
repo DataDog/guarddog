@@ -3,7 +3,8 @@ name: Release docker image
 on:
   push:
     tags:
-      - "*"
+      - "v*"
+  workflow_call:
 
 env:
   REGISTRY: ghcr.io

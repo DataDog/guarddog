@@ -12,11 +12,9 @@ FROM base as builder
 COPY . /app
 # install any build time deps + Python deps
 RUN --mount=type=cache,mode=0755,id=pip,target=/root/.cache/pip \
-    # install python deps
-    pip install --root-user-action=ignore -r requirements.txt \
-    # install package
-    && pip install --root-user-action=ignore .
-
+    pip install --root-user-action=ignore poetry \
+    && poetry config virtualenvs.create false \
+    && pip install .
 
 FROM base as app
 # copy built deps from builder
