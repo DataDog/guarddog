@@ -1,0 +1,136 @@
+name: Checks
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: datadog/guarddog
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - name: Set up Python 3.10
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+      - name: Cache Poetry installation
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.local
+          key: poetry-${{ runner.os }}-${{ hashFiles('.github/workflows/checks.yml') }}
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Cache Poetry dependencies
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-deps-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install
+      - name: Type check with mypy
+        run: poetry run make type-check
+      - name: Format test with black
+        run: poetry run make format
+      - name: Lint with flake8
+        run: poetry run make lint
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+    - name: Set up Python 3.10
+      uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+      with:
+        python-version: "3.10"
+        cache: 'pip'
+    - name: Cache Poetry installation
+      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      with:
+        path: ~/.local
+        key: poetry-${{ runner.os }}-${{ hashFiles('.github/workflows/checks.yml') }}
+    - name: Install Poetry
+      run: pip install poetry
+    - name: Cache Poetry dependencies
+      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      with:
+        path: ~/.cache/pypoetry
+        key: poetry-deps-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+    - name: Install dependencies
+      run: poetry install
+
+    - name: Semgrep rules unit tests
+      run: poetry run make test-semgrep-rules
+
+    - name: Python unit tests
+      run: poetry run make test-metadata-rules
+
+    - name: Core unit tests
+      run: poetry run make test-core
+
+    - name: Reporters unit tests
+      run: poetry run make test-reporters
+
+    - name: Report coverage
+      run: poetry run make coverage-report
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - name: Set up Python 3.10
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+      - name: Cache Poetry installation
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.local
+          key: poetry-${{ runner.os }}-${{ hashFiles('.github/workflows/checks.yml') }}
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Cache Poetry dependencies
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-deps-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run GuardDog against a remote package
+        run: poetry run guarddog pypi scan requests
+
+      - name: Run GuardDog against a remote package
+        run: poetry run guarddog npm scan express
+
+      - name: Run GuardDog against a local requirements.txt file
+        run: |
+          echo -e "requests\npywin32" > requirements.txt
+          poetry run guarddog pypi verify ./requirements.txt
+          poetry run guarddog npm verify ./tests/core/resources/package.json
+
+  docker-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: false
+          build-args: |
+            VERSION=${{ github.ref_name }}
