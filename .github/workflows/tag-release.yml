@@ -88,6 +88,9 @@ jobs:
     if: needs.package-validation.outputs.version_bumped == 'true'
     uses: ./.github/workflows/pypi-publish.yml
     secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
 
   docker-release:
     needs: package-validation
