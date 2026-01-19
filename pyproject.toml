@@ -25,7 +25,7 @@ requests = "^2.29.0"
 semantic-version = "^2.10.0"
 semgrep = "^1.147.0"
 tarsafe = "^0.0.5"
-termcolor = "^2.1.0"
+termcolor = "^3.3.0"
 urllib3 = "^2.5.0"
 yara-python = "^4.5.1"
 
