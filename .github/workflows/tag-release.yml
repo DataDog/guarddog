@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   packages: read
+  id-token: write
 
 jobs:
   run-checks:
@@ -88,8 +89,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: package-validation
     if: needs.package-validation.outputs.version_bumped == 'true'
+    environment: protected-main-env
     permissions:
       contents: read
+      id-token: write
 
     steps:
       - name: Checkout
