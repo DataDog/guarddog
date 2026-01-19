@@ -2,12 +2,16 @@
 
 We're using a tag-based release process, following [semantic versioning](https://semver.org/) (semver) conventions.
 
-1. Browse to https://github.com/DataDog/guarddog/releases/new
-2. Create a new Git tag, e.g. `v1.2.3`
+1. Bump version in `pyproject.toml` preferably using `poetry version` accordingly (patch, minor, major)
+2. Submit a pull-request and merge, this will automatically build and publish accordingly
 
-<img width="300" alt="image" src="https://github.com/DataDog/guarddog/assets/136675/12e7ac21-2f8d-47b8-91cb-f3f949605f42">
+This will automatically:
+* Create a new Git tag
+* Create a new Github release
+* Trigger a [Docker image push](https://github.com/DataDog/guarddog/blob/main/.github/workflows/docker-release.yml) to the GitHub Container Registry
+* Trigger a [new PyPI release](https://github.com/DataDog/guarddog/blob/main/.github/workflows/pypi-release.yml)
 
-3. Auto generate release notes, and organize them following the template below, removing any unnecessary section:
+3. Release notes will be automatically generated, re-organize them following the template below, removing any unnecessary section:
 
 ```
 ### Breaking changes
@@ -27,11 +31,3 @@ We're using a tag-based release process, following [semantic versioning](https:/
 
 * Bump XYZ to XYZ
 ```
-
-4. Click on "Publish release"
-
-This will automatically:
-* Create a new Git tag
-* Trigger a [Docker image push](https://github.com/DataDog/guarddog/blob/main/.github/workflows/docker-release.yml) to the GitHub Container Registry
-* Trigger a [new PyPI release](https://github.com/DataDog/guarddog/blob/main/.github/workflows/pypi-release.yml)
-
