@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   packages: read
+  id-token: write
 
 jobs:
   run-checks:
@@ -90,6 +91,7 @@ jobs:
     if: needs.package-validation.outputs.version_bumped == 'true'
     permissions:
       contents: read
+      id-token: write
 
     steps:
       - name: Checkout
