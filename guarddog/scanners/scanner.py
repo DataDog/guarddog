@@ -252,11 +252,9 @@ class ProjectScanner:
         user = os.getenv("GIT_USERNAME")
         personal_access_token = os.getenv("GH_TOKEN")
         if not user or not personal_access_token:
-            log.error(
-                """WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN
+            log.error("""WARNING: Please set GIT_USERNAME (Github handle) and GH_TOKEN
                 (generate a personal access token in Github settings > developer)
-                as environment variables before proceeding."""
-            )
+                as environment variables before proceeding.""")
             exit(1)
         return (user, personal_access_token)
 
