@@ -4,7 +4,7 @@ import pathlib
 import stat
 import zipfile
 
-import tarsafe  # type:ignore
+import tarsafe  # type: ignore
 
 from guarddog.utils.config import (
     MAX_UNCOMPRESSED_SIZE,
