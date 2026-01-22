@@ -5,7 +5,7 @@ import re
 from typing import List
 
 import requests
-from semantic_version import NpmSpec, Version  # type:ignore
+from semantic_version import NpmSpec, Version  # type: ignore
 
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
 from guarddog.scanners.scanner import Dependency, DependencyVersion, ProjectScanner

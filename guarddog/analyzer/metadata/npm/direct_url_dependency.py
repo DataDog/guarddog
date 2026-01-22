@@ -10,7 +10,6 @@ from guarddog.analyzer.metadata.detector import Detector
 
 from urllib.parse import urlparse
 
-
 github_project_pattern = re.compile(r"^([\w\-\.]+)/([\w\-\.]+)")
 
 
