@@ -36,7 +36,7 @@ mypy = "^1.4.1"
 pytest = ">=7.4,<10.0"
 pytest-mock = "^3.11.1"
 sarif-tools = ">=2,<4"
-black = "^25.9.0"
+black = "^26.1.0"
 
 [tool.pytest.ini_options]
 filterwarnings = [
