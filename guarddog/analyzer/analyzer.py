@@ -20,7 +20,7 @@ from guarddog.analyzer.risk_engine import (
     validate_mitre_tactics,
 )
 from guarddog.utils.config import YARA_EXT_EXCLUDE
-from guarddog.ecosystems import ECOSYSTEM
+from guarddog.ecosystems import ECOSYSTEM, LANGUAGE
 
 MAX_BYTES_DEFAULT = 10_000_000
 SEMGREP_TIMEOUT_DEFAULT = 10
@@ -73,6 +73,136 @@ class Analyzer:
             ".github",
             ".semgrep_logs",
         ]
+
+    # Comment filtering helpers
+
+    @staticmethod
+    def _detect_language(file_path: str) -> Optional[LANGUAGE]:
+        """Detect programming language based on file extension."""
+        ext = Path(file_path).suffix.lower()
+        language_map = {
+            '.py': LANGUAGE.PYTHON, '.pyx': LANGUAGE.PYTHON, '.pyi': LANGUAGE.PYTHON,
+            '.js': LANGUAGE.JAVASCRIPT, '.jsx': LANGUAGE.JAVASCRIPT,
+            '.mjs': LANGUAGE.JAVASCRIPT, '.cjs': LANGUAGE.JAVASCRIPT,
+            '.ts': LANGUAGE.TYPESCRIPT, '.tsx': LANGUAGE.TYPESCRIPT,
+            '.go': LANGUAGE.GO,
+            '.rb': LANGUAGE.RUBY,
+        }
+        return language_map.get(ext)
+
+    @staticmethod
+    def _is_in_multiline_comment(
+        file_path: str,
+        language: LANGUAGE,
+        byte_offset: Optional[int] = None,
+        line_number: Optional[int] = None,
+        context_window: int = 4096
+    ) -> bool:
+        """
+        Check if a position is within a multi-line comment block.
+        Searches backwards in a limited window to find the first comment marker.
+
+        Args:
+            file_path: Path to the file
+            language: Programming language
+            byte_offset: Optional byte offset - if not provided, calculated from line_number
+            line_number: Optional line number - used to calculate byte_offset if not provided
+            context_window: Number of bytes to read before the match (default 4KB)
+        """
+        try:
+            # Calculate byte offset from line number if not provided
+            if byte_offset is None:
+                if line_number is None:
+                    return False
+                with open(file_path, 'r', errors='ignore') as f:
+                    lines_before = [next(f) for _ in range(line_number - 1)]
+                    byte_offset = sum(len(l.encode('utf-8')) for l in lines_before)
+
+            # Read only a window of context before the match
+            start_pos = max(0, byte_offset - context_window)
+            with open(file_path, 'rb') as f:
+                f.seek(start_pos)
+                window = f.read(byte_offset - start_pos).decode('utf-8', errors='ignore')
+
+            if language in [LANGUAGE.JAVASCRIPT, LANGUAGE.TYPESCRIPT, LANGUAGE.GO]:
+                # Search backwards for first /* or */
+                last_open = window.rfind('/*')
+                last_close = window.rfind('*/')
+
+                # If we find an opening comment and it comes after the last closing,
+                # then we're inside a comment
+                if last_open > last_close:
+                    return True
+
+            elif language == LANGUAGE.PYTHON:
+                # For Python, check if we're inside """ or '''
+                for quote in ['"""', "'''"]:
+                    # Count occurrences - if odd, we're inside a docstring
+                    count = window.count(quote)
+                    if count % 2 == 1:
+                        return True
+
+        except Exception:
+            pass
+
+        return False
+
+    @staticmethod
+    def is_match_in_comment(
+        file_path: str,
+        line_number: int,
+        byte_offset: Optional[int] = None,
+        line_content: Optional[str] = None
+    ) -> bool:
+        """
+        Check if a match at a given line is within a comment.
+
+        Args:
+            file_path: Path to the file
+            line_number: Line number (1-indexed) of the match
+            byte_offset: Optional byte offset for multi-line comment detection optimization
+            line_content: Optional pre-extracted line content to avoid re-reading file
+
+        Returns:
+            True if the match is in a comment, False otherwise
+        """
+        language = Analyzer._detect_language(file_path)
+        if not language:
+            return False
+
+        try:
+            # Get line content if not provided
+            if line_content is None:
+                with open(file_path, 'r', errors='ignore') as f:
+                    for current_line_num, line in enumerate(f, start=1):
+                        if current_line_num == line_number:
+                            line_content = line
+                            break
+                        if current_line_num > line_number:
+                            return False
+
+            if line_content is None:
+                return False
+
+            # Check single-line comments
+            line_stripped = line_content.strip()
+            if language in [LANGUAGE.PYTHON, LANGUAGE.RUBY] and line_stripped.startswith('#'):
+                return True
+            if language in [LANGUAGE.JAVASCRIPT, LANGUAGE.TYPESCRIPT, LANGUAGE.GO] and line_stripped.startswith('//'):
+                return True
+
+            # Check multi-line comments (byte_offset will be calculated inside if needed)
+            return Analyzer._is_in_multiline_comment(
+                file_path,
+                language,
+                byte_offset=byte_offset,
+                line_number=line_number
+            )
+
+        except Exception:
+            pass
+
+        return False
 
     def analyze(
         self,
@@ -309,17 +439,29 @@ class Analyzer:
                                 continue
 
                         matches = scan_rule.match(scan_file_target_abspath)
+
                         for m in matches:
 
                             for s in m.strings:
                                 for i in s.instances:
-                                    # Extract the actual line of code at the match offset
-                                    line_of_code = self.get_line_at_offset(
+                                    # Convert byte offset to line number for better readability
+                                    line_number = self.get_line_number_from_offset(
                                         scan_file_target_abspath, i.offset
                                     )
 
-                                    # Convert byte offset to line number for better readability
-                                    line_number = self.get_line_number_from_offset(
+                                    # Filter out matches in comments
+                                    if self.is_match_in_comment(
+                                        scan_file_target_abspath,
+                                        line_number=line_number,
+                                        byte_offset=i.offset
+                                    ):
+                                        log.debug(
+                                            f"Filtered match in comment at {scan_file_target_relpath}:{line_number}"
+                                        )
+                                        continue
+
+                                    # Extract the actual line of code at the match offset
+                                    line_of_code = self.get_line_at_offset(
                                         scan_file_target_abspath, i.offset
                                     )
 
@@ -496,6 +638,14 @@ output: {e.output}
             end_line = result["end"]["line"]
 
             file_path = os.path.abspath(result["path"])
+
+            # Filter out matches in comments
+            if self.is_match_in_comment(file_path, line_number=start_line):
+                log.debug(
+                    f"Filtered semgrep match in comment at {file_path}:{start_line}"
+                )
+                continue
+
             code = self.trim_code_snippet(
                 self.get_snippet(
                     file_path=file_path, start_line=start_line, end_line=end_line
