@@ -10,6 +10,15 @@ class ECOSYSTEM(Enum):
     RUBYGEMS = "rubygems"
 
 
+class LANGUAGE(Enum):
+    """Programming language identifiers for source code analysis."""
+    PYTHON = "python"
+    JAVASCRIPT = "javascript"
+    TYPESCRIPT = "typescript"
+    GO = "go"
+    RUBY = "ruby"
+
+
 def get_friendly_name(ecosystem: ECOSYSTEM) -> str:
     match ecosystem:
         case ECOSYSTEM.PYPI:
