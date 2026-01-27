@@ -30,7 +30,7 @@ urllib3 = "^2.5.0"
 yara-python = "^4.5.1"
 
 [tool.poetry.group.dev.dependencies]
-coverage = "^7.10.3"
+coverage = "^7.13.2"
 flake8 = ">=5.0.4,<8.0.0"
 mypy = "^1.4.1"
 pytest = ">=7.4,<10.0"
