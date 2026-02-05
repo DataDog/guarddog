@@ -80,7 +80,7 @@ class TyposquatDetector(Detector):
             f"Cache expired check: {is_expired} (refresh enabled: {enable_refresh})"
         )
 
-        if enable_refresh and is_expired:
+        if enable_refresh and is_expired and popular_packages_url is not None:
             log.info(
                 f"Cache is expired, attempting to refresh from: {popular_packages_url}"
             )
@@ -97,9 +97,10 @@ class TyposquatDetector(Detector):
                     "packages": top_packages_information,
                 }
 
-                log.info(
-                    f"Saving refreshed cache with {len(top_packages_information)} packages to {top_packages_path}"
-                )
+                if top_packages_information is not None:
+                    log.info(
+                        f"Saving refreshed cache with {len(top_packages_information)} packages to {top_packages_path}"
+                    )
                 with open(top_packages_path, "w+") as f:
                     json.dump(cache_data, f, ensure_ascii=False, indent=4)
             else:
