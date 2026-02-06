@@ -1,14 +1,9 @@
-import json
 import logging
-import os
-from datetime import datetime, timedelta
 from typing import Optional
 
-import requests
 import packaging.utils
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
-from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 
 log = logging.getLogger("guarddog")
 
@@ -25,87 +20,35 @@ class PypiTyposquatDetector(TyposquatDetector):
 
     def _get_top_packages(self) -> set:
         """
-        Gets the package information of the top 5000 most downloaded PyPI packages
-
-        Returns:
-            set: set of package data in the format:
-                {
-                    ...
-                    {
-                        download_count: ...
-                        project: <package-name>
-                    }
-                    ...
-                }
+        Gets the package information of the top 5000 most downloaded PyPI packages.
+        Uses the base class implementation with PyPI-specific parameters.
         """
-
-        popular_packages_url = (
-            "https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json"
+        packages = self._get_top_packages_with_refresh(
+            packages_filename="top_pypi_packages.json",
+            popular_packages_url="https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json",
+            refresh_days=30,
         )
 
-        top_packages_filename = "top_pypi_packages.json"
-        resources_dir = TOP_PACKAGES_CACHE_LOCATION
-        if resources_dir is None:
-            resources_dir = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "resources")
-            )
+        # Apply canonicalization to PyPI package names
+        return set(map(self._canonicalize_name, packages))
 
-        top_packages_path = os.path.join(resources_dir, top_packages_filename)
-        top_packages_information = self._get_top_packages_local(top_packages_path)
-
-        if self._file_is_expired(top_packages_path, days=30):
-            new_information = self._get_top_packages_network(popular_packages_url)
-            if new_information is not None:
-                top_packages_information = new_information
-
-                with open(top_packages_path, "w+") as f:
-                    json.dump(new_information, f, ensure_ascii=False, indent=4)
-
-        if top_packages_information is None:
-            return set()
-        return set(map(self.get_safe_name, top_packages_information))
-
-    @staticmethod
-    def get_safe_name(package):
-        return packaging.utils.canonicalize_name(package["project"])
-
-    def _file_is_expired(self, path: str, days: int) -> bool:
-        try:
-            update_time = datetime.fromtimestamp(os.path.getmtime(path))
-            return datetime.now() - update_time > timedelta(days=days)
-        except FileNotFoundError:
-            return True
-
-    def _get_top_packages_local(self, path: str) -> list[dict] | None:
-        try:
-            with open(path, "r") as f:
-                result = json.load(f)
-                return self.extract_information(result)
-        except FileNotFoundError:
-            log.error(f"File not found: {path}")
+    def _extract_package_names(self, data: dict | list | None) -> list | None:
+        """
+        Extract package names from PyPI data structure.
+        PyPI data has format: {"rows": [{"project": "name", "download_count": ...}, ...]}
+        """
+        if data is None:
             return None
 
-    def _get_top_packages_network(self, url: str) -> list[dict] | None:
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
+        if isinstance(data, dict) and "rows" in data:
+            return [row["project"] for row in data["rows"]]
 
-            response_data = response.json()
-            result = response_data
-
-            return self.extract_information(result)
-        except json.JSONDecodeError:
-            log.error(f'Couldn`t convert to json: "{response.text}"')
-            return None
-        except requests.exceptions.RequestException as e:
-            log.error(f"Network error: {e}")
-            return None
-
-    @staticmethod
-    def extract_information(data: dict | None) -> list[dict] | None:
-        if data is not None:
-            return data.get("rows")
         return None
+
+    @staticmethod
+    def _canonicalize_name(package_name: str) -> str:
+        """Canonicalize PyPI package names according to PEP 503."""
+        return packaging.utils.canonicalize_name(package_name)
 
     def detect(
         self,
