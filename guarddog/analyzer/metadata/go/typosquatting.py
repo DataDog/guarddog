@@ -1,12 +1,6 @@
-import json
-import logging
-import os
 from typing import Optional
 
 from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
-from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
-
-log = logging.getLogger("guarddog")
 
 
 class GoTyposquatDetector(TyposquatDetector):
@@ -19,32 +13,21 @@ class GoTyposquatDetector(TyposquatDetector):
     """
 
     def _get_top_packages(self) -> set:
-        top_packages_filename = "top_go_packages.json"
+        """
+        Gets the top Go packages from local cache.
+        Uses the base class implementation without network refresh.
+        """
+        packages = self._get_top_packages_with_refresh(
+            packages_filename="top_go_packages.json",
+            popular_packages_url=None,  # No URL = no auto-refresh
+        )
 
-        resources_dir = TOP_PACKAGES_CACHE_LOCATION
-        if resources_dir is None:
-            resources_dir = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "resources")
-            )
-
-        top_packages_path = os.path.join(resources_dir, top_packages_filename)
-        top_packages_information = self._get_top_packages_local(top_packages_path)
-
-        if top_packages_information is None:
+        if not packages:
             raise Exception(
-                f"Could not retrieve top Go packages from {top_packages_path}"
+                "Could not retrieve top Go packages from top_go_packages.json"
             )
 
-        return set(top_packages_information)
-
-    def _get_top_packages_local(self, path: str) -> list[dict] | None:
-        try:
-            with open(path, "r") as f:
-                result = json.load(f)
-                return result
-        except FileNotFoundError:
-            log.error(f"File not found: {path}")
-            return None
+        return packages
 
     def detect(
         self,
