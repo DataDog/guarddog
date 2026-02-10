@@ -22,3 +22,22 @@ rule has_python_hook
     condition:
         any of them
 }
+
+rule has_ruby_hook
+{
+    strings:
+        // Gem install hooks
+        $rb_gem_post_install = /\bGem\s*\.\s*post_install\b/ nocase
+        $rb_gem_pre_install = /\bGem\s*\.\s*pre_install\b/ nocase
+        $rb_gem_post_uninstall = /\bGem\s*\.\s*post_uninstall\b/ nocase
+        $rb_gem_pre_uninstall = /\bGem\s*\.\s*pre_uninstall\b/ nocase
+
+        // Gem::Installer hooks
+        $rb_installer_post_install = /\bGem\s*::\s*Installer\s*\.\s*post_install\b/ nocase
+        $rb_installer_pre_install = /\bGem\s*::\s*Installer\s*\.\s*pre_install\b/ nocase
+
+        // Extension building (runs arbitrary code during install)
+        $rb_extensions = /\bGem\s*::\s*Specification\s*\.\s*new\b.*\bextensions\s*=/ nocase
+    condition:
+        any of them
+}

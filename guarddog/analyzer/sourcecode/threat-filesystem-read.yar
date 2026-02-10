@@ -29,6 +29,7 @@ rule threat_filesystem_read
         $git1 = ".git/config"
         $git2 = ".git-credentials"
         $git3 = ".gitconfig"
+        $netrc = ".netrc"
 
         // Cloud credentials
         $aws = ".aws/credentials"
