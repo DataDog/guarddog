@@ -9,7 +9,7 @@ rule capability_process_spawn
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,extconf.rb,*/extconf.rb,Rakefile,*/Rakefile"
     strings:
         // Python - subprocess
         $py_subprocess_call = /subprocess\.(call|run|check_call|check_output|Popen)/ nocase
@@ -30,6 +30,43 @@ rule capability_process_spawn
         $go_exec_command = "exec.Command(" nocase
         $go_exec_commandcontext = "exec.CommandContext(" nocase
         $go_os_startprocess = "os.StartProcess(" nocase
+
+        // Ruby - Kernel methods for command execution
+        $rb_system = /\bsystem\s*\(/ nocase
+        $rb_exec = /\bexec\s*\(/ nocase
+        $rb_spawn = /\bspawn\s*\(/ nocase
+        $rb_kernel_system = /\bKernel\s*\.\s*system\s*\(/ nocase
+        $rb_kernel_exec = /\bKernel\s*\.\s*exec\s*\(/ nocase
+        $rb_kernel_spawn = /\bKernel\s*\.\s*spawn\s*\(/ nocase
+
+        // Ruby - Backtick execution
+        $rb_backtick = /`[^`]+`/ nocase
+
+        // Ruby - %x{} command execution
+        $rb_percent_x = /%x[\{\[\(]/ nocase
+
+        // Ruby - Open3 module
+        $rb_open3_capture2 = /\bOpen3\s*\.\s*capture2/ nocase
+        $rb_open3_capture2e = /\bOpen3\s*\.\s*capture2e/ nocase
+        $rb_open3_capture3 = /\bOpen3\s*\.\s*capture3/ nocase
+        $rb_open3_pipeline = /\bOpen3\s*\.\s*pipeline/ nocase
+        $rb_open3_popen = /\bOpen3\s*\.\s*popen/ nocase
+
+        // Ruby - IO.popen
+        $rb_io_popen = /\bIO\s*\.\s*popen\s*\(/ nocase
+
+        // Ruby - Process methods
+        $rb_process_spawn = /\bProcess\s*\.\s*spawn\s*\(/ nocase
+        $rb_process_exec = /\bProcess\s*\.\s*exec\s*\(/ nocase
+
+        // Ruby - PTY.spawn
+        $rb_pty_spawn = /\bPTY\s*\.\s*spawn\s*\(/ nocase
+
+        // Ruby - eval methods (dynamic code execution)
+        $rb_eval = /\beval\s*\(/ nocase
+        $rb_instance_eval = /\binstance_eval\s*\(/ nocase
+        $rb_class_eval = /\bclass_eval\s*\(/ nocase
+        $rb_module_eval = /\bmodule_eval\s*\(/ nocase
 
     condition:
         any of them

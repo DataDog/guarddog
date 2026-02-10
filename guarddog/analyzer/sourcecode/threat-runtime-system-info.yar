@@ -10,7 +10,7 @@ rule threat_runtime_system_info
         sophistication = "low"
 
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // Python - unique system info function calls (object name doesn't matter)
         $py_system = /\.system\s*\(\s*\)/ nocase
@@ -38,6 +38,12 @@ rule threat_runtime_system_info
         $go_hostname = /\.Hostname\s*\(\s*\)/ nocase
         $go_getenv = /\.Getenv\s*\(/ nocase
         $go_user_current = /\.Current\s*\(\s*\)/ nocase
+
+        // Ruby - system info
+        $rb_socket_gethostname = /\bSocket\s*\.\s*gethostname\b/ nocase
+        $rb_etc_getlogin = /\bEtc\s*\.\s*getlogin\b/ nocase
+        $rb_etc_getpwuid = /\bEtc\s*\.\s*getpwuid\s*\(/ nocase
+        $rb_dir_home = /\bDir\s*\.\s*home\b/ nocase
 
     condition:
         any of them

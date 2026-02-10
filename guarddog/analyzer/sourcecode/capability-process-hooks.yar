@@ -11,8 +11,8 @@ rule capability_process_hooks
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*/package.json,*/setup.py"
+        path_include = "*/package.json,setup.py,*/setup.py,*.gemspec"
 
     condition:
-        has_npm_hook or has_python_hook
+        has_npm_hook or has_python_hook or has_ruby_hook
 }

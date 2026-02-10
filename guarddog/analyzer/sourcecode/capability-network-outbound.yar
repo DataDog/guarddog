@@ -9,7 +9,7 @@ rule capability_network_outbound
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // Python - HTTP
         $py_requests = /requests\.(get|post|put|delete|head|patch)/
@@ -41,6 +41,35 @@ rule capability_network_outbound
 
         // Go - DNS
         $go_lookup = /net\.(LookupHost|LookupIP|LookupAddr|LookupCNAME|LookupMX|LookupNS|LookupTXT)\s*\(/
+
+        // Ruby - HTTP libraries (Net::HTTP)
+        $rb_net_http_get = /\bNet\s*::\s*HTTP\s*\.\s*get\s*\(/ nocase
+        $rb_net_http_post = /\bNet\s*::\s*HTTP\s*\.\s*post\s*\(/ nocase
+        $rb_net_http_start = /\bNet\s*::\s*HTTP\s*\.\s*start\s*\(/ nocase
+        $rb_net_http_new = /\bNet\s*::\s*HTTP\s*\.\s*new\s*\(/ nocase
+
+        // Ruby - URI and OpenURI
+        $rb_uri_open = /\bURI\s*\.\s*open\s*\(/ nocase
+        $rb_openuri = /\bOpenURI\s*\.\s*open_uri\s*\(/ nocase
+
+        // Ruby - HTTParty
+        $rb_httparty_get = /\bHTTParty\s*\.\s*get\s*\(/ nocase
+        $rb_httparty_post = /\bHTTParty\s*\.\s*post\s*\(/ nocase
+
+        // Ruby - Faraday
+        $rb_faraday_get = /\bFaraday\s*\.\s*get\s*\(/ nocase
+        $rb_faraday_post = /\bFaraday\s*\.\s*post\s*\(/ nocase
+
+        // Ruby - RestClient
+        $rb_restclient_get = /\bRestClient\s*\.\s*get\s*\(/ nocase
+        $rb_restclient_post = /\bRestClient\s*\.\s*post\s*\(/ nocase
+
+        // Ruby - Socket connections
+        $rb_tcpsocket_new = /\bTCPSocket\s*\.\s*new\s*\(/ nocase
+        $rb_tcpsocket_open = /\bTCPSocket\s*\.\s*open\s*\(/ nocase
+        $rb_udpsocket_new = /\bUDPSocket\s*\.\s*new\s*\(/ nocase
+        $rb_udpsocket_open = /\bUDPSocket\s*\.\s*open\s*\(/ nocase
+        $rb_socket_tcp = /\bSocket\s*\.\s*tcp\s*\(/ nocase
 
     condition:
         any of them

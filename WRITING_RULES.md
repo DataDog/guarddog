@@ -167,8 +167,18 @@ sophistication: "low" | "medium" | "high"    # Technique advancement level
 
 ```yaml
 max_hits: 3                                  # Limit findings per file
-path_include: "*.py,*.js,*.go"              # File patterns to scan
+path_include: "*.py,*.js,*/package.json"    # File patterns to scan (see below)
 ```
+
+**path_include Pattern Matching:**
+
+GuardDog uses Python's `fnmatch` to match file paths. Patterns are matched against the **relative path** from the scan root:
+
+- `*.py` - Matches `.py` files at **any depth** (e.g., `foo.py`, `src/foo.py`, `a/b/c/foo.py`)
+- `setup.py` - Matches **only in root** directory (not `src/setup.py`)
+
+- `*/setup.py` - Matches in **subdirectories only**, not root (e.g., `src/setup.py`, `a/b/setup.py`)
+- `setup.py,*/setup.py` - Matches at **any depth including root**
 
 ### Field Definitions
 
