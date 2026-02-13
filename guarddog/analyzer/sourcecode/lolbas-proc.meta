@@ -5,26 +5,26 @@ rule lolbas_proc
 {
     strings:
         // Unix shells
-        $bash = /\bbash\b/ nocase
-        $sh = /\bsh\b/ nocase
-        $zsh = /\bzsh\b/ nocase
-        $dash = /\bdash\b/ nocase
-        $ksh = /\bksh\b/ nocase
+        $bash = /\bbash\b/
+        $sh = /\bsh\b/
+        $zsh = /\bzsh\b/
+        $dash = /\bdash\b/
+        $ksh = /\bksh\b/
 
         // Scripting languages
-        $python = /\bpython[0-9]?\b/ nocase
-        $node = /\bnode(js)?\b/ nocase
-        $perl = /\bperl\b/ nocase
-        $ruby = /\bruby\b/ nocase
-        $php = /\bphp\b/ nocase
+        $python = /\bpython[0-9]?\b/
+        $node = /\bnode(js)?\b/
+        $perl = /\bperl\b/
+        $ruby = /\bruby\b/
+        $php = /\bphp\b/
 
         // Modern runtimes
-        $bun = /\bbun\b/ nocase
-        $deno = /\bdeno\b/ nocase
+        $bun = /\bbun\b/
+        $deno = /\bdeno\b/
 
         // Compiled languages
-        $java = /\bjava\b/ nocase
-        $javac = /\bjavac\b/ nocase
+        $java = /\bjava\b/
+        $javac = /\bjavac\b/
 
     condition:
         any of them
