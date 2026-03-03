@@ -21,6 +21,10 @@ It downloads and scans code from:
 
 ![GuardDog demo usage](https://github.com/DataDog/guarddog/blob/main/docs/images/demo.png?raw=true)
 
+---
+### Check out the new Datadog Agent [integration](https://docs.datadoghq.com/integrations/guarddog/) and Cloud SIEM [content pack](https://app.datadoghq.com/security/siem/content-packs?query=guarddog) for GuardDog.
+---
+
 ## Getting started
 
 ### Installation
