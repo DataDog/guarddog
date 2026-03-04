@@ -55,3 +55,35 @@ def test_npm_requirements_scanner_github():
     )
     assert lookup is not None
     assert "https://github.com/expressjs/cors.git" in lookup.versions
+
+
+def test_npm_requirements_scanner_alias():
+    scanner = NPMRequirementsScanner()
+    result = scanner.parse_requirements("""
+    {
+        "dependencies": {
+            "this-alias-should-not-be-scanned-directly": "npm:express@4.x"
+        }
+    }
+    """)
+
+    assert "this-alias-should-not-be-scanned-directly" not in result
+    lookup = next(filter(lambda r: r.name == "express", result), None)
+    assert lookup is not None
+    assert len(lookup.versions) > 0
+
+
+def test_npm_requirements_scanner_scoped_alias():
+    scanner = NPMRequirementsScanner()
+    result = scanner.parse_requirements("""
+    {
+        "dependencies": {
+            "this-scoped-alias-should-not-be-scanned-directly": "npm:@types/node@*"
+        }
+    }
+    """)
+
+    assert "this-scoped-alias-should-not-be-scanned-directly" not in result
+    lookup = next(filter(lambda r: r.name == "@types/node", result), None)
+    assert lookup is not None
+    assert len(lookup.versions) > 0

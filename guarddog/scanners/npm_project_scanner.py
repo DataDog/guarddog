@@ -13,6 +13,10 @@ from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 
 log = logging.getLogger("guarddog")
 
+NPM_ALIAS_PATTERN = re.compile(
+    r"^npm:(?P<package>@[^/@\s]+/[^@\s]+|[^@\s]+)(?:@(?P<selector>.+))?$"
+)
+
 
 class NPMRequirementsScanner(ProjectScanner):
     """
@@ -48,6 +52,19 @@ class NPMRequirementsScanner(ProjectScanner):
         dev_dependencies_attr = (
             package["devDependencies"] if "devDependencies" in package else {}
         )
+        raw_requirement_lines = raw_requirements.splitlines()
+
+        def resolve_dependency_spec(package_name: str, selector: str) -> tuple[str, str]:
+            """
+            Normalizes npm alias selectors so scanning targets the real package.
+            ex: {"alias": "npm:react@19.2.3"} -> ("react", "19.2.3")
+            """
+            match = NPM_ALIAS_PATTERN.match(selector)
+            if match is None:
+                return package_name, selector
+
+            resolved_selector = match.group("selector") or "*"
+            return match.group("package"), resolved_selector
 
         def get_matched_versions(versions: set[str], semver_range: str) -> set[str]:
             """
@@ -86,12 +103,20 @@ class NPMRequirementsScanner(ProjectScanner):
             return versions
 
         merged = {}  # type: dict[str, set[str]]
+        merged_original_names = {}  # type: dict[str, set[str]]
         for package, selector in list(dependencies_attr.items()) + list(
             dev_dependencies_attr.items()
         ):
-            if package not in merged:
-                merged[package] = set()
-            merged[package].add(selector)
+            resolved_package, resolved_selector = resolve_dependency_spec(
+                package, selector
+            )
+            if resolved_package not in merged:
+                merged[resolved_package] = set()
+            merged[resolved_package].add(resolved_selector)
+
+            if resolved_package not in merged_original_names:
+                merged_original_names[resolved_package] = set()
+            merged_original_names[resolved_package].add(package)
 
         dependencies: List[Dependency] = []
         for package, all_selectors in merged.items():
@@ -105,12 +130,13 @@ class NPMRequirementsScanner(ProjectScanner):
                 log.error(f"Package/Version {package} not on NPM\n")
                 continue
 
+            line_match_terms = merged_original_names.get(package, set([package]))
             idx = next(
                 iter(
                     [
                         ix
-                        for ix, line in enumerate(raw_requirements.splitlines())
-                        if package in line
+                        for ix, line in enumerate(raw_requirement_lines)
+                        if any(term in line for term in line_match_terms)
                     ]
                 ),
                 0,
