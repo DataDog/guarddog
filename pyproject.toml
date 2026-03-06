@@ -11,7 +11,7 @@ version = "2.9.0"
 guarddog = "guarddog.cli:cli"
 
 [tool.poetry.dependencies]
-click = "^8.1.3"
+click = "^8.3.1"
 configparser = ">=5.3,<8.0"
 disposable-email-domains = ">=0.0.103,<0.0.164"
 prettytable="^3.6.0"
@@ -23,7 +23,7 @@ pygit2 = ">=1.11,<1.19"
 pyyaml = "^6.0"
 requests = "^2.29.0"
 semantic-version = "^2.10.0"
-semgrep = "^1.147.0"
+semgrep = "^1.153.0"
 tarsafe = "^0.0.5"
 termcolor = "^3.3.0"
 urllib3 = "^2.5.0"
@@ -37,6 +37,12 @@ pytest = ">=7.4,<10.0"
 pytest-mock = "^3.11.1"
 sarif-tools = ">=2,<4"
 black = "^26.1.0"
+
+
+[[tool.poetry.source]]
+name = "internal"
+url = "https://depot-read-api-python.us1.ddbuild.io/magicmirror/magicmirror/@current/simple/"
+priority = "primary"
 
 [tool.pytest.ini_options]
 filterwarnings = [
