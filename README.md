@@ -397,6 +397,7 @@ GuardDog's behavior can be customized using environment variables:
 |---------------------|-------------|---------------|
 | `GUARDDOG_PARALLELISM` | Number of threads to use for parallel processing | Number of CPUs available |
 | `GUARDDOG_VERIFY_EXHAUSTIVE_DEPENDENCIES` | Analyze all possible versions of dependencies (`true`/`false`) | `false` |
+| `GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES` | Include `devDependencies` when scanning npm `package.json` files (`true`/`false`) | `false` |
 | `GUARDDOG_TOP_PACKAGES_CACHE_LOCATION` | Location of the top packages cache directory | `guarddog/analyzer/metadata/resources` |
 | `GUARDDOG_YARA_EXT_EXCLUDE` | Comma-separated list of file extensions to exclude from YARA scanning | `ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,csv,sql,pdf,doc,docx,ppt,pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info,d.ts` |
 

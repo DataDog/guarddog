@@ -19,6 +19,16 @@ VERIFY_EXHAUSTIVE_DEPENDENCIES: bool = (
 )
 
 """
+This flag specifies if npm devDependencies should be included in project scans
+- True: dependencies and devDependencies are analyzed
+- False [default]: Only dependencies are analyzed
+"""
+NPM_INCLUDE_DEV_DEPENDENCIES: bool = (
+    os.environ.get("GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES", "false").lower()
+    == "true"
+)
+
+"""
 This parameter specifies the location of the top packages cache
 - Default: guarddog/analyzer/metadata/resources
 """
