@@ -1,5 +1,5 @@
 from guarddog.scanners.scanner import DependencyFile
-from typing import List
+from typing import List, Optional
 from guarddog.ecosystems import ECOSYSTEM
 
 
@@ -9,7 +9,11 @@ class BaseReporter:
     """
 
     @staticmethod
-    def render_scan(scan_results: dict) -> tuple[str, str]:
+    def render_scan(
+        scan_results: dict,
+        ecosystem: Optional[ECOSYSTEM] = None,
+        verbose: bool = False,
+    ) -> tuple[str, str]:
         """
         Report the scans results.
         """
@@ -20,7 +24,8 @@ class BaseReporter:
         dependency_files: List[DependencyFile],
         rule_names: list[str],
         scan_results: list[dict],
-        ecosystem: ECOSYSTEM,
+        ecosystem: ECOSYSTEM = None,
+        verbose: bool = False,
     ) -> tuple[str, str]:
         """
         Report the scans results.

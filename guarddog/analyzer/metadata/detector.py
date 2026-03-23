@@ -5,9 +5,17 @@ from typing import Optional
 class Detector:
     RULE_NAME = ""
 
-    def __init__(self, name: str, description: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        help_url: Optional[str] = None,
+        verbose_description: Optional[str] = None,
+    ) -> None:
         self.name = name
         self.description = description
+        self.help_url = help_url
+        self.verbose_description = verbose_description
 
     # returns (ruleMatches, message)
     @abstractmethod

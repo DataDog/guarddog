@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Optional
 from guarddog.scanners.scanner import DependencyFile
 from guarddog.ecosystems import ECOSYSTEM
 
@@ -12,12 +12,17 @@ class JsonReporter(BaseReporter):
         dependency_files: List[DependencyFile],
         rule_names: list[str],
         scan_results: list[dict],
-        ecosystem: ECOSYSTEM,
+        ecosystem: ECOSYSTEM = None,
+        verbose: bool = False,
     ) -> tuple[str, str]:
         return json.dumps(scan_results), ""
 
     @staticmethod
-    def render_scan(scan_results: dict) -> tuple[str, str]:
+    def render_scan(
+        scan_results: dict,
+        ecosystem: Optional[ECOSYSTEM] = None,
+        verbose: bool = False,
+    ) -> tuple[str, str]:
         """
         Report the scans results in a json format.
 
