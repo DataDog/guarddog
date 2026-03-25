@@ -1,6 +1,7 @@
 # GuardDog
 
 [![Test](https://github.com/DataDog/guarddog/actions/workflows/checks.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/checks.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/DataDog/guarddog/badge)](https://securityscorecards.dev/viewer/?uri=github.com/DataDog/guarddog)
 
 <p align="center">
   <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
