@@ -42,7 +42,7 @@ jobs:
             echo "requirements.txt found, using existing file"
           elif [ -f "pyproject.toml" ]; then
             echo "pyproject.toml found, installing poetry and exporting requirements"
-            python -m pip install poetry==2.3.2 --user
+            pip install -r .github/workflows/requirements.txt
             poetry self add poetry-plugin-export
             poetry export -f requirements.txt --output requirements.txt --with dev
           else
