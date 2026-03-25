@@ -29,7 +29,7 @@ jobs:
           path: ~/.local
           key: poetry-${{ runner.os }}-${{ hashFiles('.github/workflows/checks.yml') }}
       - name: Install Poetry
-        run: pip install poetry
+        run: pip install poetry==2.3.2
       - name: Cache Poetry dependencies
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
@@ -62,7 +62,7 @@ jobs:
         path: ~/.local
         key: poetry-${{ runner.os }}-${{ hashFiles('.github/workflows/checks.yml') }}
     - name: Install Poetry
-      run: pip install poetry
+      run: pip install poetry==2.3.2
     - name: Cache Poetry dependencies
       uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
@@ -104,7 +104,7 @@ jobs:
           path: ~/.local
           key: poetry-${{ runner.os }}-${{ hashFiles('.github/workflows/checks.yml') }}
       - name: Install Poetry
-        run: pip install poetry
+        run: pip install poetry==2.3.2
       - name: Cache Poetry dependencies
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
