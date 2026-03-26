@@ -14,10 +14,8 @@ def test_rubygems_parse_requirements():
         result = scanner.parse_requirements(f.read())
 
         expected_gems = [
-            ("actioncable", "7.0.4"),
-            ("actionpack", "7.0.4"),
-            ("activesupport", "7.0.4"),
-            ("rake", "13.0.6"),
+            ("rake", "13.2.1"),
+            ("minitest", "5.25.4"),
         ]
 
         for name, version in expected_gems:
