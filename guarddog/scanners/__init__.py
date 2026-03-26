@@ -11,21 +11,21 @@ from .github_action_scanner import GithubActionScanner
 from .extension_scanner import ExtensionScanner
 from .rubygems_package_scanner import RubyGemsPackageScanner
 from .rubygems_project_scanner import RubyGemsRequirementsScanner
+from .mcp_config_scanner import MCPConfigScanner
+from .mcp_project_scanner import MCPDiscoveryScanner
 from .scanner import PackageScanner, ProjectScanner
 from ..ecosystems import ECOSYSTEM
 
 
 def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
     """
-    Return a `PackageScanner` for the given ecosystem or `None` if it
-    is not yet supported.
+    Return a `PackageScanner` for the given ecosystem or `None` if it is not yet supported.
 
     Args:
         ecosystem (ECOSYSTEM): The ecosystem of the desired scanner
 
     Returns:
         Optional[PackageScanner]: The result of the scanner request
-
     """
     match ecosystem:
         case ECOSYSTEM.PYPI:
@@ -40,20 +40,20 @@ def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
             return ExtensionScanner()
         case ECOSYSTEM.RUBYGEMS:
             return RubyGemsPackageScanner()
+        case ECOSYSTEM.MCP:
+            return MCPConfigScanner()
     return None
 
 
 def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
     """
-    Return a `ProjectScanner` for the given ecosystem or `None` if
-    it is not yet supported.
+    Return a `ProjectScanner` for the given ecosystem or `None` if it is not yet supported.
 
     Args:
         ecosystem (ECOSYSTEM): The ecosystem of the desired scanner
 
     Returns:
         Optional[ProjectScanner]: The result of the scanner request
-
     """
     match ecosystem:
         case ECOSYSTEM.PYPI:
@@ -68,4 +68,6 @@ def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
             return None  # we're not including dependency scanning for this PR
         case ECOSYSTEM.RUBYGEMS:
             return RubyGemsRequirementsScanner()
+        case ECOSYSTEM.MCP:
+            return MCPDiscoveryScanner()
     return None

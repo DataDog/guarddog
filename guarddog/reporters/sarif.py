@@ -20,7 +20,8 @@ class SarifReporter(BaseReporter):
         dependency_files: List[DependencyFile],
         rule_names: list[str],
         scan_results: list[dict],
-        ecosystem: ECOSYSTEM,
+        ecosystem: ECOSYSTEM = None,
+        verbose: bool = False,
     ) -> tuple[str, str]:
         """
         Report the scans results in the SARIF format.

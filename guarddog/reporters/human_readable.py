@@ -1,8 +1,24 @@
 from termcolor import colored
+from typing import List, Optional
+
 from guarddog.reporters import BaseReporter
-from typing import List
 from guarddog.scanners.scanner import DependencyFile
 from guarddog.ecosystems import ECOSYSTEM
+
+
+def _get_detector_metadata(ecosystem: Optional[ECOSYSTEM], rule_name: str):
+    """Look up help_url and verbose_description for a rule, if available."""
+    if ecosystem is None:
+        return None, None
+    try:
+        from guarddog.analyzer.metadata import get_metadata_detectors
+        detectors = get_metadata_detectors(ecosystem)
+        detector = detectors.get(rule_name)
+        if detector is not None:
+            return getattr(detector, "help_url", None), getattr(detector, "verbose_description", None)
+    except Exception:
+        pass
+    return None, None
 
 
 class HumanReadableReporter(BaseReporter):
@@ -31,7 +47,12 @@ class HumanReadableReporter(BaseReporter):
         return "\n".join(lines)
 
     @staticmethod
-    def print_scan_results(identifier: str, results: dict) -> str:
+    def print_scan_results(
+        identifier: str,
+        results: dict,
+        ecosystem: Optional[ECOSYSTEM] = None,
+        verbose: bool = False,
+    ) -> str:
 
         def _format_code_line_for_output(code) -> str:
             return "    " + colored(
@@ -72,6 +93,16 @@ class HumanReadableReporter(BaseReporter):
                     lines.append(
                         colored(finding, None, attrs=["bold"]) + ": " + description
                     )
+                    # Add citation / help link
+                    help_url, verbose_desc = _get_detector_metadata(ecosystem, finding)
+                    if help_url:
+                        lines.append(
+                            "  " + colored("ref:", "cyan") + " " + help_url
+                        )
+                    if verbose and verbose_desc:
+                        lines.append(
+                            "  " + colored("why:", "cyan") + " " + verbose_desc
+                        )
                     lines.append("")
                 elif isinstance(description, list):  # semgrep rule result:
                     source_code_findings = description
@@ -95,7 +126,11 @@ class HumanReadableReporter(BaseReporter):
         return "\n".join(lines)
 
     @staticmethod
-    def render_scan(scan_results: dict) -> tuple[str, str]:
+    def render_scan(
+        scan_results: dict,
+        ecosystem: Optional[ECOSYSTEM] = None,
+        verbose: bool = False,
+    ) -> tuple[str, str]:
         """
         Report the scans results in a human-readable format.
 
@@ -104,7 +139,10 @@ class HumanReadableReporter(BaseReporter):
         """
         return (
             HumanReadableReporter.print_scan_results(
-                identifier=scan_results["package"], results=scan_results
+                identifier=scan_results["package"],
+                results=scan_results,
+                ecosystem=ecosystem,
+                verbose=verbose,
             ),
             HumanReadableReporter.print_errors(
                 identifier=scan_results["package"], results=scan_results
@@ -116,13 +154,17 @@ class HumanReadableReporter(BaseReporter):
         dependency_files: List[DependencyFile],
         rule_names: list[str],
         scan_results: list[dict],
-        ecosystem: ECOSYSTEM,
+        ecosystem: ECOSYSTEM = None,
+        verbose: bool = False,
     ) -> tuple[str, str]:
         return (
             "\n".join(
                 [
                     HumanReadableReporter.print_scan_results(
-                        identifier=s["dependency"], results=s["result"]
+                        identifier=s["dependency"],
+                        results=s["result"],
+                        ecosystem=ecosystem,
+                        verbose=verbose,
                     )
                     for s in scan_results
                 ]
