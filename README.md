@@ -1,6 +1,7 @@
 # GuardDog
 
 [![Test](https://github.com/DataDog/guarddog/actions/workflows/checks.yml/badge.svg)](https://github.com/DataDog/guarddog/actions/workflows/checks.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/DataDog/guarddog/badge)](https://securityscorecards.dev/viewer/?uri=github.com/DataDog/guarddog)
 
 <p align="center">
   <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
@@ -29,7 +30,17 @@ It downloads and scans code from:
 
 ### Installation
 
+The easiest way to run GuardDog is to use [`uvx`](https://docs.astral.sh/uv/guides/tools/):
+
 ```sh
+uvx guarddog pypi scan requests
+```
+
+To install it locally:
+
+```sh
+uv tool install guarddog
+# or
 pip install guarddog
 ```
 
@@ -337,15 +348,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+      - uses: astral-sh/setup-uv@v7
 
-      - name: Install GuardDog
-        run: pip install guarddog
-
-      - run: guarddog pypi verify requirements.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
+      - run: uvx guarddog pypi verify requirements.txt --output-format sarif --exclude-rules repository_integrity_mismatch > guarddog.sarif
 
       - name: Upload SARIF file to GitHub
         uses: github/codeql-action/upload-sarif@v3
