@@ -9,3 +9,5 @@ updates:
     labels:
       - "dependencies"
       - "chore"
+    cooldown:
+      default-days: 2
