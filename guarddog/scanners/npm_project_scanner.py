@@ -9,7 +9,10 @@ from semantic_version import NpmSpec, Version  # type: ignore
 
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
 from guarddog.scanners.scanner import Dependency, DependencyVersion, ProjectScanner
-from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
+from guarddog.utils.config import (
+    NPM_INCLUDE_DEV_DEPENDENCIES,
+    VERIFY_EXHAUSTIVE_DEPENDENCIES,
+)
 
 log = logging.getLogger("guarddog")
 
@@ -86,12 +89,15 @@ class NPMRequirementsScanner(ProjectScanner):
             return versions
 
         merged = {}  # type: dict[str, set[str]]
-        for package, selector in list(dependencies_attr.items()) + list(
-            dev_dependencies_attr.items()
-        ):
-            if package not in merged:
-                merged[package] = set()
-            merged[package].add(selector)
+        dependency_groups = [dependencies_attr.items()]
+        if NPM_INCLUDE_DEV_DEPENDENCIES:
+            dependency_groups.append(dev_dependencies_attr.items())
+
+        for dependency_group in dependency_groups:
+            for package, selector in dependency_group:
+                if package not in merged:
+                    merged[package] = set()
+                merged[package].add(selector)
 
         dependencies: List[Dependency] = []
         for package, all_selectors in merged.items():
