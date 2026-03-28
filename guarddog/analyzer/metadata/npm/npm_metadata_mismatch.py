@@ -1,6 +1,7 @@
 from typing import Optional, Any, Dict
 from pathlib import Path
 import json
+import re
 
 from guarddog.analyzer.metadata.detector import Detector
 
@@ -59,6 +60,23 @@ class NPMMetadataMismatch(Detector):
 PerItemDiff = tuple[str, Optional[Any], Optional[Any]]
 Diff = list[PerItemDiff]
 
+# Matches git URL schemes: git+https://, git+ssh://, git://, git+file://
+_GIT_URL_PATTERN = re.compile(r"^git(\+\w+)?://")
+
+
+def _normalize_git_url(value: Optional[Any]) -> Optional[Any]:
+    """Normalize git URLs to avoid false positives on semantically equivalent values.
+
+    Strips the trailing '.git' suffix from git-scheme URLs, since
+    'git+https://github.com/user/repo.git' and 'git+https://github.com/user/repo'
+    resolve to the same repository.
+    """
+    if not isinstance(value, str):
+        return value
+    if _GIT_URL_PATTERN.match(value):
+        return value.removesuffix(".git")
+    return value
+
 
 def diff_at_key_dict(
     version_at_key: Dict[str, Optional[Any]],
@@ -67,7 +85,8 @@ def diff_at_key_dict(
     return [
         (key, version_at_key.get(key), manifest_at_key.get(key))
         for key in set(version_at_key.keys()).union(set(manifest_at_key.keys()))
-        if version_at_key.get(key) != manifest_at_key.get(key)
+        if _normalize_git_url(version_at_key.get(key))
+        != _normalize_git_url(manifest_at_key.get(key))
     ]
 
 
