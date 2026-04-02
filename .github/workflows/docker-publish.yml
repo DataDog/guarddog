@@ -20,6 +20,9 @@ jobs:
       contents: read
       packages: write
     steps:
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
       - name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
         with:
