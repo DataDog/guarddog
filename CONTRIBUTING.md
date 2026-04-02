@@ -23,3 +23,13 @@ If you found a bug, search if an issue already exists [search if an issue alread
 
 ### :white_check_mark: Solving Issues
 Create a new branch with the form: `<username>/<branch-function>`. After changing the repo locally and pushing to your branch's remote origin, create a pull request with a short description of your changes.
+
+### Commit Signing
+All commits must be signed. The repository requires [commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) on the `main` branch. Configure your local environment with GPG or SSH signing before pushing:
+
+```sh
+# Using SSH signing (recommended)
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global commit.gpgsign true
+```

@@ -62,6 +62,7 @@ def test_githubactions_find_requirements():
         os.path.join(repo_root, ".github", "workflows", "guarddog.yml"),
         os.path.join(repo_root, ".github", "workflows", "pr.yml"),
         os.path.join(repo_root, ".github", "workflows", "pypi-publish.yml"),
+        os.path.join(repo_root, ".github", "workflows", "scorecard.yml"),
         os.path.join(repo_root, ".github", "workflows", "tag-release.yml"),
     ]
     expected.sort()
