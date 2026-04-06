@@ -239,8 +239,10 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        # Calculate risk-based score
-        risk_score = self.calculate_package_risk_score(sourcecode_results)
+        # Calculate risk-based score (sourcecode + metadata)
+        risk_score = self.calculate_package_risk_score(
+            sourcecode_results, metadata_results
+        )
 
         # Extract and format risks for top-level output
         risk_objects = risk_score.pop("_risks", [])
@@ -851,12 +853,81 @@ output: {e.output}
 
         return findings
 
-    def calculate_package_risk_score(self, sourcecode_results: dict) -> dict:
+    def _convert_metadata_to_findings(
+        self, metadata_results: dict
+    ) -> List[Finding]:
+        """
+        Convert metadata rule results to Finding objects for risk analysis
+
+        Args:
+            metadata_results: Results from analyze_metadata
+
+        Returns:
+            List of Finding objects
+        """
+        findings = []
+
+        for rule_name, message in metadata_results.get("results", {}).items():
+            if not message:
+                continue
+
+            detector = self.metadata_detectors.get(rule_name)
+            if not detector or not detector.identifies:
+                continue
+
+            if not validate_identifies(detector.identifies):
+                log.warning(
+                    f"Metadata rule {rule_name} has invalid 'identifies': {detector.identifies}"
+                )
+                continue
+
+            mitre_tactics = (
+                [t.strip() for t in detector.mitre_tactics.split(",") if t.strip()]
+                if detector.mitre_tactics
+                else []
+            )
+
+            try:
+                severity = Level(detector.severity) if detector.severity else Level.MEDIUM
+            except ValueError:
+                severity = Level.MEDIUM
+
+            try:
+                specificity = Level(detector.specificity) if detector.specificity else Level.MEDIUM
+            except ValueError:
+                specificity = Level.MEDIUM
+
+            try:
+                sophistication = Level(detector.sophistication) if detector.sophistication else Level.MEDIUM
+            except ValueError:
+                sophistication = Level.MEDIUM
+
+            finding = Finding(
+                rule_name=rule_name,
+                file_path="",
+                identifies=detector.identifies,
+                severity=severity,
+                mitre_tactics=mitre_tactics,
+                specificity=specificity,
+                sophistication=sophistication,
+                max_hits=None,
+                location=None,
+                code_snippet=None,
+                message=message,
+            )
+            findings.append(finding)
+
+        return findings
+
+    def calculate_package_risk_score(
+        self, sourcecode_results: dict, metadata_results: Optional[dict] = None
+    ) -> dict:
         """
         Calculate risk-based score for the package using the risk engine
 
         Args:
             sourcecode_results: Results from analyze_sourcecode
+            metadata_results: Results from analyze_metadata
 
         Returns:
             Dict with risk score information
@@ -868,10 +939,15 @@ output: {e.output}
         for rule in get_sourcecode_rules(self.ecosystem, YaraRule):
             rules_dict[rule.id] = rule
 
-        # Convert results to Finding objects
+        # Convert sourcecode results to Finding objects
         all_findings = self._convert_to_findings(
             sourcecode_results["results"], rules_dict
         )
+
+        # Convert metadata results to Finding objects
+        if metadata_results:
+            metadata_findings = self._convert_metadata_to_findings(metadata_results)
+            all_findings.extend(metadata_findings)
 
         if not all_findings:
             log.debug("No findings with risk metadata to analyze")

@@ -33,7 +33,7 @@ coverage-report:
 	coverage report
 
 docs:
-	python scripts/generate-rules-docs.py README.md
+	python scripts/generate-rules-docs.py RULES.md
 
 update-top-pkg-list:
 	python -m guarddog.analyzer.metadata.npm.typosquatting

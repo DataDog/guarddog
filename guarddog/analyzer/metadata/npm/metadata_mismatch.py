@@ -2,7 +2,7 @@ from typing import Optional, Any, Dict
 from pathlib import Path
 import json
 
-from guarddog.analyzer.metadata.detector import Detector
+from guarddog.analyzer.metadata.metadata_mismatch import MetadataMismatchDetector
 
 # List of fields where mismatch between package.json and NPM can carry malicious information.
 MANIFEST_FIELDS_CHECKLIST = {
@@ -13,13 +13,12 @@ MANIFEST_FIELDS_CHECKLIST = {
 }
 
 
-class NPMMetadataMismatch(Detector):
-    def __init__(self):
-        super().__init__(
-            name="npm_metadata_mismatch",
-            description="Identify packages which have mismatches between the npm package"
-            " manifest and the package info for some critical fields",
-        )
+class NPMMetadataMismatchDetector(MetadataMismatchDetector):
+    """Compares npm registry metadata against the package.json inside the tarball.
+
+    Catches attacks where the registry declares different dependencies, scripts,
+    or entry points than what the package.json actually contains.
+    """
 
     def detect(
         self,

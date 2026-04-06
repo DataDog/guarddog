@@ -23,6 +23,11 @@ class IntegrityMismatch(Detector):
             name="repository_integrity_mismatch",
             description="Identify packages with a linked GitHub repository "
             "where the package has extra unexpected files",
+            identifies="threat.metadata.integrity-mismatch",
+            severity="high",
+            mitre_tactics="initial-access",
+            specificity="high",
+            sophistication="medium",
         )
 
     @abstractmethod

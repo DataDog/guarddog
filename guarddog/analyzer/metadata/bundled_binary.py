@@ -23,7 +23,13 @@ class BundledBinary(Detector):
 
     def __init__(self):
         super().__init__(
-            name="bundled_binary", description="Identify packages bundling binaries"
+            name="bundled_binary",
+            description="Identify packages bundling binaries",
+            identifies="threat.metadata.bundled-binary",
+            severity="medium",
+            mitre_tactics="defense-evasion",
+            specificity="medium",
+            sophistication="low",
         )
 
     @abstractmethod
