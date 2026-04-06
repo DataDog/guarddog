@@ -241,6 +241,15 @@ def validate_mitre_tactics(tactics: List[str]) -> bool:
 # ============================================================================
 
 
+def _downgrade_severity(level: Level) -> Level:
+    """Reduce severity by one level for cross-file risk correlation."""
+    if level == Level.HIGH:
+        return Level.MEDIUM
+    if level == Level.MEDIUM:
+        return Level.LOW
+    return Level.LOW
+
+
 def can_form_risk(threat: Finding, capability: Finding) -> bool:
     """
     Check if a threat and capability can form a risk
@@ -327,22 +336,40 @@ def form_risks_from_findings(findings: List[Finding]) -> List[Risk]:
             )
             continue
 
-        # Find matching capability for non-runtime threats
+        # Find matching capability — prefer same file over cross-file
+        same_file_cap = None
+        cross_file_cap = None
         for capability in capabilities:
             if can_form_risk(threat, capability):
-                risks.append(
-                    Risk(
-                        category=threat.category,
-                        detail=threat.detail or capability.detail,
-                        severity=threat.severity,
-                        mitre_tactics=threat.mitre_tactics,
-                        specificity=threat.specificity,
-                        sophistication=threat.sophistication,
-                        threat_finding=threat,
-                        capability_finding=capability,
-                    )
+                if capability.file_path == threat.file_path:
+                    same_file_cap = capability
+                    break  # Same file is best, stop looking
+                elif cross_file_cap is None:
+                    cross_file_cap = capability
+
+        matched_cap = same_file_cap or cross_file_cap
+        if matched_cap:
+            is_cross_file = matched_cap.file_path != threat.file_path
+            risk_severity = threat.severity
+            if is_cross_file:
+                risk_severity = _downgrade_severity(threat.severity)
+                log.debug(
+                    f"Cross-file risk: {threat.identifies} ({threat.file_path}) + "
+                    f"{matched_cap.identifies} ({matched_cap.file_path}) — "
+                    f"severity downgraded {threat.severity.value} → {risk_severity.value}"
                 )
-                break  # One threat can form at most one risk per file
+            risks.append(
+                Risk(
+                    category=threat.category,
+                    detail=threat.detail or matched_cap.detail,
+                    severity=risk_severity,
+                    mitre_tactics=threat.mitre_tactics,
+                    specificity=threat.specificity,
+                    sophistication=threat.sophistication,
+                    threat_finding=threat,
+                    capability_finding=matched_cap,
+                )
+            )
 
     return risks
 

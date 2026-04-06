@@ -168,6 +168,102 @@ class TestRiskFormation:
         risks = form_risks_from_findings(findings)
         assert len(risks) == 0
 
+    def test_same_file_preserves_severity(self):
+        """Capability + threat in same file should keep original severity"""
+        findings = [
+            Finding(
+                rule_name="cap",
+                file_path="malicious.py",
+                identifies="capability.network",
+                severity=Level.LOW,
+                mitre_tactics=[],
+            ),
+            Finding(
+                rule_name="threat",
+                file_path="malicious.py",
+                identifies="threat.network.outbound",
+                severity=Level.HIGH,
+                mitre_tactics=["exfiltration"],
+            ),
+        ]
+        risks = form_risks_from_findings(findings)
+        assert len(risks) == 1
+        assert risks[0].severity == Level.HIGH
+
+    def test_cross_file_downgrades_severity(self):
+        """Capability + threat in different files should downgrade severity"""
+        findings = [
+            Finding(
+                rule_name="cap",
+                file_path="utils.py",
+                identifies="capability.network",
+                severity=Level.LOW,
+                mitre_tactics=[],
+            ),
+            Finding(
+                rule_name="threat",
+                file_path="setup.py",
+                identifies="threat.network.outbound",
+                severity=Level.HIGH,
+                mitre_tactics=["exfiltration"],
+            ),
+        ]
+        risks = form_risks_from_findings(findings)
+        assert len(risks) == 1
+        assert risks[0].severity == Level.MEDIUM  # HIGH → MEDIUM
+
+    def test_cross_file_low_stays_low(self):
+        """LOW severity cross-file should stay LOW (floor)"""
+        findings = [
+            Finding(
+                rule_name="cap",
+                file_path="utils.py",
+                identifies="capability.filesystem",
+                severity=Level.LOW,
+                mitre_tactics=[],
+            ),
+            Finding(
+                rule_name="threat",
+                file_path="other.py",
+                identifies="threat.filesystem.read",
+                severity=Level.LOW,
+                mitre_tactics=["credential-access"],
+            ),
+        ]
+        risks = form_risks_from_findings(findings)
+        assert len(risks) == 1
+        assert risks[0].severity == Level.LOW
+
+    def test_prefers_same_file_capability(self):
+        """When both same-file and cross-file capabilities match, pick same-file"""
+        findings = [
+            Finding(
+                rule_name="cap-other",
+                file_path="utils.py",
+                identifies="capability.network",
+                severity=Level.LOW,
+                mitre_tactics=[],
+            ),
+            Finding(
+                rule_name="cap-same",
+                file_path="malicious.py",
+                identifies="capability.network.outbound",
+                severity=Level.LOW,
+                mitre_tactics=[],
+            ),
+            Finding(
+                rule_name="threat",
+                file_path="malicious.py",
+                identifies="threat.network.outbound",
+                severity=Level.HIGH,
+                mitre_tactics=["exfiltration"],
+            ),
+        ]
+        risks = form_risks_from_findings(findings)
+        assert len(risks) == 1
+        assert risks[0].severity == Level.HIGH  # Same file → no downgrade
+        assert risks[0].capability_finding.rule_name == "cap-same"
+
 
 class TestScoring:
     """Test scoring algorithm"""
