@@ -7,7 +7,7 @@ from typing import Optional
 from guarddog.analyzer.metadata.metadata_mismatch import MetadataMismatchDetector
 
 try:
-    import tomllib
+    import tomllib  # type: ignore[import-not-found]
 except ModuleNotFoundError:
     tomllib = None  # type: ignore[assignment]
 
@@ -114,7 +114,9 @@ class PypiMetadataMismatchDetector(MetadataMismatchDetector):
         if not only_in_manifest and not only_in_registry:
             return False, None
 
-        description = f"Dependency mismatch between PyPI metadata and {manifest_source}:\n"
+        description = (
+            f"Dependency mismatch between PyPI metadata and {manifest_source}:\n"
+        )
         if only_in_manifest:
             description += (
                 f"  In {manifest_source} but NOT in PyPI metadata: "

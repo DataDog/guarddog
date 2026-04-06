@@ -172,7 +172,7 @@ class HumanReadableReporter(BaseReporter):
                 attrs=["bold"],
             )
 
-        num_issues = results.get("issues")
+        num_issues = results.get("issues", 0)
         lines = []
 
         # Always show risk score
