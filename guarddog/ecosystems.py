@@ -12,6 +12,7 @@ class ECOSYSTEM(Enum):
 
 class LANGUAGE(Enum):
     """Programming language identifiers for source code analysis."""
+
     PYTHON = "python"
     JAVASCRIPT = "javascript"
     TYPESCRIPT = "typescript"

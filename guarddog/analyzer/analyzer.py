@@ -81,12 +81,17 @@ class Analyzer:
         """Detect programming language based on file extension."""
         ext = Path(file_path).suffix.lower()
         language_map = {
-            '.py': LANGUAGE.PYTHON, '.pyx': LANGUAGE.PYTHON, '.pyi': LANGUAGE.PYTHON,
-            '.js': LANGUAGE.JAVASCRIPT, '.jsx': LANGUAGE.JAVASCRIPT,
-            '.mjs': LANGUAGE.JAVASCRIPT, '.cjs': LANGUAGE.JAVASCRIPT,
-            '.ts': LANGUAGE.TYPESCRIPT, '.tsx': LANGUAGE.TYPESCRIPT,
-            '.go': LANGUAGE.GO,
-            '.rb': LANGUAGE.RUBY,
+            ".py": LANGUAGE.PYTHON,
+            ".pyx": LANGUAGE.PYTHON,
+            ".pyi": LANGUAGE.PYTHON,
+            ".js": LANGUAGE.JAVASCRIPT,
+            ".jsx": LANGUAGE.JAVASCRIPT,
+            ".mjs": LANGUAGE.JAVASCRIPT,
+            ".cjs": LANGUAGE.JAVASCRIPT,
+            ".ts": LANGUAGE.TYPESCRIPT,
+            ".tsx": LANGUAGE.TYPESCRIPT,
+            ".go": LANGUAGE.GO,
+            ".rb": LANGUAGE.RUBY,
         }
         return language_map.get(ext)
 
@@ -96,7 +101,7 @@ class Analyzer:
         language: LANGUAGE,
         byte_offset: Optional[int] = None,
         line_number: Optional[int] = None,
-        context_window: int = 4096
+        context_window: int = 4096,
     ) -> bool:
         """
         Check if a position is within a multi-line comment block.
@@ -114,20 +119,24 @@ class Analyzer:
             if byte_offset is None:
                 if line_number is None:
                     return False
-                with open(file_path, 'r', errors='ignore') as f:
+                with open(file_path, "r", errors="ignore") as f:
                     lines_before = [next(f) for _ in range(line_number - 1)]
-                    byte_offset = sum(len(l.encode('utf-8')) for l in lines_before)
+                    byte_offset = sum(
+                        len(line.encode("utf-8")) for line in lines_before
+                    )
 
             # Read only a window of context before the match
             start_pos = max(0, byte_offset - context_window)
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 f.seek(start_pos)
-                window = f.read(byte_offset - start_pos).decode('utf-8', errors='ignore')
+                window = f.read(byte_offset - start_pos).decode(
+                    "utf-8", errors="ignore"
+                )
 
             if language in [LANGUAGE.JAVASCRIPT, LANGUAGE.TYPESCRIPT, LANGUAGE.GO]:
                 # Search backwards for first /* or */
-                last_open = window.rfind('/*')
-                last_close = window.rfind('*/')
+                last_open = window.rfind("/*")
+                last_close = window.rfind("*/")
 
                 # If we find an opening comment and it comes after the last closing,
                 # then we're inside a comment
@@ -152,7 +161,7 @@ class Analyzer:
         file_path: str,
         line_number: int,
         byte_offset: Optional[int] = None,
-        line_content: Optional[str] = None
+        line_content: Optional[str] = None,
     ) -> bool:
         """
         Check if a match at a given line is within a comment.
@@ -173,7 +182,7 @@ class Analyzer:
         try:
             # Get line content if not provided
             if line_content is None:
-                with open(file_path, 'r', errors='ignore') as f:
+                with open(file_path, "r", errors="ignore") as f:
                     for current_line_num, line in enumerate(f, start=1):
                         if current_line_num == line_number:
                             line_content = line
@@ -186,17 +195,21 @@ class Analyzer:
 
             # Check single-line comments
             line_stripped = line_content.strip()
-            if language in [LANGUAGE.PYTHON, LANGUAGE.RUBY] and line_stripped.startswith('#'):
+            if language in [
+                LANGUAGE.PYTHON,
+                LANGUAGE.RUBY,
+            ] and line_stripped.startswith("#"):
                 return True
-            if language in [LANGUAGE.JAVASCRIPT, LANGUAGE.TYPESCRIPT, LANGUAGE.GO] and line_stripped.startswith('//'):
+            if language in [
+                LANGUAGE.JAVASCRIPT,
+                LANGUAGE.TYPESCRIPT,
+                LANGUAGE.GO,
+            ] and line_stripped.startswith("//"):
                 return True
 
             # Check multi-line comments (byte_offset will be calculated inside if needed)
             return Analyzer._is_in_multiline_comment(
-                file_path,
-                language,
-                byte_offset=byte_offset,
-                line_number=line_number
+                file_path, language, byte_offset=byte_offset, line_number=line_number
             )
 
         except Exception:
@@ -373,7 +386,7 @@ class Analyzer:
         errors: Dict[str, str] = {}
         issues = 0
 
-        rule_results: defaultdict[dict, list[dict]] = defaultdict(list)
+        rule_results: defaultdict[str, list[dict]] = defaultdict(list)
 
         rules_path = {
             rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
@@ -455,7 +468,7 @@ class Analyzer:
                                     if self.is_match_in_comment(
                                         scan_file_target_abspath,
                                         line_number=line_number,
-                                        byte_offset=i.offset
+                                        byte_offset=i.offset,
                                     ):
                                         log.debug(
                                             f"Filtered match in comment at {scan_file_target_relpath}:{line_number}"
@@ -718,14 +731,16 @@ output: {e.output}
             Line number (1-indexed) at the given offset
         """
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 content = f.read(offset)
 
             # Count newlines up to the offset
-            line_number = content.count(b'\n') + 1
+            line_number = content.count(b"\n") + 1
             return line_number
         except Exception as e:
-            log.debug(f"Failed to get line number at offset {offset} from {file_path}: {e}")
+            log.debug(
+                f"Failed to get line number at offset {offset} from {file_path}: {e}"
+            )
             return offset  # Fallback to offset if conversion fails
 
     def get_line_at_offset(self, file_path: str, offset: int) -> str:
@@ -740,12 +755,12 @@ output: {e.output}
             The line of code containing the offset, stripped of whitespace
         """
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 content = f.read()
 
             # Find line boundaries around the offset
-            line_start = content.rfind(b'\n', 0, offset) + 1
-            line_end = content.find(b'\n', offset)
+            line_start = content.rfind(b"\n", 0, offset) + 1
+            line_end = content.find(b"\n", offset)
             if line_end == -1:
                 line_end = len(content)
 
@@ -754,12 +769,14 @@ output: {e.output}
 
             # Decode and strip
             try:
-                return line.decode('utf-8', errors='replace').strip()
+                return line.decode("utf-8", errors="replace").strip()
             except Exception:
-                return line.decode('latin-1', errors='replace').strip()
+                return line.decode("latin-1", errors="replace").strip()
 
         except Exception as e:
-            log.debug(f"Failed to extract line at offset {offset} from {file_path}: {e}")
+            log.debug(
+                f"Failed to extract line at offset {offset} from {file_path}: {e}"
+            )
             return ""
 
     def _convert_to_findings(self, results: dict, rules_dict: dict) -> List[Finding]:
@@ -853,9 +870,7 @@ output: {e.output}
 
         return findings
 
-    def _convert_metadata_to_findings(
-        self, metadata_results: dict
-    ) -> List[Finding]:
+    def _convert_metadata_to_findings(self, metadata_results: dict) -> List[Finding]:
         """
         Convert metadata rule results to Finding objects for risk analysis
 
@@ -888,17 +903,27 @@ output: {e.output}
             )
 
             try:
-                severity = Level(detector.severity) if detector.severity else Level.MEDIUM
+                severity = (
+                    Level(detector.severity) if detector.severity else Level.MEDIUM
+                )
             except ValueError:
                 severity = Level.MEDIUM
 
             try:
-                specificity = Level(detector.specificity) if detector.specificity else Level.MEDIUM
+                specificity = (
+                    Level(detector.specificity)
+                    if detector.specificity
+                    else Level.MEDIUM
+                )
             except ValueError:
                 specificity = Level.MEDIUM
 
             try:
-                sophistication = Level(detector.sophistication) if detector.sophistication else Level.MEDIUM
+                sophistication = (
+                    Level(detector.sophistication)
+                    if detector.sophistication
+                    else Level.MEDIUM
+                )
             except ValueError:
                 sophistication = Level.MEDIUM
 

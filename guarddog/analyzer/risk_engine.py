@@ -9,7 +9,7 @@ This module implements a risk correlation and scoring system that:
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 from collections import Counter
 import logging
 
@@ -114,7 +114,7 @@ class Finding:
     def category(self) -> str:
         """Returns category: network, filesystem, process, runtime"""
         parts = self.identifies.split(".")
-        return parts[1] if len(parts) > 1 else None
+        return parts[1] if len(parts) > 1 else ""
 
     @property
     def detail(self) -> Optional[str]:
@@ -173,7 +173,7 @@ class RiskScore:
     label: RiskLabel
     risks: List[Risk]
     findings: List[Finding]
-    score_breakdown: Dict[str, float]
+    score_breakdown: Dict[str, Union[float, int, bool, str]]
 
 
 # ============================================================================
