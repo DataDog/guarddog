@@ -98,8 +98,12 @@ def generate_docs() -> str:
 
     # --- Capability rules table ---
     output = "## Capability rules\n\n"
-    output += f"| **Rule** | **Identifies** | **Description** | **Severity** |{eco_header}\n"
-    output += f"|:---------|:---------------|:----------------|:------------:|{eco_sep}\n"
+    output += (
+        f"| **Rule** | **Identifies** | **Description** | **Severity** |{eco_header}\n"
+    )
+    output += (
+        f"|:---------|:---------------|:----------------|:------------:|{eco_sep}\n"
+    )
     for rule_id, info in capabilities.items():
         eco_cols = _make_eco_cols(ecosystems, info["ecosystems"])
         output += (
@@ -109,8 +113,12 @@ def generate_docs() -> str:
 
     # --- Threat rules table (source code) ---
     output += "\n## Threat rules (source code)\n\n"
-    output += f"| **Rule** | **Identifies** | **Description** | **Severity** |{eco_header}\n"
-    output += f"|:---------|:---------------|:----------------|:------------:|{eco_sep}\n"
+    output += (
+        f"| **Rule** | **Identifies** | **Description** | **Severity** |{eco_header}\n"
+    )
+    output += (
+        f"|:---------|:---------------|:----------------|:------------:|{eco_sep}\n"
+    )
     for rule_id, info in threats.items():
         eco_cols = _make_eco_cols(ecosystems, info["ecosystems"])
         output += (
