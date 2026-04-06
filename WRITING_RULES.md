@@ -105,22 +105,22 @@ risk.filesystem.read (credential-access)
 
 **Type:** `capability` or `threat`
 
-**Category** (system resources):
+**Category**:
 - `network` - Network operations
 - `filesystem` - File system operations
 - `process` - Process/command execution
 - `runtime` - Runtime operations (no capability needed)
 - `system` - System information APIs
+- `metadata` - Package metadata indicators (no capability needed)
 
 **Detail** (optional specificity):
-- Examples: `outbound`, `read`, `write`, `obfuscation`, `collection`
+- Examples: `outbound`, `read`, `write`, `obfuscation`, `collection`, `typosquatting`
 
-**Special Case - Runtime Category:**
+**Auto-Risk Categories:**
 
-`threat.runtime.*` rules automatically form risks **without needing a capability**. Use this for:
-- Obfuscation techniques (base64 decode + exec)
-- Install hooks (run code during installation)
-- Standalone suspicious patterns that don't need enabling capabilities
+`threat.runtime.*` and `threat.metadata.*` rules automatically form risks **without needing a capability**. Use these for:
+- **Runtime**: Obfuscation techniques, install hooks, standalone suspicious patterns
+- **Metadata**: Supply chain indicators like typosquatting, compromised maintainer emails, repository tampering
 
 ### Risk Formation Rules
 
@@ -137,7 +137,7 @@ Capabilities and threats form risks when:
    - Exact match: `threat.network.outbound` + `capability.network.outbound` ✅
    - Conflict: `threat.network.outbound` + `capability.network.inbound` ❌
 
-3. **Exception**: `threat.runtime.*` rules skip this - they auto-form risks
+3. **Exception**: `threat.runtime.*` and `threat.metadata.*` rules skip this - they auto-form risks
 
 **CRITICAL:** Risks only form when categories match. A `capability.process.*` rule can only form risks with `threat.process.*` rules, never with `threat.network.*` or other categories. This is by design to ensure accurate risk assessment.
 
@@ -649,7 +649,7 @@ guarddog/analyzer/sourcecode/
 1. **Capabilities detect CAN DO** - Focus on function calls, not imports
 2. **Threats detect SUSPICIOUS** - Focus on attacker indicators, not generic patterns
 3. **Categories must match** - `capability.process.*` + `threat.process.*` = risk
-4. **Runtime bypasses capabilities** - `threat.runtime.*` auto-forms risks
+4. **Runtime and metadata bypass capabilities** - `threat.runtime.*` and `threat.metadata.*` auto-form risks
 5. **Context matters** - Detect patterns where they matter (hooks + LOLBAS, not just LOLBAS anywhere)
 
 ### DRY Principle

@@ -178,7 +178,7 @@ class TestScoring:
         assert score.label == RiskLabel.NONE
 
     def test_single_runtime_threat(self):
-        """Single runtime threat should score medium"""
+        """Single runtime threat should be capped at MEDIUM (single stage, needs multi-stage for HIGH)"""
         risks = [
             Risk(
                 category="runtime",
@@ -198,13 +198,13 @@ class TestScoring:
             )
         ]
         score = calculate_risk_score(risks)
-        # No full chain (only mid-stage), high severity/specificity/sophistication
-        # Expected: (1.0*0.25) + (0.5*0.30) + (1.0*0.25) + (1.0*0.20) = 0.85 * 10 = 8.5
-        assert score.score == 8.5
-        assert score.label == RiskLabel.HIGH
+        # 1 stage (mid) → chain=0.0, raw=(1.0*0.25)+(0.0)+(1.0*0.25)+(1.0*0.20)=0.70→7.0
+        # Single stage → MEDIUM (<=7.5 threshold)
+        assert score.score == 7.0
+        assert score.label == RiskLabel.MEDIUM
 
     def test_full_attack_chain(self):
-        """Full attack chain should score high"""
+        """Two-stage attack chain with source code should score HIGH"""
         risks = [
             Risk(
                 category="process",
@@ -252,9 +252,9 @@ class TestScoring:
             ),
         ]
         score = calculate_risk_score(risks)
-        # Full chain (early + late), high severity/specificity, medium sophistication
-        # Expected: (1.0*0.25) + (1.0*0.30) + (1.0*0.25) + (0.7*0.20) = 0.94 * 10 = 9.4
-        assert score.score == 9.4
+        # 2 stages (early + late) → chain=0.5, high severity/specificity, medium sophistication
+        # Expected: (1.0*0.25) + (0.5*0.30) + (1.0*0.25) + (0.7*0.20) = 0.79 * 10 = 7.9
+        assert score.score == 7.9
         assert score.label == RiskLabel.HIGH
 
     def test_credential_access_with_exfil_is_full_chain(self):
@@ -306,8 +306,108 @@ class TestScoring:
             ),
         ]
         score = calculate_risk_score(risks)
-        # Should be treated as full chain despite no execution
-        assert score.score_breakdown["has_full_chain"] is True
-        # Dominant sophistication is medium (one high, one medium) so: (1.0*0.25) + (1.0*0.30) + (1.0*0.25) + (0.7*0.20) = 0.94 * 10
+        # credential-access + exfiltration special case → treated as 3 stages (full chain)
+        assert score.score_breakdown["num_stages"] == 3
+        # (1.0*0.25) + (1.0*0.30) + (1.0*0.25) + (0.7*0.20) = 0.94 * 10
         assert score.score == 9.4
+        assert score.label == RiskLabel.HIGH
+
+    def test_metadata_only_capped_at_medium(self):
+        """Metadata-only findings should never reach HIGH"""
+        risks = [
+            Risk(
+                category="metadata",
+                detail="typosquatting",
+                severity=Level.HIGH,
+                mitre_tactics=["initial-access"],
+                specificity=Level.HIGH,
+                sophistication=Level.LOW,
+                threat_finding=Finding(
+                    rule_name="typosquatting",
+                    file_path="",
+                    identifies="threat.metadata.typosquatting",
+                    severity=Level.HIGH,
+                    mitre_tactics=["initial-access"],
+                    specificity=Level.HIGH,
+                    sophistication=Level.LOW,
+                ),
+                capability_finding=None,
+            )
+        ]
+        score = calculate_risk_score(risks)
+        # 1 stage (early), no source code → MEDIUM
+        assert score.label == RiskLabel.MEDIUM
+        assert score.score <= 7.5
+
+    def test_single_stage_source_code_capped_at_medium(self):
+        """Single-stage source code finding should not reach HIGH"""
+        risks = [
+            Risk(
+                category="runtime",
+                detail="obfuscation.base64exec",
+                severity=Level.HIGH,
+                mitre_tactics=["defense-evasion"],
+                specificity=Level.MEDIUM,
+                sophistication=Level.MEDIUM,
+                threat_finding=Finding(
+                    rule_name="base64exec",
+                    file_path="test.py",
+                    identifies="threat.runtime.obfuscation.base64exec",
+                    severity=Level.HIGH,
+                    mitre_tactics=["defense-evasion"],
+                ),
+                capability_finding=None,
+            )
+        ]
+        score = calculate_risk_score(risks)
+        # 1 stage → MEDIUM regardless of severity
+        assert score.label == RiskLabel.MEDIUM
+        assert score.score <= 7.5
+
+    def test_metadata_plus_source_code_reaches_high(self):
+        """Metadata + source code forming 2 stages should reach HIGH"""
+        risks = [
+            # Metadata: typosquatting (initial-access → early)
+            Risk(
+                category="metadata",
+                detail="typosquatting",
+                severity=Level.HIGH,
+                mitre_tactics=["initial-access"],
+                specificity=Level.HIGH,
+                sophistication=Level.LOW,
+                threat_finding=Finding(
+                    rule_name="typosquatting",
+                    file_path="",
+                    identifies="threat.metadata.typosquatting",
+                    severity=Level.HIGH,
+                    mitre_tactics=["initial-access"],
+                    specificity=Level.HIGH,
+                    sophistication=Level.LOW,
+                ),
+                capability_finding=None,
+            ),
+            # Source code: obfuscation (defense-evasion → mid)
+            Risk(
+                category="runtime",
+                detail="obfuscation",
+                severity=Level.HIGH,
+                mitre_tactics=["defense-evasion"],
+                specificity=Level.HIGH,
+                sophistication=Level.MEDIUM,
+                threat_finding=Finding(
+                    rule_name="obfuscation",
+                    file_path="test.py",
+                    identifies="threat.runtime.obfuscation",
+                    severity=Level.HIGH,
+                    mitre_tactics=["defense-evasion"],
+                    specificity=Level.HIGH,
+                    sophistication=Level.MEDIUM,
+                ),
+                capability_finding=None,
+            ),
+        ]
+        score = calculate_risk_score(risks)
+        # 2 stages (early + mid), has source code → HIGH gate passes
+        assert score.score_breakdown["num_stages"] == 2
+        assert score.score_breakdown["has_source_code_risks"] is True
         assert score.label == RiskLabel.HIGH

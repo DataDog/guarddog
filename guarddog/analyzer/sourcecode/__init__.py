@@ -170,8 +170,10 @@ for file_name in yara_rule_file_names:
         content = fd.read()
 
         # Extract description
+        # rule_id uses hyphens but YARA rule names use underscores
+        yara_rule_name = rule_id.replace("-", "_")
         description_match = re.search(
-            rf"\s*rule\s+{rule_id}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"", content
+            rf"\s*rule\s+{yara_rule_name}[^}}]+meta:[^}}]+description\s*=\s*\"(.+?)\"", content
         )
         rule_description = description_match.group(1) if description_match else ""
 

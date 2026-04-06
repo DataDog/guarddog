@@ -26,6 +26,11 @@ class TyposquatDetector(Detector):
         super().__init__(
             name="typosquatting",
             description="Identify packages that are named closely to an highly popular package",
+            identifies="threat.metadata.typosquatting",
+            severity="high",
+            mitre_tactics="initial-access",
+            specificity="high",
+            sophistication="low",
         )
 
     @abc.abstractmethod

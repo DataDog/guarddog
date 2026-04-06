@@ -17,6 +17,11 @@ class DeceptiveAuthorDetector(Detector):
         super().__init__(
             name="deceptive_author",
             description="This heuristic detects when an author is using a disposable email",
+            identifies="threat.metadata.deceptive-author",
+            severity="medium",
+            mitre_tactics="initial-access",
+            specificity="medium",
+            sophistication="low",
         )
 
     def get_email_addresses(self, package_info: dict) -> set[str]:

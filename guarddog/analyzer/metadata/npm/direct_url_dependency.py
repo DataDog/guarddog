@@ -24,6 +24,11 @@ class NPMDirectURLDependencyDetector(Detector):
             description="Identify packages with direct URL dependencies. \
 Dependencies fetched this way are not immutable and can be used to \
 inject untrusted code or reduce the likelihood of a reproducible install.",
+            identifies="threat.metadata.direct-url-dep",
+            severity="medium",
+            mitre_tactics="initial-access",
+            specificity="medium",
+            sophistication="low",
         )
 
     def detect(

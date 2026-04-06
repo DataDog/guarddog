@@ -62,8 +62,8 @@ ATTACK_PHASES = {
     ],
 }
 
-# Valid categories for the identifies field (system resources only)
-VALID_CATEGORIES = {"network", "filesystem", "process", "runtime", "system"}
+# Valid categories for the identifies field
+VALID_CATEGORIES = {"network", "filesystem", "process", "runtime", "system", "metadata"}
 
 # Valid types for the identifies field
 VALID_TYPES = {"capability", "threat"}
@@ -311,8 +311,8 @@ def form_risks_from_findings(findings: List[Finding]) -> List[Risk]:
     risks = []
 
     for threat in threats:
-        # Runtime threats auto-form risks (no capability needed)
-        if threat.category == "runtime":
+        # Runtime and metadata threats auto-form risks (no capability needed)
+        if threat.category in ("runtime", "metadata"):
             risks.append(
                 Risk(
                     category=threat.category,
@@ -467,22 +467,27 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     severity_component = (max_severity / 3.0) * 0.25
 
     # Factor 2: Attack Chain (30% weight)
-    phase_risks = {"early": [], "mid": [], "late": []}
+    # Count distinct attack stages present (graded: 1=0.0, 2=0.5, 3=1.0)
+    stages_present = set()
     for risk in risks:
         phase = get_primary_phase(risk)
-        if phase in phase_risks:
-            phase_risks[phase].append(risk)
+        if phase:
+            stages_present.add(phase)
 
-    has_early = len(phase_risks["early"]) > 0
-    has_mid_or_late = len(phase_risks["mid"]) > 0 or len(phase_risks["late"]) > 0
-    has_full_chain = has_early and has_mid_or_late
+    num_stages = len(stages_present)
 
     # Special case: credential access + network exfiltration = full chain
-    if not has_full_chain and has_credential_access_with_exfil(risks):
-        has_full_chain = True
+    if num_stages < 3 and has_credential_access_with_exfil(risks):
+        num_stages = 3
         log.debug("Treating credential-access + exfiltration as full chain")
 
-    chain_value = 1.0 if has_full_chain else 0.5
+    if num_stages >= 3:
+        chain_value = 1.0
+    elif num_stages == 2:
+        chain_value = 0.5
+    else:
+        chain_value = 0.0
+
     chain_component = chain_value * 0.30
 
     # Factor 3: Specificity (25% weight)
@@ -504,12 +509,21 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     )
     final_score = round(raw_score * 10, 1)
 
+    # HIGH gate: require source code evidence + multi-stage for HIGH
+    # Metadata alone or a single-stage finding cannot reach HIGH
+    has_source_code_risks = any(r.category != "metadata" for r in risks)
+    if final_score > 7.5 and (not has_source_code_risks or num_stages < 2):
+        final_score = 7.5
+        log.debug(
+            "Score capped at 7.5: HIGH requires source code risks + multi-stage evidence"
+        )
+
     # Map to label
     if final_score == 0:
         label = RiskLabel.NONE
     elif final_score <= 3:
         label = RiskLabel.LOW
-    elif final_score <= 6:
+    elif final_score <= 7.5:
         label = RiskLabel.MEDIUM
     else:
         label = RiskLabel.HIGH
@@ -531,7 +545,8 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
             "chain_component": round(chain_component, 3),
             "specificity_component": round(specificity_component, 3),
             "sophistication_component": round(sophistication_component, 3),
-            "has_full_chain": has_full_chain,
+            "num_stages": num_stages,
+            "has_source_code_risks": has_source_code_risks,
             "max_severity": max_severity,
             "dominant_specificity": dominant_specificity.value,
             "dominant_sophistication": dominant_sophistication.value,
