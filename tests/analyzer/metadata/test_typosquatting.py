@@ -40,6 +40,13 @@ class TestTyposquatting:
         ("shpk", "sshpk")
     ]
 
+    npm_case_typosquats = [
+        ("Express", "express"),
+        ("EXPRESS", "express"),
+        ("Lodash", "lodash"),
+        ("Chalk", "chalk"),
+    ]
+
     golang_typosquats = [
         ("github.com/utfave/cli", "github.com/urfave/cli"),
         ("gitlab.com/sirupsen/logrus", "github.com/sirupsen/logrus"),
@@ -67,6 +74,12 @@ class TestTyposquatting:
     def test_go_typosquats(self, typo_name, real_name):
         project_info = {"name": typo_name}
         matches, message = self.go_detector.detect(project_info, name=typo_name)
+        assert matches and real_name in message
+
+    @pytest.mark.parametrize("typo_name, real_name", npm_case_typosquats)
+    def test_npm_case_typosquats(self, typo_name, real_name):
+        project_info = generate_npm_project_info("name", typo_name)
+        matches, message = self.npm_detector.detect(project_info)
         assert matches and real_name in message
 
     @pytest.mark.parametrize("name", negative_cases + same_names)

@@ -74,6 +74,18 @@ class NPMTyposquatDetector(TyposquatDetector):
             )
         return False, None
 
+    def get_typosquatted_package(self, package_name) -> list[str]:
+        typosquatted = set()
+
+        # case-insensitive match: "Lodash" vs "lodash", "memoryStorageDriver" vs "memorystoragedriver"
+        lower_name = package_name.lower()
+        for popular in self.popular_packages:
+            if lower_name == popular.lower() and package_name != popular:
+                typosquatted.add(popular)
+
+        typosquatted.update(super().get_typosquatted_package(package_name))
+        return list(typosquatted)
+
     def _get_confused_forms(self, package_name) -> list:
         """Gets confused terms for npm packages.
         Currently, there are no confused terms for npm packages.
