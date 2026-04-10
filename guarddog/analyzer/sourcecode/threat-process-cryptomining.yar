@@ -9,6 +9,7 @@ rule threat_process_cryptomining
         specificity = "high"
         sophistication = "medium"
         max_hits = 3
+        path_include = "*.py,*.pyx,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.sh"
 
     strings:
         // Mining software
@@ -21,32 +22,27 @@ rule threat_process_cryptomining
 
         // Mining pools
         $pool_monero = /(pool\.)?[a-z0-9-]+\.monero/ nocase
-        $pool_generic = /[a-z0-9-]+pool\.(com|net|org|io)/ nocase
         $pool_supportxmr = "supportxmr.com" nocase
         $pool_minexmr = "minexmr.com" nocase
         $pool_nanopool = "nanopool.org" nocase
 
-        // Mining protocols/ports
+        // Mining protocols
         $stratum = "stratum+tcp://" nocase
         $stratum_ssl = "stratum+ssl://" nocase
-        $port_3333 = ":3333" // Common mining port
-        $port_4444 = ":4444" // Common mining port
-        $port_5555 = ":5555" // Common mining port
 
-        // Cryptocurrency addresses (Monero, Bitcoin)
+        // Monero addresses (very specific, 95 chars starting with 4)
         $monero_address = /4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}/ nocase
-        $bitcoin_address = /[13][a-km-zA-HJ-NP-Z1-9]{25,34}/ nocase
 
-        // Mining-related terms in combination
+        // Mining-related terms in combination (require more context)
         $mining_hashrate = "hashrate" nocase
-        $mining_difficulty = "difficulty" nocase
-        $mining_shares = "shares" nocase
-        $mining_worker = "worker" nocase
+        $mining_nonce = "nonce" nocase
+        $mining_stratum = "stratum" nocase
+        $mining_miner = "miner" nocase
 
     condition:
         any of ($miner_*) or
         any of ($pool_*) or
-        2 of ($stratum*, $port_*) or
-        any of ($monero_address, $bitcoin_address) or
+        any of ($stratum*) or
+        $monero_address or
         3 of ($mining_*)
 }

@@ -422,6 +422,11 @@ class Analyzer:
                     if rule_obj and hasattr(rule_obj, "path_include")
                     else None
                 )
+                path_exclude = (
+                    rule_obj.path_exclude
+                    if rule_obj and hasattr(rule_obj, "path_exclude")
+                    else None
+                )
 
                 hits_found = 0
                 should_stop = False
@@ -451,6 +456,15 @@ class Analyzer:
                         else:
                             # Default: Skip files with excluded extensions
                             if f.lower().endswith(tuple(YARA_EXT_EXCLUDE)):
+                                continue
+
+                        # Check path_exclude patterns
+                        if path_exclude:
+                            exclude_patterns = [p.strip() for p in path_exclude.split(",")]
+                            if any(
+                                fnmatch(scan_file_target_relpath, pat) or fnmatch(f, pat)
+                                for pat in exclude_patterns
+                            ):
                                 continue
 
                         matches = scan_rule.match(scan_file_target_abspath)

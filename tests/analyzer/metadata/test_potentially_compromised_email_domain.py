@@ -66,9 +66,9 @@ class TestCompromisedEmail:
 
     def test_email_domain_doesnt_exist(self):
         def mock_whois(domain):
-            import whois
+            from whois.parser import PywhoisError
 
-            raise whois.exceptions.PywhoisError('No match for "nope.com".')
+            raise PywhoisError('No match for "nope.com".')
 
         MonkeyPatch().setattr("whois.whois", mock_whois)
         compromised, _ = pypi_detector.detect(PYPI_PACKAGE_INFO)

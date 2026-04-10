@@ -16,13 +16,13 @@ rule capability_process_spawn
         $py_os_system = "os.system(" nocase
         $py_os_popen = "os.popen(" nocase
         $py_os_spawn = /os\.(spawn|exec)/ nocase
-        $py_exec = /(^|\s)exec\s*\(/ nocase
-        $py_eval = /(^|\s)eval\s*\(/ nocase
+        $py_exec = /\bexec\s*\(\s*[a-zA-Z_'"(]/ nocase
+        $py_eval = /\beval\s*\(\s*[a-zA-Z_'"(]/ nocase
 
         // JavaScript/Node.js - child_process (both direct and destructured)
         $js_child_process = /child_process\.(exec|execSync|spawn|spawnSync|fork|execFile)/ nocase
         $js_require_child_process = /require\s*\(\s*['"]child_process['"]\s*\)/ nocase
-        $js_spawn_destructure = /\{\s*(exec|execSync|spawn|spawnSync|fork|execFile)/ nocase
+        $js_spawn_destructure = /\{\s*(exec|execSync|spawn|spawnSync|fork|execFile)\s*\}\s*=\s*require/ nocase
         $js_eval = /(^|\s|\()eval\s*\(/ nocase
         $js_function = "new Function(" nocase
 
@@ -38,9 +38,6 @@ rule capability_process_spawn
         $rb_kernel_system = /\bKernel\s*\.\s*system\s*\(/ nocase
         $rb_kernel_exec = /\bKernel\s*\.\s*exec\s*\(/ nocase
         $rb_kernel_spawn = /\bKernel\s*\.\s*spawn\s*\(/ nocase
-
-        // Ruby - Backtick execution
-        $rb_backtick = /`[^`]+`/ nocase
 
         // Ruby - %x{} command execution
         $rb_percent_x = /%x[\{\[\(]/ nocase

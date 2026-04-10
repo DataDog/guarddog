@@ -6,7 +6,7 @@ rule threat_runtime_obfuscation_unicode
         identifies = "threat.runtime.obfuscation.unicode"
         severity = "medium"
         mitre_tactics = "defense-evasion"
-        specificity = "medium"
+        specificity = "low"
         sophistication = "medium"
 
 	path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"

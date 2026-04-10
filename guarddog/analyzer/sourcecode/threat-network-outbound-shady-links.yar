@@ -6,7 +6,7 @@ rule threat_network_outbound_shady_links
         identifies = "threat.network.outbound.shady_links"
         severity = "medium"
         mitre_tactics = "command-and-control"
-        specificity = "medium"
+        specificity = "high"
         sophistication = "low"
 
         max_hits = 5

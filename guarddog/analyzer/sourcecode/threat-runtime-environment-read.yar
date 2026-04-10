@@ -24,14 +24,20 @@ rule threat_runtime_environment_read
         // Serializing entire environment (exfiltration risk)
         $js_env_serialize = "JSON.stringify(process.env)" nocase
 
-        // Python - environment access (object name agnostic)
-        $py_environ = /\.environ\b/ nocase
-        $py_getenv = /\.getenv\s*\(/ nocase
+        // Python - credential-specific env var access
+        $py_env_api_key = /os\.(environ|getenv)\s*[\[\(]\s*['"][A-Z_]*API[_]?KEY/ nocase
+        $py_env_secret = /os\.(environ|getenv)\s*[\[\(]\s*['"][A-Z_]*SECRET/ nocase
+        $py_env_token = /os\.(environ|getenv)\s*[\[\(]\s*['"][A-Z_]*TOKEN/ nocase
+        $py_env_password = /os\.(environ|getenv)\s*[\[\(]\s*['"][A-Z_]*PASS(WORD)?/ nocase
+        $py_env_auth = /os\.(environ|getenv)\s*[\[\(]\s*['"][A-Z_]*AUTH/ nocase
+        // Serializing entire environment (exfiltration risk)
+        $py_environ_copy = /os\.environ\.copy\s*\(\s*\)/ nocase
+        $py_dict_environ = /dict\s*\(\s*os\.environ\s*\)/ nocase
 
-        // Go - environment access (object name agnostic)
-        $go_getenv = /\.Getenv\s*\(/ nocase
-        $go_environ = /\.Environ\s*\(/ nocase
-        $go_lookupenv = /\.LookupEnv\s*\(/ nocase
+        // Go - credential-specific env var access
+        $go_getenv_key = /os\.Getenv\s*\(\s*['"][A-Z_]*(KEY|SECRET|TOKEN|PASSWORD|AUTH)/ nocase
+        // Serializing entire environment (exfiltration risk)
+        $go_environ_all = /os\.Environ\s*\(\s*\)/ nocase
 
         // Ruby - ENV serialization (exfiltration risk)
         $rb_env_to_h_json = /\bENV\s*\.\s*to_h\s*\.\s*to_json/ nocase

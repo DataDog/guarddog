@@ -464,9 +464,9 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     Calculate final risk score using Factor Rating method
 
     Scoring factors (weights):
-    - Severity (25%): Highest severity finding
-    - Attack Chain (30%): Presence of complete attack stages
-    - Specificity (25%): Pattern specificity (how specific to malware vs legitimate code)
+    - Severity (30%): Highest severity finding
+    - Attack Chain (20%): Presence of complete attack stages (1=0.3, 2=0.7, 3=1.0)
+    - Specificity (30%): Pattern specificity (how specific to malware vs legitimate code)
     - Sophistication (20%): Technique sophistication level
 
     Args:
@@ -489,12 +489,14 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
             },
         )
 
-    # Factor 1: Severity (25% weight)
+    # Factor 1: Severity (30% weight -- strongest signal)
     max_severity = max(SEVERITY_VALUES[r.severity] for r in risks)
-    severity_component = (max_severity / 3.0) * 0.25
+    severity_component = (max_severity / 3.0) * 0.30
 
-    # Factor 2: Attack Chain (30% weight)
-    # Count distinct attack stages present (graded: 1=0.0, 2=0.5, 3=1.0)
+    # Factor 2: Attack Chain (20% weight)
+    # Count distinct attack stages present
+    # Single-stage attacks (e.g. setup.py dropper) get partial credit
+    # since most real malware is single-stage
     stages_present = set()
     for risk in risks:
         phase = get_primary_phase(risk)
@@ -511,16 +513,16 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     if num_stages >= 3:
         chain_value = 1.0
     elif num_stages == 2:
-        chain_value = 0.5
+        chain_value = 0.7
     else:
-        chain_value = 0.0
+        chain_value = 0.3
 
-    chain_component = chain_value * 0.30
+    chain_component = chain_value * 0.20
 
-    # Factor 3: Specificity (25% weight)
+    # Factor 3: Specificity (30% weight -- most discriminating factor)
     specificity_levels = [r.specificity for r in risks]
     dominant_specificity = get_dominant_level(specificity_levels)
-    specificity_component = LEVEL_VALUES[dominant_specificity] * 0.25
+    specificity_component = LEVEL_VALUES[dominant_specificity] * 0.30
 
     # Factor 4: Sophistication (20% weight)
     sophistication_levels = [r.sophistication for r in risks]
@@ -536,13 +538,13 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     )
     final_score = round(raw_score * 10, 1)
 
-    # HIGH gate: require source code evidence + multi-stage for HIGH
-    # Metadata alone or a single-stage finding cannot reach HIGH
+    # HIGH gate: require source code evidence for HIGH
+    # Metadata alone cannot reach HIGH
     has_source_code_risks = any(r.category != "metadata" for r in risks)
-    if final_score > 7.5 and (not has_source_code_risks or num_stages < 2):
+    if final_score > 7.5 and not has_source_code_risks:
         final_score = 7.5
         log.debug(
-            "Score capped at 7.5: HIGH requires source code risks + multi-stage evidence"
+            "Score capped at 7.5: HIGH requires source code risks"
         )
 
     # Map to label

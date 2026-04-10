@@ -6,7 +6,7 @@ rule threat_runtime_obfuscation_base64exec
         identifies = "threat.runtime.obfuscation.base64exec"
         severity = "high"
         mitre_tactics = "defense-evasion"
-        specificity = "medium"
+        specificity = "low"
         sophistication = "medium"
 
         max_hits = 1

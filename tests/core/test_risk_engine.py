@@ -274,7 +274,7 @@ class TestScoring:
         assert score.label == RiskLabel.NONE
 
     def test_single_runtime_threat(self):
-        """Single runtime threat should be capped at MEDIUM (single stage, needs multi-stage for HIGH)"""
+        """Single runtime threat with all-HIGH attributes scores HIGH"""
         risks = [
             Risk(
                 category="runtime",
@@ -294,10 +294,9 @@ class TestScoring:
             )
         ]
         score = calculate_risk_score(risks)
-        # 1 stage (mid) → chain=0.0, raw=(1.0*0.25)+(0.0)+(1.0*0.25)+(1.0*0.20)=0.70→7.0
-        # Single stage → MEDIUM (<=7.5 threshold)
-        assert score.score == 7.0
-        assert score.label == RiskLabel.MEDIUM
+        # 1 stage (mid) → chain=0.3, raw=(1.0*0.30)+(0.3*0.20)+(1.0*0.30)+(1.0*0.20)=0.86→8.6
+        assert score.score == 8.6
+        assert score.label == RiskLabel.HIGH
 
     def test_full_attack_chain(self):
         """Two-stage attack chain with source code should score HIGH"""
@@ -348,9 +347,9 @@ class TestScoring:
             ),
         ]
         score = calculate_risk_score(risks)
-        # 2 stages (early + late) → chain=0.5, high severity/specificity, medium sophistication
-        # Expected: (1.0*0.25) + (0.5*0.30) + (1.0*0.25) + (0.7*0.20) = 0.79 * 10 = 7.9
-        assert score.score == 7.9
+        # 2 stages (early + late) → chain=0.7, high severity/specificity, medium sophistication
+        # Expected: (1.0*0.30) + (0.7*0.20) + (1.0*0.30) + (0.7*0.20) = 0.88 * 10 = 8.8
+        assert score.score == 8.8
         assert score.label == RiskLabel.HIGH
 
     def test_credential_access_with_exfil_is_full_chain(self):
