@@ -16,13 +16,10 @@ log = logging.getLogger("guarddog")
 
 
 def is_available() -> bool:
-    """Check if nono-py is importable and the platform supports sandboxing."""
-    try:
-        import nono_py as nono
+    """Check if the platform supports sandboxing via nono-py."""
+    import nono_py as nono
 
-        return nono.is_supported()
-    except ImportError:
-        return False
+    return nono.is_supported()
 
 
 def apply_sandbox(
