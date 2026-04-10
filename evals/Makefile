@@ -1,4 +1,5 @@
-PYTHON ?= uv run python3
+ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))..
+PYTHON ?= uv run --directory $(ROOT) python3
 WORKERS ?= 10
 BENIGN_PACKAGES ?= 1000
 SAMPLES_PER_ECO ?= 250
@@ -10,16 +11,16 @@ ECOSYSTEMS ?= pypi npm
 all: precision recall report
 
 precision:
-	$(PYTHON) evals/benchmark.py --workers $(WORKERS) --max-packages $(BENIGN_PACKAGES) --ecosystems $(ECOSYSTEMS)
+	$(PYTHON) $(ROOT)/evals/benchmark.py --workers $(WORKERS) --max-packages $(BENIGN_PACKAGES) --ecosystems $(ECOSYSTEMS)
 
 recall:
-	$(PYTHON) evals/recall.py --workers $(WORKERS) --ecosystems $(ECOSYSTEMS) --no-sandbox
+	$(PYTHON) $(ROOT)/evals/recall.py --workers $(WORKERS) --ecosystems $(ECOSYSTEMS) --no-sandbox
 
 report:
-	$(PYTHON) evals/run.py --phase report --threshold $(THRESHOLD) --ecosystems $(ECOSYSTEMS)
+	$(PYTHON) $(ROOT)/evals/run.py --phase report --threshold $(THRESHOLD) --ecosystems $(ECOSYSTEMS)
 
 resample:
-	$(PYTHON) evals/recall.py --regenerate-samples --samples-per-ecosystem $(SAMPLES_PER_ECO) --ecosystems $(ECOSYSTEMS)
+	$(PYTHON) $(ROOT)/evals/recall.py --regenerate-samples --samples-per-ecosystem $(SAMPLES_PER_ECO) --ecosystems $(ECOSYSTEMS)
 
 clean:
-	rm -rf evals/workdir/results evals/workdir/recall_results evals/workdir/*.html
+	rm -rf $(ROOT)/evals/workdir/results $(ROOT)/evals/workdir/recall_results $(ROOT)/evals/workdir/*.html
