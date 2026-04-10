@@ -6,7 +6,7 @@ rule threat_npm_http_dependency
         identifies = "threat.npm.http.dependency"
         severity = "high"
         mitre_tactics = "initial-access"
-        specificity = "high"
+        specificity = "low"
         sophistication = "low"
         max_hits = 3
         path_include = "*/package.json,package.json"

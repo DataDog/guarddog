@@ -6,7 +6,7 @@ rule threat_process_spawn_silent
         identifies = "threat.process.spawn.silent"
         severity = "low"
         mitre_tactics = "defense-evasion"
-        specificity = "high"
+        specificity = "low"
         sophistication = "medium"
 
         max_hits = 3

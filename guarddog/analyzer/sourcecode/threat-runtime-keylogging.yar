@@ -6,7 +6,7 @@ rule threat_runtime_keylogging
         identifies = "threat.runtime.keylogging"
         severity = "high"
         mitre_tactics = "credential-access"
-        specificity = "high"
+        specificity = "low"
         sophistication = "medium"
         max_hits = 3
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"

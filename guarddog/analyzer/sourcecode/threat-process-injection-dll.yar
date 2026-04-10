@@ -6,7 +6,7 @@ rule threat_process_injection_dll
         identifies = "threat.process.injection.dll"
         severity = "high"
         mitre_tactics = "defense-evasion"
-        specificity = "high"
+        specificity = "low"
         sophistication = "high"
 
         max_hits = 5
