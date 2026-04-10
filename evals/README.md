@@ -1,6 +1,9 @@
 # GuardDog Evaluation Suite
 
-Benchmark GuardDog against the top most-popular PyPI and NPM packages to measure false positive rates and score distributions.
+Two tools for measuring GuardDog quality:
+
+- **benchmark.py** -- False positive rate on top-1000 legitimate packages
+- **recall.py** -- Detection rate on 500 known-malicious packages
 
 ## Quick start
 
@@ -56,3 +59,70 @@ A good rule should have a low trigger rate on this dataset. Key metrics:
 - **Score distribution**: most packages should score 0-3 (low/none)
 - **Rule trigger rate**: rules firing on >10% of packages likely have pattern issues
 - **Per-package detail**: inspect high-scoring packages to understand what triggered
+
+---
+
+## recall.py -- Detection rate on malicious packages
+
+Measures recall against a curated set of 500 known-malicious packages from [DataDog/malicious-software-packages-dataset](https://github.com/DataDog/malicious-software-packages-dataset/).
+
+Each package is extracted and scanned inside a [Nono](https://nono.sh) sandbox with no network access.
+
+### Quick start
+
+```bash
+# Install nono-py (required for sandboxed scanning)
+pip install nono-py
+
+# Run the full recall benchmark
+uv run evals/recall.py
+
+# Smaller test
+uv run evals/recall.py --ecosystems pypi --workers 3
+
+# Only regenerate the report from cached results
+uv run evals/recall.py --phase report
+
+# Use a local clone of the malicious dataset (skip downloads)
+uv run evals/recall.py --dataset-path /path/to/malicious-software-packages-dataset
+```
+
+### How it works
+
+1. **Fetches** 500 malicious package ZIPs from GitHub (listed in `recall_samples.json`)
+2. For each package, spawns a **sandboxed subprocess** (`recall_worker.py`) that:
+   - Applies Nono sandbox (no network, restricted filesystem)
+   - Extracts the encrypted ZIP (`password: infected`)
+   - Runs guarddog source code analysis
+   - Writes results and cleans up extracted files
+3. **Generates** an HTML report with recall rates, false negatives, and per-package details
+
+### Sample set
+
+`recall_samples.json` contains a fixed, reproducible set of 500 packages:
+- **250 PyPI** (246 malicious_intent + 4 compromised_lib)
+- **250 NPM** (200 malicious_intent + 50 compromised_lib)
+
+To regenerate from the latest dataset:
+```bash
+uv run evals/recall.py --regenerate-samples
+```
+
+### CLI options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--work-dir` | `evals/workdir` | Working directory |
+| `--phase` | `all` | Phases: `fetch`, `scan`, `report`, or `all` |
+| `--ecosystems` | `pypi npm` | Which ecosystems |
+| `--workers` | `5` | Parallel worker subprocesses |
+| `--timeout` | `120` | Per-package timeout in seconds |
+| `--dataset-path` | none | Local clone path (skip downloads) |
+| `--no-sandbox` | off | Skip Nono sandbox (DANGEROUS) |
+| `--regenerate-samples` | off | Regenerate `recall_samples.json` |
+
+### Interpreting results
+
+- **Recall rate**: % of malicious packages where at least one rule fired
+- **False negatives**: packages that scored 0 (completely missed)
+- **By category**: malicious_intent (purpose-built malware) vs compromised_lib (backdoored legit packages)
