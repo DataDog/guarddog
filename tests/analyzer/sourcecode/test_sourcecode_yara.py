@@ -83,7 +83,10 @@ def test_sourcecode_analyzer_yara_no_false_positives(rule_name: str):
             continue
         benign_file = os.path.join(BENIGN_TESTS_PATH, f)
         matches = compiled_rule.match(benign_file)
-        assert not matches, (
+        # Filter to the main rule only (ignore private helper rules)
+        main_rule_name = rule_name.replace("-", "_")
+        main_matches = [m for m in matches if m.rule == main_rule_name]
+        assert not main_matches, (
             f"Rule {rule_name} should NOT match benign file {f}, "
-            f"but matched: {[m.rule for m in matches]}"
+            f"but matched: {[m.rule for m in main_matches]}"
         )
