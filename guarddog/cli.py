@@ -269,7 +269,12 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
     Phase 2 (sandboxed): apply sandbox to the main process, then run
       source code analysis (YARA/Semgrep) and metadata analysis.
     """
-    with tempfile.TemporaryDirectory() as tmpdir:
+    # Use mkdtemp + realpath instead of TemporaryDirectory context manager.
+    # On macOS /var -> /private/var; nono doesn't resolve symlinks, so
+    # cleanup via the symlink path would be blocked by the sandbox.
+    import shutil
+    tmpdir = os.path.realpath(tempfile.mkdtemp())
+    try:
         # Phase 1: download + extract (needs network for download)
         original_extract = scanner._extract_archive
         scanner._extract_archive = lambda archive, target: extract_sandboxed(archive, target)
@@ -286,6 +291,8 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
         # Phase 2: sandbox main process, then analyze
         apply_sandbox(scan_paths=[file_path], writable_paths=[tmpdir])
         return scanner.analyzer.analyze(file_path, package_info, rules, name, version)
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 def _list_rules(ecosystem: ECOSYSTEM):
