@@ -32,7 +32,7 @@ def clear_caches():
 class TestUnclaimedMaintainerEmailDomain:
     def test_email_domain_doesnt_exist(self):
         def mock_whois(domain):
-            from whois.parser import PywhoisError
+            from whois.exceptions import PywhoisError
 
             raise PywhoisError('No match for "nope.com".')
 

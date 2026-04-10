@@ -543,9 +543,7 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     has_source_code_risks = any(r.category != "metadata" for r in risks)
     if final_score > 7.5 and not has_source_code_risks:
         final_score = 7.5
-        log.debug(
-            "Score capped at 7.5: HIGH requires source code risks"
-        )
+        log.debug("Score capped at 7.5: HIGH requires source code risks")
 
     # Map to label
     if final_score == 0:

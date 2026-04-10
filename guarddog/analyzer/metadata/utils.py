@@ -4,7 +4,7 @@ from typing import Optional
 
 import hashlib
 import whois  # type: ignore
-from whois.parser import PywhoisError
+from whois.exceptions import PywhoisError  # type: ignore[import-untyped]
 
 NPM_MAINTAINER_EMAIL_WARNING = (
     "note that NPM's API may not provide accurate information regarding the maintainer's email, "

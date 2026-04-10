@@ -460,9 +460,12 @@ class Analyzer:
 
                         # Check path_exclude patterns
                         if path_exclude:
-                            exclude_patterns = [p.strip() for p in path_exclude.split(",")]
+                            exclude_patterns = [
+                                p.strip() for p in path_exclude.split(",")
+                            ]
                             if any(
-                                fnmatch(scan_file_target_relpath, pat) or fnmatch(f, pat)
+                                fnmatch(scan_file_target_relpath, pat)
+                                or fnmatch(f, pat)
                                 for pat in exclude_patterns
                             ):
                                 continue

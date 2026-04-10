@@ -17,7 +17,7 @@ log = logging.getLogger("guarddog")
 
 def is_available() -> bool:
     """Check if the platform supports sandboxing via nono-py."""
-    import nono_py as nono
+    import nono_py as nono  # type: ignore[import-not-found]
 
     return nono.is_supported()
 
@@ -32,7 +32,7 @@ def apply_sandbox(
         scan_paths: paths that need READ access (package dirs, archive files)
         writable_paths: paths that need READ_WRITE access (temp extraction dirs)
     """
-    import nono_py as nono
+    import nono_py as nono  # type: ignore[import-not-found]
 
     caps = nono.CapabilitySet()
 
@@ -58,9 +58,11 @@ def apply_sandbox(
 
     caps.block_network()
     log.info("Sandbox: network blocked")
-    log.debug("Sandbox capabilities: READ %s | READ_WRITE %s | network=blocked",
-              [os.path.realpath(p) for p in scan_paths] + _get_common_read_paths(),
-              [os.path.realpath(p) for p in writable_paths] + [tmp])
+    log.debug(
+        "Sandbox capabilities: READ %s | READ_WRITE %s | network=blocked",
+        [os.path.realpath(p) for p in scan_paths] + _get_common_read_paths(),
+        [os.path.realpath(p) for p in writable_paths] + [tmp],
+    )
 
     nono.apply(caps)
     log.info("Sandbox: applied")
@@ -107,6 +109,7 @@ def _get_common_read_paths() -> list[str]:
     # guarddog package dir: needed for YARA/Semgrep rule files, which may
     # live outside sys.prefix when running from source (e.g. uv run)
     import guarddog
+
     paths.add(os.path.realpath(os.path.dirname(guarddog.__file__)))
 
     return list(paths)

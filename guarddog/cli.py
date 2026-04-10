@@ -21,7 +21,11 @@ from guarddog.reporters.reporter_factory import ReporterFactory, ReporterType
 
 from guarddog.scanners import get_package_scanner, get_project_scanner
 from guarddog.utils.archives import safe_extract
-from guarddog.sandbox import is_available as sandbox_available, apply_sandbox, extract_sandboxed
+from guarddog.sandbox import (
+    is_available as sandbox_available,
+    apply_sandbox,
+    extract_sandboxed,
+)
 
 EXIT_CODE_ISSUES_FOUND = 1
 
@@ -196,7 +200,7 @@ def _scan(
     output_format,
     exit_non_zero_on_finding,
     ecosystem: ECOSYSTEM,
-    sandbox: bool = None,
+    sandbox: Optional[bool] = None,
 ):
     """Scan a package
 
@@ -281,11 +285,14 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
     # On macOS /var -> /private/var; nono doesn't resolve symlinks, so
     # cleanup via the symlink path would be blocked by the sandbox.
     import shutil
+
     tmpdir = os.path.realpath(tempfile.mkdtemp())
     try:
         # Phase 1: download + extract (needs network for download)
         original_extract = scanner._extract_archive
-        scanner._extract_archive = lambda archive, target: extract_sandboxed(archive, target)
+        scanner._extract_archive = lambda archive, target: extract_sandboxed(
+            archive, target
+        )
         try:
             package_info, file_path = scanner.download_and_get_package_info(
                 tmpdir, name, version
@@ -468,7 +475,12 @@ def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding
 @scan_options
 @legacy_rules_options
 def scan(
-    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding,
+    target,
+    version,
+    rules,
+    exclude_rules,
+    output_format,
+    exit_non_zero_on_finding,
     sandbox,
 ):
     return _scan(
