@@ -47,7 +47,7 @@ def parse_args():
     p.add_argument("--no-sandbox", action="store_true")
     p.add_argument("--regenerate-samples", action="store_true",
                    help="Resample malicious packages from the dataset")
-    p.add_argument("--samples-per-eco", type=int, default=250,
+    p.add_argument("--samples-per-ecosystem", type=int, default=250,
                    help="Total malicious samples per ecosystem (compromised_lib first, then malicious_intent)")
     p.add_argument("--seed", type=str, default=None,
                    help="Hex seed for malicious sampling (default: random)")
@@ -307,7 +307,7 @@ def main():
         cmd = [
             sys.executable, str(EVALS_DIR / "recall.py"),
             "--regenerate-samples",
-            "--samples-per-eco", str(args.samples_per_eco),
+            "--samples-per-ecosystem", str(args.samples_per_ecosystem),
             *eco_args,
         ]
         if args.seed:
