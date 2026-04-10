@@ -300,10 +300,9 @@ def main():
     work_dir = args.work_dir.resolve()
     work_dir.mkdir(parents=True, exist_ok=True)
 
+    eco_args = ["--ecosystems"] + args.ecosystems
+
     if args.regenerate_samples:
-        eco_args = []
-        for eco in args.ecosystems:
-            eco_args.extend(["--ecosystems", eco])
         cmd = [
             sys.executable, str(EVALS_DIR / "recall.py"),
             "--regenerate-samples",
@@ -316,9 +315,6 @@ def main():
         return
 
     if args.phase == "all":
-        eco_args = []
-        for eco in args.ecosystems:
-            eco_args.extend(["--ecosystems", eco])
 
         # Run FP benchmark
         run_subprocess([

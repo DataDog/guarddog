@@ -153,20 +153,23 @@ def _fetch_json(url: str) -> dict:
 
 def _resolve_zip_path(repo: str, sample: dict) -> str | None:
     """Find the latest ZIP path for a sample package via GitHub API."""
+    import urllib.parse
     pkg = sample["package"]
     eco = sample["ecosystem"]
     cat = sample["category"]
     dir_path = f"samples/{eco}/{cat}/{pkg}"
+    encoded_path = urllib.parse.quote(dir_path, safe="/")
 
     try:
-        versions_raw = _gh_api(f"repos/{repo}/contents/{dir_path}", jq=".[].name")
+        versions_raw = _gh_api(f"repos/{repo}/contents/{encoded_path}", jq=".[].name")
         versions = [v for v in versions_raw.strip().split("\n") if v]
         if not versions:
             return None
         version = sorted(versions)[-1]
 
+        version_path = urllib.parse.quote(f"{dir_path}/{version}", safe="/")
         zip_raw = _gh_api(
-            f"repos/{repo}/contents/{dir_path}/{version}",
+            f"repos/{repo}/contents/{version_path}",
             jq='[.[] | select(.name | endswith(".zip"))] | .[0].path'
         )
         return zip_raw if zip_raw and zip_raw != "null" else None
