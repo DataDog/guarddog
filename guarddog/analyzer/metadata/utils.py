@@ -4,6 +4,7 @@ from typing import Optional
 
 import hashlib
 import whois  # type: ignore
+from whois.parser import PywhoisError
 
 NPM_MAINTAINER_EMAIL_WARNING = (
     "note that NPM's API may not provide accurate information regarding the maintainer's email, "
@@ -27,7 +28,7 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
 
     try:
         domain_information = whois.whois(domain)
-    except whois.exceptions.PywhoisError as e:
+    except PywhoisError as e:
         # The domain doesn't exist at all, if that's the case we consider it vulnerable
         # since someone could register it
         return None, (not str(e).lower().startswith("no match for"))
