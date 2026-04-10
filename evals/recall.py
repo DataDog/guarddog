@@ -338,29 +338,60 @@ def run_report(work_dir: Path, ecosystems: list[str]):
     detected_any = 0  # at least one rule fired
     detected_rules = defaultdict(int)
     score_buckets = defaultdict(int)
+    scores_all = []
     pkg_rows = []
 
     for r in results:
         out = r.get("scan_output") or {}
-        # guarddog CLI output has results at top level (not nested)
         scan_results = out.get("results", {})
         fired = [k for k, v in scan_results.items() if has_findings(v)]
         is_detected = len(fired) > 0 or out.get("issues", 0) > 0
+
+        risk = out.get("risk_score") or {}
+        score = risk.get("score")
+        label = risk.get("label")
 
         if is_detected:
             detected_any += 1
         for rule in fired:
             detected_rules[rule] += 1
 
+        if score is not None and not r.get("error"):
+            scores_all.append(score)
+            bucket = min(int(score), 9)
+            score_buckets[bucket] += 1
+
         pkg_rows.append({
             "name": r["package"], "ecosystem": r["ecosystem"],
             "category": r.get("category", "unknown"),
             "detected": is_detected, "rules_fired": len(fired),
             "rules": fired, "error": r.get("error"),
+            "score": score, "risk_label": label,
         })
 
     recall_rate = detected_any / successful * 100 if successful else 0
     missed = [p for p in pkg_rows if not p["detected"] and not p["error"]]
+
+    # Score stats
+    avg_score = sum(scores_all) / len(scores_all) if scores_all else 0
+    median_score = sorted(scores_all)[len(scores_all) // 2] if scores_all else 0
+    max_score = max(scores_all) if scores_all else 0
+
+    # Risk label distribution
+    risk_dist = defaultdict(int)
+    for p in pkg_rows:
+        if p["error"]:
+            risk_dist["error"] += 1
+        elif p["risk_label"]:
+            risk_dist[p["risk_label"].lower()] += 1
+        else:
+            risk_dist["none"] += 1
+
+    # Per-ecosystem score stats
+    eco_score_buckets = {eco: defaultdict(int) for eco in ecosystems}
+    for p in pkg_rows:
+        if p["score"] is not None and not p["error"]:
+            eco_score_buckets[p["ecosystem"]][min(int(p["score"]), 9)] += 1
 
     # Per-ecosystem stats
     eco_stats = {}
@@ -368,11 +399,14 @@ def run_report(work_dir: Path, ecosystems: list[str]):
         eco_pkgs = [p for p in pkg_rows if p["ecosystem"] == eco]
         eco_ok = [p for p in eco_pkgs if not p["error"]]
         eco_det = sum(1 for p in eco_ok if p["detected"])
+        eco_scores = [p["score"] for p in eco_ok if p["score"] is not None]
         eco_stats[eco] = {
             "total": len(eco_pkgs), "successful": len(eco_ok),
             "detected": eco_det,
             "recall": eco_det / len(eco_ok) * 100 if eco_ok else 0,
             "errors": sum(1 for p in eco_pkgs if p["error"]),
+            "avg_score": sum(eco_scores) / len(eco_scores) if eco_scores else 0,
+            "median_score": sorted(eco_scores)[len(eco_scores) // 2] if eco_scores else 0,
         }
 
     # Per-category stats
@@ -381,16 +415,22 @@ def run_report(work_dir: Path, ecosystems: list[str]):
         cat_pkgs = [p for p in pkg_rows if p["category"] == cat]
         cat_ok = [p for p in cat_pkgs if not p["error"]]
         cat_det = sum(1 for p in cat_ok if p["detected"])
+        cat_scores = [p["score"] for p in cat_ok if p["score"] is not None]
         cat_stats[cat] = {
             "total": len(cat_pkgs), "successful": len(cat_ok),
             "detected": cat_det,
             "recall": cat_det / len(cat_ok) * 100 if cat_ok else 0,
+            "avg_score": sum(cat_scores) / len(cat_scores) if cat_scores else 0,
+            "median_score": sorted(cat_scores)[len(cat_scores) // 2] if cat_scores else 0,
         }
 
     top_rules = sorted(detected_rules.items(), key=lambda x: -x[1])
     html = build_recall_html(
         total=total, successful=successful, detected=detected_any,
         recall_rate=recall_rate, scan_errors=scan_errors,
+        avg_score=avg_score, median_score=median_score, max_score=max_score,
+        score_buckets=dict(score_buckets), eco_score_buckets=eco_score_buckets,
+        risk_dist=dict(risk_dist),
         ecosystems=ecosystems, eco_stats=eco_stats, cat_stats=cat_stats,
         top_rules=top_rules, missed=missed, pkg_rows=pkg_rows,
     )
@@ -403,15 +443,19 @@ def run_report(work_dir: Path, ecosystems: list[str]):
     print(f"  Packages scanned: {total} ({successful} successful, {scan_errors} errors)")
     print(f"  Detected: {detected_any}/{successful} ({recall_rate:.1f}%)")
     print(f"  Missed: {len(missed)}")
+    print(f"  Score: avg={avg_score:.2f}  median={median_score:.1f}  max={max_score:.1f}")
     for eco in ecosystems:
         s = eco_stats[eco]
-        print(f"  {eco.upper()}: {s['detected']}/{s['successful']} ({s['recall']:.1f}%)")
+        print(f"  {eco.upper()}: {s['detected']}/{s['successful']} ({s['recall']:.1f}%) "
+              f"avg={s['avg_score']:.2f} median={s['median_score']:.1f}")
     for cat, s in cat_stats.items():
         print(f"  {cat}: {s['detected']}/{s['successful']} ({s['recall']:.1f}%)")
     print(f"{'='*60}")
 
 
 def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
+                      avg_score, median_score, max_score, score_buckets,
+                      eco_score_buckets, risk_dist,
                       ecosystems, eco_stats, cat_stats, top_rules, missed, pkg_rows):
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
@@ -420,13 +464,61 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
         s = eco_stats[eco]
         eco_rows += (f"<tr><td>{escape(eco.upper())}</td><td>{s['total']}</td>"
                      f"<td>{s['successful']}</td><td>{s['detected']}</td>"
-                     f"<td><b>{s['recall']:.1f}%</b></td><td>{s['errors']}</td></tr>\n")
+                     f"<td><b>{s['recall']:.1f}%</b></td>"
+                     f"<td>{s['avg_score']:.1f}</td><td>{s['median_score']:.1f}</td>"
+                     f"<td>{s['errors']}</td></tr>\n")
 
     cat_rows = ""
     for cat, s in cat_stats.items():
         cat_rows += (f"<tr><td>{escape(cat)}</td><td>{s['total']}</td>"
                      f"<td>{s['successful']}</td><td>{s['detected']}</td>"
-                     f"<td><b>{s['recall']:.1f}%</b></td></tr>\n")
+                     f"<td><b>{s['recall']:.1f}%</b></td>"
+                     f"<td>{s['avg_score']:.1f}</td><td>{s['median_score']:.1f}</td></tr>\n")
+
+    # Score histogram
+    bucket_max = max(score_buckets.values()) if score_buckets else 1
+    score_bars = ""
+    for b in range(10):
+        count = score_buckets.get(b, 0)
+        h = int((count / bucket_max) * 200) if bucket_max else 0
+        label = f"{b}-{b+1}" if b < 9 else "9-10"
+        color = "#ef5350" if b <= 3 else "#fff176" if b <= 6 else "#a5d6a7"
+        score_bars += (f'<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
+                       f'<span style="font-size:12px">{count}</span>'
+                       f'<div style="width:40px;height:{h}px;background:{color};border-radius:4px 4px 0 0;min-height:2px"></div>'
+                       f'<span style="font-size:11px;color:#666">{label}</span></div>\n')
+
+    # Per-ecosystem histograms
+    eco_hist = ""
+    for eco in ecosystems:
+        emax = max(eco_score_buckets[eco].values()) if eco_score_buckets[eco] else 1
+        bars = ""
+        for b in range(10):
+            count = eco_score_buckets[eco].get(b, 0)
+            h = int((count / emax) * 150) if emax else 0
+            label = f"{b}-{b+1}" if b < 9 else "9-10"
+            color = "#ef5350" if b <= 3 else "#fff176" if b <= 6 else "#a5d6a7"
+            bars += (f'<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
+                     f'<span style="font-size:11px">{count}</span>'
+                     f'<div style="width:32px;height:{h}px;background:{color};border-radius:4px 4px 0 0;min-height:2px"></div>'
+                     f'<span style="font-size:10px;color:#666">{label}</span></div>\n')
+        eco_hist += (f'<div><h3>{escape(eco.upper())}</h3>'
+                     f'<div style="display:flex;gap:4px;align-items:flex-end;padding:12px 0">{bars}</div></div>\n')
+
+    # Risk label bars
+    risk_labels = ["none", "low", "medium", "high", "critical", "error"]
+    risk_colors_map = {"none": "#e0e0e0", "low": "#a5d6a7", "medium": "#fff176",
+                       "high": "#ffab91", "critical": "#ef5350", "error": "#bdbdbd"}
+    rmax = max(risk_dist.get(l, 0) for l in risk_labels) or 1
+    risk_bars = ""
+    for label in risk_labels:
+        count = risk_dist.get(label, 0)
+        w = int((count / rmax) * 100)
+        risk_bars += (f'<div style="display:flex;align-items:center;gap:8px;margin:4px 0">'
+                      f'<span style="width:70px;text-align:right;font-size:13px">{label}</span>'
+                      f'<div style="width:{w}%;min-width:2px;height:24px;background:{risk_colors_map[label]};'
+                      f'border-radius:4px;display:flex;align-items:center;padding-left:8px">'
+                      f'<span style="font-size:12px;font-weight:600">{count}</span></div></div>\n')
 
     rules_html = ""
     for rule, count in top_rules[:30]:
@@ -443,15 +535,18 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
                         f"<td>{escape(p['category'])}</td></tr>\n")
 
     pkg_rows_html = ""
-    for p in sorted(pkg_rows, key=lambda x: (-x["rules_fired"], x["name"])):
+    for p in sorted(pkg_rows, key=lambda x: (x.get("score") is None, -(x.get("score") or 0), x["name"])):
         status = "err" if p["error"] else ("yes" if p["detected"] else "NO")
         bg = "#ffcdd2" if not p["detected"] and not p["error"] else ""
+        score_s = f"{p['score']:.1f}" if p.get("score") is not None else "-"
+        label_s = p.get("risk_label") or "-"
         rules = escape(", ".join(p["rules"])) if p["rules"] else "-"
         pkg_rows_html += (f"<tr class='pkg-row' data-eco='{p['ecosystem']}' "
                           f"data-detected='{'yes' if p['detected'] else 'no'}' "
                           f"data-name='{escape(p['name'].lower())}' style='background:{bg}'>"
                           f"<td>{escape(p['name'])}</td><td>{escape(p['ecosystem'].upper())}</td>"
                           f"<td>{escape(p['category'])}</td><td><b>{status}</b></td>"
+                          f"<td>{score_s}</td><td>{label_s}</td>"
                           f"<td>{p['rules_fired']}</td>"
                           f"<td class='details'>{rules}</td></tr>\n")
 
@@ -498,19 +593,30 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
     <div class="sub">{recall_rate:.1f}% recall</div></div>
   <div class="card"><div class="label">Missed</div><div class="value {'green' if len(missed) < 20 else 'red'}">{len(missed)}</div>
     <div class="sub">false negatives</div></div>
+  <div class="card"><div class="label">Avg Score</div><div class="value">{avg_score:.1f}</div></div>
+  <div class="card"><div class="label">Median Score</div><div class="value">{median_score:.1f}</div></div>
 </div>
 
 <h2>Recall by Ecosystem</h2>
 <table>
-<tr><th>Ecosystem</th><th>Total</th><th>Scanned</th><th>Detected</th><th>Recall</th><th>Errors</th></tr>
+<tr><th>Ecosystem</th><th>Total</th><th>Scanned</th><th>Detected</th><th>Recall</th><th>Avg Score</th><th>Median Score</th><th>Errors</th></tr>
 {eco_rows}
 </table>
 
 <h2>Recall by Category</h2>
 <table>
-<tr><th>Category</th><th>Total</th><th>Scanned</th><th>Detected</th><th>Recall</th></tr>
+<tr><th>Category</th><th>Total</th><th>Scanned</th><th>Detected</th><th>Recall</th><th>Avg Score</th><th>Median Score</th></tr>
 {cat_rows}
 </table>
+
+<h2>Risk Score Distribution</h2>
+<p style="color:#666;margin-bottom:8px">On malicious packages, higher scores = better detection. Red bars (low scores) indicate missed or under-scored packages.</p>
+<h3>All Ecosystems</h3>
+<div style="display:flex;gap:4px;align-items:flex-end;padding:12px 0">{score_bars}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">{eco_hist}</div>
+
+<h2>Risk Label Distribution</h2>
+{risk_bars}
 
 <h2>Top Triggered Rules on Malicious Packages</h2>
 <table id="rulesTable">
@@ -545,7 +651,9 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
 <th onclick="sortTable('pkgTable',1)">Ecosystem</th>
 <th onclick="sortTable('pkgTable',2)">Category</th>
 <th onclick="sortTable('pkgTable',3)">Detected</th>
-<th onclick="sortTable('pkgTable',4)">Rules Fired</th>
+<th onclick="sortTable('pkgTable',4)">Score</th>
+<th onclick="sortTable('pkgTable',5)">Label</th>
+<th onclick="sortTable('pkgTable',6)">Rules Fired</th>
 <th>Rules</th></tr>
 {pkg_rows_html}
 </table>
