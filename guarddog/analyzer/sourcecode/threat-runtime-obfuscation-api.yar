@@ -40,3 +40,4 @@ rule threat_runtime_obfuscation_api
         any of ($js_*) or
         // Go: reflect usage
         any of ($go_*)
+}
