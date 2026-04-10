@@ -6,6 +6,8 @@ Three tools for measuring GuardDog quality:
 - **benchmark.py** -- FP benchmark on top-N legitimate packages
 - **recall.py** -- Recall benchmark on known-malicious packages
 
+> **Safety:** Malicious packages are extracted and scanned inside a [Nono](https://nono.sh) kernel-level sandbox with no network access and restricted filesystem. Requires `nono-py` (`pip install nono-py`). Pass `--no-sandbox` to skip (not recommended).
+
 ## Quick start
 
 ```bash
