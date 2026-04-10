@@ -29,7 +29,7 @@ def canonicalize_tmp():
     return os.path.realpath(tmp)
 
 
-def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str):
+def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: str | None = None):
     try:
         import nono_py as nono
     except ImportError:
@@ -53,6 +53,11 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str):
     base_prefix = os.path.realpath(sys.base_prefix)
     if base_prefix != python_prefix:
         caps.allow_path(base_prefix, nono.AccessMode.READ)
+
+    # Allow guarddog binary and its directory (for subprocess execution)
+    if guarddog_bin:
+        gd_dir = os.path.realpath(os.path.dirname(guarddog_bin))
+        caps.allow_path(gd_dir, nono.AccessMode.READ)
 
     caps.block_network()
 
@@ -102,11 +107,12 @@ def extract_zip(zip_path: str, dest: str):
             zf.extract(info, dest, pwd=b"infected")
 
 
-def scan_package(extracted_dir: str, ecosystem: str) -> dict:
+def scan_package(extracted_dir: str, ecosystem: str, guarddog_bin: str | None = None) -> dict:
     """Run guarddog scan on the extracted directory via CLI."""
     import subprocess as sp
 
-    guarddog_bin = shutil.which("guarddog")
+    if not guarddog_bin:
+        guarddog_bin = shutil.which("guarddog")
     if not guarddog_bin:
         return {"results": {}, "error": "guarddog not found on PATH"}
 
@@ -130,6 +136,7 @@ def main():
     parser.add_argument("--zip-path", required=True)
     parser.add_argument("--ecosystem", required=True, choices=["pypi", "npm"])
     parser.add_argument("--output-path", required=True)
+    parser.add_argument("--guarddog-bin", default=None, help="Path to guarddog binary")
     parser.add_argument("--no-sandbox", action="store_true", help="Skip sandbox (DANGEROUS, for testing only)")
     args = parser.parse_args()
 
@@ -139,12 +146,14 @@ def main():
     tmp_base = canonicalize_tmp()
     tmp_dir = tempfile.mkdtemp(dir=tmp_base, prefix="guarddog_recall_")
 
+    guarddog_bin = args.guarddog_bin or shutil.which("guarddog")
+
     try:
         if not args.no_sandbox:
-            setup_sandbox(tmp_dir, zip_path, output_path)
+            setup_sandbox(tmp_dir, zip_path, output_path, guarddog_bin)
 
         extract_zip(zip_path, tmp_dir)
-        scan_result = scan_package(tmp_dir, args.ecosystem)
+        scan_result = scan_package(tmp_dir, args.ecosystem, guarddog_bin)
 
         with open(output_path, "w") as f:
             json.dump(scan_result, f, indent=2)
