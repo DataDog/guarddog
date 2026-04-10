@@ -1763,6 +1763,32 @@ files = [
 ]
 
 [[package]]
+name = "nono-py"
+version = "0.7.0"
+description = "Python bindings for nono capability-based sandboxing"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "nono_py-0.7.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:74ad52b3f1eff95ca14853914248bc1e120f04ca318c5f35e869cb431aeba787"},
+    {file = "nono_py-0.7.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f81cf4d3e0435b909f21ba232e69e82d37f033b03e52453670b2368aef8d369a"},
+    {file = "nono_py-0.7.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7bcbe0f363aef3681f2e0063062898dea292cca41b5ff38335da484cd25f9c41"},
+    {file = "nono_py-0.7.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:61fb7aa0f85bf3d5045f4350c7ff9619acdf3840d10005e732e78ebbb1ada163"},
+    {file = "nono_py-0.7.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:974310a564dbe56bd31f95b4465bb0fe0f1463a03566d7e21beda32a52b46e13"},
+    {file = "nono_py-0.7.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:db25fff057dbba9aabc764d94a206c0707525a43da7335354aaa63cd89add7ca"},
+    {file = "nono_py-0.7.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:73d66c2b8d80e19bc9e786d4ce66b8e274f11f97c2730c07443cd1b43c7f53fc"},
+    {file = "nono_py-0.7.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7fdb56b322469216122b125042a5e6bf86465ddfe34bde0b74abc7105a8e0c7c"},
+    {file = "nono_py-0.7.0-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3aea8ae61c14b38ca93f06de9dabc34928142a0f84a61caa30ffd5ebaaaf30d8"},
+    {file = "nono_py-0.7.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3bae618ac228b4c71d8a9951a9c72003de9c170c91bbc49d382e5b9d2eb40e9e"},
+    {file = "nono_py-0.7.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1582ecad29cd5d9edd008e6a1e32f184b2cc696f5cf042a4de6935dc4cf67f96"},
+    {file = "nono_py-0.7.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:083abc3fea92f5b2a194cd9e752e4ab3ca2c65a8039947f1c4430eb82653e3e5"},
+    {file = "nono_py-0.7.0.tar.gz", hash = "sha256:30576a5f1d89f630e754950d2daa62b325ec65b93346ec4337f4bc2055811c9d"},
+]
+
+[package.extras]
+dev = ["maturin (>=1,<2)", "mypy (>=1.10)", "pytest (>=8)", "ruff (>=0.4)"]
+
+[[package]]
 name = "numpy"
 version = "2.2.6"
 description = "Fundamental package for array computing in Python"
@@ -3557,4 +3583,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4"
-content-hash = "7a78cdba812eaf2ec37ba09b77ebf99563e23830a76d0537dddffa0c3d8dd726"
+content-hash = "5f93c4e97976a8b283eee4479af86d6699699771f10ec0681118a0d4c72c2757"
