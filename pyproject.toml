@@ -53,7 +53,9 @@ filterwarnings = [
 ]
 testpaths = [
     "tests/analyzer/metadata",
-    "tests/core"
+    "tests/analyzer/sourcecode",
+    "tests/core",
+    "tests/reporters"
 ]
 
 [build-system]
