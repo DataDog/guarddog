@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 
+from evals import templates
+
 
 EVALS_DIR = Path(__file__).parent
 DEFAULT_WORK_DIR = EVALS_DIR / "workdir"
@@ -45,10 +47,10 @@ def parse_args():
     p.add_argument("--no-sandbox", action="store_true")
     p.add_argument("--regenerate-samples", action="store_true",
                    help="Resample malicious packages from the dataset")
-    p.add_argument("--malicious-per-eco", type=int, default=250,
-                   help="Number of malicious_intent samples per ecosystem (all compromised_lib always included)")
-    p.add_argument("--seed", type=int, default=42,
-                   help="Random seed for malicious package sampling")
+    p.add_argument("--samples-per-eco", type=int, default=250,
+                   help="Total malicious samples per ecosystem (compromised_lib first, then malicious_intent)")
+    p.add_argument("--seed", type=str, default=None,
+                   help="Hex seed for malicious sampling (default: random)")
     return p.parse_args()
 
 
@@ -232,39 +234,7 @@ def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1,
                        f'<td>{row["precision"]:.1f}%</td><td>{row["f1"]:.1f}%</td>'
                        f'<td>{row["tp"]}</td><td>{row["fp"]}</td></tr>\n')
 
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>GuardDog Combined Evaluation</title>
-<style>
-  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-         max-width: 1200px; margin: 0 auto; padding: 20px; background: #fafafa; color: #222; }}
-  h1 {{ margin-bottom: 8px; }}
-  h2 {{ margin: 32px 0 12px; border-bottom: 2px solid #1976d2; padding-bottom: 4px; }}
-  .meta {{ color: #666; margin-bottom: 24px; }}
-  .cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px; margin: 16px 0; }}
-  .card {{ background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
-  .card .label {{ font-size: 13px; color: #666; }}
-  .card .value {{ font-size: 28px; font-weight: 700; }}
-  .card .sub {{ font-size: 12px; color: #999; margin-top: 2px; }}
-  .green {{ color: #2e7d32; }}
-  .red {{ color: #c62828; }}
-  table {{ border-collapse: collapse; width: 100%; margin: 12px 0; background: #fff;
-           box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 14px; }}
-  th, td {{ padding: 8px 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }}
-  th {{ background: #1976d2; color: #fff; }}
-  .note {{ background: #e3f2fd; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 14px; }}
-  .legend {{ display: flex; gap: 16px; margin: 8px 0; font-size: 13px; }}
-  .legend span {{ display: inline-flex; align-items: center; gap: 4px; }}
-  .legend-box {{ width: 14px; height: 14px; border-radius: 2px; }}
-  .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }}
-</style>
-</head>
-<body>
-
+    body = f"""
 <h1>GuardDog Combined Evaluation</h1>
 <p class="meta">Generated {ts} &mdash; Detection threshold: score >= {threshold}</p>
 
@@ -320,10 +290,9 @@ def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1,
 <table style="width:auto">
 <tr><th>Threshold</th><th>Recall</th><th>FPR</th><th>Precision</th><th>F1</th><th>TP</th><th>FP</th></tr>
 {sweep_rows}
-</table>
+</table>"""
 
-</body>
-</html>"""
+    return templates.render("GuardDog Combined Evaluation", body)
 
 
 def main():
@@ -335,13 +304,15 @@ def main():
         eco_args = []
         for eco in args.ecosystems:
             eco_args.extend(["--ecosystems", eco])
-        subprocess.run([
+        cmd = [
             sys.executable, str(EVALS_DIR / "recall.py"),
             "--regenerate-samples",
-            "--malicious-per-eco", str(args.malicious_per_eco),
-            "--seed", str(args.seed),
+            "--samples-per-eco", str(args.samples_per_eco),
             *eco_args,
-        ], cwd=str(EVALS_DIR.parent))
+        ]
+        if args.seed:
+            cmd.extend(["--seed", args.seed])
+        subprocess.run(cmd, cwd=str(EVALS_DIR.parent))
         return
 
     if args.phase == "all":
