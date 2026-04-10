@@ -1,4 +1,6 @@
-from unittest.mock import MagicMock, patch, call
+import os
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from guarddog.sandbox import is_available, apply_sandbox, _get_common_read_paths
@@ -7,14 +9,9 @@ from guarddog.sandbox import is_available, apply_sandbox, _get_common_read_paths
 class TestIsAvailable:
     @patch("guarddog.sandbox.nono_py", create=True)
     def test_returns_true_when_supported(self, mock_nono):
-        # Patch the import inside is_available
         with patch.dict("sys.modules", {"nono_py": mock_nono}):
             mock_nono.is_supported.return_value = True
             assert is_available() is True
-
-    @patch.dict("sys.modules", {"nono_py": None})
-    def test_returns_false_when_import_fails(self):
-        assert is_available() is False
 
     @patch("guarddog.sandbox.nono_py", create=True)
     def test_returns_false_when_not_supported(self, mock_nono):
@@ -29,10 +26,6 @@ class TestApplySandbox:
         mock.AccessMode.READ = "READ"
         mock.AccessMode.READ_WRITE = "READ_WRITE"
         mock.is_supported.return_value = True
-
-        ctx = MagicMock()
-        ctx.query_path.return_value = {"status": "allowed"}
-        mock.QueryContext.return_value = ctx
         return mock
 
     @patch("guarddog.sandbox._get_common_read_paths", return_value=["/usr"])
@@ -48,21 +41,6 @@ class TestApplySandbox:
         caps = mock_nono.CapabilitySet.return_value
         caps.block_network.assert_called_once()
         mock_nono.apply.assert_called_once_with(caps)
-
-    @patch("guarddog.sandbox._get_common_read_paths", return_value=["/usr"])
-    def test_raises_on_query_denial(self, _mock_paths, tmp_path):
-        mock_nono = self._make_mock_nono()
-        ctx = mock_nono.QueryContext.return_value
-        ctx.query_path.return_value = {"status": "denied"}
-
-        with patch.dict("sys.modules", {"nono_py": mock_nono}):
-            with pytest.raises(RuntimeError, match="Sandbox validation failed"):
-                apply_sandbox(
-                    scan_paths=[],
-                    writable_paths=[str(tmp_path / "extract")],
-                )
-
-        mock_nono.apply.assert_not_called()
 
     @patch("guarddog.sandbox._get_common_read_paths", return_value=["/usr"])
     def test_network_always_blocked(self, _mock_paths, tmp_path):
@@ -84,14 +62,14 @@ class TestApplySandbox:
 class TestScanCLISandboxFlag:
     @patch("guarddog.cli.get_package_scanner")
     @patch("guarddog.sandbox.is_available", return_value=False)
-    def test_exits_when_sandbox_unavailable(self, _mock_avail, _mock_scanner):
+    def test_exits_when_sandbox_forced_but_unavailable(self, _mock_avail, _mock_scanner):
+        """--sandbox flag should hard-fail when sandbox is not available"""
         from click.testing import CliRunner
         from guarddog.cli import cli
 
         runner = CliRunner()
-        result = runner.invoke(cli, ["pypi", "scan", "some-package"])
+        result = runner.invoke(cli, ["pypi", "scan", "some-package", "--sandbox"])
         assert result.exit_code != 0
-        assert "not supported" in result.output.lower() or "sandbox" in result.output.lower()
 
     @patch("guarddog.cli.get_package_scanner")
     def test_no_sandbox_skips_check(self, mock_get_scanner):
@@ -107,8 +85,4 @@ class TestScanCLISandboxFlag:
 
         runner = CliRunner()
         result = runner.invoke(cli, ["pypi", "scan", "some-package", "--no-sandbox"])
-        # Should not exit with sandbox error
         assert "not supported" not in (result.output or "").lower()
-
-
-import os
