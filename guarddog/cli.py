@@ -264,10 +264,11 @@ def _scan(
 def _scan_remote_sandboxed(scanner, name, version, rules):
     """Remote scan with sandboxed extraction and analysis.
 
-    Phase 1 (unsandboxed): download package and extract archive.
-      Extraction itself runs in a sandboxed subprocess via extract_sandboxed.
+    Phase 1 (unsandboxed): download, extract (in sandboxed subprocess),
+      and run metadata analysis (needs network for DNS/email checks).
     Phase 2 (sandboxed): apply sandbox to the main process, then run
-      source code analysis (YARA/Semgrep) and metadata analysis.
+      source code analysis (YARA/Semgrep).
+    Results are combined identically to Analyzer.analyze().
     """
     # Use mkdtemp + realpath instead of TemporaryDirectory context manager.
     # On macOS /var -> /private/var; nono doesn't resolve symlinks, so
@@ -288,9 +289,54 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
         finally:
             scanner._extract_archive = original_extract
 
-        # Phase 2: sandbox main process, then analyze
+        # Phase 1 continued: metadata analysis (needs network for DNS checks)
+        analyzer = scanner.analyzer
+        metadata_results = analyzer.analyze_metadata(
+            file_path, package_info, rules, name, version
+        )
+
+        # Phase 2: sandbox main process, then run source code analysis
         apply_sandbox(scan_paths=[file_path], writable_paths=[tmpdir])
-        return scanner.analyzer.analyze(file_path, package_info, rules, name, version)
+        sourcecode_results = analyzer.analyze_sourcecode(file_path, rules)
+
+        # Combine results (same as Analyzer.analyze)
+        risk_score = analyzer.calculate_package_risk_score(
+            sourcecode_results, metadata_results
+        )
+        risk_objects = risk_score.pop("_risks", [])
+        formatted_risks = [
+            {
+                "name": risk.name,
+                "category": risk.category,
+                "severity": risk.severity.value,
+                "mitre_tactics": risk.mitre_tactics,
+                "threat_identifies": risk.threat_finding.identifies,
+                "threat_rule": risk.threat_finding.rule_name,
+                "threat_description": risk.threat_finding.message or "",
+                "threat_location": risk.threat_finding.location or "",
+                "threat_code": risk.threat_finding.code_snippet or "",
+                "capability_identifies": (
+                    risk.capability_finding.identifies
+                    if risk.capability_finding
+                    else None
+                ),
+                "capability_rule": (
+                    risk.capability_finding.rule_name
+                    if risk.capability_finding
+                    else None
+                ),
+                "file_path": risk.threat_finding.file_path,
+            }
+            for risk in risk_objects
+        ]
+        return {
+            "issues": metadata_results["issues"] + sourcecode_results["issues"],
+            "errors": metadata_results["errors"] | sourcecode_results["errors"],
+            "results": metadata_results["results"] | sourcecode_results["results"],
+            "path": file_path,
+            "risk_score": risk_score,
+            "risks": formatted_risks,
+        }
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
