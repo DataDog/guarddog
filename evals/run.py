@@ -108,6 +108,13 @@ def extract_score(result: dict) -> float | None:
     return None
 
 
+def _mcc(tp: int, tn: int, fp: int, fn: int) -> float:
+    """Matthews Correlation Coefficient. Uses all four confusion matrix quadrants."""
+    import math
+    denom = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    return (tp * tn - fp * fn) / denom if denom > 0 else 0.0
+
+
 def generate_combined_report(work_dir: Path, ecosystems: list[str], threshold: float):
     print("Loading results...")
     benign = load_benign_results(work_dir, ecosystems)
@@ -133,6 +140,7 @@ def generate_combined_report(work_dir: Path, ecosystems: list[str], threshold: f
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+    mcc = _mcc(tp, tn, fp, fn)
 
     # Score stats
     def stats(scores):
@@ -162,16 +170,19 @@ def generate_combined_report(work_dir: Path, ecosystems: list[str], threshold: f
     for t in [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]:
         _tp = sum(1 for s in malicious_scores if s >= t)
         _fp = sum(1 for s in benign_scores if s >= t)
+        _fn = len(malicious_scores) - _tp
+        _tn = len(benign_scores) - _fp
         _recall = _tp / len(malicious_scores) * 100 if malicious_scores else 0
         _fpr = _fp / len(benign_scores) * 100 if benign_scores else 0
         _prec = _tp / (_tp + _fp) * 100 if (_tp + _fp) > 0 else 0
         _f1 = 2 * _prec * _recall / (_prec + _recall) if (_prec + _recall) > 0 else 0
+        _mcc_val = _mcc(_tp, _tn, _fp, _fn)
         threshold_sweep.append({"t": t, "tp": _tp, "fp": _fp, "recall": _recall,
-                                "fpr": _fpr, "precision": _prec, "f1": _f1})
+                                "fpr": _fpr, "precision": _prec, "f1": _f1, "mcc": _mcc_val})
 
     html = build_combined_html(
         threshold=threshold, tp=tp, fn=fn, fp=fp, tn=tn,
-        precision=precision, recall=recall, f1=f1,
+        precision=precision, recall=recall, f1=f1, mcc=mcc,
         benign_stats=benign_stats, malicious_stats=malicious_stats,
         benign_buckets=dict(benign_buckets), malicious_buckets=dict(malicious_buckets),
         threshold_sweep=threshold_sweep,
@@ -186,13 +197,13 @@ def generate_combined_report(work_dir: Path, ecosystems: list[str], threshold: f
     print(f"  Combined Results (threshold: score >= {threshold})")
     print(f"  Benign: {len(benign_ok)} packages | Malicious: {len(malicious_ok)} packages")
     print(f"  TP={tp}  FP={fp}  FN={fn}  TN={tn}")
-    print(f"  Precision: {precision:.1%}  Recall: {recall:.1%}  F1: {f1:.1%}")
+    print(f"  Precision: {precision:.1%}  Recall: {recall:.1%}  F1: {f1:.1%}  MCC: {mcc:.3f}")
     print(f"  Benign scores:    avg={benign_stats['avg']:.2f}  median={benign_stats['median']:.1f}")
     print(f"  Malicious scores: avg={malicious_stats['avg']:.2f}  median={malicious_stats['median']:.1f}")
     print(f"{'='*60}")
 
 
-def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1,
+def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1, mcc,
                         benign_stats, malicious_stats,
                         benign_buckets, malicious_buckets,
                         threshold_sweep, n_benign, n_malicious):
@@ -232,6 +243,7 @@ def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1,
         sweep_rows += (f'<tr style="{bg}"><td>{row["t"]:.0f}</td>'
                        f'<td>{row["recall"]:.1f}%</td><td>{row["fpr"]:.1f}%</td>'
                        f'<td>{row["precision"]:.1f}%</td><td>{row["f1"]:.1f}%</td>'
+                       f'<td>{row["mcc"]:.3f}</td>'
                        f'<td>{row["tp"]}</td><td>{row["fp"]}</td></tr>\n')
 
     body = f"""
@@ -241,6 +253,10 @@ def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1,
 <div class="note">
   <b>Definition:</b> A package is classified as "detected" (malicious) if its GuardDog risk score is <b>>= {threshold}</b>.
   Adjust with <code>--threshold</code>. See the threshold sweep table below for other values.
+  <br><br>
+  <b>MCC (Matthews Correlation Coefficient)</b> measures overall classification quality on a scale from -1 to +1,
+  where +1 is perfect, 0 is no better than random, and -1 is total disagreement.
+  Unlike F1, MCC accounts for true negatives (benign packages correctly left alone), making it a more balanced metric when class sizes differ.
   <br><br>
   <b>Detailed reports:</b>
   <a href="report.html">FP Benchmark (benign packages)</a> |
@@ -254,6 +270,8 @@ def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1,
     <div class="sub">TP / (TP + FN)</div></div>
   <div class="card"><div class="label">F1 Score</div><div class="value {'green' if f1 > 0.8 else 'red'}">{f1:.1%}</div>
     <div class="sub">harmonic mean</div></div>
+  <div class="card"><div class="label">MCC</div><div class="value {'green' if mcc > 0.6 else 'red'}">{mcc:.2f}</div>
+    <div class="sub">-1 to +1</div></div>
   <div class="card"><div class="label">Benign Packages</div><div class="value">{n_benign}</div></div>
   <div class="card"><div class="label">Malicious Packages</div><div class="value">{n_malicious}</div></div>
 </div>
@@ -288,7 +306,7 @@ def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1,
 <h2>Threshold Sweep</h2>
 <p style="color:#666;margin-bottom:8px">How metrics change at different thresholds. Highlighted row = current threshold ({threshold}).</p>
 <table style="width:auto">
-<tr><th>Threshold</th><th>Recall</th><th>FPR</th><th>Precision</th><th>F1</th><th>TP</th><th>FP</th></tr>
+<tr><th>Threshold</th><th>Recall</th><th>FPR</th><th>Precision</th><th>F1</th><th>MCC</th><th>TP</th><th>FP</th></tr>
 {sweep_rows}
 </table>"""
 
