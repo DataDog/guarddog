@@ -1,3 +1,11 @@
+[project]
+name = "guarddog"
+version = "2.9.0"
+requires-python = ">=3.10"
+
+[project.scripts]
+guarddog = "guarddog.cli:cli"
+
 [tool.poetry]
 name = "guarddog"
 description = "GuardDog is a CLI tool for identifying malicious open source packages"

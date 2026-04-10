@@ -44,6 +44,8 @@ def apply_sandbox(
 
     for path in scan_paths:
         real = os.path.realpath(path)
+        if os.path.isfile(real):
+            real = os.path.dirname(real)
         log.info(f"Sandbox: READ {real}")
         caps.allow_path(real, nono.AccessMode.READ)
 
