@@ -360,7 +360,10 @@ def run_report(work_dir: Path, ecosystems: list[str]):
             continue
         for f in d.iterdir():
             if f.suffix == ".json":
-                results.append(json.loads(f.read_text()))
+                try:
+                    results.append(json.loads(f.read_text()))
+                except (json.JSONDecodeError, ValueError):
+                    pass
 
     if not results:
         sys.exit("No results found. Run --phase scan first.")
