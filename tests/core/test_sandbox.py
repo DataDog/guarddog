@@ -61,7 +61,7 @@ class TestApplySandbox:
 
 class TestScanCLISandboxFlag:
     @patch("guarddog.cli.get_package_scanner")
-    @patch("guarddog.sandbox.is_available", return_value=False)
+    @patch("guarddog.cli.sandbox_available", return_value=False)
     def test_exits_when_sandbox_forced_but_unavailable(self, _mock_avail, _mock_scanner):
         """--sandbox flag should hard-fail when sandbox is not available"""
         from click.testing import CliRunner
