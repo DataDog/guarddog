@@ -21,6 +21,7 @@ from guarddog.reporters.reporter_factory import ReporterFactory, ReporterType
 
 from guarddog.scanners import get_package_scanner, get_project_scanner
 from guarddog.utils.archives import safe_extract
+from guarddog.sandbox import is_available as sandbox_available, apply_sandbox, extract_sandboxed
 
 EXIT_CODE_ISSUES_FOUND = 1
 
@@ -207,9 +208,7 @@ def _scan(
     """
 
     if sandbox:
-        from guarddog.sandbox import is_available
-
-        if not is_available():
+        if not sandbox_available():
             log.error(
                 "Sandbox not supported on this platform. "
                 "Use --no-sandbox to skip (not recommended)."
@@ -229,24 +228,14 @@ def _scan(
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
             if sandbox:
-                from guarddog.sandbox import apply_sandbox
-
-                apply_sandbox(
-                    scan_paths=[identifier],
-                    writable_paths=[],
-                )
+                apply_sandbox(scan_paths=[identifier], writable_paths=[])
             result |= scanner.scan_local(identifier, rule_param)
 
         elif os.path.isfile(identifier):
             log.debug(f"Considering that '{identifier}' is a local archive file")
             with tempfile.TemporaryDirectory() as tempdir:
                 if sandbox:
-                    from guarddog.sandbox import apply_sandbox
-
-                    apply_sandbox(
-                        scan_paths=[identifier],
-                        writable_paths=[tempdir],
-                    )
+                    apply_sandbox(scan_paths=[identifier], writable_paths=[tempdir])
                 safe_extract(identifier, tempdir)
                 result |= scanner.scan_local(tempdir, rule_param)
 
@@ -273,71 +262,19 @@ def _scan(
 
 
 def _scan_remote_sandboxed(scanner, name, version, rules):
-    """Two-phase remote scan: download + metadata (unsandboxed), then sandbox + sourcecode."""
-    from guarddog.sandbox import apply_sandbox
+    """Remote scan with archive extraction in a sandboxed subprocess.
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Phase 1: download package (needs network)
-        package_info, file_path = scanner.download_package(name, tmpdir, version)
-
-        # Phase 2: metadata analysis (needs network for whois, git clone, etc.)
-        metadata_results = scanner.analyzer.analyze_metadata(
-            file_path, package_info, rules, name, version
-        )
-
-        # Phase 3: apply sandbox (blocks network, restricts filesystem)
-        apply_sandbox(
-            scan_paths=[],
-            writable_paths=[tmpdir],
-        )
-
-        # Phase 4: source code analysis (sandboxed)
-        sourcecode_results = scanner.analyzer.analyze_sourcecode(file_path, rules)
-
-        # Merge results (same logic as Analyzer.analyze)
-        issues = metadata_results["issues"] + sourcecode_results["issues"]
-        results = metadata_results["results"] | sourcecode_results["results"]
-        errors = metadata_results["errors"] | sourcecode_results["errors"]
-
-        risk_score = scanner.analyzer.calculate_package_risk_score(
-            sourcecode_results, metadata_results
-        )
-
-        risk_objects = risk_score.pop("_risks", [])
-        formatted_risks = [
-            {
-                "name": risk.name,
-                "category": risk.category,
-                "severity": risk.severity.value,
-                "mitre_tactics": risk.mitre_tactics,
-                "threat_identifies": risk.threat_finding.identifies,
-                "threat_rule": risk.threat_finding.rule_name,
-                "threat_description": risk.threat_finding.message or "",
-                "threat_location": risk.threat_finding.location or "",
-                "threat_code": risk.threat_finding.code_snippet or "",
-                "capability_identifies": (
-                    risk.capability_finding.identifies
-                    if risk.capability_finding
-                    else None
-                ),
-                "capability_rule": (
-                    risk.capability_finding.rule_name
-                    if risk.capability_finding
-                    else None
-                ),
-                "file_path": risk.threat_finding.file_path,
-            }
-            for risk in risk_objects
-        ]
-
-        return {
-            "issues": issues,
-            "errors": errors,
-            "results": results,
-            "path": file_path,
-            "risk_score": risk_score,
-            "risks": formatted_risks,
-        }
+    Replaces the scanner's extraction step with a sandboxed subprocess that
+    blocks network and restricts filesystem before calling safe_extract.
+    Everything else (download, metadata analysis, source code analysis) runs
+    through the normal scan_remote flow.
+    """
+    original_extract = scanner._extract_archive
+    scanner._extract_archive = lambda archive, target: extract_sandboxed(archive, target)
+    try:
+        return scanner.scan_remote(name, version, rules)
+    finally:
+        scanner._extract_archive = original_extract
 
 
 def _list_rules(ecosystem: ECOSYSTEM):

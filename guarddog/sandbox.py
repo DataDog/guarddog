@@ -1,5 +1,14 @@
+"""
+Kernel-level sandboxing for guarddog via nono-py.
+
+Can also be invoked as a subprocess for sandboxed archive extraction:
+    python -m guarddog.sandbox <archive_path> <target_dir>
+"""
+
+import argparse
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 
@@ -30,17 +39,14 @@ def apply_sandbox(
 
     caps = nono.CapabilitySet()
 
-    # Common read paths: Python runtime + system binaries
     for path in _get_common_read_paths():
         caps.allow_path(path, nono.AccessMode.READ)
 
-    # Caller-specified read paths
     for path in scan_paths:
         real = os.path.realpath(path)
         log.info(f"Sandbox: READ {real}")
         caps.allow_path(real, nono.AccessMode.READ)
 
-    # Caller-specified writable paths
     for path in writable_paths:
         real = os.path.realpath(path)
         log.info(f"Sandbox: READ_WRITE {real}")
@@ -52,6 +58,9 @@ def apply_sandbox(
 
     caps.block_network()
     log.info("Sandbox: network blocked")
+    log.debug("Sandbox capabilities: READ %s | READ_WRITE %s | network=blocked",
+              [os.path.realpath(p) for p in scan_paths] + _get_common_read_paths(),
+              [os.path.realpath(p) for p in writable_paths] + [tmp])
 
     # Dry-run validation before locking down
     ctx = nono.QueryContext(caps)
@@ -66,6 +75,28 @@ def apply_sandbox(
     log.info("Sandbox: applied")
 
 
+def extract_sandboxed(archive_path: str, target_dir: str) -> None:
+    """Extract an archive in a sandboxed subprocess.
+
+    Spawns a child process that applies a nono sandbox (blocking network,
+    restricting filesystem to archive + target dir) before calling safe_extract.
+    This closes the TOCTOU gap for remote scans where the main process needs
+    network access after extraction.
+    """
+    archive_path = os.path.realpath(archive_path)
+    target_dir = os.path.realpath(target_dir)
+
+    log.debug("Extracting %s -> %s in sandboxed subprocess", archive_path, target_dir)
+    result = subprocess.run(
+        [sys.executable, "-m", "guarddog.sandbox", archive_path, target_dir],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        stderr = result.stderr.strip()
+        raise RuntimeError(f"Sandboxed extraction failed: {stderr}")
+
+
 def _get_common_read_paths() -> list[str]:
     """Paths that always need READ access for Python + system libs."""
     paths = set()
@@ -76,10 +107,40 @@ def _get_common_read_paths() -> list[str]:
     if base != os.path.realpath(sys.prefix):
         paths.add(base)
 
-    # System binaries needed by subprocess spawning (semgrep, etc.)
     for system_dir in ["/usr", "/lib"]:
         real = os.path.realpath(system_dir)
         if os.path.isdir(real):
             paths.add(real)
 
     return list(paths)
+
+
+def _main():
+    """Subprocess entry point: apply sandbox then extract archive."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("archive_path")
+    parser.add_argument("target_dir")
+    args = parser.parse_args()
+
+    archive_path = os.path.realpath(args.archive_path)
+    target_dir = os.path.realpath(args.target_dir)
+
+    apply_sandbox(
+        scan_paths=[archive_path],
+        writable_paths=[target_dir],
+    )
+
+    from guarddog.utils.archives import safe_extract
+
+    safe_extract(archive_path, target_dir)
+
+    # Handle nested .gem archives (outer tar contains data.tar.gz)
+    data_tar = os.path.join(target_dir, "_gem_contents", "data.tar.gz")
+    if not os.path.exists(data_tar):
+        data_tar = os.path.join(target_dir, "_gem_contents", "data.tar")
+    if os.path.exists(data_tar):
+        safe_extract(data_tar, target_dir)
+
+
+if __name__ == "__main__":
+    _main()
