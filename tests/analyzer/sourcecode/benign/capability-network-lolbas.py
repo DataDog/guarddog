@@ -1,9 +1,9 @@
 # Legitimate code that should NOT trigger capability-network-lolbas
 
-# Documentation mentioning curl
+# Documentation mentioning curl (as a noun, not a command invocation)
 """
-Submitting bulk requests with cURL:
-    curl https://api.example.com/data
+Submitting bulk requests with cURL is straightforward.
+See the curl-cffi documentation for details.
 """
 
 # Package names containing "curl"

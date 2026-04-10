@@ -46,6 +46,8 @@ def test_source_codde_analyzer_yara_exec(rule_name: str):
     test_scan_rule = yara.compile(filepaths=test_rule_path)
 
     for root, _, files in os.walk(SOURCECODE_RULES_TESTS_PATH):
+        if "benign" in root:
+            continue
         for f in files:
             if not f.startswith(f"{rule_name}."):
                 continue
