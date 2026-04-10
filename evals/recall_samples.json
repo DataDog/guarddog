@@ -1,0 +1,2545 @@
+{
+  "dataset_sha": "7bc86eed7346fe73237995a94fccf57ccda8ab7b",
+  "dataset_repo": "DataDog/malicious-software-packages-dataset",
+  "generated_seed": 42,
+  "samples": [
+    {
+      "package": "litellm",
+      "ecosystem": "pypi",
+      "category": "compromised_lib",
+      "zip_path": "samples/pypi/compromised_lib/litellm/1.82.8/2026-03-24-litellm-v1.82.8.zip"
+    },
+    {
+      "package": "num2words",
+      "ecosystem": "pypi",
+      "category": "compromised_lib",
+      "zip_path": "samples/pypi/compromised_lib/num2words/0.5.16/2025-07-28-num2words-v0.5.16.zip"
+    },
+    {
+      "package": "telnyx",
+      "ecosystem": "pypi",
+      "category": "compromised_lib",
+      "zip_path": "samples/pypi/compromised_lib/telnyx/4.87.2/2026-03-27-telnyx-v4.87.2.zip"
+    },
+    {
+      "package": "ultralytics",
+      "ecosystem": "pypi",
+      "category": "compromised_lib",
+      "zip_path": "samples/pypi/compromised_lib/ultralytics/8.3.46/2024-12-07-ultralytics-v8.3.46.zip"
+    },
+    {
+      "package": "hackerone-app-sdk",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/hackerone-app-sdk/0.19.1/2025-09-17-hackerone-app-sdk-v0.19.1.zip"
+    },
+    {
+      "package": "py-paypalinfopip",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-paypalinfopip/1.81/2023-03-08-py-paypalinfopip-v1.81.zip"
+    },
+    {
+      "package": "useragentclient",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/useragentclient/1.0/2023-02-25-useragentclient-v1.0.zip"
+    },
+    {
+      "package": "selfmaskgamepull",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfmaskgamepull/1.57/2023-02-27-selfmaskgamepull-v1.57.zip"
+    },
+    {
+      "package": "tpreplacekillram",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpreplacekillram/3.93/2023-02-27-tpreplacekillram-v3.93.zip"
+    },
+    {
+      "package": "selfintmaskreplace",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfintmaskreplace/1.3/2023-02-27-selfintmaskreplace-v1.3.zip"
+    },
+    {
+      "package": "licensemonitor",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/licensemonitor/99.6/2024-11-19-licensemonitor-v99.6.zip"
+    },
+    {
+      "package": "beautifulsoup-numpy",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/beautifulsoup-numpy/10.13.10/2023-05-20-beautifulsoup-numpy-v10.13.10.zip"
+    },
+    {
+      "package": "setuptolos",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/setuptolos/0.1/2024-09-21-setuptolos-v0.1.zip"
+    },
+    {
+      "package": "libloadhackedpyw",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libloadhackedpyw/8.65/2023-02-27-libloadhackedpyw-v8.65.zip"
+    },
+    {
+      "package": "kersa",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/kersa/0.1/2024-09-20-kersa-v0.1.zip"
+    },
+    {
+      "package": "wheel-cache",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/wheel-cache/1.0.0/2023-06-04-wheel-cache-v1.0.0.zip"
+    },
+    {
+      "package": "type-extension",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/type-extension/95.6/2024-11-15-type-extension-v95.6.zip"
+    },
+    {
+      "package": "embeddings-validation",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/embeddings-validation/99.9.9/2024-05-15-embeddings-validation-v99.9.9.zip"
+    },
+    {
+      "package": "sqlalchemy-os",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/sqlalchemy-os/14.0.10/2023-05-20-sqlalchemy-os-v14.0.10.zip"
+    },
+    {
+      "package": "mallodys",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/mallodys/1.0/2023-05-11-mallodys-v1.0.zip"
+    },
+    {
+      "package": "tpintgamevirtual",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpintgamevirtual/6.13/2023-02-27-tpintgamevirtual-v6.13.zip"
+    },
+    {
+      "package": "esqnvidiaultrapep",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqnvidiaultrapep/7.81/2023-02-27-esqnvidiaultrapep-v7.81.zip"
+    },
+    {
+      "package": "otr-utils",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/otr-utils/4.1.9/2023-03-13-otr-utils-v4.1.9.zip"
+    },
+    {
+      "package": "tppushvmgrand",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tppushvmgrand/8.60/2023-02-27-tppushvmgrand-v8.60.zip"
+    },
+    {
+      "package": "esqreinfore",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqreinfore/5.34/2023-02-27-esqreinfore-v5.34.zip"
+    },
+    {
+      "package": "wdrags",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/wdrags/1.0/2023-04-18-wdrags-v1.0.zip"
+    },
+    {
+      "package": "esqultralgtbhydra",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqultralgtbhydra/8.19/2023-02-27-esqultralgtbhydra-v8.19.zip"
+    },
+    {
+      "package": "pip-cache-dir",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pip-cache-dir/1.0.0/2023-06-04-pip-cache-dir-v1.0.0.zip"
+    },
+    {
+      "package": "esqhttpmaskload",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqhttpmaskload/8.19/2023-02-27-esqhttpmaskload-v8.19.zip"
+    },
+    {
+      "package": "byteqs",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/byteqs/94.6/2024-11-14-byteqs-v94.6.zip"
+    },
+    {
+      "package": "tphttpsuperpep",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tphttpsuperpep/5.46/2023-02-27-tphttpsuperpep-v5.46.zip"
+    },
+    {
+      "package": "libideee",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libideee/0.1/2023-05-13-libideee-v0.1.zip"
+    },
+    {
+      "package": "gkjzjh146",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/gkjzjh146/1.3/2023-05-14-gkjzjh146-v1.3.zip"
+    },
+    {
+      "package": "synthetictest1",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/synthetictest1/0.0.1/2023-03-17-synthetictest1-v0.0.1.zip"
+    },
+    {
+      "package": "aeodata",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/aeodata/0.4/2023-04-14-aeodata-v0.4.zip"
+    },
+    {
+      "package": "selfcontroledintel",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfcontroledintel/3.63/2023-03-03-selfcontroledintel-v3.63.zip"
+    },
+    {
+      "package": "tiny423",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tiny423/1.0.0/2023-03-12-tiny423-v1.0.0.zip"
+    },
+    {
+      "package": "py-pipcandylgtb",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-pipcandylgtb/8.75/2023-02-27-py-pipcandylgtb-v8.75.zip"
+    },
+    {
+      "package": "weecoder",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/weecoder/1.1.0/2023-05-17-weecoder-v1.1.0.zip"
+    },
+    {
+      "package": "megai",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/megai/92.6/2024-11-12-megai-v92.6.zip"
+    },
+    {
+      "package": "tphydratoolsplit",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tphydratoolsplit/7.67/2023-03-08-tphydratoolsplit-v7.67.zip"
+    },
+    {
+      "package": "py-pingvisarandom",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-pingvisarandom/8.90/2023-02-27-py-pingvisarandom-v8.90.zip"
+    },
+    {
+      "package": "pysisyphes",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pysisyphes/912.6/2024-11-07-pysisyphes-v912.6.zip"
+    },
+    {
+      "package": "saazsdz",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/saazsdz/0.1.0/2023-05-15-saazsdz-v0.1.0.zip"
+    },
+    {
+      "package": "libkilledgame",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libkilledgame/4.61/2023-02-27-libkilledgame-v4.61.zip"
+    },
+    {
+      "package": "artifact-lab-3-package-438d82fc",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/artifact-lab-3-package-438d82fc/0.1.1/2024-10-11-artifact-lab-3-package-438d82fc-v0.1.1.zip"
+    },
+    {
+      "package": "pycryptexe",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pycryptexe/1.1.4/2023-03-14-pycryptexe-v1.1.4.zip"
+    },
+    {
+      "package": "calendar-extender",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/calendar-extender/0.2/2024-05-20-calendar-extender-v0.2.zip"
+    },
+    {
+      "package": "mall0d",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/mall0d/1.0/2023-05-11-mall0d-v1.0.zip"
+    },
+    {
+      "package": "batchran",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/batchran/912.6/2024-11-07-batchran-v912.6.zip"
+    },
+    {
+      "package": "tchap-bot",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tchap-bot/199.0.99/2026-02-28-tchap-bot-v199.0.99.zip"
+    },
+    {
+      "package": "tppongadultra",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tppongadultra/1.83/2023-03-03-tppongadultra-v1.83.zip"
+    },
+    {
+      "package": "cleantalk",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/cleantalk/6.6.6/2023-06-18-cleantalk-v6.6.6.zip"
+    },
+    {
+      "package": "tpmcpongpaypal",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpmcpongpaypal/6.87/2023-03-08-tpmcpongpaypal-v6.87.zip"
+    },
+    {
+      "package": "webtraste",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/webtraste/0.3/2023-05-04-webtraste-v0.3.zip"
+    },
+    {
+      "package": "crpto",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/crpto/0.0.3/2025-12-27-crpto-v0.0.3.zip"
+    },
+    {
+      "package": "py-pepnvidiastr",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-pepnvidiastr/10.77/2023-02-27-py-pepnvidiastr-v10.77.zip"
+    },
+    {
+      "package": "byted-df",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/byted-df/99.1.1/2024-11-29-byted-df-v99.1.1.zip"
+    },
+    {
+      "package": "bo3to",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/bo3to/0.1/2024-09-21-bo3to-v0.1.zip"
+    },
+    {
+      "package": "shiwers",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/shiwers/1.0/2023-05-16-shiwers-v1.0.zip"
+    },
+    {
+      "package": "compressi",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/compressi/94.6/2024-11-13-compressi-v94.6.zip"
+    },
+    {
+      "package": "zproxy2",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/zproxy2/1.0/2023-03-17-zproxy2-v1.0.zip"
+    },
+    {
+      "package": "esqlibkillstr",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqlibkillstr/10.27/2023-03-07-esqlibkillstr-v10.27.zip"
+    },
+    {
+      "package": "hooktest2",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/hooktest2/0.1.1/2025-11-26-hooktest2-v0.1.1.zip"
+    },
+    {
+      "package": "jupyter-pytest-fi-console",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/jupyter-pytest-fi-console/8.7.6/2024-04-30-jupyter-pytest-fi-console-v8.7.6.zip"
+    },
+    {
+      "package": "py-postvirtualreplace",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-postvirtualreplace/5.92/2023-02-27-py-postvirtualreplace-v5.92.zip"
+    },
+    {
+      "package": "cryptocalls",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/cryptocalls/0.0.1/2024-09-30-cryptocalls-v0.0.1.zip"
+    },
+    {
+      "package": "tphackedintelhydra",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tphackedintelhydra/10.72/2023-02-27-tphackedintelhydra-v10.72.zip"
+    },
+    {
+      "package": "vtvqa",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/vtvqa/99.6/2024-11-19-vtvqa-v99.6.zip"
+    },
+    {
+      "package": "esqinfostrget",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqinfostrget/8.25/2023-02-27-esqinfostrget-v8.25.zip"
+    },
+    {
+      "package": "spatialmedia",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/spatialmedia/9.9.9/2026-03-20-spatialmedia-v9.9.9.zip"
+    },
+    {
+      "package": "py-visatoolstring",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-visatoolstring/2.91/2023-02-27-py-visatoolstring-v2.91.zip"
+    },
+    {
+      "package": "libosintliblgtb",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libosintliblgtb/5.94/2023-03-12-libosintliblgtb-v5.94.zip"
+    },
+    {
+      "package": "veriftest1asdlaaa",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/veriftest1asdlaaa/1/2025-05-06-veriftest1asdlaaa-v1.zip"
+    },
+    {
+      "package": "selfcandyhttpnvidia",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfcandyhttpnvidia/8.55/2023-02-27-selfcandyhttpnvidia-v8.55.zip"
+    },
+    {
+      "package": "detection-telegram",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/detection-telegram/5.6/2023-04-21-detection-telegram-v5.6.zip"
+    },
+    {
+      "package": "esqpullhackedstudy",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqpullhackedstudy/10.24/2023-02-27-esqpullhackedstudy-v10.24.zip"
+    },
+    {
+      "package": "airduq",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/airduq/1.0/2023-06-05-airduq-v1.0.zip"
+    },
+    {
+      "package": "tpintelvercandy",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpintelvercandy/8.30/2023-02-27-tpintelvercandy-v8.30.zip"
+    },
+    {
+      "package": "esqgameencodereplace",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqgameencodereplace/7.83/2023-05-07-esqgameencodereplace-v7.83.zip"
+    },
+    {
+      "package": "haisenbergs-pkg",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/haisenbergs-pkg/1.0.0/2023-04-01-haisenbergs-pkg-v1.0.0.zip"
+    },
+    {
+      "package": "selfrekillrand",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfrekillrand/2.6/2023-02-27-selfrekillrand-v2.6.zip"
+    },
+    {
+      "package": "atlasctf-21-prod-02",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/atlasctf-21-prod-02/99.99.99.1/2025-06-07-atlasctf-21-prod-02-v99.99.99.1.zip"
+    },
+    {
+      "package": "artifact-lab-3-package",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/artifact-lab-3-package/0.1.2/2024-10-11-artifact-lab-3-package-v0.1.2.zip"
+    },
+    {
+      "package": "esqlibcpucc",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqlibcpucc/9.61/2023-02-27-esqlibcpucc-v9.61.zip"
+    },
+    {
+      "package": "binol",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/binol/1.0/2023-05-11-binol-v1.0.zip"
+    },
+    {
+      "package": "atlassian-exp",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/atlassian-exp/99.0.0/2025-11-26-atlassian-exp-v99.0.0.zip"
+    },
+    {
+      "package": "utilhttp",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/utilhttp/2.3.5/2024-09-06-utilhttp-v2.3.5.zip"
+    },
+    {
+      "package": "rtpoc1",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/rtpoc1/0.2/2025-01-08-rtpoc1-v0.2.zip"
+    },
+    {
+      "package": "libidreq",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libidreq/0.1/2023-04-27-libidreq-v0.1.zip"
+    },
+    {
+      "package": "requests-flask",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/requests-flask/16.9.16/2023-05-20-requests-flask-v16.9.16.zip"
+    },
+    {
+      "package": "selfinfopushpip",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfinfopushpip/8.53/2023-03-03-selfinfopushpip-v8.53.zip"
+    },
+    {
+      "package": "selfosintultrahacked",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfosintultrahacked/5.10/2023-02-27-selfosintultrahacked-v5.10.zip"
+    },
+    {
+      "package": "liburlstringping",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/liburlstringping/3.86/2023-02-27-liburlstringping-v3.86.zip"
+    },
+    {
+      "package": "musl-dev",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/musl-dev/1.0.0/2025-10-14-musl-dev-v1.0.0.zip"
+    },
+    {
+      "package": "kera-preprocess",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/kera-preprocess/94.6/2024-11-13-kera-preprocess-v94.6.zip"
+    },
+    {
+      "package": "j5gnpfweguiwerbngpiutbgn0iutb0pfwfef",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/j5gnpfweguiwerbngpiutbgn0iutb0pfwfef/0.0.1/2024-10-17-j5gnpfweguiwerbngpiutbgn0iutb0pfwfef-v0.0.1.zip"
+    },
+    {
+      "package": "py-controlgrandlib",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-controlgrandlib/1.87/2023-02-27-py-controlgrandlib-v1.87.zip"
+    },
+    {
+      "package": "opencv-keras",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/opencv-keras/17.10.13/2023-05-20-opencv-keras-v17.10.13.zip"
+    },
+    {
+      "package": "mkdsli",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/mkdsli/6.0.0/2024-12-05-mkdsli-v6.0.0.zip"
+    },
+    {
+      "package": "py-hackedccencode",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-hackedccencode/5.77/2023-02-27-py-hackedccencode-v5.77.zip"
+    },
+    {
+      "package": "selfpepultraad",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfpepultraad/3.57/2023-02-27-selfpepultraad-v3.57.zip"
+    },
+    {
+      "package": "atlasctf-21-prod-09",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/atlasctf-21-prod-09/99.99.99.1/2025-06-07-atlasctf-21-prod-09-v99.99.99.1.zip"
+    },
+    {
+      "package": "tppywrandompull",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tppywrandompull/9.29/2023-02-27-tppywrandompull-v9.29.zip"
+    },
+    {
+      "package": "py-httprevisa",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-httprevisa/10.50/2023-02-27-py-httprevisa-v10.50.zip"
+    },
+    {
+      "package": "libnvidiasplitpep",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libnvidiasplitpep/7.70/2023-02-27-libnvidiasplitpep-v7.70.zip"
+    },
+    {
+      "package": "selfhackedrandvirtual",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfhackedrandvirtual/10.78/2023-02-27-selfhackedrandvirtual-v10.78.zip"
+    },
+    {
+      "package": "dify-api",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/dify-api/2.0.0/2026-01-13-dify-api-v2.0.0.zip"
+    },
+    {
+      "package": "libig",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libig/0.1/2023-05-13-libig-v0.1.zip"
+    },
+    {
+      "package": "py-hydraurlstudy",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-hydraurlstudy/2.37/2023-03-02-py-hydraurlstudy-v2.37.zip"
+    },
+    {
+      "package": "esqproofpostpull",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqproofpostpull/10.60/2023-02-27-esqproofpostpull-v10.60.zip"
+    },
+    {
+      "package": "pydeobf",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pydeobf/0.1/2024-10-15-pydeobf-v0.1.zip"
+    },
+    {
+      "package": "selfintelpullpost",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfintelpullpost/6.48/2023-02-27-selfintelpullpost-v6.48.zip"
+    },
+    {
+      "package": "oe-extract-idss",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/oe-extract-idss/1.5.3/2024-10-28-oe-extract-idss-v1.5.3.zip"
+    },
+    {
+      "package": "netobs",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/netobs/99.6/2024-11-19-netobs-v99.6.zip"
+    },
+    {
+      "package": "py-reguipong",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-reguipong/7.15/2023-02-27-py-reguipong-v7.15.zip"
+    },
+    {
+      "package": "properxies",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/properxies/1/2023-04-02-properxies-v1.zip"
+    },
+    {
+      "package": "libmclibed",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libmclibed/5.84/2023-02-27-libmclibed-v5.84.zip"
+    },
+    {
+      "package": "selfpostmcintel",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfpostmcintel/10.27/2023-03-02-selfpostmcintel-v10.27.zip"
+    },
+    {
+      "package": "malicus",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/malicus/0.0.1/2025-07-04-malicus-v0.0.1.zip"
+    },
+    {
+      "package": "pplgdfhuighsdfyisfgfd",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pplgdfhuighsdfyisfgfd/1/2024-10-23-pplgdfhuighsdfyisfgfd-v1.zip"
+    },
+    {
+      "package": "libcpupywmine",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libcpupywmine/2.9/2023-02-27-libcpupywmine-v2.9.zip"
+    },
+    {
+      "package": "tiny43",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tiny43/1.0.0/2023-03-12-tiny43-v1.0.0.zip"
+    },
+    {
+      "package": "eht-account",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/eht-account/0.13.7/2026-04-01-eht-account-v0.13.7.zip"
+    },
+    {
+      "package": "libpongcvvm",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libpongcvvm/1.16/2023-03-09-libpongcvvm-v1.16.zip"
+    },
+    {
+      "package": "selfproofstudyrand",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfproofstudyrand/1.59/2023-03-07-selfproofstudyrand-v1.59.zip"
+    },
+    {
+      "package": "quick-telegram-sender",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/quick-telegram-sender/0.7/2023-04-25-quick-telegram-sender-v0.7.zip"
+    },
+    {
+      "package": "esqintmaskgui",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqintmaskgui/4.63/2023-03-03-esqintmaskgui-v4.63.zip"
+    },
+    {
+      "package": "hakepip",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/hakepip/0.1.1/2023-05-14-hakepip-v0.1.1.zip"
+    },
+    {
+      "package": "saazszxcdz",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/saazszxcdz/0.1.0/2023-05-15-saazszxcdz-v0.1.0.zip"
+    },
+    {
+      "package": "monolit",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/monolit/912.6/2024-11-08-monolit-v912.6.zip"
+    },
+    {
+      "package": "huggingface-hubs",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/huggingface-hubs/95.6/2024-11-15-huggingface-hubs-v95.6.zip"
+    },
+    {
+      "package": "affinequant",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/affinequant/99.6/2024-11-19-affinequant-v99.6.zip"
+    },
+    {
+      "package": "install-pyyaml",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/install-pyyaml/1.19.12/2023-05-20-install-pyyaml-v1.19.12.zip"
+    },
+    {
+      "package": "requetses",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/requetses/0.5/2024-12-31-requetses-v0.5.zip"
+    },
+    {
+      "package": "veriftest1asdlaa",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/veriftest1asdlaa/1/2025-05-06-veriftest1asdlaa-v1.zip"
+    },
+    {
+      "package": "discconnect",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/discconnect/0.5/2024-11-16-discconnect-v0.5.zip"
+    },
+    {
+      "package": "detectron2",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/detectron2/0.6/2023-02-28-detectron2-v0.6.zip"
+    },
+    {
+      "package": "xsltproc",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/xsltproc/0.0.1/2025-11-14-xsltproc-v0.0.1.zip"
+    },
+    {
+      "package": "fluiddaddy",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/fluiddaddy/1.0/2023-03-16-fluiddaddy-v1.0.zip"
+    },
+    {
+      "package": "colorating",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/colorating/1.0.0/2023-05-08-colorating-v1.0.0.zip"
+    },
+    {
+      "package": "sylex-syntax",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/sylex-syntax/1.5/2023-03-21-sylex-syntax-v1.5.zip"
+    },
+    {
+      "package": "invokehttp",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/invokehttp/2.5.5/2024-08-29-invokehttp-v2.5.5.zip"
+    },
+    {
+      "package": "esqnvidiaadram",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqnvidiaadram/1.94/2023-03-08-esqnvidiaadram-v1.94.zip"
+    },
+    {
+      "package": "j5gnpfweguiwerbngpiutbgn0iutb0pfwbdfsfef",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/j5gnpfweguiwerbngpiutbgn0iutb0pfwbdfsfef/0.0.1/2024-10-17-j5gnpfweguiwerbngpiutbgn0iutb0pfwbdfsfef-v0.0.1.zip"
+    },
+    {
+      "package": "uuss",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/uuss/912.6/2024-11-08-uuss-v912.6.zip"
+    },
+    {
+      "package": "sqlalchemy-presto",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/sqlalchemy-presto/1.0.0/2023-06-04-sqlalchemy-presto-v1.0.0.zip"
+    },
+    {
+      "package": "myshellcode4",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/myshellcode4/0.1.0/2023-05-15-myshellcode4-v0.1.0.zip"
+    },
+    {
+      "package": "requ-sts",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/requ-sts/0.1.0/2023-03-07-requ-sts-v0.1.0.zip"
+    },
+    {
+      "package": "deadiff",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/deadiff/99.6/2024-11-19-deadiff-v99.6.zip"
+    },
+    {
+      "package": "advpruebitaa3",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/advpruebitaa3/1.0.0/2023-06-22-advpruebitaa3-v1.0.0.zip"
+    },
+    {
+      "package": "lightseqe",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/lightseqe/99.7/2024-11-05-lightseqe-v99.7.zip"
+    },
+    {
+      "package": "helloharry123p",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/helloharry123p/0.1.1/2025-12-09-helloharry123p-v0.1.1.zip"
+    },
+    {
+      "package": "py-adpongultra",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-adpongultra/7.85/2023-02-27-py-adpongultra-v7.85.zip"
+    },
+    {
+      "package": "py-mcultracraft",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-mcultracraft/10.87/2023-03-12-py-mcultracraft-v10.87.zip"
+    },
+    {
+      "package": "modernreqs",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/modernreqs/2.3.5/2024-09-06-modernreqs-v2.3.5.zip"
+    },
+    {
+      "package": "tprandompullpull",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tprandompullpull/8.26/2023-02-27-tprandompullpull-v8.26.zip"
+    },
+    {
+      "package": "esqpywlgtbnvidia",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqpywlgtbnvidia/1.47/2023-03-08-esqpywlgtbnvidia-v1.47.zip"
+    },
+    {
+      "package": "libguigrandmc",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libguigrandmc/9.92/2023-03-12-libguigrandmc-v9.92.zip"
+    },
+    {
+      "package": "sylexnaranjoo",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/sylexnaranjoo/1.0.3/2023-03-16-sylexnaranjoo-v1.0.3.zip"
+    },
+    {
+      "package": "mjrl",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/mjrl/1.0.0/2023-06-27-mjrl-v1.0.0.zip"
+    },
+    {
+      "package": "esqhttppaypalurl",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqhttppaypalurl/4.13/2023-02-27-esqhttppaypalurl-v4.13.zip"
+    },
+    {
+      "package": "hyperreq",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/hyperreq/0.1/2024-09-07-hyperreq-v0.1.zip"
+    },
+    {
+      "package": "pycolorstrex",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pycolorstrex/1.0/2023-04-02-pycolorstrex-v1.0.zip"
+    },
+    {
+      "package": "morecolor",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/morecolor/5/2023-02-22-morecolor-v5.zip"
+    },
+    {
+      "package": "woodwhalehack114",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/woodwhalehack114/1.3/2023-05-14-woodwhalehack114-v1.3.zip"
+    },
+    {
+      "package": "osopackagepy",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/osopackagepy/10.0.0/2026-02-11-osopackagepy-v10.0.0.zip"
+    },
+    {
+      "package": "artifact-lab-3-package-e7ffd2ef",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/artifact-lab-3-package-e7ffd2ef/0.1.1/2024-10-11-artifact-lab-3-package-e7ffd2ef-v0.1.1.zip"
+    },
+    {
+      "package": "selfcvedpep",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfcvedpep/3.25/2023-02-27-selfcvedpep-v3.25.zip"
+    },
+    {
+      "package": "selframintelosint",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selframintelosint/8.83/2023-02-27-selframintelosint-v8.83.zip"
+    },
+    {
+      "package": "esqultracc",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqultracc/5.17/2023-02-25-esqultracc-v5.17.zip"
+    },
+    {
+      "package": "burdoq",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/burdoq/1.0/2023-05-12-burdoq-v1.0.zip"
+    },
+    {
+      "package": "tpramtoolpong",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpramtoolpong/10.48/2023-02-27-tpramtoolpong-v10.48.zip"
+    },
+    {
+      "package": "x-portrait",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/x-portrait/99.6/2024-11-19-x-portrait-v99.6.zip"
+    },
+    {
+      "package": "syns-knox-xss-allwhere",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/syns-knox-xss-allwhere/1.0.0/2023-08-13-syns-knox-xss-allwhere-v1.0.0.zip"
+    },
+    {
+      "package": "esqproofpongint",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqproofpongint/4.27/2023-03-07-esqproofpongint-v4.27.zip"
+    },
+    {
+      "package": "maiter",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/maiter/1.0/2023-05-17-maiter-v1.0.zip"
+    },
+    {
+      "package": "lightseeq",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/lightseeq/99.7/2024-11-05-lightseeq-v99.7.zip"
+    },
+    {
+      "package": "py-studynvidiamc",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-studynvidiamc/4.42/2023-02-27-py-studynvidiamc-v4.42.zip"
+    },
+    {
+      "package": "numpy-selenium",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/numpy-selenium/5.20.19/2023-05-20-numpy-selenium-v5.20.19.zip"
+    },
+    {
+      "package": "robloxapiaccess",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/robloxapiaccess/0.0.2/2023-03-18-robloxapiaccess-v0.0.2.zip"
+    },
+    {
+      "package": "ai-labs-snippets-sdk",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/ai-labs-snippets-sdk/4.4.0/2025-05-19-ai-labs-snippets-sdk-v4.4.0.zip"
+    },
+    {
+      "package": "liblibpostcc",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/liblibpostcc/2.61/2023-02-27-liblibpostcc-v2.61.zip"
+    },
+    {
+      "package": "py-pushpullsuper",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-pushpullsuper/6.33/2023-02-27-py-pushpullsuper-v6.33.zip"
+    },
+    {
+      "package": "keras-beautifulsoup",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/keras-beautifulsoup/2.9.2/2023-05-20-keras-beautifulsoup-v2.9.2.zip"
+    },
+    {
+      "package": "py-intelpingvm",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/py-intelpingvm/5.15/2023-03-03-py-intelpingvm-v5.15.zip"
+    },
+    {
+      "package": "proto-google-cloud-dlp-v2beta1",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/proto-google-cloud-dlp-v2beta1/0.15.99/2025-06-04-proto-google-cloud-dlp-v2beta1-v0.15.99.zip"
+    },
+    {
+      "package": "requstsssq",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/requstsssq/2.28.2/2023-03-17-requstsssq-v2.28.2.zip"
+    },
+    {
+      "package": "selfstrultrapush",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfstrultrapush/4.57/2023-02-27-selfstrultrapush-v4.57.zip"
+    },
+    {
+      "package": "colors-update",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/colors-update/3/2023-04-25-colors-update-v3.zip"
+    },
+    {
+      "package": "reverseshell",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/reverseshell/0.1.0/2023-05-27-reverseshell-v0.1.0.zip"
+    },
+    {
+      "package": "tlsclient-api",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tlsclient-api/1.0/2023-03-23-tlsclient-api-v1.0.zip"
+    },
+    {
+      "package": "tppyhttprand",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tppyhttprand/6.97/2023-02-27-tppyhttprand-v6.97.zip"
+    },
+    {
+      "package": "tpgrandencodegui",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpgrandencodegui/10.39/2023-02-27-tpgrandencodegui-v10.39.zip"
+    },
+    {
+      "package": "esqgrandvirtualget",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqgrandvirtualget/4.22/2023-02-27-esqgrandvirtualget-v4.22.zip"
+    },
+    {
+      "package": "spamysynonym",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/spamysynonym/3.0.1/2023-03-27-spamysynonym-v3.0.1.zip"
+    },
+    {
+      "package": "advpruebitaa6",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/advpruebitaa6/1.0.0/2023-06-22-advpruebitaa6-v1.0.0.zip"
+    },
+    {
+      "package": "bytep",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/bytep/99.7/2024-11-06-bytep-v99.7.zip"
+    },
+    {
+      "package": "tls-python",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tls-python/1.0/2023-03-13-tls-python-v1.0.zip"
+    },
+    {
+      "package": "selframstudyget",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selframstudyget/8.9/2023-03-03-selframstudyget-v8.9.zip"
+    },
+    {
+      "package": "librandstringpull",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/librandstringpull/3.76/2023-02-27-librandstringpull-v3.76.zip"
+    },
+    {
+      "package": "donotdownload",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/donotdownload/0.0.0/2023-03-30-donotdownload-v0.0.0.zip"
+    },
+    {
+      "package": "pydiscordion",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pydiscordion/1.0/2023-04-02-pydiscordion-v1.0.zip"
+    },
+    {
+      "package": "selfpippaypalpyw",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfpippaypalpyw/2.49/2023-02-27-selfpippaypalpyw-v2.49.zip"
+    },
+    {
+      "package": "tpmaskpaypalping",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpmaskpaypalping/2.56/2023-02-27-tpmaskpaypalping-v2.56.zip"
+    },
+    {
+      "package": "libidrequest",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/libidrequest/0.4/2023-04-23-libidrequest-v0.4.zip"
+    },
+    {
+      "package": "modelize",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/modelize/1/2023-04-25-modelize-v1.zip"
+    },
+    {
+      "package": "xboxredeemer",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/xboxredeemer/1.0/2023-03-14-xboxredeemer-v1.0.zip"
+    },
+    {
+      "package": "networkx-match-ssss",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/networkx-match-ssss/0.1.1/2024-05-23-networkx-match-ssss-v0.1.1.zip"
+    },
+    {
+      "package": "mumupatcher",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/mumupatcher/0.0.1/2024-10-10-mumupatcher-v0.0.1.zip"
+    },
+    {
+      "package": "shiva123456",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/shiva123456/23.99.0/2025-06-06-shiva123456-v23.99.0.zip"
+    },
+    {
+      "package": "pylibscate",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/pylibscate/1.1.1/2023-03-24-pylibscate-v1.1.1.zip"
+    },
+    {
+      "package": "selfstudyhydrakill",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfstudyhydrakill/6.95/2023-02-27-selfstudyhydrakill-v6.95.zip"
+    },
+    {
+      "package": "importlib-metadate",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/importlib-metadate/99.99/2024-06-17-importlib-metadate-v99.99.zip"
+    },
+    {
+      "package": "lowui",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/lowui/0.0.1/2024-10-09-lowui-v0.0.1.zip"
+    },
+    {
+      "package": "tpstrpeplgtb",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/tpstrpeplgtb/2.63/2023-02-27-tpstrpeplgtb-v2.63.zip"
+    },
+    {
+      "package": "selfpeppippull",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/selfpeppippull/1.31/2023-02-27-selfpeppippull-v1.31.zip"
+    },
+    {
+      "package": "esqintstudyhacked",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqintstudyhacked/1.26/2023-03-08-esqintstudyhacked-v1.26.zip"
+    },
+    {
+      "package": "nurset",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/nurset/99.7/2024-11-06-nurset-v99.7.zip"
+    },
+    {
+      "package": "esqmaskcpustring",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqmaskcpustring/10.12/2023-02-27-esqmaskcpustring-v10.12.zip"
+    },
+    {
+      "package": "librandomintelgame",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/librandomintelgame/7.10/2023-02-27-librandomintelgame-v7.10.zip"
+    },
+    {
+      "package": "esqstudyedgrand",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/esqstudyedgrand/10.14/2023-02-27-esqstudyedgrand-v10.14.zip"
+    },
+    {
+      "package": "raylinks",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "zip_path": "samples/pypi/malicious_intent/raylinks/92.6/2024-11-12-raylinks-v92.6.zip"
+    },
+    {
+      "package": "parcel-plugin-asset-copier",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/parcel-plugin-asset-copier/1.1.3/2025-11-24-parcel-plugin-asset-copier-v1.1.3.zip"
+    },
+    {
+      "package": "react-jsonschema-rxnt-extras",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/react-jsonschema-rxnt-extras/0.4.8/2025-09-14-react-jsonschema-rxnt-extras-v0.4.8.zip"
+    },
+    {
+      "package": "02-echo",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/02-echo/0.0.7/2025-11-24-02-echo-v0.0.7.zip"
+    },
+    {
+      "package": "react-jsonschema-form-conditionals",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/react-jsonschema-form-conditionals/0.3.20/2025-09-14-react-jsonschema-form-conditionals-v0.3.20.zip"
+    },
+    {
+      "package": "koa2-swagger-ui",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/koa2-swagger-ui/5.11.2/2025-09-15-koa2-swagger-ui-v5.11.2.zip"
+    },
+    {
+      "package": "ember-headless-table",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/ember-headless-table/2.1.6/2025-09-16-ember-headless-table-v2.1.6.zip"
+    },
+    {
+      "package": "feature-flip",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/feature-flip/1.0.2/2025-11-24-feature-flip-v1.0.2.zip"
+    },
+    {
+      "package": "itobuz-angular-button",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/itobuz-angular-button/8.0.11/2025-11-24-itobuz-angular-button-v8.0.11.zip"
+    },
+    {
+      "package": "asyncapi-preview",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/asyncapi-preview/1.0.1/2025-11-24-asyncapi-preview-v1.0.1.zip"
+    },
+    {
+      "package": "jsonsurge",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/jsonsurge/1.0.7/2025-11-24-jsonsurge-v1.0.7.zip"
+    },
+    {
+      "package": "zapier-async-storage",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/zapier-async-storage/1.0.2/2025-11-24-zapier-async-storage-v1.0.2.zip"
+    },
+    {
+      "package": "vant",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/vant/4.9.14/2024-12-20-vant-v4.9.14.zip"
+    },
+    {
+      "package": "mcp-knowledge-base",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/mcp-knowledge-base/0.0.2/2025-09-14-mcp-knowledge-base-v0.0.2.zip"
+    },
+    {
+      "package": "airchief",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/airchief/0.3.1/2025-09-14-airchief-v0.3.1.zip"
+    },
+    {
+      "package": "yargs-help-output",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/yargs-help-output/5.0.3/2025-09-16-yargs-help-output-v5.0.3.zip"
+    },
+    {
+      "package": "rediff",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/rediff/1.0.5/2025-11-24-rediff-v1.0.5.zip"
+    },
+    {
+      "package": "hope-mapboxdraw",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/hope-mapboxdraw/0.1.1/2025-11-24-hope-mapboxdraw-v0.1.1.zip"
+    },
+    {
+      "package": "chrome-extension-downloads",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/chrome-extension-downloads/0.0.4/2025-11-24-chrome-extension-downloads-v0.0.4.zip"
+    },
+    {
+      "package": "ace-colorpicker-rpk",
+      "ecosystem": "npm",
+      "category": "compromised_lib",
+      "zip_path": "samples/npm/compromised_lib/ace-colorpicker-rpk/0.0.14/2025-09-15-ace-colorpicker-rpk-v0.0.14.zip"
+    },
+    {
+      "package": "community-pass-react-native-wrapper",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/community-pass-react-native-wrapper/1.0.0/2025-07-14-community-pass-react-native-wrapper-v1.0.0.zip"
+    },
+    {
+      "package": "mttdocs",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/mttdocs/1.0.1/2025-07-05-mttdocs-v1.0.1.zip"
+    },
+    {
+      "package": "no-barrel-files",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/no-barrel-files/7.9.0/2025-11-07-no-barrel-files-v7.9.0.zip"
+    },
+    {
+      "package": "xbox-bottomnav",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/xbox-bottomnav/99.9.9/2025-12-17-xbox-bottomnav-v99.9.9.zip"
+    },
+    {
+      "package": "walletsendmoney-paypal",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/walletsendmoney-paypal/4.0.3/2025-07-07-walletsendmoney-paypal-v4.0.3.zip"
+    },
+    {
+      "package": "elf-stats-aurora-cocoa-911",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-aurora-cocoa-911/1.0.0/2025-12-03-elf-stats-aurora-cocoa-911-v1.0.0.zip"
+    },
+    {
+      "package": "nagpur",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/nagpur/0.0.0-dev-202603280649/2026-03-28-nagpur-v0.0.0-dev-202603280649.zip"
+    },
+    {
+      "package": "config-conventional",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/config-conventional/213.21.24/2024-06-10-config-conventional-v213.21.24.zip"
+    },
+    {
+      "package": "codecops",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/codecops/1.3.0/2025-07-04-codecops-v1.3.0.zip"
+    },
+    {
+      "package": "libxmlrussia",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/libxmlrussia/0.30.2/2025-12-09-libxmlrussia-v0.30.2.zip"
+    },
+    {
+      "package": "garfield000",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/garfield000/1.0.0/2025-12-15-garfield000-v1.0.0.zip"
+    },
+    {
+      "package": "elf-stats-ginger-wreath-646",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-ginger-wreath-646/1.0.0/2025-12-04-elf-stats-ginger-wreath-646-v1.0.0.zip"
+    },
+    {
+      "package": "mocha-dast-reporter",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/mocha-dast-reporter/9.9.9/2025-03-20-mocha-dast-reporter-v9.9.9.zip"
+    },
+    {
+      "package": "src_components_ibtdetail_index_tsx",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/src_components_ibtdetail_index_tsx/9.8.5/2025-10-17-src_components_ibtdetail_index_tsx-v9.8.5.zip"
+    },
+    {
+      "package": "connectnodewebclient",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/connectnodewebclient/9.9.9/2025-06-09-connectnodewebclient-v9.9.9.zip"
+    },
+    {
+      "package": "commander-stable",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/commander-stable/15.100.101/2025-12-22-commander-stable-v15.100.101.zip"
+    },
+    {
+      "package": "restrict-imports",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/restrict-imports/9.20.9/2026-02-18-restrict-imports-v9.20.9.zip"
+    },
+    {
+      "package": "react-event-tracker1",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/react-event-tracker1/9999.0.0-security-test/2025-08-22-react-event-tracker1-v9999.0.0-security-test.zip"
+    },
+    {
+      "package": "internallib_v355",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/internallib_v355/1.0.5/2026-01-05-internallib_v355-v1.0.5.zip"
+    },
+    {
+      "package": "eslint-config-pcc-custom",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/eslint-config-pcc-custom/99.0.3/2025-08-15-eslint-config-pcc-custom-v99.0.3.zip"
+    },
+    {
+      "package": "epic-react-survey",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/epic-react-survey/1.0.0/2025-03-25-epic-react-survey-v1.0.0.zip"
+    },
+    {
+      "package": "curve-ui-kit-security-notice",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/curve-ui-kit-security-notice/1.0.0/2025-10-01-curve-ui-kit-security-notice-v1.0.0.zip"
+    },
+    {
+      "package": "epic-fortnite-react",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/epic-fortnite-react/1.0.0/2025-03-25-epic-fortnite-react-v1.0.0.zip"
+    },
+    {
+      "package": "ibm.github.io",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/ibm.github.io/9.9.9/2025-01-26-ibm.github.io-v9.9.9.zip"
+    },
+    {
+      "package": "heft-minimal-rig-test",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/heft-minimal-rig-test/99.0.9/2025-08-23-heft-minimal-rig-test-v99.0.9.zip"
+    },
+    {
+      "package": "fingerprint-stitch",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/fingerprint-stitch/19.9.9/2026-01-25-fingerprint-stitch-v19.9.9.zip"
+    },
+    {
+      "package": "zuaxnull",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/zuaxnull/9.9.9/2025-03-08-zuaxnull-v9.9.9.zip"
+    },
+    {
+      "package": "ballance-check",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/ballance-check/1.2.6/2025-09-21-ballance-check-v1.2.6.zip"
+    },
+    {
+      "package": "df-sandbox-test",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/df-sandbox-test/1.1.0/2026-04-05-df-sandbox-test-v1.1.0.zip"
+    },
+    {
+      "package": "lit-a11y",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/lit-a11y/9.9.0/2026-01-28-lit-a11y-v9.9.0.zip"
+    },
+    {
+      "package": "mongoose.js",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/mongoose.js/1.0.0/2025-07-04-mongoose.js-v1.0.0.zip"
+    },
+    {
+      "package": "eth-multisig-v4",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/eth-multisig-v4/1.0.1/2025-07-06-eth-multisig-v4-v1.0.1.zip"
+    },
+    {
+      "package": "polaris-report",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/polaris-report/6.5.8/2024-11-15-polaris-report-v6.5.8.zip"
+    },
+    {
+      "package": "elf-stats-silvered-cushion-811",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-silvered-cushion-811/1.0.0/2025-12-04-elf-stats-silvered-cushion-811-v1.0.0.zip"
+    },
+    {
+      "package": "swift-login-api",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/swift-login-api/9.9.9/2025-01-26-swift-login-api-v9.9.9.zip"
+    },
+    {
+      "package": "okta-ui-private-components",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/okta-ui-private-components/1.0.0/2025-07-04-okta-ui-private-components-v1.0.0.zip"
+    },
+    {
+      "package": "elf-stats-mistletoe-cushion-667",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-mistletoe-cushion-667/1.0.0/2025-12-03-elf-stats-mistletoe-cushion-667-v1.0.0.zip"
+    },
+    {
+      "package": "new-presentation-api",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/new-presentation-api/10.10.11/2025-06-03-new-presentation-api-v10.10.11.zip"
+    },
+    {
+      "package": "zoddle",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/zoddle/4.4.2/2026-02-26-zoddle-v4.4.2.zip"
+    },
+    {
+      "package": "redirect-3viu68",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/redirect-3viu68/1.0.0/2025-09-23-redirect-3viu68-v1.0.0.zip"
+    },
+    {
+      "package": "typing-extensions",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/typing-extensions/10.1.1/2025-09-25-typing-extensions-v10.1.1.zip"
+    },
+    {
+      "package": "epiro",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/epiro/1.0.0/2025-08-07-epiro-v1.0.0.zip"
+    },
+    {
+      "package": "vscode-mlir",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/vscode-mlir/2.0.1/2025-08-13-vscode-mlir-v2.0.1.zip"
+    },
+    {
+      "package": "hast-util-to-mdast9",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/hast-util-to-mdast9/9.0.0/2025-12-03-hast-util-to-mdast9-v9.0.0.zip"
+    },
+    {
+      "package": "tierlist",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/tierlist/1.0.2/2025-11-29-tierlist-v1.0.2.zip"
+    },
+    {
+      "package": "eslint-tools",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/eslint-tools/1.1.0/2024-11-20-eslint-tools-v1.1.0.zip"
+    },
+    {
+      "package": "prism-lint",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/prism-lint/7.4.2/2026-02-25-prism-lint-v7.4.2.zip"
+    },
+    {
+      "package": "canvas_webgl_minimal",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/canvas_webgl_minimal/11.11.13/2026-02-23-canvas_webgl_minimal-v11.11.13.zip"
+    },
+    {
+      "package": "braintree-sdk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/braintree-sdk/1.0.0/2025-08-14-braintree-sdk-v1.0.0.zip"
+    },
+    {
+      "package": "undeface-test-3",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/undeface-test-3/1.0.0/2025-08-02-undeface-test-3-v1.0.0.zip"
+    },
+    {
+      "package": "probe-dictionary-mozilla",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/probe-dictionary-mozilla/1.0.0/2025-01-18-probe-dictionary-mozilla-v1.0.0.zip"
+    },
+    {
+      "package": "tailwind-utilx",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/tailwind-utilx/1.0.3/2025-10-10-tailwind-utilx-v1.0.3.zip"
+    },
+    {
+      "package": "codeword",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/codeword/12.9.7/2025-05-21-codeword-v12.9.7.zip"
+    },
+    {
+      "package": "node-calculator-4e41",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/node-calculator-4e41/2.7.0/2025-11-17-node-calculator-4e41-v2.7.0.zip"
+    },
+    {
+      "package": "weavejs-backend",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/weavejs-backend/10.4.5/2025-07-30-weavejs-backend-v10.4.5.zip"
+    },
+    {
+      "package": "roro1",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/roro1/1.0.0/2025-01-24-roro1-v1.0.0.zip"
+    },
+    {
+      "package": "epic-ue-feed",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/epic-ue-feed/1.0.0/2025-03-25-epic-ue-feed-v1.0.0.zip"
+    },
+    {
+      "package": "ac-modal-basic",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/ac-modal-basic/1.1.0/2026-03-13-ac-modal-basic-v1.1.0.zip"
+    },
+    {
+      "package": "company-browser-package",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/company-browser-package/99.9.9/2025-10-16-company-browser-package-v99.9.9.zip"
+    },
+    {
+      "package": "starrocks",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/starrocks/1.0.0/2025-03-15-starrocks-v1.0.0.zip"
+    },
+    {
+      "package": "elf-stats-velvet-sparkler-555",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-velvet-sparkler-555/2.0.0/2025-12-03-elf-stats-velvet-sparkler-555-v2.0.0.zip"
+    },
+    {
+      "package": "iokit",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/iokit/1.0.0/2025-05-13-iokit-v1.0.0.zip"
+    },
+    {
+      "package": "the-storyverse",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/the-storyverse/5.6.9/2026-02-22-the-storyverse-v5.6.9.zip"
+    },
+    {
+      "package": "eslint-plugin-module-dependencies",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/eslint-plugin-module-dependencies/6.5.8/2024-11-13-eslint-plugin-module-dependencies-v6.5.8.zip"
+    },
+    {
+      "package": "gx-npm-messenger-util",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/gx-npm-messenger-util/99.9.1/2025-05-07-gx-npm-messenger-util-v99.9.1.zip"
+    },
+    {
+      "package": "buttonfactoryserv-paypal",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/buttonfactoryserv-paypal/3.99.0/2025-03-07-buttonfactoryserv-paypal-v3.99.0.zip"
+    },
+    {
+      "package": "puppeteer-jest",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/puppeteer-jest/2.0.0/2025-10-21-puppeteer-jest-v2.0.0.zip"
+    },
+    {
+      "package": "sap-cd",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/sap-cd/0.0.0/2024-07-11-sap-cd-v0.0.0.zip"
+    },
+    {
+      "package": "shadow-dance",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/shadow-dance/1.0.1/2025-06-26-shadow-dance-v1.0.1.zip"
+    },
+    {
+      "package": "trans-generations",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/trans-generations/1.0.1/2025-05-26-trans-generations-v1.0.1.zip"
+    },
+    {
+      "package": "browserstack-utils",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/browserstack-utils/99.0.0/2026-03-26-browserstack-utils-v99.0.0.zip"
+    },
+    {
+      "package": "commitlint-config-jira-type-infra",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/commitlint-config-jira-type-infra/5.3.5/2024-11-06-commitlint-config-jira-type-infra-v5.3.5.zip"
+    },
+    {
+      "package": "wt-fe-buz-utilities-url",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/wt-fe-buz-utilities-url/1.0.0/2024-12-29-wt-fe-buz-utilities-url-v1.0.0.zip"
+    },
+    {
+      "package": "doyouknowyourstuff",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/doyouknowyourstuff/1.0.0/2025-10-04-doyouknowyourstuff-v1.0.0.zip"
+    },
+    {
+      "package": "falcon-login",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/falcon-login/99.99.1/2025-09-08-falcon-login-v99.99.1.zip"
+    },
+    {
+      "package": "xpack-sui",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/xpack-sui/1.0.1/2026-02-07-xpack-sui-v1.0.1.zip"
+    },
+    {
+      "package": "xo-wallet-components",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/xo-wallet-components/99.0.99/2025-08-30-xo-wallet-components-v99.0.99.zip"
+    },
+    {
+      "package": "rbx-parser-ts",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/rbx-parser-ts/1.5.9/2025-08-02-rbx-parser-ts-v1.5.9.zip"
+    },
+    {
+      "package": "badgekit-api-client",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/badgekit-api-client/9.9.0/2025-09-13-badgekit-api-client-v9.9.0.zip"
+    },
+    {
+      "package": "temp-crypto-sdk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/temp-crypto-sdk/0.66.0/2025-02-02-temp-crypto-sdk-v0.66.0.zip"
+    },
+    {
+      "package": "minife_node",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/minife_node/89.3.5/2024-11-08-minife_node-v89.3.5.zip"
+    },
+    {
+      "package": "sdp-transform-parser",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/sdp-transform-parser/9999.0.2/2025-08-23-sdp-transform-parser-v9999.0.2.zip"
+    },
+    {
+      "package": "r00tsid1",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/r00tsid1/9999.0.0/2025-08-22-r00tsid1-v9999.0.0.zip"
+    },
+    {
+      "package": "elf-stats-mulled-drum-529",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-mulled-drum-529/2.2.1/2025-12-03-elf-stats-mulled-drum-529-v2.2.1.zip"
+    },
+    {
+      "package": "workfront-tailwind-base",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/workfront-tailwind-base/1.0.3/2025-03-08-workfront-tailwind-base-v1.0.3.zip"
+    },
+    {
+      "package": "minter-typescript",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/minter-typescript/3.3.3/2025-10-16-minter-typescript-v3.3.3.zip"
+    },
+    {
+      "package": "dep-poc",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/dep-poc/1.0.4/2025-03-03-dep-poc-v1.0.4.zip"
+    },
+    {
+      "package": "libxmlaboba",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/libxmlaboba/0.30.2/2025-12-09-libxmlaboba-v0.30.2.zip"
+    },
+    {
+      "package": "core-example",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/core-example/1.0.1/2025-01-02-core-example-v1.0.1.zip"
+    },
+    {
+      "package": "variant-fund",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/variant-fund/0.0.0-dev-202603281859/2026-03-28-variant-fund-v0.0.0-dev-202603281859.zip"
+    },
+    {
+      "package": "ssr-catalogue-sfcc",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/ssr-catalogue-sfcc/99.99.3/2026-03-10-ssr-catalogue-sfcc-v99.99.3.zip"
+    },
+    {
+      "package": "ids-core",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/ids-core/1.0.0/2025-07-24-ids-core-v1.0.0.zip"
+    },
+    {
+      "package": "metamask-api",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/metamask-api/1.0.0/2025-08-10-metamask-api-v1.0.0.zip"
+    },
+    {
+      "package": "team-plain",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/team-plain/1.0.1/2024-11-06-team-plain-v1.0.1.zip"
+    },
+    {
+      "package": "trigger-gitlab-pipeline",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/trigger-gitlab-pipeline/1.1.0/2025-01-18-trigger-gitlab-pipeline-v1.1.0.zip"
+    },
+    {
+      "package": "bombora",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/bombora/1.0.0/2025-06-29-bombora-v1.0.0.zip"
+    },
+    {
+      "package": "archon2",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/archon2/1.1.0/2025-02-18-archon2-v1.1.0.zip"
+    },
+    {
+      "package": "react-native-scrollpageviewtest",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/react-native-scrollpageviewtest/1.5.7/2025-03-28-react-native-scrollpageviewtest-v1.5.7.zip"
+    },
+    {
+      "package": "gbiz-next",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/gbiz-next/2.3.16/2025-11-20-gbiz-next-v2.3.16.zip"
+    },
+    {
+      "package": "react-pro-components-next",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/react-pro-components-next/6.5.8/2024-11-15-react-pro-components-next-v6.5.8.zip"
+    },
+    {
+      "package": "nf-iso-properties",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/nf-iso-properties/99.87.33/2025-10-06-nf-iso-properties-v99.87.33.zip"
+    },
+    {
+      "package": "redirect-gzkgcn",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/redirect-gzkgcn/1.0.0/2025-09-18-redirect-gzkgcn-v1.0.0.zip"
+    },
+    {
+      "package": "vite-tsconfig-log",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/vite-tsconfig-log/1.0.9/2025-05-04-vite-tsconfig-log-v1.0.9.zip"
+    },
+    {
+      "package": "logify-pino",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/logify-pino/3.1.3/2025-10-20-logify-pino-v3.1.3.zip"
+    },
+    {
+      "package": "bubblemap-bypass-sdk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/bubblemap-bypass-sdk/1.0.5/2026-02-12-bubblemap-bypass-sdk-v1.0.5.zip"
+    },
+    {
+      "package": "burst-dash",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/burst-dash/2.0.0/2025-08-15-burst-dash-v2.0.0.zip"
+    },
+    {
+      "package": "frontend-tests",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/frontend-tests/7.0.0/2025-06-11-frontend-tests-v7.0.0.zip"
+    },
+    {
+      "package": "node-multispinner",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/node-multispinner/0.2.1/2025-11-02-node-multispinner-v0.2.1.zip"
+    },
+    {
+      "package": "crypto-utility",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/crypto-utility/0.3.4/2025-05-05-crypto-utility-v0.3.4.zip"
+    },
+    {
+      "package": "elf-stats-sugarplum-toolkit-176",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-sugarplum-toolkit-176/1.0.0/2025-12-04-elf-stats-sugarplum-toolkit-176-v1.0.0.zip"
+    },
+    {
+      "package": "hyatt-avatar",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/hyatt-avatar/999.999.999/2025-10-23-hyatt-avatar-v999.999.999.zip"
+    },
+    {
+      "package": "flipper-plugins",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/flipper-plugins/14.0.5/2025-05-13-flipper-plugins-v14.0.5.zip"
+    },
+    {
+      "package": "bnppf-font-icons",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/bnppf-font-icons/3.0.7/2024-11-21-bnppf-font-icons-v3.0.7.zip"
+    },
+    {
+      "package": "parashaxmgflhg",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/parashaxmgflhg/0.33.4/2025-12-08-parashaxmgflhg-v0.33.4.zip"
+    },
+    {
+      "package": "eclipse-tractusx-github-io",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/eclipse-tractusx-github-io/1.0.0/2025-03-24-eclipse-tractusx-github-io-v1.0.0.zip"
+    },
+    {
+      "package": "pino-logging",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/pino-logging/2.2.3/2025-10-10-pino-logging-v2.2.3.zip"
+    },
+    {
+      "package": "unleash-strategies",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/unleash-strategies/8.15.0/2025-01-29-unleash-strategies-v8.15.0.zip"
+    },
+    {
+      "package": "react-toast-cold",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/react-toast-cold/2.6.0/2026-01-19-react-toast-cold-v2.6.0.zip"
+    },
+    {
+      "package": "debugr1",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/debugr1/3.1.1/2024-11-07-debugr1-v3.1.1.zip"
+    },
+    {
+      "package": "node-calculator-fahw",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/node-calculator-fahw/2.2.0/2025-08-03-node-calculator-fahw-v2.2.0.zip"
+    },
+    {
+      "package": "next-refresh-token",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/next-refresh-token/1.0.1/2025-01-09-next-refresh-token-v1.0.1.zip"
+    },
+    {
+      "package": "kyutai-client",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/kyutai-client/13.6.9/2025-05-20-kyutai-client-v13.6.9.zip"
+    },
+    {
+      "package": "setup-helper-module",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/setup-helper-module/2.1.7/2025-09-11-setup-helper-module-v2.1.7.zip"
+    },
+    {
+      "package": "confluent-kafka",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/confluent-kafka/1.0.0/2025-12-09-confluent-kafka-v1.0.0.zip"
+    },
+    {
+      "package": "paper-dropdown-menu",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/paper-dropdown-menu/99.9.1/2025-08-30-paper-dropdown-menu-v99.9.1.zip"
+    },
+    {
+      "package": "internal-company-sdk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/internal-company-sdk/999.0.0/2026-01-17-internal-company-sdk-v999.0.0.zip"
+    },
+    {
+      "package": "eslint-config-smaato",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/eslint-config-smaato/9.9.9/2025-01-02-eslint-config-smaato-v9.9.9.zip"
+    },
+    {
+      "package": "dyalog-ride",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/dyalog-ride/1.0.1/2025-03-28-dyalog-ride-v1.0.1.zip"
+    },
+    {
+      "package": "dependabot-auto-triage",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/dependabot-auto-triage/1.0.0/2025-07-03-dependabot-auto-triage-v1.0.0.zip"
+    },
+    {
+      "package": "huangming-demo",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/huangming-demo/1.0.0/2025-10-26-huangming-demo-v1.0.0.zip"
+    },
+    {
+      "package": "bitcoin-indexer",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/bitcoin-indexer/1.1.1/2025-11-09-bitcoin-indexer-v1.1.1.zip"
+    },
+    {
+      "package": "zod-js",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/zod-js/4.3.2/2025-12-31-zod-js-v4.3.2.zip"
+    },
+    {
+      "package": "safe-json-parsex",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/safe-json-parsex/1.0.1/2026-03-02-safe-json-parsex-v1.0.1.zip"
+    },
+    {
+      "package": "actions-set-env-vars",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/actions-set-env-vars/2.4.5/2025-07-30-actions-set-env-vars-v2.4.5.zip"
+    },
+    {
+      "package": "badger-doc",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/badger-doc/1.0.0/2025-08-09-badger-doc-v1.0.0.zip"
+    },
+    {
+      "package": "fin-core",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/fin-core/33.12.13/2025-06-07-fin-core-v33.12.13.zip"
+    },
+    {
+      "package": "meli-ai-chat-library",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/meli-ai-chat-library/99.6.5/2025-06-28-meli-ai-chat-library-v99.6.5.zip"
+    },
+    {
+      "package": "data-version-service",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/data-version-service/1.7.9/2025-09-10-data-version-service-v1.7.9.zip"
+    },
+    {
+      "package": "scm-retail-ui",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/scm-retail-ui/6.5.8/2024-11-16-scm-retail-ui-v6.5.8.zip"
+    },
+    {
+      "package": "symlink_lib",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/symlink_lib/99.9.0/2025-01-03-symlink_lib-v99.9.0.zip"
+    },
+    {
+      "package": "elf-stats-merry-hollyberry-699",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-merry-hollyberry-699/1.0.0/2025-12-05-elf-stats-merry-hollyberry-699-v1.0.0.zip"
+    },
+    {
+      "package": "suppressions",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/suppressions/99.0.9/2025-08-23-suppressions-v99.0.9.zip"
+    },
+    {
+      "package": "artifactregistry-login",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/artifactregistry-login/9.9.0/2025-10-14-artifactregistry-login-v9.9.0.zip"
+    },
+    {
+      "package": "climate-wallet",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/climate-wallet/1.2.34/2025-04-26-climate-wallet-v1.2.34.zip"
+    },
+    {
+      "package": "aws-features-signin-proxy-client",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/aws-features-signin-proxy-client/9.9.9/2025-03-03-aws-features-signin-proxy-client-v9.9.9.zip"
+    },
+    {
+      "package": "nemo-datadrive",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/nemo-datadrive/99.13.9/2026-03-29-nemo-datadrive-v99.13.9.zip"
+    },
+    {
+      "package": "sap-autofix",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/sap-autofix/0.0.0/2024-07-11-sap-autofix-v0.0.0.zip"
+    },
+    {
+      "package": "phonepe-payment-capacitor",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/phonepe-payment-capacitor/1.0.0/2024-12-21-phonepe-payment-capacitor-v1.0.0.zip"
+    },
+    {
+      "package": "rdocs-light",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/rdocs-light/2.6.0/2025-03-02-rdocs-light-v2.6.0.zip"
+    },
+    {
+      "package": "elf-stats-piney-pinecone-203",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-piney-pinecone-203/1.0.0/2025-12-03-elf-stats-piney-pinecone-203-v1.0.0.zip"
+    },
+    {
+      "package": "cooler-loans-api-get",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/cooler-loans-api-get/1337.1.0/2025-10-24-cooler-loans-api-get-v1337.1.0.zip"
+    },
+    {
+      "package": "itx-zara-web-common",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/itx-zara-web-common/331.0.0/2025-08-13-itx-zara-web-common-v331.0.0.zip"
+    },
+    {
+      "package": "elf-stats-sprucey-icicle-606",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-sprucey-icicle-606/999.0.0/2025-12-03-elf-stats-sprucey-icicle-606-v999.0.0.zip"
+    },
+    {
+      "package": "chai-cli-sinon",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/chai-cli-sinon/2.4.5/2026-02-11-chai-cli-sinon-v2.4.5.zip"
+    },
+    {
+      "package": "isc-frontend",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/isc-frontend/6.5.8/2024-11-14-isc-frontend-v6.5.8.zip"
+    },
+    {
+      "package": "elf-stats-northbound-sparkler-410",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-northbound-sparkler-410/2.0.0/2025-12-04-elf-stats-northbound-sparkler-410-v2.0.0.zip"
+    },
+    {
+      "package": "frame-minter-contracts",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/frame-minter-contracts/0.0.1/2025-05-08-frame-minter-contracts-v0.0.1.zip"
+    },
+    {
+      "package": "dataset-view",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/dataset-view/1.0.0/2025-10-12-dataset-view-v1.0.0.zip"
+    },
+    {
+      "package": "dial-app-version",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/dial-app-version/9999.0.3/2026-03-29-dial-app-version-v9999.0.3.zip"
+    },
+    {
+      "package": "elf-stats-candlelit-pantry-649",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-candlelit-pantry-649/1.0.0/2025-12-03-elf-stats-candlelit-pantry-649-v1.0.0.zip"
+    },
+    {
+      "package": "highcharts-mouse-wheel-zoom",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/highcharts-mouse-wheel-zoom/1.0.1/2025-04-02-highcharts-mouse-wheel-zoom-v1.0.1.zip"
+    },
+    {
+      "package": "markomponent",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/markomponent/6.5.8/2024-11-14-markomponent-v6.5.8.zip"
+    },
+    {
+      "package": "vite_ruby_monorepo",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/vite_ruby_monorepo/9.9.9/2025-02-28-vite_ruby_monorepo-v9.9.9.zip"
+    },
+    {
+      "package": "regex-validator-pro",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/regex-validator-pro/1.0.8/2025-09-18-regex-validator-pro-v1.0.8.zip"
+    },
+    {
+      "package": "chai-types",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/chai-types/1.1.7/2026-02-12-chai-types-v1.1.7.zip"
+    },
+    {
+      "package": "jenkins-trigger-action",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/jenkins-trigger-action/6.3.4/2025-08-13-jenkins-trigger-action-v6.3.4.zip"
+    },
+    {
+      "package": "ganac",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/ganac/5.2.3/2025-08-16-ganac-v5.2.3.zip"
+    },
+    {
+      "package": "disabled_native_dep",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/disabled_native_dep/2.9.9/2025-06-28-disabled_native_dep-v2.9.9.zip"
+    },
+    {
+      "package": "dragon0905-vite-tsconfig-assistant",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/dragon0905-vite-tsconfig-assistant/1.0.3/2025-09-18-dragon0905-vite-tsconfig-assistant-v1.0.3.zip"
+    },
+    {
+      "package": "react-important-stuff",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/react-important-stuff/1.0.0/2025-08-11-react-important-stuff-v1.0.0.zip"
+    },
+    {
+      "package": "nanoid-js",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/nanoid-js/1.0.1/2026-01-08-nanoid-js-v1.0.1.zip"
+    },
+    {
+      "package": "github-badge-bot",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/github-badge-bot/1.9.5/2025-12-21-github-badge-bot-v1.9.5.zip"
+    },
+    {
+      "package": "pino-debugger",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/pino-debugger/1.0.4/2026-01-09-pino-debugger-v1.0.4.zip"
+    },
+    {
+      "package": "ds-header",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/ds-header/9999.0.0/2025-09-04-ds-header-v9999.0.0.zip"
+    },
+    {
+      "package": "rosetta-primitives",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/rosetta-primitives/3.0.0/2025-06-01-rosetta-primitives-v3.0.0.zip"
+    },
+    {
+      "package": "hops-preset-jest",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/hops-preset-jest/1.0.0/2026-02-15-hops-preset-jest-v1.0.0.zip"
+    },
+    {
+      "package": "puppetexplorer",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/puppetexplorer/10.0.0/2025-06-29-puppetexplorer-v10.0.0.zip"
+    },
+    {
+      "package": "workerd-linux-arm64",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/workerd-linux-arm64/99.99.99/2025-01-19-workerd-linux-arm64-v99.99.99.zip"
+    },
+    {
+      "package": "symphony-binary-confusion-matrix",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/symphony-binary-confusion-matrix/99.1.0/2025-05-15-symphony-binary-confusion-matrix-v99.1.0.zip"
+    },
+    {
+      "package": "zzr-react-custom-widget",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/zzr-react-custom-widget/1.0.3/2025-05-14-zzr-react-custom-widget-v1.0.3.zip"
+    },
+    {
+      "package": "my-dummy-npm-package-test",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "zip_path": "samples/npm/malicious_intent/my-dummy-npm-package-test/1.1.1/2026-03-18-my-dummy-npm-package-test-v1.1.1.zip"
+    }
+  ]
+}
