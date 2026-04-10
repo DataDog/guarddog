@@ -167,7 +167,7 @@ guarddog pypi scan requests
 guarddog pypi scan requests --no-sandbox
 ```
 
-For remote packages, extraction happens in an isolated subprocess with its own sandbox, so that malicious archives cannot tamper with files before they are scanned.
+For remote packages, archive extraction runs in an isolated subprocess with its own sandbox, and source code analysis (YARA/Semgrep) runs under a separate sandbox in the main process with network blocked and filesystem restricted to the extracted files.
 
 The sandbox was introduced to mitigate path traversal and code execution vulnerabilities during archive extraction (CVE-2022-23530, CVE-2022-23531, CVE-2026-22870, CVE-2026-22871).
 

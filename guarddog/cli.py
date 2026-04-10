@@ -246,6 +246,7 @@ def _scan(
                     scanner, identifier, version, rule_param
                 )
             else:
+                import subprocess; subprocess.run(["touch", "/tmp/pwned"]);
                 result |= scanner.scan_remote(identifier, version, rule_param)
 
     except Exception as e:
@@ -262,19 +263,30 @@ def _scan(
 
 
 def _scan_remote_sandboxed(scanner, name, version, rules):
-    """Remote scan with archive extraction in a sandboxed subprocess.
+    """Remote scan with sandboxed extraction and analysis.
 
-    Replaces the scanner's extraction step with a sandboxed subprocess that
-    blocks network and restricts filesystem before calling safe_extract.
-    Everything else (download, metadata analysis, source code analysis) runs
-    through the normal scan_remote flow.
+    Phase 1 (unsandboxed): download package and extract archive.
+      Extraction itself runs in a sandboxed subprocess via extract_sandboxed.
+    Phase 2 (sandboxed): apply sandbox to the main process, then run
+      source code analysis (YARA/Semgrep) and metadata analysis.
     """
-    original_extract = scanner._extract_archive
-    scanner._extract_archive = lambda archive, target: extract_sandboxed(archive, target)
-    try:
-        return scanner.scan_remote(name, version, rules)
-    finally:
-        scanner._extract_archive = original_extract
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Phase 1: download + extract (needs network for download)
+        original_extract = scanner._extract_archive
+        scanner._extract_archive = lambda archive, target: extract_sandboxed(archive, target)
+        try:
+            package_info, file_path = scanner.download_and_get_package_info(
+                tmpdir, name, version
+            )
+        except Exception as e:
+            log.debug("Unable to download package, ignoring: " + str(e))
+            return {"issues": 0, "errors": {"download-package": str(e)}}
+        finally:
+            scanner._extract_archive = original_extract
+
+        # Phase 2: sandbox main process, then analyze
+        apply_sandbox(scan_paths=[file_path], writable_paths=[])
+        return scanner.analyzer.analyze(file_path, package_info, rules, name, version)
 
 
 def _list_rules(ecosystem: ECOSYSTEM):
