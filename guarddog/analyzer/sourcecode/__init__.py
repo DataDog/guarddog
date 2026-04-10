@@ -51,6 +51,7 @@ class SourceCodeRule:
         None  # None = unlimited, capabilities typically 1, threats typically 5
     )
     path_include: Optional[str] = None  # Glob patterns: "*/package.json,*/setup.py"
+    path_exclude: Optional[str] = None  # Glob patterns: "*.min.js,dist/*"
 
 
 @dataclass
@@ -211,6 +212,10 @@ for file_name in yara_rule_file_names:
         path_include_match = re.search(r"path_include\s*=\s*\"(.+?)\"", content)
         path_include = path_include_match.group(1) if path_include_match else None
 
+        # Extract path_exclude (glob patterns)
+        path_exclude_match = re.search(r"path_exclude\s*=\s*\"(.+?)\"", content)
+        path_exclude = path_exclude_match.group(1) if path_exclude_match else None
+
         SOURCECODE_RULES.append(
             YaraRule(
                 id=rule_id,
@@ -224,5 +229,6 @@ for file_name in yara_rule_file_names:
                 sophistication=sophistication,
                 max_hits=max_hits,
                 path_include=path_include,
+                path_exclude=path_exclude,
             )
         )
