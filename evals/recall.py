@@ -48,6 +48,10 @@ def parse_args():
                    help="Path to local clone of malicious-software-packages-dataset")
     p.add_argument("--regenerate-samples", action="store_true",
                    help="Regenerate recall_samples.json from the dataset")
+    p.add_argument("--malicious-per-eco", type=int, default=250,
+                   help="Number of malicious_intent samples per ecosystem when regenerating")
+    p.add_argument("--seed", type=int, default=42,
+                   help="Random seed for sampling (for reproducibility)")
     p.add_argument("--no-sandbox", action="store_true",
                    help="Skip Nono sandbox (DANGEROUS, for testing only)")
     return p.parse_args()
@@ -57,36 +61,41 @@ def parse_args():
 # Sample generation (--regenerate-samples)
 # ---------------------------------------------------------------------------
 
-def regenerate_samples():
-    """Fetch manifests from GitHub and generate a new recall_samples.json."""
-    import random
-    random.seed(42)
+def regenerate_samples(ecosystems: list[str], malicious_per_eco: int, seed: int):
+    """Fetch manifests from GitHub and generate a new recall_samples.json.
 
-    print("Fetching manifests from GitHub...")
+    Always includes ALL compromised_lib packages (supply chain attacks are
+    rare and high-value). Samples malicious_per_eco malicious_intent packages
+    per ecosystem on top of that.
+    """
+    import random
+    random.seed(seed)
+
+    print(f"Fetching manifests from GitHub (seed={seed})...")
     repo = "DataDog/malicious-software-packages-dataset"
 
     sha = _gh_api(f"repos/{repo}/commits/main", jq=".sha")
     print(f"  Dataset SHA: {sha}")
 
     samples = []
-    for eco, n_malicious, n_compromised in [("pypi", 246, 50), ("npm", 200, 50)]:
+    for eco in ecosystems:
         manifest_url = f"https://raw.githubusercontent.com/{repo}/main/samples/{eco}/manifest.json"
         manifest = _fetch_json(manifest_url)
 
         compromised = sorted([k for k, v in manifest.items() if v is not None])
         malicious = sorted([k for k, v in manifest.items() if v is None])
-        random.shuffle(compromised)
         random.shuffle(malicious)
 
-        n_comp = min(n_compromised, len(compromised))
-        n_mal = min(n_malicious, 250 - n_comp)
-
-        for pkg in compromised[:n_comp]:
+        # Always include ALL compromised_lib packages
+        for pkg in compromised:
             samples.append({"package": pkg, "ecosystem": eco, "category": "compromised_lib"})
+
+        # Sample N malicious_intent packages
+        n_mal = min(malicious_per_eco, len(malicious))
         for pkg in malicious[:n_mal]:
             samples.append({"package": pkg, "ecosystem": eco, "category": "malicious_intent"})
 
-        print(f"  {eco}: {n_mal} malicious_intent + {n_comp} compromised_lib")
+        print(f"  {eco}: {n_mal} malicious_intent + {len(compromised)} compromised_lib (all)")
 
     # Resolve ZIP paths
     print("Resolving ZIP paths (this may take a few minutes)...")
@@ -698,7 +707,7 @@ def main():
     args = parse_args()
 
     if args.regenerate_samples:
-        regenerate_samples()
+        regenerate_samples(args.ecosystems, args.malicious_per_eco, args.seed)
         return
 
     work_dir = args.work_dir.resolve()

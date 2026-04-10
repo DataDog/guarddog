@@ -43,7 +43,12 @@ def parse_args():
     p.add_argument("--dataset-path", type=Path, default=None,
                    help="Local clone of malicious-software-packages-dataset")
     p.add_argument("--no-sandbox", action="store_true")
-    p.add_argument("--regenerate-samples", action="store_true")
+    p.add_argument("--regenerate-samples", action="store_true",
+                   help="Resample malicious packages from the dataset")
+    p.add_argument("--malicious-per-eco", type=int, default=250,
+                   help="Number of malicious_intent samples per ecosystem (all compromised_lib always included)")
+    p.add_argument("--seed", type=int, default=42,
+                   help="Random seed for malicious package sampling")
     return p.parse_args()
 
 
@@ -327,8 +332,16 @@ def main():
     work_dir.mkdir(parents=True, exist_ok=True)
 
     if args.regenerate_samples:
-        subprocess.run([sys.executable, str(EVALS_DIR / "recall.py"), "--regenerate-samples"],
-                       cwd=str(EVALS_DIR.parent))
+        eco_args = []
+        for eco in args.ecosystems:
+            eco_args.extend(["--ecosystems", eco])
+        subprocess.run([
+            sys.executable, str(EVALS_DIR / "recall.py"),
+            "--regenerate-samples",
+            "--malicious-per-eco", str(args.malicious_per_eco),
+            "--seed", str(args.seed),
+            *eco_args,
+        ], cwd=str(EVALS_DIR.parent))
         return
 
     if args.phase == "all":
