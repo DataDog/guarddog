@@ -28,6 +28,7 @@ tarsafe = "^0.0.5"
 termcolor = "^3.3.0"
 urllib3 = "^2.5.0"
 yara-python = "^4.5.1"
+nono-py = ">=0.1.0"
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.13.5"

@@ -158,6 +158,16 @@ class PackageScanner:
             "risks": formatted_risks,  # Top-level only, not inside risk_score
         }
 
+    def download_package(
+        self, name: str, directory: str, version=None
+    ) -> typing.Tuple[dict, str]:
+        """Download package and return (package_info, extracted_path).
+
+        Does network I/O. Caller manages the directory lifecycle.
+        This is the public entry point for two-phase scanning (download, then analyze).
+        """
+        return self.download_and_get_package_info(directory, name, version)
+
     @abstractmethod
     def download_and_get_package_info(
         self, directory: str, package_name: str, version=None
