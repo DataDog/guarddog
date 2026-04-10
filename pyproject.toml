@@ -1,7 +1,7 @@
 [project]
 name = "guarddog"
-version = "2.9.0"
 requires-python = ">=3.10"
+dynamic = ["version"]
 
 [project.scripts]
 guarddog = "guarddog.cli:cli"
