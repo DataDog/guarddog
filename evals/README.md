@@ -1,17 +1,27 @@
 # GuardDog Evaluation Suite
 
-Two tools for measuring GuardDog quality:
+Three tools for measuring GuardDog quality:
 
-- **benchmark.py** -- False positive rate on top-1000 legitimate packages
-- **recall.py** -- Detection rate on 500 known-malicious packages
+- **run.py** -- Combined evaluation: precision, recall, F1 score, score distributions
+- **benchmark.py** -- FP benchmark on top-N legitimate packages
+- **recall.py** -- Recall benchmark on known-malicious packages
 
 ## Quick start
 
 ```bash
-# From the repo root, run the full benchmark (top 1000 PyPI + NPM, 20 workers)
-uv run evals/benchmark.py
+# Run the full combined evaluation (FP + recall + metrics)
+uv run evals/run.py
 
-# Smaller test run
+# Customize
+uv run evals/run.py --benign-packages 500 --workers 10 --threshold 5.0
+
+# Change detection threshold and regenerate report (no re-scanning)
+uv run evals/run.py --phase report --threshold 3.0
+
+# Resample malicious packages from the dataset
+uv run evals/run.py --regenerate-samples
+
+# Run individual benchmarks
 uv run evals/benchmark.py --max-packages 50 --ecosystems pypi
 
 # Only regenerate the report from existing results
