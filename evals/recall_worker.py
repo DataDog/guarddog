@@ -103,19 +103,24 @@ def extract_zip(zip_path: str, dest: str):
 
 
 def scan_package(extracted_dir: str, ecosystem: str) -> dict:
-    """Run guarddog scan on the extracted directory."""
-    from guarddog.analyzer.analyzer import Analyzer
-    from guarddog import ecosystems
+    """Run guarddog scan on the extracted directory via CLI."""
+    import subprocess as sp
 
-    eco_map = {"pypi": ecosystems.ECOSYSTEM.PYPI, "npm": ecosystems.ECOSYSTEM.NPM}
-    eco = eco_map.get(ecosystem)
-    if not eco:
-        return {"error": f"Unknown ecosystem: {ecosystem}"}
+    guarddog_bin = shutil.which("guarddog")
+    if not guarddog_bin:
+        return {"results": {}, "error": "guarddog not found on PATH"}
 
     try:
-        analyzer = Analyzer()
-        results = analyzer.analyze_sourcecode(extracted_dir, eco)
-        return {"results": results, "error": None}
+        proc = sp.run(
+            [guarddog_bin, ecosystem, "scan", extracted_dir, "--output-format", "json"],
+            capture_output=True, text=True, timeout=90,
+        )
+        stdout = proc.stdout.strip()
+        if stdout:
+            return {"results": json.loads(stdout), "error": None}
+        return {"results": {}, "error": f"Exit {proc.returncode}: {proc.stderr[:500]}"}
+    except sp.TimeoutExpired:
+        return {"results": {}, "error": "guarddog scan timeout"}
     except Exception as e:
         return {"results": {}, "error": str(e)[:500]}
 
