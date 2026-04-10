@@ -1,8 +1,8 @@
 ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))..
 PYTHON ?= uv run --directory $(ROOT) python3
-WORKERS ?= 10
-BENIGN_PACKAGES ?= 1000
-SAMPLES_PER_ECO ?= 250
+WORKERS ?= 20
+BENIGN_PACKAGES ?= 500
+SAMPLES_PER_ECO ?= 1000
 THRESHOLD ?= 5.0
 ECOSYSTEMS ?= pypi npm
 

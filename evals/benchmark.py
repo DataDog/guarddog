@@ -214,7 +214,10 @@ def load_results(work_dir: Path, ecosystems: list[str]) -> list[dict]:
             continue
         for f in d.iterdir():
             if f.suffix == ".json":
-                results.append(json.loads(f.read_text()))
+                try:
+                    results.append(json.loads(f.read_text()))
+                except (json.JSONDecodeError, ValueError):
+                    pass
     return results
 
 
