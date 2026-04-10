@@ -1,20 +1,22 @@
 # Legitimate code that should NOT trigger threat-runtime-obfuscation-api
 
-# Standard getattr with string literal (configuration access)
+# Standard __dict__ access (very common in Python)
+value = self.__dict__['name']
+cls.__dict__[attr_name]
+properties = [p for p in cls.__dict__ if isinstance(cls.__dict__[p], property)]
+
+# Standard getattr with string literal
 host = getattr(settings, 'STATSD_HOST', 'localhost')
 advisory = getattr(instrument, "_advisory", None)
-sigwinch = getattr(signal, "SIGWINCH", None)
+
+# Standard getattr with variable (not targeting dangerous builtins)
+method = getattr(MaskedArray, methodname)
 
 # Standard setattr
-class OAuthSession:
-    def configure(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self._client, k, v)
+for k, v in kwargs.items():
+    setattr(self._client, k, v)
 
-# __getattribute__ override (standard Python pattern)
+# __getattribute__ override
 class Proxy:
-    def __getattribute__(self, name: str):
+    def __getattribute__(self, name):
         return super().__getattribute__(name)
-
-# getattr with string literal to access a known attribute
-value = getattr(node, "value")
