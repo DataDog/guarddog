@@ -16,3 +16,4 @@ build/
 .cache
 evals/workdir/
 evals/workdir*/
+sandbox-plan.md
