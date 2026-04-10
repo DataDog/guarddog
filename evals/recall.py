@@ -259,7 +259,10 @@ def scan_single(sample: dict, work_dir: Path, guarddog_bin: str, timeout: int, n
     result_file = result_dir / f"{safe_name}.json"
 
     if result_file.exists():
-        return json.loads(result_file.read_text())
+        try:
+            return json.loads(result_file.read_text())
+        except (json.JSONDecodeError, ValueError):
+            pass
 
     result = {"package": sample["package"], "ecosystem": sample["ecosystem"],
               "category": sample["category"], "error": None, "scan_output": None}
@@ -269,33 +272,42 @@ def scan_single(sample: dict, work_dir: Path, guarddog_bin: str, timeout: int, n
         result_file.write_text(json.dumps(result, indent=2))
         return result
 
-    # Extract ZIP to temp dir
-    import zipfile
+    # Create temp file for worker output
     tmp_base = os.path.realpath(tempfile.gettempdir())
-    tmp_dir = tempfile.mkdtemp(dir=tmp_base, prefix="gd_recall_")
+    output_fd, output_path = tempfile.mkstemp(dir=tmp_base, suffix=".json", prefix="gd_recall_")
+    os.close(output_fd)
+
+    # Delegate to recall_worker.py which runs inside a Nono sandbox
+    cmd = [
+        sys.executable, str(WORKER_SCRIPT),
+        "--zip-path", str(zip_path.resolve()),
+        "--ecosystem", sample["ecosystem"],
+        "--output-path", output_path,
+        "--guarddog-bin", guarddog_bin,
+    ]
+    if no_sandbox:
+        cmd.append("--no-sandbox")
 
     try:
-        with zipfile.ZipFile(str(zip_path)) as zf:
-            zf.extractall(tmp_dir, pwd=b"infected")
-
-        # Run guarddog scan on extracted directory
-        cmd = [guarddog_bin, sample["ecosystem"], "scan", tmp_dir, "--output-format", "json"]
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        stdout = proc.stdout.strip()
-        if stdout:
-            try:
-                result["scan_output"] = json.loads(stdout)
-            except json.JSONDecodeError:
-                result["error"] = f"Invalid JSON: {stdout[:300]}"
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
+                              cwd=str(EVALS_DIR.parent))
+        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+            with open(output_path) as f:
+                worker_result = json.load(f)
+            result["scan_output"] = worker_result.get("results")
+            if worker_result.get("error"):
+                result["error"] = worker_result["error"]
         elif proc.returncode != 0:
-            result["error"] = f"Exit {proc.returncode}: {proc.stderr[:500]}"
-
+            result["error"] = f"Worker exit {proc.returncode}: {proc.stderr[:500]}"
     except subprocess.TimeoutExpired:
         result["error"] = f"Timeout after {timeout}s"
     except Exception as e:
         result["error"] = str(e)[:500]
     finally:
-        shutil.rmtree(tmp_dir, ignore_errors=True)
+        try:
+            os.unlink(output_path)
+        except OSError:
+            pass
 
     result_file.write_text(json.dumps(result, indent=2))
     return result
