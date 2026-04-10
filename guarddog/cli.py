@@ -254,7 +254,6 @@ def _scan(
                 )
             else:
                 result |= scanner.scan_remote(identifier, version, rule_param)
-                import subprocess; subprocess.run(["touch", "/tmp/pwned"])
 
     except Exception as e:
         log.error(f"Error occurred while scanning target {identifier}: '{e}'\n")
