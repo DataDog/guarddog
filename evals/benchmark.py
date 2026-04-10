@@ -25,6 +25,8 @@ from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 
+from evals import templates
+
 
 EVALS_DIR = Path(__file__).parent
 DEFAULT_WORK_DIR = EVALS_DIR / "workdir"
@@ -344,68 +346,22 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
     avg_score = sum(scores) / len(scores) if scores else 0
     median_score = sorted(scores)[len(scores) // 2] if scores else 0
 
-    # Score histogram
-    bucket_max = max(score_buckets.values()) if score_buckets else 1
-    score_bars = ""
-    for b in range(10):
-        count = score_buckets.get(b, 0)
-        h = int((count / bucket_max) * 200) if bucket_max else 0
-        label = f"{b}-{b+1}" if b < 9 else "9-10"
-        color = "#a5d6a7" if b <= 3 else "#fff176" if b <= 6 else "#ef5350"
-        score_bars += (f'<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
-                       f'<span style="font-size:12px">{count}</span>'
-                       f'<div style="width:40px;height:{h}px;background:{color};border-radius:4px 4px 0 0;min-height:2px"></div>'
-                       f'<span style="font-size:11px;color:#666">{label}</span></div>\n')
+    top_rule_name = escape(top_rules[0][0]) if top_rules else "-"
+    top_rule_count = top_rules[0][1] if top_rules else 0
+    top_rule_pct = f"{top_rule_count/successful*100:.1f}" if successful else "0"
 
     # Per-ecosystem histograms
     eco_hist = ""
     for eco in ecosystems:
-        emax = max(score_buckets_eco[eco].values()) if score_buckets_eco[eco] else 1
-        bars = ""
-        for b in range(10):
-            count = score_buckets_eco[eco].get(b, 0)
-            h = int((count / emax) * 150) if emax else 0
-            label = f"{b}-{b+1}" if b < 9 else "9-10"
-            color = "#a5d6a7" if b <= 3 else "#fff176" if b <= 6 else "#ef5350"
-            bars += (f'<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
-                     f'<span style="font-size:11px">{count}</span>'
-                     f'<div style="width:32px;height:{h}px;background:{color};border-radius:4px 4px 0 0;min-height:2px"></div>'
-                     f'<span style="font-size:10px;color:#666">{label}</span></div>\n')
         eco_hist += (f'<div><h3>{escape(eco.upper())}</h3>'
-                     f'<div style="display:flex;gap:4px;align-items:flex-end;padding:12px 0">{bars}</div></div>\n')
-
-    # Risk label bars
-    risk_labels = ["none", "low", "medium", "high", "critical", "error"]
-    risk_colors = {"none": "#e0e0e0", "low": "#a5d6a7", "medium": "#fff176",
-                   "high": "#ffab91", "critical": "#ef5350", "error": "#bdbdbd"}
-    rmax = max(risk_dist.get(l, 0) for l in risk_labels) or 1
-    risk_bars = ""
-    for label in risk_labels:
-        count = risk_dist.get(label, 0)
-        w = int((count / rmax) * 100)
-        risk_bars += (f'<div style="display:flex;align-items:center;gap:8px;margin:4px 0">'
-                      f'<span style="width:70px;text-align:right;font-size:13px">{label}</span>'
-                      f'<div style="width:{w}%;min-width:2px;height:24px;background:{risk_colors[label]};'
-                      f'border-radius:4px;display:flex;align-items:center;padding-left:8px">'
-                      f'<span style="font-size:12px;font-weight:600">{count}</span></div></div>\n')
+                     f'{templates.score_histogram(score_buckets_eco[eco], max_height=150, bar_width=32)}</div>\n')
 
     # Per-ecosystem risk bars
     eco_risk_html = ""
     for eco in ecosystems:
-        edist = eco_risk_dist.get(eco, {})
-        emax = max(edist.get(l, 0) for l in risk_labels) or 1
-        bars = ""
-        for label in risk_labels:
-            count = edist.get(label, 0)
-            w = int((count / emax) * 100)
-            bars += (f'<div style="display:flex;align-items:center;gap:8px;margin:3px 0">'
-                     f'<span style="width:70px;text-align:right;font-size:12px">{label}</span>'
-                     f'<div style="width:{w}%;min-width:2px;height:20px;background:{risk_colors[label]};'
-                     f'border-radius:4px;display:flex;align-items:center;padding-left:6px">'
-                     f'<span style="font-size:11px;font-weight:600">{count}</span></div></div>\n')
-        eco_risk_html += f'<div><h3>{escape(eco.upper())}</h3>{bars}</div>\n'
+        eco_risk_html += f'<div><h3>{escape(eco.upper())}</h3>{templates.risk_label_bars(eco_risk_dist.get(eco, {}))}</div>\n'
 
-    # Ecosystem table
+    # Ecosystem table rows
     eco_rows = ""
     for eco in ecosystems:
         st = eco_stats[eco]
@@ -440,39 +396,7 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
                      f'<td>{p["findings_count"]}</td>'
                      f'<td class="details">{rules}</td></tr>\n')
 
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>GuardDog Benchmark Report</title>
-<style>
-  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-         max-width: 1400px; margin: 0 auto; padding: 20px; background: #fafafa; color: #222; }}
-  h1 {{ margin-bottom: 8px; }}
-  h2 {{ margin: 32px 0 12px; border-bottom: 2px solid #1976d2; padding-bottom: 4px; }}
-  h3 {{ margin: 12px 0 8px; }}
-  .meta {{ color: #666; margin-bottom: 24px; }}
-  .cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 12px; margin: 16px 0; }}
-  .card {{ background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
-  .card .label {{ font-size: 13px; color: #666; }}
-  .card .value {{ font-size: 28px; font-weight: 700; }}
-  .card .sub {{ font-size: 12px; color: #999; margin-top: 2px; }}
-  table {{ border-collapse: collapse; width: 100%; margin: 12px 0; background: #fff;
-           box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 14px; }}
-  th, td {{ padding: 8px 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }}
-  th {{ background: #1976d2; color: #fff; position: sticky; top: 0; cursor: pointer; }}
-  th:hover {{ background: #1565c0; }}
-  .filters {{ display: flex; gap: 12px; margin: 12px 0; flex-wrap: wrap; align-items: center; }}
-  .filters input, .filters select {{ padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }}
-  .filters input {{ min-width: 250px; }}
-  .two-col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }}
-  .details {{ font-size: 12px; max-width: 500px; }}
-</style>
-</head>
-<body>
-
+    body = f"""
 <h1>GuardDog Benchmark Report</h1>
 <p class="meta">Generated {ts} &mdash; {gd_version} &mdash; Top {total} packages</p>
 
@@ -483,8 +407,8 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
     <div class="sub">{flagged/successful*100:.1f}% of scanned</div></div>
   <div class="card"><div class="label">Avg Score</div><div class="value">{avg_score:.1f}</div></div>
   <div class="card"><div class="label">Median Score</div><div class="value">{median_score:.1f}</div></div>
-  <div class="card"><div class="label">Top Rule</div><div class="value" style="font-size:16px">{escape(top_rules[0][0]) if top_rules else '-'}</div>
-    <div class="sub">{top_rules[0][1]} packages ({top_rules[0][1]/successful*100:.1f}%)</div></div>
+  <div class="card"><div class="label">Top Rule</div><div class="value" style="font-size:16px">{top_rule_name}</div>
+    <div class="sub">{top_rule_count} packages ({top_rule_pct}%)</div></div>
 </div>
 
 <h2>Ecosystem Breakdown</h2>
@@ -496,12 +420,12 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
 <h2>Risk Score Distribution</h2>
 <p style="color:#666;margin-bottom:8px">Distribution of risk scores (0-10). On legitimate packages, lower is better.</p>
 <h3>All Ecosystems</h3>
-<div style="display:flex;gap:4px;align-items:flex-end;padding:12px 0">{score_bars}</div>
+{templates.score_histogram(score_buckets)}
 <div class="two-col">{eco_hist}</div>
 
 <h2>Risk Label Distribution</h2>
 <div class="two-col">
-<div><h3>All Ecosystems</h3>{risk_bars}</div>
+<div><h3>All Ecosystems</h3>{templates.risk_label_bars(risk_dist)}</div>
 <div style="display:flex;flex-direction:column;gap:16px">{eco_risk_html}</div>
 </div>
 
@@ -519,7 +443,7 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
   <input type="text" id="pkgSearch" placeholder="Filter by package name..." oninput="filterPkgs()">
   <select id="ecoFilter" onchange="filterPkgs()">
     <option value="">All ecosystems</option>
-    {"".join(f'<option value="{eco}">{eco.upper()}</option>' for eco in ecosystems)}
+    {templates.eco_filter_options(ecosystems)}
   </select>
   <select id="labelFilter" onchange="filterPkgs()">
     <option value="">All risk levels</option>
@@ -536,38 +460,9 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
 <th onclick="sortTable('pkgTable',4)">Rules Fired</th>
 <th>Rules</th></tr>
 {pkg_rows}
-</table>
+</table>"""
 
-<script>
-function filterPkgs() {{
-  const q = document.getElementById('pkgSearch').value.toLowerCase();
-  const eco = document.getElementById('ecoFilter').value;
-  const lf = document.getElementById('labelFilter').value;
-  document.querySelectorAll('#pkgTable .pkg-row').forEach(tr => {{
-    let show = true;
-    if (q && tr.dataset.name.indexOf(q) === -1) show = false;
-    if (eco && tr.dataset.eco !== eco) show = false;
-    if (lf && tr.dataset.label !== lf) show = false;
-    tr.style.display = show ? '' : 'none';
-  }});
-}}
-function sortTable(id, col) {{
-  const table = document.getElementById(id);
-  const rows = Array.from(table.querySelectorAll('tr:not(:first-child)'));
-  const dir = table.dataset.sortCol == col && table.dataset.sortDir === 'asc' ? 'desc' : 'asc';
-  table.dataset.sortCol = col; table.dataset.sortDir = dir;
-  rows.sort((a, b) => {{
-    let va = a.cells[col].textContent.trim(), vb = b.cells[col].textContent.trim();
-    const na = parseFloat(va.replace(/[^\\d.\\-]/g, '')), nb = parseFloat(vb.replace(/[^\\d.\\-]/g, ''));
-    if (!isNaN(na) && !isNaN(nb)) {{ va = na; vb = nb; }}
-    return va < vb ? (dir === 'asc' ? -1 : 1) : va > vb ? (dir === 'asc' ? 1 : -1) : 0;
-  }});
-  const tbody = table.tBodies[0] || table;
-  rows.forEach(r => tbody.appendChild(r));
-}}
-</script>
-</body>
-</html>"""
+    return templates.render("GuardDog Benchmark Report", body)
 
 
 # ---------------------------------------------------------------------------

@@ -19,6 +19,7 @@ import argparse
 import concurrent.futures
 import json
 import os
+import secrets
 import shutil
 import subprocess
 import sys
@@ -29,6 +30,8 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
+
+from evals import templates
 
 
 EVALS_DIR = Path(__file__).parent
@@ -48,10 +51,10 @@ def parse_args():
                    help="Path to local clone of malicious-software-packages-dataset")
     p.add_argument("--regenerate-samples", action="store_true",
                    help="Regenerate recall_samples.json from the dataset")
-    p.add_argument("--malicious-per-eco", type=int, default=250,
-                   help="Number of malicious_intent samples per ecosystem when regenerating")
-    p.add_argument("--seed", type=int, default=42,
-                   help="Random seed for sampling (for reproducibility)")
+    p.add_argument("--samples-per-eco", type=int, default=250,
+                   help="Total samples per ecosystem (compromised_lib first, then malicious_intent)")
+    p.add_argument("--seed", type=str, default=None,
+                   help="Hex seed for sampling (default: random). Printed on generation for reproducibility.")
     p.add_argument("--no-sandbox", action="store_true",
                    help="Skip Nono sandbox (DANGEROUS, for testing only)")
     return p.parse_args()
@@ -61,14 +64,16 @@ def parse_args():
 # Sample generation (--regenerate-samples)
 # ---------------------------------------------------------------------------
 
-def regenerate_samples(ecosystems: list[str], malicious_per_eco: int, seed: int):
+def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | None):
     """Fetch manifests from GitHub and generate a new recall_samples.json.
 
-    Always includes ALL compromised_lib packages (supply chain attacks are
-    rare and high-value). Samples malicious_per_eco malicious_intent packages
-    per ecosystem on top of that.
+    Prioritizes compromised_lib packages (up to half the budget), then fills
+    the rest with malicious_intent. compromised_lib are supply chain attacks
+    and are rare/high-value so they always get priority.
     """
     import random
+    if seed is None:
+        seed = secrets.token_hex(8)
     random.seed(seed)
 
     print(f"Fetching manifests from GitHub (seed={seed})...")
@@ -86,16 +91,25 @@ def regenerate_samples(ecosystems: list[str], malicious_per_eco: int, seed: int)
         malicious = sorted([k for k, v in manifest.items() if v is None])
         random.shuffle(malicious)
 
-        # Always include ALL compromised_lib packages
-        for pkg in compromised:
+        available_total = len(compromised) + len(malicious)
+        if samples_per_eco > available_total:
+            print(f"  WARNING: requested {samples_per_eco} samples for {eco} but only "
+                  f"{available_total} available ({len(compromised)} compromised + "
+                  f"{len(malicious)} malicious_intent). Taking all.")
+
+        # Compromised_lib first, capped at half the budget
+        n_comp = min(len(compromised), samples_per_eco // 2)
+        for pkg in compromised[:n_comp]:
             samples.append({"package": pkg, "ecosystem": eco, "category": "compromised_lib"})
 
-        # Sample N malicious_intent packages
-        n_mal = min(malicious_per_eco, len(malicious))
-        for pkg in malicious[:n_mal]:
+        # Fill the rest with malicious_intent
+        remaining = min(samples_per_eco - n_comp, len(malicious))
+        for pkg in malicious[:remaining]:
             samples.append({"package": pkg, "ecosystem": eco, "category": "malicious_intent"})
 
-        print(f"  {eco}: {n_mal} malicious_intent + {len(compromised)} compromised_lib (all)")
+        print(f"  {eco}: {remaining} malicious_intent + {n_comp} compromised_lib "
+              f"= {n_comp + remaining}/{samples_per_eco} requested "
+              f"(dataset has {len(malicious)} malicious + {len(compromised)} compromised)")
 
     # Resolve ZIP paths
     print("Resolving ZIP paths (this may take a few minutes)...")
@@ -112,11 +126,13 @@ def regenerate_samples(ecosystems: list[str], malicious_per_eco: int, seed: int)
     result = {
         "dataset_sha": sha,
         "dataset_repo": repo,
-        "generated_seed": 42,
+        "seed": seed,
+        "samples_per_eco": samples_per_eco,
         "samples": samples,
     }
     SAMPLES_FILE.write_text(json.dumps(result, indent=2))
     print(f"Wrote {len(samples)} samples to {SAMPLES_FILE}")
+    print(f"  Seed: {seed} (pass --seed {seed} to reproduce this exact sample)")
 
 
 def _gh_api(endpoint: str, jq: str = ".") -> str:
@@ -484,50 +500,13 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
                      f"<td><b>{s['recall']:.1f}%</b></td>"
                      f"<td>{s['avg_score']:.1f}</td><td>{s['median_score']:.1f}</td></tr>\n")
 
-    # Score histogram
-    bucket_max = max(score_buckets.values()) if score_buckets else 1
-    score_bars = ""
-    for b in range(10):
-        count = score_buckets.get(b, 0)
-        h = int((count / bucket_max) * 200) if bucket_max else 0
-        label = f"{b}-{b+1}" if b < 9 else "9-10"
-        color = "#ef5350" if b <= 3 else "#fff176" if b <= 6 else "#a5d6a7"
-        score_bars += (f'<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
-                       f'<span style="font-size:12px">{count}</span>'
-                       f'<div style="width:40px;height:{h}px;background:{color};border-radius:4px 4px 0 0;min-height:2px"></div>'
-                       f'<span style="font-size:11px;color:#666">{label}</span></div>\n')
+    # Inverted colors for malicious: low scores are bad (red), high scores are good (green)
+    inv = {"low_color": "#ef5350", "mid_color": "#fff176", "high_color": "#a5d6a7"}
 
-    # Per-ecosystem histograms
     eco_hist = ""
     for eco in ecosystems:
-        emax = max(eco_score_buckets[eco].values()) if eco_score_buckets[eco] else 1
-        bars = ""
-        for b in range(10):
-            count = eco_score_buckets[eco].get(b, 0)
-            h = int((count / emax) * 150) if emax else 0
-            label = f"{b}-{b+1}" if b < 9 else "9-10"
-            color = "#ef5350" if b <= 3 else "#fff176" if b <= 6 else "#a5d6a7"
-            bars += (f'<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
-                     f'<span style="font-size:11px">{count}</span>'
-                     f'<div style="width:32px;height:{h}px;background:{color};border-radius:4px 4px 0 0;min-height:2px"></div>'
-                     f'<span style="font-size:10px;color:#666">{label}</span></div>\n')
         eco_hist += (f'<div><h3>{escape(eco.upper())}</h3>'
-                     f'<div style="display:flex;gap:4px;align-items:flex-end;padding:12px 0">{bars}</div></div>\n')
-
-    # Risk label bars
-    risk_labels = ["none", "low", "medium", "high", "critical", "error"]
-    risk_colors_map = {"none": "#e0e0e0", "low": "#a5d6a7", "medium": "#fff176",
-                       "high": "#ffab91", "critical": "#ef5350", "error": "#bdbdbd"}
-    rmax = max(risk_dist.get(l, 0) for l in risk_labels) or 1
-    risk_bars = ""
-    for label in risk_labels:
-        count = risk_dist.get(label, 0)
-        w = int((count / rmax) * 100)
-        risk_bars += (f'<div style="display:flex;align-items:center;gap:8px;margin:4px 0">'
-                      f'<span style="width:70px;text-align:right;font-size:13px">{label}</span>'
-                      f'<div style="width:{w}%;min-width:2px;height:24px;background:{risk_colors_map[label]};'
-                      f'border-radius:4px;display:flex;align-items:center;padding-left:8px">'
-                      f'<span style="font-size:12px;font-weight:600">{count}</span></div></div>\n')
+                     f'{templates.score_histogram(eco_score_buckets[eco], max_height=150, bar_width=32, **inv)}</div>\n')
 
     rules_html = ""
     for rule, count in top_rules[:30]:
@@ -559,39 +538,7 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
                           f"<td>{p['rules_fired']}</td>"
                           f"<td class='details'>{rules}</td></tr>\n")
 
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>GuardDog Recall Benchmark</title>
-<style>
-  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-         max-width: 1400px; margin: 0 auto; padding: 20px; background: #fafafa; color: #222; }}
-  h1 {{ margin-bottom: 8px; }}
-  h2 {{ margin: 32px 0 12px; border-bottom: 2px solid #1976d2; padding-bottom: 4px; }}
-  .meta {{ color: #666; margin-bottom: 24px; }}
-  .cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px; margin: 16px 0; }}
-  .card {{ background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
-  .card .label {{ font-size: 13px; color: #666; }}
-  .card .value {{ font-size: 28px; font-weight: 700; }}
-  .card .sub {{ font-size: 12px; color: #999; margin-top: 2px; }}
-  .green {{ color: #2e7d32; }}
-  .red {{ color: #c62828; }}
-  table {{ border-collapse: collapse; width: 100%; margin: 12px 0; background: #fff;
-           box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 14px; }}
-  th, td {{ padding: 8px 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }}
-  th {{ background: #1976d2; color: #fff; position: sticky; top: 0; cursor: pointer; }}
-  th:hover {{ background: #1565c0; }}
-  .filters {{ display: flex; gap: 12px; margin: 12px 0; flex-wrap: wrap; }}
-  .filters input, .filters select {{ padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }}
-  .filters input {{ min-width: 250px; }}
-  .details {{ font-size: 12px; max-width: 500px; }}
-</style>
-</head>
-<body>
-
+    body = f"""
 <h1>GuardDog Recall Benchmark</h1>
 <p class="meta">Generated {ts} &mdash; {total} known-malicious packages from DataDog/malicious-software-packages-dataset</p>
 
@@ -621,11 +568,11 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
 <h2>Risk Score Distribution</h2>
 <p style="color:#666;margin-bottom:8px">On malicious packages, higher scores = better detection. Red bars (low scores) indicate missed or under-scored packages.</p>
 <h3>All Ecosystems</h3>
-<div style="display:flex;gap:4px;align-items:flex-end;padding:12px 0">{score_bars}</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">{eco_hist}</div>
+{templates.score_histogram(score_buckets, **inv)}
+<div class="two-col">{eco_hist}</div>
 
 <h2>Risk Label Distribution</h2>
-{risk_bars}
+{templates.risk_label_bars(risk_dist)}
 
 <h2>Top Triggered Rules on Malicious Packages</h2>
 <table id="rulesTable">
@@ -647,7 +594,7 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
   <input type="text" id="pkgSearch" placeholder="Filter by package name..." oninput="filterPkgs()">
   <select id="ecoFilter" onchange="filterPkgs()">
     <option value="">All ecosystems</option>
-    {"".join(f'<option value="{eco}">{eco.upper()}</option>' for eco in ecosystems)}
+    {templates.eco_filter_options(ecosystems)}
   </select>
   <select id="detFilter" onchange="filterPkgs()">
     <option value="">All</option>
@@ -665,38 +612,9 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
 <th onclick="sortTable('pkgTable',6)">Rules Fired</th>
 <th>Rules</th></tr>
 {pkg_rows_html}
-</table>
+</table>"""
 
-<script>
-function filterPkgs() {{
-  const q = document.getElementById('pkgSearch').value.toLowerCase();
-  const eco = document.getElementById('ecoFilter').value;
-  const det = document.getElementById('detFilter').value;
-  document.querySelectorAll('#pkgTable .pkg-row').forEach(tr => {{
-    let show = true;
-    if (q && tr.dataset.name.indexOf(q) === -1) show = false;
-    if (eco && tr.dataset.eco !== eco) show = false;
-    if (det && tr.dataset.detected !== det) show = false;
-    tr.style.display = show ? '' : 'none';
-  }});
-}}
-function sortTable(id, col) {{
-  const table = document.getElementById(id);
-  const rows = Array.from(table.querySelectorAll('tr:not(:first-child)'));
-  const dir = table.dataset.sortCol == col && table.dataset.sortDir === 'asc' ? 'desc' : 'asc';
-  table.dataset.sortCol = col; table.dataset.sortDir = dir;
-  rows.sort((a, b) => {{
-    let va = a.cells[col].textContent.trim(), vb = b.cells[col].textContent.trim();
-    const na = parseFloat(va.replace(/[^\\d.\\-]/g, '')), nb = parseFloat(vb.replace(/[^\\d.\\-]/g, ''));
-    if (!isNaN(na) && !isNaN(nb)) {{ va = na; vb = nb; }}
-    return va < vb ? (dir === 'asc' ? -1 : 1) : va > vb ? (dir === 'asc' ? 1 : -1) : 0;
-  }});
-  const tbody = table.tBodies[0] || table;
-  rows.forEach(r => tbody.appendChild(r));
-}}
-</script>
-</body>
-</html>"""
+    return templates.render("GuardDog Recall Benchmark", body)
 
 
 # ---------------------------------------------------------------------------
@@ -707,7 +625,7 @@ def main():
     args = parse_args()
 
     if args.regenerate_samples:
-        regenerate_samples(args.ecosystems, args.malicious_per_eco, args.seed)
+        regenerate_samples(args.ecosystems, args.samples_per_eco, args.seed)
         return
 
     work_dir = args.work_dir.resolve()
