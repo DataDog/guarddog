@@ -6,7 +6,7 @@ rule threat_filesystem_read
         identifies = "threat.filesystem.read"
         severity = "high"
         mitre_tactics = "credential-access"
-        specificity = "medium"
+        specificity = "low"
         sophistication = "low"
 
         max_hits = 5

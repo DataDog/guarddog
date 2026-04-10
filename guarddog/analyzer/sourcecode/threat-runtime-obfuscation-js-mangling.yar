@@ -6,7 +6,7 @@ rule threat_runtime_obfuscation_js_mangling
         identifies = "threat.runtime.obfuscation.js.mangling"
         severity = "medium"
         mitre_tactics = "defense-evasion"
-        specificity = "medium"
+        specificity = "high"
         sophistication = "medium"
         max_hits = 1
         path_include = "*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"

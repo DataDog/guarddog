@@ -6,7 +6,7 @@ rule threat_runtime_system_info
         identifies = "threat.runtime.system.info"
         severity = "low"
         mitre_tactics = "collection"
-        specificity = "medium"
+        specificity = "low"
         sophistication = "low"
 
         max_hits = 3

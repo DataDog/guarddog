@@ -6,7 +6,7 @@ rule threat_process_memory
         identifies = "threat.process.memory"
         severity = "high"
         mitre_tactics = "credential-access"
-        specificity = "high"
+        specificity = "low"
         sophistication = "high"
         max_hits = 3
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"

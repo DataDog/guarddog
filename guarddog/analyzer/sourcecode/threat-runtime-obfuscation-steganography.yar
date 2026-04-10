@@ -6,7 +6,7 @@ rule threat_runtime_obfuscation_steganography
         identifies = "threat.runtime.obfuscation.steganography"
         severity = "high"
         mitre_tactics = "defense-evasion"
-        specificity = "high"
+        specificity = "low"
         sophistication = "high"
 
         max_hits = 1
