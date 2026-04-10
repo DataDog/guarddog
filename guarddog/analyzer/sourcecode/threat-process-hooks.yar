@@ -2,24 +2,17 @@ include "hooks.meta"
 include "lolbas-proc.meta"
 include "lolbas-net.meta"
 
-private rule has_benign_hook_command
+private rule has_only_build_compilers
 {
+    // Only allowlist tools that compile/transform code and cannot execute
+    // arbitrary packages. Excludes npm/npx/yarn/pnpm (can run arbitrary
+    // packages), shx (shell wrapper), and other generic command runners.
     strings:
-        // Standard JS/TS build tooling
-        $npm_run = /"\s*(npm|npx)\s+run\s/ nocase
-        $yarn_cmd = /"\s*yarn\s/ nocase
-        $pnpm_cmd = /"\s*pnpm\s/ nocase
-        $jlpm_cmd = /"\s*jlpm\s/ nocase
-        $tsc_cmd = /"\s*tsc\b/ nocase
-        $tshy_cmd = /"\s*tshy\b/ nocase
-        $rollup_cmd = /"\s*rollup\s/ nocase
-        $husky_cmd = /"\s*husky\b/ nocase
+        $tsc = /"\s*tsc\b/ nocase
+        $tshy = /"\s*tshy\b/ nocase
+        $rollup = /"\s*rollup\s/ nocase
+        $husky = /"\s*husky\b/ nocase
         $npmignore = /"\s*npmignore\s/ nocase
-        $shx_cmd = /"\s*shx\s/ nocase
-
-        // Python build tooling
-        $pip_install = /\bpython[0-9]?\s+-m\s+pip\s+install\b/ nocase
-        $pip_setup = /\bpython[0-9]?\s+setup\.py\b/ nocase
 
     condition:
         any of them
@@ -40,5 +33,5 @@ rule threat_process_hooks
         path_include = "*/package.json,*/setup.py"
 
     condition:
-        (has_npm_hook or has_python_hook) and (lolbas_proc or lolbas_net) and not has_benign_hook_command
+        (has_npm_hook or has_python_hook) and (lolbas_proc or lolbas_net) and not has_only_build_compilers
 }
