@@ -14,3 +14,4 @@ build/
 .coverage*
 .semgrep
 .cache
+evals/workdir/
