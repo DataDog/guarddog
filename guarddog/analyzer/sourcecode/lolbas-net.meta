@@ -1,17 +1,19 @@
 // Private rule for LOLBAS network tools detection
 // These patterns are reused across multiple threat and capability rules
+// Patterns require command invocation context to avoid matching documentation or package names
 
 rule lolbas_net
 {
     strings:
-        // HTTP clients
-        $curl = /\bcurl\b/ nocase
-        $wget = /\bwget\b/ nocase
+        // HTTP clients invoked as commands (with flags or URLs)
+        $curl_cmd = /\bcurl\s+-[sSfLokOdXH]/ nocase
+        $curl_url = /\bcurl\s+['"]?https?:\/\// nocase
+        $wget_cmd = /\bwget\s+-/ nocase
+        $wget_url = /\bwget\s+['"]?https?:\/\// nocase
 
-        // Network utilities
-        $nc = /\bnc\b/ nocase
-        $netcat = /\bnetcat\b/ nocase
-        $telnet = /\btelnet\b/ nocase
+        // Network utilities with arguments
+        $nc_cmd = /\bnc\s+-[lvnzwep]/ nocase
+        $netcat_cmd = /\bnetcat\s+-/ nocase
 
     condition:
         any of them

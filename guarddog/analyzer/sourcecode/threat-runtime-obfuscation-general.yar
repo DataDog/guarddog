@@ -30,10 +30,18 @@ rule threat_runtime_obfuscation_general
         $js_bracket_apply = /\[[^\]]+\]\s*\.\s*\bapply\s*\(/ nocase
         $js_bracket_bind = /\[[^\]]+\]\s*\.\s*\bbind\s*\(/ nocase
 
-        // Python - __builtins__ obfuscation
-        $py_builtins_getattr = "__builtins__" nocase
+        // Python - __builtins__ obfuscation (require getattr combo, not just the string)
+        $py_getattr_builtins = /\bgetattr\s*\(\s*__builtins__/ nocase
         $py_getattr_exec = /\bgetattr\s*\([^,]+,\s*['"]exec['"]/ nocase
 
     condition:
-        any of them
+        // Hex/octal obfuscation requires substantial sequences (10+ consecutive)
+        any of ($py_hex_chr, $py_octal) or
+        // chr join/loop patterns
+        any of ($py_chr_array, $py_chr_loop) or
+        // JavaScript obfuscation
+        any of ($js_jsfuck, $js_mangle, $js_packer, $js_fromcharcode, $js_split_reverse) or
+        any of ($js_bracket_call, $js_bracket_apply, $js_bracket_bind) or
+        // Python builtins abuse (require actual dynamic access, not just the string)
+        any of ($py_getattr_builtins, $py_getattr_exec)
 }

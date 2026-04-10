@@ -1,30 +1,22 @@
 // Private rule for LOLBAS process execution tools detection
 // These patterns are reused across multiple threat and capability rules
+// Patterns require command invocation context (paths, flags, or shell execution syntax)
 
 rule lolbas_proc
 {
     strings:
-        // Unix shells
-        $bash = /\bbash\b/
-        $sh = /\bsh\b/
-        $zsh = /\bzsh\b/
-        $dash = /\bdash\b/
-        $ksh = /\bksh\b/
+        // Unix shells invoked as commands (with path or flags)
+        $bash_cmd = /['"]\/bin\/bash\b/ nocase
+        $sh_cmd = /['"]\/bin\/sh\b/ nocase
+        $bash_c = /\bbash\s+-c\b/
+        $sh_c = /\bsh\s+-c\b/
 
-        // Scripting languages
-        $python = /\bpython[0-9]?\b/
-        $node = /\bnode(js)?\b/
-        $perl = /\bperl\b/
-        $ruby = /\bruby\b/
-        $php = /\bphp\b/
-
-        // Modern runtimes
-        $bun = /\bbun\b/
-        $deno = /\bdeno\b/
-
-        // Compiled languages
-        $java = /\bjava\b/
-        $javac = /\bjavac\b/
+        // Scripting languages invoked as commands
+        $python_cmd = /\bpython[0-9]?\s+-[cmu]\b/
+        $node_cmd = /\bnode\s+-e\b/
+        $perl_cmd = /\bperl\s+-[eE]\b/
+        $ruby_cmd = /\bruby\s+-e\b/
+        $php_cmd = /\bphp\s+-r\b/
 
     condition:
         any of them

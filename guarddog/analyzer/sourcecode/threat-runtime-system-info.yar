@@ -12,38 +12,34 @@ rule threat_runtime_system_info
         max_hits = 3
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
-        // Python - unique system info function calls (object name doesn't matter)
-        $py_system = /\.system\s*\(\s*\)/ nocase
-        $py_machine = /\.machine\s*\(\s*\)/ nocase
-        $py_node = /\.node\s*\(\s*\)/ nocase
-        $py_uname = /\.uname\s*\(\s*\)/ nocase
-        $py_architecture = /\.architecture\s*\(\s*\)/ nocase
-        $py_gethostname = /\.gethostname\s*\(\s*\)/ nocase
-        $py_getuser = /\.getuser\s*\(\s*\)/ nocase
+        // Python - require platform/socket module prefix for specificity
+        $py_platform_system = /\bplatform\.system\s*\(\s*\)/ nocase
+        $py_platform_machine = /\bplatform\.machine\s*\(\s*\)/ nocase
+        $py_platform_node = /\bplatform\.node\s*\(\s*\)/ nocase
+        $py_platform_uname = /\bplatform\.uname\s*\(\s*\)/ nocase
+        $py_platform_architecture = /\bplatform\.architecture\s*\(\s*\)/ nocase
+        $py_socket_gethostname = /\bsocket\.gethostname\s*\(\s*\)/ nocase
+        $py_getpass_getuser = /\bgetpass\.getuser\s*\(\s*\)/ nocase
 
-        // JavaScript - unique system info function calls (object name doesn't matter)
-        $js_platform = /\.platform\s*\(\s*\)/ nocase
-        $js_arch = /\.arch\s*\(\s*\)/ nocase
-        $js_hostname = /\.hostname\s*\(\s*\)/ nocase
-        $js_type = /\.type\s*\(\s*\)/ nocase
-        $js_userinfo = /\.userInfo\s*\(\s*\)/ nocase
-        $js_release = /\.release\s*\(\s*\)/ nocase
-        $js_version = /\.version\s*\(\s*\)/ nocase
-        $js_homedir = /\.homedir\s*\(\s*\)/ nocase
-        $js_tmpdir = /\.tmpdir\s*\(\s*\)/ nocase
+        // JavaScript - require os module prefix
+        $js_os_platform = /\bos\.platform\s*\(\s*\)/ nocase
+        $js_os_arch = /\bos\.arch\s*\(\s*\)/ nocase
+        $js_os_hostname = /\bos\.hostname\s*\(\s*\)/ nocase
+        $js_os_type = /\bos\.type\s*\(\s*\)/ nocase
+        $js_os_userinfo = /\bos\.userInfo\s*\(\s*\)/ nocase
+        $js_os_release = /\bos\.release\s*\(\s*\)/ nocase
+        $js_os_homedir = /\bos\.homedir\s*\(\s*\)/ nocase
+        $js_os_tmpdir = /\bos\.tmpdir\s*\(\s*\)/ nocase
 
         // Go - unique system info function calls
-        $go_goos = /\.GOOS\b/ nocase
-        $go_goarch = /\.GOARCH\b/ nocase
-        $go_hostname = /\.Hostname\s*\(\s*\)/ nocase
-        $go_getenv = /\.Getenv\s*\(/ nocase
-        $go_user_current = /\.Current\s*\(\s*\)/ nocase
+        $go_goos = /\bruntime\.GOOS\b/ nocase
+        $go_goarch = /\bruntime\.GOARCH\b/ nocase
+        $go_hostname = /\bos\.Hostname\s*\(\s*\)/ nocase
 
         // Ruby - system info
         $rb_socket_gethostname = /\bSocket\s*\.\s*gethostname\b/ nocase
         $rb_etc_getlogin = /\bEtc\s*\.\s*getlogin\b/ nocase
         $rb_etc_getpwuid = /\bEtc\s*\.\s*getpwuid\s*\(/ nocase
-        $rb_dir_home = /\bDir\s*\.\s*home\b/ nocase
 
     condition:
         any of them

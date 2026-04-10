@@ -23,7 +23,6 @@ rule threat_runtime_keylogging
         // Python - PyHook (Windows keylogging)
         $py_pyhook = "import pyHook" nocase
         $py_hookmanager = "pyHook.HookManager()" nocase
-        $py_keyboard_hook_pyhook = "KeyDown" nocase
 
         // Python - evdev (Linux input events)
         $py_evdev = "from evdev import" nocase
@@ -42,10 +41,9 @@ rule threat_runtime_keylogging
         $py_xlib_display = "display.Display()" nocase
         $py_record_context = "record.create_context(" nocase
 
-        // Suspicious patterns - logging keystrokes
-        $log_keystroke = /log.*key(stroke|press|down)/i nocase
-        $capture_input = /capture.*(key|input|keyboard)/i nocase
-        $steal_password = /(steal|grab|capture).*(password|credential|passwd)/i nocase
+        // Suspicious patterns - logging keystrokes (require function-like context)
+        $log_keystroke = /log_?key(stroke|press)/i nocase
+        $steal_password = /(steal|grab|exfiltrate).*(password|credential|passwd)/i nocase
 
         // Hook installation patterns
         $hook_keyboard = "hook_keyboard" nocase
@@ -71,7 +69,7 @@ rule threat_runtime_keylogging
         any of ($js_keypress, $js_node_key_sender, $js_node_global_key) or
 
         // Suspicious logging patterns
-        any of ($log_keystroke, $capture_input, $steal_password) or
+        any of ($log_keystroke, $steal_password) or
 
         // Hook patterns
         any of ($hook_keyboard, $global_hook, $set_hook) or
