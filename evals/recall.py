@@ -79,7 +79,7 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
     print(f"Fetching manifests from GitHub (seed={seed})...")
     repo = "DataDog/malicious-software-packages-dataset"
 
-    sha = _gh_api(f"repos/{repo}/commits/main", jq=".sha")
+    sha = _github_api(f"repos/{repo}/commits/main")["sha"]
     print(f"  Dataset SHA: {sha}")
 
     samples = []
@@ -111,16 +111,23 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
               f"= {n_comp + remaining}/{samples_per_eco} requested "
               f"(dataset has {len(malicious)} malicious + {len(compromised)} compromised)")
 
-    # Resolve ZIP paths
-    print("Resolving ZIP paths (this may take a few minutes)...")
+    # Resolve ZIP paths in parallel
+    print(f"Resolving ZIP paths for {len(samples)} samples (parallel)...")
     resolved = 0
-    for i, sample in enumerate(samples):
-        zip_path = _resolve_zip_path(repo, sample)
-        sample["zip_path"] = zip_path
-        if zip_path:
-            resolved += 1
-        if (i + 1) % 50 == 0:
-            print(f"  [{i+1}/{len(samples)}] {resolved} resolved")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        future_to_idx = {
+            executor.submit(_resolve_zip_path, repo, s): i
+            for i, s in enumerate(samples)
+        }
+        done = 0
+        for future in concurrent.futures.as_completed(future_to_idx):
+            idx = future_to_idx[future]
+            samples[idx]["zip_path"] = future.result()
+            if samples[idx]["zip_path"]:
+                resolved += 1
+            done += 1
+            if done % 100 == 0 or done == len(samples):
+                print(f"  [{done}/{len(samples)}] {resolved} resolved")
 
     samples = [s for s in samples if s.get("zip_path")]
     result = {
@@ -135,20 +142,22 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
     print(f"  Seed: {seed} (pass --seed {seed} to reproduce this exact sample)")
 
 
-def _gh_api(endpoint: str, jq: str = ".") -> str:
-    result = subprocess.run(
-        ["gh", "api", endpoint, "--jq", jq],
-        capture_output=True, text=True, timeout=15
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f"gh api {endpoint} failed: {result.stderr}")
-    return result.stdout.strip()
+def _github_headers() -> dict:
+    headers = {"User-Agent": "guarddog-evals/1.0", "Accept": "application/vnd.github+json"}
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
 
 
 def _fetch_json(url: str) -> dict:
-    req = urllib.request.Request(url, headers={"User-Agent": "guarddog-evals/1.0"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
+    req = urllib.request.Request(url, headers=_github_headers())
+    with urllib.request.urlopen(req, timeout=15) as resp:
         return json.loads(resp.read())
+
+
+def _github_api(endpoint: str) -> dict | list:
+    return _fetch_json(f"https://api.github.com/{endpoint}")
 
 
 def _resolve_zip_path(repo: str, sample: dict) -> str | None:
@@ -161,18 +170,16 @@ def _resolve_zip_path(repo: str, sample: dict) -> str | None:
     encoded_path = urllib.parse.quote(dir_path, safe="/")
 
     try:
-        versions_raw = _gh_api(f"repos/{repo}/contents/{encoded_path}", jq=".[].name")
-        versions = [v for v in versions_raw.strip().split("\n") if v]
+        entries = _github_api(f"repos/{repo}/contents/{encoded_path}")
+        versions = sorted([e["name"] for e in entries if e["type"] == "dir"])
         if not versions:
             return None
-        version = sorted(versions)[-1]
+        version = versions[-1]
 
         version_path = urllib.parse.quote(f"{dir_path}/{version}", safe="/")
-        zip_raw = _gh_api(
-            f"repos/{repo}/contents/{version_path}",
-            jq='[.[] | select(.name | endswith(".zip"))] | .[0].path'
-        )
-        return zip_raw if zip_raw and zip_raw != "null" else None
+        files = _github_api(f"repos/{repo}/contents/{version_path}")
+        zips = [f["path"] for f in files if f["name"].endswith(".zip")]
+        return zips[0] if zips else None
     except Exception:
         return None
 
