@@ -51,6 +51,7 @@ def apply_sandbox(
 
     for path in writable_paths:
         real = os.path.realpath(path)
+        os.makedirs(real, exist_ok=True)
         log.info(f"Sandbox: READ_WRITE {real}")
         caps.allow_path(real, nono.AccessMode.READ_WRITE)
 
@@ -63,15 +64,6 @@ def apply_sandbox(
     log.debug("Sandbox capabilities: READ %s | READ_WRITE %s | network=blocked",
               [os.path.realpath(p) for p in scan_paths] + _get_common_read_paths(),
               [os.path.realpath(p) for p in writable_paths] + [tmp])
-
-    # Dry-run validation before locking down
-    ctx = nono.QueryContext(caps)
-    for path in writable_paths:
-        real = os.path.realpath(path)
-        result = ctx.query_path(real, nono.AccessMode.READ_WRITE)
-        status = result.get("status") if isinstance(result, dict) else getattr(result, "status", None)
-        if status == "denied":
-            raise RuntimeError(f"Sandbox validation failed: READ_WRITE denied for {real}")
 
     nono.apply(caps)
     log.info("Sandbox: applied")
@@ -93,6 +85,7 @@ def extract_sandboxed(archive_path: str, target_dir: str) -> None:
         [sys.executable, "-m", "guarddog.sandbox", archive_path, target_dir],
         capture_output=True,
         text=True,
+        cwd=os.path.dirname(archive_path),
     )
     if result.returncode != 0:
         stderr = result.stderr.strip()
@@ -128,7 +121,7 @@ def _main():
     target_dir = os.path.realpath(args.target_dir)
 
     apply_sandbox(
-        scan_paths=[archive_path],
+        scan_paths=[],
         writable_paths=[target_dir],
     )
 
