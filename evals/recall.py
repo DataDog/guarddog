@@ -51,7 +51,7 @@ def parse_args():
                    help="Path to local clone of malicious-software-packages-dataset")
     p.add_argument("--regenerate-samples", action="store_true",
                    help="Regenerate recall_samples.json from the dataset")
-    p.add_argument("--samples-per-eco", type=int, default=250,
+    p.add_argument("--samples-per-ecosystem", type=int, default=250,
                    help="Total samples per ecosystem (compromised_lib first, then malicious_intent)")
     p.add_argument("--seed", type=str, default=None,
                    help="Hex seed for sampling (default: random). Printed on generation for reproducibility.")
@@ -127,7 +127,7 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
         "dataset_sha": sha,
         "dataset_repo": repo,
         "seed": seed,
-        "samples_per_eco": samples_per_eco,
+        "samples_per_ecosystem": samples_per_eco,
         "samples": samples,
     }
     SAMPLES_FILE.write_text(json.dumps(result, indent=2))
@@ -625,7 +625,7 @@ def main():
     args = parse_args()
 
     if args.regenerate_samples:
-        regenerate_samples(args.ecosystems, args.samples_per_eco, args.seed)
+        regenerate_samples(args.ecosystems, args.samples_per_ecosystem, args.seed)
         return
 
     work_dir = args.work_dir.resolve()
