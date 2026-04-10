@@ -329,7 +329,8 @@ def run_report(work_dir: Path, ecosystems: list[str]):
     # Print summary to stdout
     print(f"\n{'='*60}")
     print(f"  Packages scanned: {total} ({successful} successful, {total_errors} errors)")
-    print(f"  Packages flagged: {flagged}/{successful} ({flagged/successful*100:.1f}%)")
+    flagged_pct = flagged / successful * 100 if successful else 0
+    print(f"  Packages flagged: {flagged}/{successful} ({flagged_pct:.1f}%)")
     scores = [p["risk_score"] for p in pkg_summaries if p["risk_score"] is not None]
     if scores:
         print(f"  Score: avg={sum(scores)/len(scores):.2f}  median={sorted(scores)[len(scores)//2]:.1f}  "
@@ -349,6 +350,7 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
     avg_score = sum(scores) / len(scores) if scores else 0
     median_score = sorted(scores)[len(scores) // 2] if scores else 0
 
+    flagged_pct = flagged / successful * 100 if successful else 0
     top_rule_name = escape(top_rules[0][0]) if top_rules else "-"
     top_rule_count = top_rules[0][1] if top_rules else 0
     top_rule_pct = f"{top_rule_count/successful*100:.1f}" if successful else "0"
@@ -407,7 +409,7 @@ def build_report_html(*, total, successful, flagged, total_errors, gd_version,
   <div class="card"><div class="label">Packages</div><div class="value">{successful}</div>
     <div class="sub">{total_errors} errors</div></div>
   <div class="card"><div class="label">Flagged</div><div class="value">{flagged}</div>
-    <div class="sub">{flagged/successful*100:.1f}% of scanned</div></div>
+    <div class="sub">{flagged_pct:.1f}% of scanned</div></div>
   <div class="card"><div class="label">Avg Score</div><div class="value">{avg_score:.1f}</div></div>
   <div class="card"><div class="label">Median Score</div><div class="value">{median_score:.1f}</div></div>
   <div class="card"><div class="label">Top Rule</div><div class="value" style="font-size:16px">{top_rule_name}</div>
