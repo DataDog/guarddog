@@ -93,7 +93,7 @@ def extract_sandboxed(archive_path: str, target_dir: str) -> None:
 
 
 def _get_common_read_paths() -> list[str]:
-    """Paths that always need READ access for Python + system libs."""
+    """Paths that always need READ access for Python + system libs + guarddog rules."""
     paths = set()
 
     paths.add(os.path.realpath(sys.prefix))
@@ -106,6 +106,11 @@ def _get_common_read_paths() -> list[str]:
         real = os.path.realpath(system_dir)
         if os.path.isdir(real):
             paths.add(real)
+
+    # guarddog package dir: needed for YARA/Semgrep rule files, which may
+    # live outside sys.prefix when running from source (e.g. uv run)
+    import guarddog
+    paths.add(os.path.realpath(os.path.dirname(guarddog.__file__)))
 
     return list(paths)
 

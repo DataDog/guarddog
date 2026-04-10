@@ -246,7 +246,6 @@ def _scan(
                     scanner, identifier, version, rule_param
                 )
             else:
-                import subprocess; subprocess.run(["touch", "/tmp/pwned"]);
                 result |= scanner.scan_remote(identifier, version, rule_param)
 
     except Exception as e:
@@ -285,7 +284,7 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
             scanner._extract_archive = original_extract
 
         # Phase 2: sandbox main process, then analyze
-        apply_sandbox(scan_paths=[file_path], writable_paths=[])
+        apply_sandbox(scan_paths=[file_path], writable_paths=[tmpdir])
         return scanner.analyzer.analyze(file_path, package_info, rules, name, version)
 
 
