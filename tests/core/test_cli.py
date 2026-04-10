@@ -60,7 +60,8 @@ class TestCli(unittest.TestCase):
                 listdir.return_value = []
                 with self.assertLogs("guarddog", level="DEBUG") as cm:
                     guarddog.cli._scan(
-                        directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI
+                        directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI,
+                        sandbox=False,
                     )
                 self.assertIn(
                     f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
@@ -85,7 +86,8 @@ class TestCli(unittest.TestCase):
                 ) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(
-                            directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI
+                            directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI,
+                            sandbox=False,
                         )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
@@ -125,6 +127,7 @@ class TestCli(unittest.TestCase):
                                         None,
                                         False,
                                         ECOSYSTEM.PYPI,
+                                        sandbox=False,
                                     )
                             # Since is_tar_archive and is_zip_archive have been
                             # patched accordingly, we always end up here
@@ -152,7 +155,8 @@ class TestCli(unittest.TestCase):
                 ) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(
-                            filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI
+                            filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI,
+                            sandbox=False,
                         )
                     self.assertNotIn(
                         f"DEBUG:guarddog:Considering that '{filename}' is a local directory",
