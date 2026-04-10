@@ -205,7 +205,18 @@ def run_fetch(work_dir: Path, ecosystems: list[str], dataset_path: Path | None):
 # Phase 2: Scan (sandboxed workers)
 # ---------------------------------------------------------------------------
 
-def scan_single(sample: dict, work_dir: Path, timeout: int, no_sandbox: bool) -> dict:
+def find_guarddog_bin() -> str:
+    """Find the guarddog binary, preferring the project .venv."""
+    venv_bin = EVALS_DIR.parent / ".venv" / "bin" / "guarddog"
+    if venv_bin.exists():
+        return str(venv_bin)
+    found = shutil.which("guarddog")
+    if found:
+        return found
+    sys.exit("ERROR: guarddog not found. Run 'uv pip install -e .' from the repo root first.")
+
+
+def scan_single(sample: dict, work_dir: Path, guarddog_bin: str, timeout: int, no_sandbox: bool) -> dict:
     safe_name = sample["package"].replace("@", "_at_").replace("/", "__")
     zip_path = work_dir / "malicious_zips" / sample["ecosystem"] / f"{safe_name}.zip"
     result_dir = work_dir / "recall_results" / sample["ecosystem"]
@@ -215,45 +226,41 @@ def scan_single(sample: dict, work_dir: Path, timeout: int, no_sandbox: bool) ->
     if result_file.exists():
         return json.loads(result_file.read_text())
 
-    if not zip_path.exists():
-        result = {"package": sample["package"], "ecosystem": sample["ecosystem"],
-                  "category": sample["category"], "error": "ZIP not found", "scan_output": None}
-        result_file.write_text(json.dumps(result, indent=2))
-        return result
-
-    # Create a temp file for the worker output
-    tmp_base = os.path.realpath(tempfile.gettempdir())
-    output_fd, output_path = tempfile.mkstemp(dir=tmp_base, suffix=".json", prefix="gd_recall_")
-    os.close(output_fd)
-
-    cmd = [
-        sys.executable, str(WORKER_SCRIPT),
-        "--zip-path", str(zip_path.resolve()),
-        "--ecosystem", sample["ecosystem"],
-        "--output-path", output_path,
-    ]
-    if no_sandbox:
-        cmd.append("--no-sandbox")
-
     result = {"package": sample["package"], "ecosystem": sample["ecosystem"],
               "category": sample["category"], "error": None, "scan_output": None}
 
+    if not zip_path.exists():
+        result["error"] = "ZIP not found"
+        result_file.write_text(json.dumps(result, indent=2))
+        return result
+
+    # Extract ZIP to temp dir
+    import zipfile
+    tmp_base = os.path.realpath(tempfile.gettempdir())
+    tmp_dir = tempfile.mkdtemp(dir=tmp_base, prefix="gd_recall_")
+
     try:
+        with zipfile.ZipFile(str(zip_path)) as zf:
+            zf.extractall(tmp_dir, pwd=b"infected")
+
+        # Run guarddog scan on extracted directory
+        cmd = [guarddog_bin, sample["ecosystem"], "scan", tmp_dir, "--output-format", "json"]
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-            with open(output_path) as f:
-                result["scan_output"] = json.load(f)
+        stdout = proc.stdout.strip()
+        if stdout:
+            try:
+                result["scan_output"] = json.loads(stdout)
+            except json.JSONDecodeError:
+                result["error"] = f"Invalid JSON: {stdout[:300]}"
         elif proc.returncode != 0:
-            result["error"] = f"Worker exit {proc.returncode}: {proc.stderr[:500]}"
+            result["error"] = f"Exit {proc.returncode}: {proc.stderr[:500]}"
+
     except subprocess.TimeoutExpired:
         result["error"] = f"Timeout after {timeout}s"
     except Exception as e:
         result["error"] = str(e)[:500]
     finally:
-        try:
-            os.unlink(output_path)
-        except OSError:
-            pass
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
     result_file.write_text(json.dumps(result, indent=2))
     return result
@@ -266,13 +273,14 @@ def run_scan(work_dir: Path, ecosystems: list[str], workers: int, timeout: int, 
     completed = 0
     errors = 0
     start = time.time()
-
+    guarddog_bin = find_guarddog_bin()
+    print(f"Using guarddog: {guarddog_bin}")
     print(f"Scanning {total} malicious packages with {workers} workers (timeout {timeout}s)...")
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {}
         for sample in samples:
-            fut = executor.submit(scan_single, sample, work_dir, timeout, no_sandbox)
+            fut = executor.submit(scan_single, sample, work_dir, guarddog_bin, timeout, no_sandbox)
             futures[fut] = sample
 
         for fut in concurrent.futures.as_completed(futures):
@@ -334,9 +342,10 @@ def run_report(work_dir: Path, ecosystems: list[str]):
 
     for r in results:
         out = r.get("scan_output") or {}
+        # guarddog CLI output has results at top level (not nested)
         scan_results = out.get("results", {})
         fired = [k for k, v in scan_results.items() if has_findings(v)]
-        is_detected = len(fired) > 0
+        is_detected = len(fired) > 0 or out.get("issues", 0) > 0
 
         if is_detected:
             detected_any += 1
