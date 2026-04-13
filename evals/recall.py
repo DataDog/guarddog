@@ -37,6 +37,7 @@ from evals import templates
 EVALS_DIR = Path(__file__).parent
 DEFAULT_WORK_DIR = EVALS_DIR / "workdir"
 SAMPLES_FILE = EVALS_DIR / "recall_samples.json"
+CLUSTER_INDEX_FILE = EVALS_DIR / "cluster_index.json"
 WORKER_SCRIPT = EVALS_DIR / "recall_worker.py"
 
 
@@ -55,6 +56,8 @@ def parse_args():
                    help="Total samples per ecosystem (compromised_lib first, then malicious_intent)")
     p.add_argument("--seed", type=str, default=None,
                    help="Hex seed for sampling (default: random). Printed on generation for reproducibility.")
+    p.add_argument("--max-per-cluster", type=int, default=3,
+                   help="Max packages per duplicate cluster (0=no dedup, requires cluster_index.json)")
     p.add_argument("--no-sandbox", action="store_true",
                    help="Skip Nono sandbox (DANGEROUS, for testing only)")
     return p.parse_args()
@@ -64,17 +67,98 @@ def parse_args():
 # Sample generation (--regenerate-samples)
 # ---------------------------------------------------------------------------
 
-def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | None):
+def _load_cluster_index() -> dict | None:
+    """Load cluster_index.json if it exists."""
+    if CLUSTER_INDEX_FILE.exists():
+        try:
+            return json.loads(CLUSTER_INDEX_FILE.read_text())
+        except (json.JSONDecodeError, ValueError):
+            pass
+    return None
+
+
+def _cluster_aware_sample(
+    package_names: list[str],
+    cluster_index: dict,
+    ecosystem: str,
+    category: str,
+    max_per_cluster: int,
+    budget: int,
+    rng,
+) -> list[str]:
+    """Sample packages respecting cluster limits.
+
+    Round-robin across clusters: every cluster gets 1 representative first,
+    then 2, etc., up to max_per_cluster. This ensures every unique malware
+    family is represented before any gets over-represented.
+    """
+    # Group by cluster fingerprint
+    fingerprints = cluster_index.get("fingerprints", {})
+    cluster_map = defaultdict(list)
+    for pkg in package_names:
+        key = f"{ecosystem}/{category}/{pkg}"
+        fp = fingerprints.get(key)
+        if fp:
+            cluster_map[fp].append(pkg)
+        else:
+            cluster_map[f"__unknown__{pkg}"].append(pkg)
+
+    # Shuffle within each cluster for randomness
+    for pkgs in cluster_map.values():
+        rng.shuffle(pkgs)
+
+    cluster_list = list(cluster_map.values())
+    rng.shuffle(cluster_list)
+
+    # Round-robin: take 1 from each cluster, then 2, up to max_per_cluster
+    selected = []
+    for round_num in range(max_per_cluster):
+        if len(selected) >= budget:
+            break
+        for cluster_pkgs in cluster_list:
+            if len(selected) >= budget:
+                break
+            if round_num < len(cluster_pkgs):
+                selected.append(cluster_pkgs[round_num])
+
+    return selected
+
+
+def _get_cluster_id(package: str, ecosystem: str, category: str, cluster_index: dict | None) -> str | None:
+    """Look up the cluster fingerprint for a package."""
+    if not cluster_index:
+        return None
+    key = f"{ecosystem}/{category}/{package}"
+    return cluster_index.get("fingerprints", {}).get(key)
+
+
+def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | None,
+                       max_per_cluster: int = 3):
     """Fetch manifests from GitHub and generate a new recall_samples.json.
 
     Prioritizes compromised_lib packages (up to half the budget), then fills
     the rest with malicious_intent. compromised_lib are supply chain attacks
     and are rare/high-value so they always get priority.
+
+    If cluster_index.json exists and max_per_cluster > 0, uses cluster-aware
+    sampling to limit how many packages are drawn from each duplicate cluster.
     """
     import random
     if seed is None:
         seed = secrets.token_hex(8)
     random.seed(seed)
+
+    # Load cluster index for deduplication
+    cluster_index = None
+    if max_per_cluster > 0:
+        cluster_index = _load_cluster_index()
+        if cluster_index:
+            stats = cluster_index.get("stats", {})
+            print(f"Loaded cluster index: {stats.get('total_clusters', '?')} clusters, "
+                  f"max {max_per_cluster} per cluster")
+        else:
+            print("WARNING: No cluster_index.json found. Run 'uv run evals/cluster.py' first.")
+            print("  Falling back to random sampling without deduplication.")
 
     print(f"Fetching manifests from GitHub (seed={seed})...")
     repo = "DataDog/malicious-software-packages-dataset"
@@ -89,7 +173,6 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
 
         compromised = sorted([k for k, v in manifest.items() if v is not None])
         malicious = sorted([k for k, v in manifest.items() if v is None])
-        random.shuffle(malicious)
 
         available_total = len(compromised) + len(malicious)
         if samples_per_eco > available_total:
@@ -99,16 +182,47 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
 
         # Compromised_lib first, capped at half the budget
         n_comp = min(len(compromised), samples_per_eco // 2)
-        for pkg in compromised[:n_comp]:
-            samples.append({"package": pkg, "ecosystem": eco, "category": "compromised_lib"})
+        if cluster_index and max_per_cluster > 0:
+            compromised_selected = _cluster_aware_sample(
+                compromised, cluster_index, eco, "compromised_lib",
+                max_per_cluster, n_comp, random)
+        else:
+            random.shuffle(compromised)
+            compromised_selected = compromised[:n_comp]
+
+        for pkg in compromised_selected:
+            cluster_id = _get_cluster_id(pkg, eco, "compromised_lib", cluster_index)
+            entry = {"package": pkg, "ecosystem": eco, "category": "compromised_lib"}
+            if cluster_id:
+                entry["cluster_id"] = cluster_id
+            samples.append(entry)
 
         # Fill the rest with malicious_intent
-        remaining = min(samples_per_eco - n_comp, len(malicious))
-        for pkg in malicious[:remaining]:
-            samples.append({"package": pkg, "ecosystem": eco, "category": "malicious_intent"})
+        remaining = min(samples_per_eco - len(compromised_selected), len(malicious))
+        if cluster_index and max_per_cluster > 0:
+            malicious_selected = _cluster_aware_sample(
+                malicious, cluster_index, eco, "malicious_intent",
+                max_per_cluster, remaining, random)
+        else:
+            random.shuffle(malicious)
+            malicious_selected = malicious[:remaining]
 
-        print(f"  {eco}: {remaining} malicious_intent + {n_comp} compromised_lib "
-              f"= {n_comp + remaining}/{samples_per_eco} requested "
+        for pkg in malicious_selected:
+            cluster_id = _get_cluster_id(pkg, eco, "malicious_intent", cluster_index)
+            entry = {"package": pkg, "ecosystem": eco, "category": "malicious_intent"}
+            if cluster_id:
+                entry["cluster_id"] = cluster_id
+            samples.append(entry)
+
+        n_comp_actual = len(compromised_selected)
+        n_mal_actual = len(malicious_selected)
+        n_clusters = len(set(
+            _get_cluster_id(pkg, eco, "malicious_intent", cluster_index) or pkg
+            for pkg in malicious_selected
+        ))
+        cluster_info = f" ({n_clusters} unique clusters)" if cluster_index else ""
+        print(f"  {eco}: {n_mal_actual} malicious_intent{cluster_info} + {n_comp_actual} compromised_lib "
+              f"= {n_comp_actual + n_mal_actual}/{samples_per_eco} requested "
               f"(dataset has {len(malicious)} malicious + {len(compromised)} compromised)")
 
     # Resolve ZIP paths in parallel
@@ -135,6 +249,7 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
         "dataset_repo": repo,
         "seed": seed,
         "samples_per_ecosystem": samples_per_eco,
+        "max_per_cluster": max_per_cluster if cluster_index else None,
         "samples": samples,
     }
     SAMPLES_FILE.write_text(json.dumps(result, indent=2))
@@ -474,6 +589,33 @@ def run_report(work_dir: Path, ecosystems: list[str]):
             "median_score": sorted(cat_scores)[len(cat_scores) // 2] if cat_scores else 0,
         }
 
+    # Cluster-level recall (if cluster_index.json is available)
+    cluster_stats = None
+    samples_data = json.loads(SAMPLES_FILE.read_text()) if SAMPLES_FILE.exists() else {}
+    sample_clusters = {s["package"]: s.get("cluster_id") for s in samples_data.get("samples", [])}
+    has_clusters = any(sample_clusters.values())
+
+    if has_clusters:
+        cluster_results = defaultdict(list)
+        for p in pkg_rows:
+            cid = sample_clusters.get(p["name"], p["name"])
+            cluster_results[cid].append(p)
+
+        clusters_total = len(cluster_results)
+        clusters_ok = {cid: pkgs for cid, pkgs in cluster_results.items()
+                       if any(not p["error"] for p in pkgs)}
+        clusters_detected = sum(
+            1 for pkgs in clusters_ok.values()
+            if any(p["detected"] for p in pkgs)
+        )
+        cluster_recall = clusters_detected / len(clusters_ok) * 100 if clusters_ok else 0
+        cluster_stats = {
+            "total": clusters_total,
+            "successful": len(clusters_ok),
+            "detected": clusters_detected,
+            "recall": cluster_recall,
+        }
+
     top_rules = sorted(detected_rules.items(), key=lambda x: -x[1])
     html = build_recall_html(
         total=total, successful=successful, detected=detected_any,
@@ -482,6 +624,7 @@ def run_report(work_dir: Path, ecosystems: list[str]):
         score_buckets=dict(score_buckets), eco_score_buckets=eco_score_buckets,
         risk_dist=dict(risk_dist),
         ecosystems=ecosystems, eco_stats=eco_stats, cat_stats=cat_stats,
+        cluster_stats=cluster_stats,
         top_rules=top_rules, missed=missed, pkg_rows=pkg_rows,
     )
 
@@ -500,13 +643,17 @@ def run_report(work_dir: Path, ecosystems: list[str]):
               f"avg={s['avg_score']:.2f} median={s['median_score']:.1f}")
     for cat, s in cat_stats.items():
         print(f"  {cat}: {s['detected']}/{s['successful']} ({s['recall']:.1f}%)")
+    if cluster_stats:
+        cs = cluster_stats
+        print(f"  Cluster-level recall: {cs['detected']}/{cs['successful']} ({cs['recall']:.1f}%)")
     print(f"{'='*60}")
 
 
 def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
                       avg_score, median_score, max_score, score_buckets,
                       eco_score_buckets, risk_dist,
-                      ecosystems, eco_stats, cat_stats, top_rules, missed, pkg_rows):
+                      ecosystems, eco_stats, cat_stats, cluster_stats,
+                      top_rules, missed, pkg_rows):
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     eco_rows = ""
@@ -524,6 +671,22 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
                      f"<td>{s['successful']}</td><td>{s['detected']}</td>"
                      f"<td><b>{s['recall']:.1f}%</b></td>"
                      f"<td>{s['avg_score']:.1f}</td><td>{s['median_score']:.1f}</td></tr>\n")
+
+    cluster_section = ""
+    if cluster_stats:
+        cs = cluster_stats
+        cluster_section = f"""
+<h2>Cluster-Level Recall</h2>
+<p style="color:#666;margin-bottom:8px">A cluster groups packages with identical/similar malicious code.
+Cluster recall measures how many distinct malware families are detected (at least one package in the cluster detected).</p>
+<div class="cards">
+  <div class="card"><div class="label">Clusters</div><div class="value">{cs['successful']}</div></div>
+  <div class="card"><div class="label">Detected</div>
+    <div class="value {'green' if cs['recall'] > 80 else 'red'}">{cs['detected']}</div>
+    <div class="sub">{cs['recall']:.1f}% cluster recall</div></div>
+  <div class="card"><div class="label">Missed Families</div>
+    <div class="value {'green' if cs['successful'] - cs['detected'] < 10 else 'red'}">{cs['successful'] - cs['detected']}</div></div>
+</div>"""
 
     # Inverted colors for malicious: low scores are bad (red), high scores are good (green)
     inv = {"low_color": "#ef5350", "mid_color": "#fff176", "high_color": "#a5d6a7"}
@@ -590,6 +753,8 @@ def build_recall_html(*, total, successful, detected, recall_rate, scan_errors,
 {cat_rows}
 </table>
 
+{cluster_section}
+
 <h2>Risk Score Distribution</h2>
 <p style="color:#666;margin-bottom:8px">On malicious packages, higher scores = better detection. Red bars (low scores) indicate missed or under-scored packages.</p>
 <h3>All Ecosystems</h3>
@@ -650,7 +815,8 @@ def main():
     args = parse_args()
 
     if args.regenerate_samples:
-        regenerate_samples(args.ecosystems, args.samples_per_ecosystem, args.seed)
+        regenerate_samples(args.ecosystems, args.samples_per_ecosystem, args.seed,
+                           args.max_per_cluster)
         return
 
     work_dir = args.work_dir.resolve()

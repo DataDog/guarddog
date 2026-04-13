@@ -60,6 +60,7 @@ Prioritizes compromised_lib packages (supply chain attacks) which are rare and h
 | `--regenerate-samples` | off | Resample malicious packages from the dataset |
 | `--samples-per-ecosystem` | `250` | Total malicious samples per ecosystem (compromised_lib first, then malicious_intent) |
 | `--seed` | random | Hex seed for sampling reproducibility (printed on generation) |
+| `--max-per-cluster` | `3` | Max packages per duplicate cluster (0=no dedup, requires `cluster_index.json`) |
 
 ## Output
 
@@ -88,6 +89,46 @@ uv run evals/run.py --regenerate-samples --samples-per-ecosystem 500
 # Reproduce a previous sample
 uv run evals/run.py --regenerate-samples --seed a1b2c3d4e5f6a7b8
 ```
+
+## Deduplication via clustering
+
+The malicious-software-packages dataset contains many near-identical packages (same malware template with different package names). Without deduplication, the eval over-weights a few malware families.
+
+`cluster.py` processes the full dataset, fingerprints each package, and groups duplicates into clusters. The resulting `cluster_index.json` is used during sampling to cap how many packages are drawn from each cluster.
+
+### How it works
+
+- **malicious_intent**: hashes the full normalized source code (package name and version replaced with placeholders)
+- **compromised_lib**: runs guarddog to identify the malicious code, then hashes the threat code snippets
+
+All fingerprinting runs inside a Nono sandbox (no network, restricted filesystem).
+
+### Building the cluster index
+
+```bash
+# Downloads all package ZIPs from GitHub (skip > 100 MB)
+uv run evals/cluster.py --ecosystems pypi npm
+
+# Or from a local clone of the dataset (faster, avoids many API calls)
+uv run evals/cluster.py --dataset-path /path/to/malicious-software-packages-dataset
+
+# Customize
+uv run evals/cluster.py --ecosystems pypi --workers 10 --max-zip-size 100
+```
+
+The cluster index is checked into the repo so it only needs to be rebuilt when the dataset changes.
+
+### Sampling with deduplication
+
+```bash
+# Resample with at most 3 packages per cluster
+uv run evals/recall.py --regenerate-samples --samples-per-ecosystem 500 --max-per-cluster 3
+
+# Disable deduplication
+uv run evals/recall.py --regenerate-samples --samples-per-ecosystem 500 --max-per-cluster 0
+```
+
+The report includes a **cluster-level recall** metric: how many distinct malware families are detected (at least one package in the cluster detected).
 
 ---
 
