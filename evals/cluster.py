@@ -167,11 +167,16 @@ def _build_zip_index_from_tree(sha: str, ecosystems: list[str]) -> dict[str, str
                 path = entry.get("path", "")
                 if not path.endswith(".zip"):
                     continue
-                # Expected: {pkg}/{version}/{file}.zip
+                # Expected: {pkg}/{version}/{file}.zip (3 parts)
+                # Scoped npm packages use @ as separator: @scope@name/{version}/{file}.zip
                 parts = path.split("/")
                 if len(parts) != 3:
                     continue
                 pkg, version, _filename = parts
+                # Convert @scope@name back to @scope/name (manifest format)
+                if pkg.startswith("@") and "@" in pkg[1:]:
+                    idx = pkg.index("@", 1)
+                    pkg = pkg[:idx] + "/" + pkg[idx + 1:]
                 key = f"{eco}/{cat}/{pkg}"
                 full_path = f"samples/{eco}/{cat}/{path}"
                 pkg_zips[key].append((version, full_path))

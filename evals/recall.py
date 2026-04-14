@@ -323,13 +323,19 @@ def _build_zip_index(repo: str, sha: str, ecosystems: list[str]) -> dict[str, st
                 path = entry.get("path", "")
                 if not path.endswith(".zip"):
                     continue
+                # Expected: {pkg}/{version}/{file}.zip (3 parts)
+                # Scoped npm packages use @ as separator: @scope@name/{version}/{file}.zip
                 parts = path.split("/")
                 if len(parts) != 3:
                     continue
-                pkg, _version, _filename = parts
+                pkg, version, _filename = parts
+                # Convert @scope@name back to @scope/name (manifest format)
+                if pkg.startswith("@") and "@" in pkg[1:]:
+                    idx = pkg.index("@", 1)
+                    pkg = pkg[:idx] + "/" + pkg[idx + 1:]
                 key = f"{eco}/{cat}/{pkg}"
                 full_path = f"samples/{eco}/{cat}/{path}"
-                pkg_zips.setdefault(key, []).append((_version, full_path))
+                pkg_zips.setdefault(key, []).append((version, full_path))
 
             cat_count = len([k for k in pkg_zips if k.startswith(f"{eco}/{cat}/")])
             print(f"  {eco}/{cat}: {cat_count} packages")
