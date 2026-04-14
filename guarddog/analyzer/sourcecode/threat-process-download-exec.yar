@@ -58,6 +58,11 @@ rule threat_process_download_exec
         // Node.js: fetch + eval
         $js_fetch_eval = /fetch\s*\(.*\).*\.then\s*\(.*eval/ nocase
 
+        // Node.js: import child_process exec + fetch in same file
+        $js_import_exec = /from\s+['"]child_process['"]\s*/ nocase
+        $js_cp_exec = /child_process/ nocase
+        $js_fetch = /\bfetch\s*\(\s*['"]https?:/ nocase
+
         // Shell download + execute chains
         $shell_curl_pipe = /curl\s+.*\|\s*(bash|sh|python|node|perl)\b/ nocase
         $shell_wget_pipe = /wget\s+.*-O\s*-\s*\|\s*(bash|sh|python|node|perl)\b/ nocase
@@ -80,5 +85,7 @@ rule threat_process_download_exec
         // Download + exec/eval in same file
         (any of ($py_download_*) and any of ($py_exec, $py_eval)) or
         // Download + subprocess execution in same file (download binary + run it)
-        (any of ($py_download_urlretrieve) and $py_subprocess_run)
+        (any of ($py_download_urlretrieve) and $py_subprocess_run) or
+        // Node.js: child_process + fetch in same file (download + exec pattern)
+        (any of ($js_import_exec, $js_cp_exec) and $js_fetch)
 }
