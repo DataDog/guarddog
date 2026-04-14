@@ -129,7 +129,8 @@ class ExtensionScanner(PackageScanner):
         return data, vsix_url
 
     def scan_local(
-        self, path: str, rules=None, callback: typing.Callable[[dict], None] = noop
+        self, path: str, rules=None, callback: typing.Callable[[dict], None] = noop,
+        info=None,
     ) -> dict:
         """
         Scan a local VSCode extension directory

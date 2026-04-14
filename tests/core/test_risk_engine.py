@@ -294,8 +294,8 @@ class TestScoring:
             )
         ]
         score = calculate_risk_score(risks)
-        # 1 stage (mid) → chain=0.3, raw=(1.0*0.30)+(0.3*0.20)+(1.0*0.30)+(1.0*0.20)=0.86→8.6
-        assert score.score == 8.6
+        # 1 stage (mid) → chain=0.4, raw=(1.0*0.30)+(0.4*0.20)+(1.0*0.30)+(1.0*0.20)=0.88→8.8
+        assert score.score == 8.8
         assert score.label == RiskLabel.HIGH
 
     def test_full_attack_chain(self):
