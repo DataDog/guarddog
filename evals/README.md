@@ -1,12 +1,62 @@
 # GuardDog Evaluation Suite
 
-Three tools for measuring GuardDog quality:
-
-- **run.py** -- Combined evaluation: precision, recall, F1 score, score distributions
-- **benchmark.py** -- FP benchmark on top-N legitimate packages
-- **recall.py** -- Recall benchmark on known-malicious packages
+Measures detection quality: recall on known-malicious packages and false positive rate on legitimate packages.
 
 > **Safety:** Malicious packages are extracted and scanned inside a [Nono](https://nono.sh) kernel-level sandbox with no network access and restricted filesystem. `nono-py` is installed automatically by `uv`. Pass `--no-sandbox` to skip (not recommended).
+
+## How it works
+
+```
+                             malicious-software-packages-dataset (GitHub)
+                                              |
+                                              v
+                    +-------------------------------------------------+
+                    |  1. CLUSTER  (cluster.py)                       |
+                    |     Download ZIPs, fingerprint code in sandbox,  |
+                    |     group duplicates by similarity               |
+                    |                                                 |
+                    |     Output: cluster_index.json                  |
+                    +-------------------------------------------------+
+                                              |
+                                              v
+                    +-------------------------------------------------+
+                    |  2. SAMPLE  (recall.py --regenerate-samples)     |
+                    |     Pick diverse packages (1-per-cluster),       |
+                    |     prioritize compromised_lib, exclude empties  |
+                    |                                                 |
+                    |     Output: recall_samples.json                 |
+                    +-------------------------------------------------+
+                                              |
+                         +--------------------+--------------------+
+                         |                                         |
+                         v                                         v
+          +-----------------------------+           +-----------------------------+
+          |  3a. SCAN MALICIOUS         |           |  3b. SCAN BENIGN            |
+          |      (recall.py)            |           |      (benchmark.py)         |
+          |                             |           |                             |
+          |  Download ZIPs from GitHub, |           |  Fetch top-1000 packages    |
+          |  extract in sandbox,        |           |  from PyPI/npm, scan with   |
+          |  scan with guarddog         |           |  guarddog                   |
+          |                             |           |                             |
+          |  Output: recall_results/    |           |  Output: results/           |
+          +-----------------------------+           +-----------------------------+
+                         |                                         |
+                         +--------------------+--------------------+
+                                              |
+                                              v
+                    +-------------------------------------------------+
+                    |  4. REPORT  (run.py --phase report)              |
+                    |     Compute TP/FP/FN/TN at threshold,           |
+                    |     precision, recall, F1, MCC                  |
+                    |                                                 |
+                    |     Output: combined_report.html                |
+                    +-------------------------------------------------+
+```
+
+**Key files:**
+- `cluster_index.json` -- checked in, maps packages to duplicate clusters
+- `recall_samples.json` -- checked in, the curated sample of malicious packages
+- `evals/workdir/` -- gitignored, all scan results and cached downloads
 
 ## Quick start
 

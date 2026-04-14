@@ -234,23 +234,17 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
               f"= {n_comp_actual + n_mal_actual}/{samples_per_eco} requested "
               f"(dataset has {len(malicious)} malicious + {len(compromised)} compromised)")
 
-    # Resolve ZIP paths in parallel
-    print(f"Resolving ZIP paths for {len(samples)} samples (parallel)...")
+    # Resolve ZIP paths via bulk tree index (~10 API calls)
+    ecosystems_in_samples = list(set(s["ecosystem"] for s in samples))
+    zip_index = _build_zip_index(repo, sha, ecosystems_in_samples)
     resolved = 0
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        future_to_idx = {
-            executor.submit(_resolve_zip_path, repo, s): i
-            for i, s in enumerate(samples)
-        }
-        done = 0
-        for future in concurrent.futures.as_completed(future_to_idx):
-            idx = future_to_idx[future]
-            samples[idx]["zip_path"] = future.result()
-            if samples[idx]["zip_path"]:
-                resolved += 1
-            done += 1
-            if done % 100 == 0 or done == len(samples):
-                print(f"  [{done}/{len(samples)}] {resolved} resolved")
+    for s in samples:
+        key = f"{s['ecosystem']}/{s['category']}/{s['package']}"
+        zip_path = zip_index.get(key)
+        if zip_path:
+            s["zip_path"] = zip_path
+            resolved += 1
+    print(f"  Resolved {resolved}/{len(samples)} ZIP paths")
 
     samples = [s for s in samples if s.get("zip_path")]
     result = {
@@ -284,8 +278,69 @@ def _github_api(endpoint: str) -> dict | list:
     return _fetch_json(f"https://api.github.com/{endpoint}")
 
 
+def _build_zip_index(repo: str, sha: str, ecosystems: list[str]) -> dict[str, str]:
+    """Build a bulk index of package -> ZIP path using the Git Trees API.
+
+    Returns a dict mapping "ecosystem/category/package" -> "samples/.../file.zip".
+    Uses ~10 API calls total instead of 2 per package.
+    """
+    def _get_subtree_sha(parent_sha: str, name: str) -> str | None:
+        data = _github_api(f"repos/{repo}/git/trees/{parent_sha}")
+        for entry in data.get("tree", []):
+            if entry.get("path") == name and entry.get("type") == "tree":
+                return entry["sha"]
+        return None
+
+    print("  Building ZIP index from repository tree...")
+    samples_sha = _get_subtree_sha(sha, "samples")
+    if not samples_sha:
+        print("  ERROR: 'samples' directory not found in repo tree")
+        return {}
+
+    pkg_zips: dict[str, list[tuple[str, str]]] = {}
+    categories = ["malicious_intent", "compromised_lib"]
+
+    for eco in ecosystems:
+        eco_sha = _get_subtree_sha(samples_sha, eco)
+        if not eco_sha:
+            continue
+
+        for cat in categories:
+            cat_sha = _get_subtree_sha(eco_sha, cat)
+            if not cat_sha:
+                continue
+
+            tree_data = _github_api(f"repos/{repo}/git/trees/{cat_sha}?recursive=1")
+            if tree_data.get("truncated"):
+                print(f"  WARNING: tree for {eco}/{cat} was truncated")
+
+            for entry in tree_data.get("tree", []):
+                path = entry.get("path", "")
+                if not path.endswith(".zip"):
+                    continue
+                parts = path.split("/")
+                if len(parts) != 3:
+                    continue
+                pkg, _version, _filename = parts
+                key = f"{eco}/{cat}/{pkg}"
+                full_path = f"samples/{eco}/{cat}/{path}"
+                pkg_zips.setdefault(key, []).append((_version, full_path))
+
+            cat_count = len([k for k in pkg_zips if k.startswith(f"{eco}/{cat}/")])
+            print(f"  {eco}/{cat}: {cat_count} packages")
+
+    # Pick latest version per package
+    index = {}
+    for key, versions in pkg_zips.items():
+        versions.sort(key=lambda x: x[0])
+        index[key] = versions[-1][1]
+
+    print(f"  Total: {len(index)} package ZIPs indexed")
+    return index
+
+
 def _resolve_zip_path(repo: str, sample: dict) -> str | None:
-    """Find the latest ZIP path for a sample package via GitHub API."""
+    """Fallback: find ZIP path for a single sample via per-package API calls."""
     import urllib.parse
     pkg = sample["package"]
     eco = sample["ecosystem"]
