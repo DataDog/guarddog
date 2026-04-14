@@ -375,11 +375,15 @@ def download_all_zips(packages: list[dict], zip_dir: Path, sha: str,
 # Phase 3b: Detect empty ZIPs (no source files)
 # ---------------------------------------------------------------------------
 
+ARCHIVE_EXTENSIONS = frozenset({".zip", ".tar.gz", ".tgz", ".tar.bz2", ".whl", ".gem"})
+
+
 def _zip_has_source_files(zip_path: Path) -> bool:
-    """Return True if the ZIP contains at least one source file.
+    """Return True if the ZIP contains at least one source file or nested archive.
 
     Source files are identified by extension. Directories and metadata files
-    matching package_info-*.json are ignored.
+    matching package_info-*.json are ignored. Nested archives (.zip, .whl, etc.)
+    count as "has content" since they likely contain the actual package.
     """
     try:
         with zipfile.ZipFile(zip_path) as zf:
@@ -391,6 +395,9 @@ def _zip_has_source_files(zip_path: Path) -> bool:
                     continue
                 ext = os.path.splitext(basename)[1].lower()
                 if ext in SOURCE_EXTENSIONS:
+                    return True
+                # Nested archives (e.g. double-wrapped ZIPs) contain the real package
+                if ext in ARCHIVE_EXTENSIONS or info.filename.endswith(".tar.gz"):
                     return True
     except Exception:
         pass
