@@ -13,12 +13,6 @@
       "zip_path": "samples/pypi/compromised_lib/num2words/0.5.16/2025-07-28-num2words-v0.5.16.zip"
     },
     {
-      "package": "litellm",
-      "ecosystem": "pypi",
-      "category": "compromised_lib",
-      "zip_path": "samples/pypi/compromised_lib/litellm/1.82.8/2026-03-24-litellm-v1.82.8.zip"
-    },
-    {
       "package": "ultralytics",
       "ecosystem": "pypi",
       "category": "compromised_lib",
@@ -129,12 +123,6 @@
       "zip_path": "samples/pypi/malicious_intent/pyprotector/1.0.4/2023-03-18-pyprotector-v1.0.4.zip"
     },
     {
-      "package": "setnetwork",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/setnetwork/0.3/2023-04-27-setnetwork-v0.3.zip"
-    },
-    {
       "package": "spl-types",
       "ecosystem": "pypi",
       "category": "malicious_intent",
@@ -156,12 +144,6 @@
       "zip_path": "samples/pypi/malicious_intent/fluxhttp/1a1/2026-03-26-fluxhttp-v1a1.zip"
     },
     {
-      "package": "raydium",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/raydium/2.1.6/2024-07-14-raydium-v2.1.6.zip"
-    },
-    {
       "package": "just4testlm",
       "ecosystem": "pypi",
       "category": "malicious_intent",
@@ -181,12 +163,6 @@
       "category": "malicious_intent",
       "cluster_id": "58b5acb7bb8a4569",
       "zip_path": "samples/pypi/malicious_intent/artifact-lab-3-package-4c04b1a2/1.0.5/2024-09-19-artifact-lab-3-package-4c04b1a2-v1.0.5.zip"
-    },
-    {
-      "package": "bolym",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/bolym/1.0/2023-05-11-bolym-v1.0.zip"
     },
     {
       "package": "ucap",
@@ -252,12 +228,6 @@
       "zip_path": "samples/pypi/malicious_intent/hellospa/90.0.0/2025-12-03-hellospa-v90.0.0.zip"
     },
     {
-      "package": "test-23234231",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/test-23234231/232/2023-04-14-test-23234231-v232.zip"
-    },
-    {
       "package": "packagemurder",
       "ecosystem": "pypi",
       "category": "malicious_intent",
@@ -291,13 +261,6 @@
       "category": "malicious_intent",
       "cluster_id": "63082a732cc93a5f",
       "zip_path": "samples/pypi/malicious_intent/quicly/1.1.6/2025-02-26-quicly-v1.1.6.zip"
-    },
-    {
-      "package": "pxz",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "cluster_id": "348d573cadee9f18",
-      "zip_path": "samples/pypi/malicious_intent/pxz/1.1.9/2025-02-05-pxz-v1.1.9.zip"
     },
     {
       "package": "requesxs",
@@ -622,12 +585,6 @@
       "zip_path": "samples/pypi/malicious_intent/colorinal/0.1.7/2025-07-22-colorinal-v0.1.7.zip"
     },
     {
-      "package": "raydium-sdk",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/raydium-sdk/2.1.2/2024-07-16-raydium-sdk-v2.1.2.zip"
-    },
-    {
       "package": "fasdghjkhjafsd",
       "ecosystem": "pypi",
       "category": "malicious_intent",
@@ -733,12 +690,6 @@
       "zip_path": "samples/pypi/malicious_intent/sylex-syntax/1.5/2023-03-21-sylex-syntax-v1.5.zip"
     },
     {
-      "package": "requestsx",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/requestsx/0.1.4/2023-01-25-requestsx-v0.1.4.zip"
-    },
-    {
       "package": "startup-entrypoints",
       "ecosystem": "pypi",
       "category": "malicious_intent",
@@ -802,29 +753,11 @@
       "zip_path": "samples/pypi/malicious_intent/pyclack/1.0.0/2023-05-27-pyclack-v1.0.0.zip"
     },
     {
-      "package": "mlc-llm-nightly",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/mlc-llm-nightly/99.99.99/2024-09-05-mlc-llm-nightly-v99.99.99.zip"
-    },
-    {
-      "package": "otr-utils",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/otr-utils/4.1.9/2023-03-13-otr-utils-v4.1.9.zip"
-    },
-    {
       "package": "usar-agent",
       "ecosystem": "pypi",
       "category": "malicious_intent",
       "cluster_id": "c577cddb86edeb16",
       "zip_path": "samples/pypi/malicious_intent/usar-agent/0.1.0/2025-02-09-usar-agent-v0.1.0.zip"
-    },
-    {
-      "package": "ailzynitro",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/ailzynitro/1.0/2023-03-30-ailzynitro-v1.0.zip"
     },
     {
       "package": "testerpackage123",
@@ -846,12 +779,6 @@
       "category": "malicious_intent",
       "cluster_id": "f522d92f557bad7f",
       "zip_path": "samples/pypi/malicious_intent/googleapis-googleapis-grpc-python/1.9.3/2025-02-10-googleapis-googleapis-grpc-python-v1.9.3.zip"
-    },
-    {
-      "package": "web3x",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/web3x/0.3/2024-02-20-web3x-v0.3.zip"
     },
     {
       "package": "dpndncyconfusion",
@@ -943,12 +870,6 @@
       "category": "malicious_intent",
       "cluster_id": "d61878eb94733ec7",
       "zip_path": "samples/pypi/malicious_intent/j5gerggnpuiwerbngpiutbgn0iutb0p/0.0.1/2024-10-17-j5gerggnpuiwerbngpiutbgn0iutb0p-v0.0.1.zip"
-    },
-    {
-      "package": "webtraste",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/webtraste/0.3/2023-05-04-webtraste-v0.3.zip"
     },
     {
       "package": "website-scanner",
@@ -1273,12 +1194,6 @@
       "zip_path": "samples/pypi/malicious_intent/huluquests/0.0.3/2023-05-02-huluquests-v0.0.3.zip"
     },
     {
-      "package": "detectron2",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/detectron2/0.6/2023-02-28-detectron2-v0.6.zip"
-    },
-    {
       "package": "b10connoisseur",
       "ecosystem": "pypi",
       "category": "malicious_intent",
@@ -1536,12 +1451,6 @@
       "category": "malicious_intent",
       "cluster_id": "8cdb31bcf9b5810c",
       "zip_path": "samples/pypi/malicious_intent/liblxml3/2.7/2023-04-18-liblxml3-v2.7.zip"
-    },
-    {
-      "package": "setdotwork",
-      "ecosystem": "pypi",
-      "category": "malicious_intent",
-      "zip_path": "samples/pypi/malicious_intent/setdotwork/0.7/2023-05-03-setdotwork-v0.7.zip"
     },
     {
       "package": "pydiolag6688",
@@ -2781,12 +2690,6 @@
       "zip_path": "samples/npm/compromised_lib/napi-postinstall/0.3.1/2025-07-18-napi-postinstall-v0.3.1.zip"
     },
     {
-      "package": "testetedep",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/testetedep/13.0.0/2025-06-25-testetedep-v13.0.0.zip"
-    },
-    {
       "package": "show-dependencies",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -2813,20 +2716,6 @@
       "category": "malicious_intent",
       "cluster_id": "ec9ca8283a5d1900",
       "zip_path": "samples/npm/malicious_intent/suvauxlib/99.99.991/2025-02-17-suvauxlib-v99.99.991.zip"
-    },
-    {
-      "package": "altoqitec-design-system-react",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "c40bce1e334d7732",
-      "zip_path": "samples/npm/malicious_intent/altoqitec-design-system-react/7.0.5/2025-09-23-altoqitec-design-system-react-v7.0.5.zip"
-    },
-    {
-      "package": "deploy-cdk",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "9c5808757c7ce53c",
-      "zip_path": "samples/npm/malicious_intent/deploy-cdk/1.0.2/2025-05-05-deploy-cdk-v1.0.2.zip"
     },
     {
       "package": "react-confetti-modern",
@@ -2878,12 +2767,6 @@
       "zip_path": "samples/npm/malicious_intent/n8n-nodes-comfyui-illu/1.0.4/2025-12-18-n8n-nodes-comfyui-illu-v1.0.4.zip"
     },
     {
-      "package": "light-bender",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/light-bender/1.0.1/2025-06-26-light-bender-v1.0.1.zip"
-    },
-    {
       "package": "installer-ware",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -2919,13 +2802,6 @@
       "zip_path": "samples/npm/malicious_intent/blackbeard-navigator-ctf/9.9.9-ctf/2025-10-29-blackbeard-navigator-ctf-v9.9.9-ctf.zip"
     },
     {
-      "package": "ciaoaibot-dev",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "d8fc3b2906ce7db9",
-      "zip_path": "samples/npm/malicious_intent/ciaoaibot-dev/9.4.9/2025-02-07-ciaoaibot-dev-v9.4.9.zip"
-    },
-    {
       "package": "shoal-cli",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -2945,13 +2821,6 @@
       "category": "malicious_intent",
       "cluster_id": "70a0c42405c8bb31",
       "zip_path": "samples/npm/malicious_intent/aquasec-orb-test-project/9.9.9/2025-06-27-aquasec-orb-test-project-v9.9.9.zip"
-    },
-    {
-      "package": "nstmrt-stf-api-poc",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "900254e253630877",
-      "zip_path": "samples/npm/malicious_intent/nstmrt-stf-api-poc/1.0.14/2025-06-25-nstmrt-stf-api-poc-v1.0.14.zip"
     },
     {
       "package": "dc-poc-test",
@@ -2994,13 +2863,6 @@
       "category": "malicious_intent",
       "cluster_id": "2a56cc411d794f38",
       "zip_path": "samples/npm/malicious_intent/elf-stats-lanternlit-snowman-834/1.0.0/2025-12-04-elf-stats-lanternlit-snowman-834-v1.0.0.zip"
-    },
-    {
-      "package": "sendinblue2019",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "49a7eabf42b5c4ab",
-      "zip_path": "samples/npm/malicious_intent/sendinblue2019/1.0.3/2024-11-28-sendinblue2019-v1.0.3.zip"
     },
     {
       "package": "gx-ui-common",
@@ -3080,19 +2942,6 @@
       "zip_path": "samples/npm/malicious_intent/wagmi-toolkits/1.0.5/2024-10-08-wagmi-toolkits-v1.0.5.zip"
     },
     {
-      "package": "phantom-shade",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/phantom-shade/1.0.1/2025-06-26-phantom-shade-v1.0.1.zip"
-    },
-    {
-      "package": "configs-web-react",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "7976818bf6164acf",
-      "zip_path": "samples/npm/malicious_intent/configs-web-react/9.9.9/2025-03-02-configs-web-react-v9.9.9.zip"
-    },
-    {
       "package": "synqroomkit",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3100,25 +2949,11 @@
       "zip_path": "samples/npm/malicious_intent/synqroomkit/0.6.0/2025-11-08-synqroomkit-v0.6.0.zip"
     },
     {
-      "package": "fameex-dev",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "7168d4464fac6705",
-      "zip_path": "samples/npm/malicious_intent/fameex-dev/19.4.9/2025-02-11-fameex-dev-v19.4.9.zip"
-    },
-    {
       "package": "callsign-async-runner",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "ad788cab1691b1ac",
       "zip_path": "samples/npm/malicious_intent/callsign-async-runner/2.0.1/2025-06-25-callsign-async-runner-v2.0.1.zip"
-    },
-    {
-      "package": "amazon-seller-analytics-mcp-server",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "28d73afa4f0521e8",
-      "zip_path": "samples/npm/malicious_intent/amazon-seller-analytics-mcp-server/1.0.0/2026-03-12-amazon-seller-analytics-mcp-server-v1.0.0.zip"
     },
     {
       "package": "elf-stats-joyous-mailbag-164",
@@ -3140,13 +2975,6 @@
       "category": "malicious_intent",
       "cluster_id": "fce13b1d378be5ad",
       "zip_path": "samples/npm/malicious_intent/zdachboostv1/1.0.6/2025-10-04-zdachboostv1-v1.0.6.zip"
-    },
-    {
-      "package": "crypto-buddies",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "f36d713871d63ef9",
-      "zip_path": "samples/npm/malicious_intent/crypto-buddies/9.9.9/2024-12-30-crypto-buddies-v9.9.9.zip"
     },
     {
       "package": "spark-webpack-react-app",
@@ -3184,13 +3012,6 @@
       "zip_path": "samples/npm/malicious_intent/plugin-react/4.4.4/2025-06-17-plugin-react-v4.4.4.zip"
     },
     {
-      "package": "typescript-react-redux-boilerplate",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "83b8983454850c82",
-      "zip_path": "samples/npm/malicious_intent/typescript-react-redux-boilerplate/1.1.1/2025-01-14-typescript-react-redux-boilerplate-v1.1.1.zip"
-    },
-    {
       "package": "abhiktestnpm",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3212,31 +3033,11 @@
       "zip_path": "samples/npm/malicious_intent/session-validate/2.2.6/2025-10-21-session-validate-v2.2.6.zip"
     },
     {
-      "package": "specialist-pwm",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "f5c79af7a3fbeff9",
-      "zip_path": "samples/npm/malicious_intent/specialist-pwm/1.0.3/2025-03-15-specialist-pwm-v1.0.3.zip"
-    },
-    {
       "package": "cmr-graphql",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "13a9518b12581188",
       "zip_path": "samples/npm/malicious_intent/cmr-graphql/90.99.99/2025-07-05-cmr-graphql-v90.99.99.zip"
-    },
-    {
-      "package": "comprs-win32-x64-msvc",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/comprs-win32-x64-msvc/0.4.0/2026-04-03-comprs-win32-x64-msvc-v0.4.0.zip"
-    },
-    {
-      "package": "p2pb2b",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "ef1b5b081e1ab7fc",
-      "zip_path": "samples/npm/malicious_intent/p2pb2b/19.4.9/2025-02-11-p2pb2b-v19.4.9.zip"
     },
     {
       "package": "fxa-shared-110n",
@@ -3337,13 +3138,6 @@
       "zip_path": "samples/npm/malicious_intent/elf-stats-evergreen-muffin-867/1.0.3/2025-12-03-elf-stats-evergreen-muffin-867-v1.0.3.zip"
     },
     {
-      "package": "bitrue-test",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "56a61e6dbe57f1c6",
-      "zip_path": "samples/npm/malicious_intent/bitrue-test/19.4.9/2025-02-11-bitrue-test-v19.4.9.zip"
-    },
-    {
       "package": "meta-internal-logger-drzak",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3358,32 +3152,11 @@
       "zip_path": "samples/npm/malicious_intent/pwnxmljs2/0.30.1/2025-12-09-pwnxmljs2-v0.30.1.zip"
     },
     {
-      "package": "google-build-slack",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "396162bb1979adab",
-      "zip_path": "samples/npm/malicious_intent/google-build-slack/9.9.9/2025-06-17-google-build-slack-v9.9.9.zip"
-    },
-    {
-      "package": "handlebars-formatter",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "94cd8638fdc0a267",
-      "zip_path": "samples/npm/malicious_intent/handlebars-formatter/26.0.0/2025-06-29-handlebars-formatter-v26.0.0.zip"
-    },
-    {
       "package": "integromat-iml",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "92b06ad6d09d3ab0",
       "zip_path": "samples/npm/malicious_intent/integromat-iml/99.99.99/2025-06-20-integromat-iml-v99.99.99.zip"
-    },
-    {
-      "package": "horizon-ui-ng",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "6d69dfc41d43ec0b",
-      "zip_path": "samples/npm/malicious_intent/horizon-ui-ng/99.9.9/2025-08-08-horizon-ui-ng-v99.9.9.zip"
     },
     {
       "package": "redux-saga-channel-end-rce",
@@ -3484,13 +3257,6 @@
       "zip_path": "samples/npm/malicious_intent/jsonwebjstoken/9.0.6/2025-09-13-jsonwebjstoken-v9.0.6.zip"
     },
     {
-      "package": "stopme",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "9b6ae80ec4c35c3f",
-      "zip_path": "samples/npm/malicious_intent/stopme/25.0.0/2025-10-21-stopme-v25.0.0.zip"
-    },
-    {
       "package": "spstargm",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3505,19 +3271,6 @@
       "zip_path": "samples/npm/malicious_intent/scoin_setting/1.0.18/2025-11-13-scoin_setting-v1.0.18.zip"
     },
     {
-      "package": "mystic-orb",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/mystic-orb/1.0.1/2025-06-26-mystic-orb-v1.0.1.zip"
-    },
-    {
-      "package": "maybe-i-would-like-a-banana",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "bb0a93f79419a65b",
-      "zip_path": "samples/npm/malicious_intent/maybe-i-would-like-a-banana/1.0.3/2025-06-28-maybe-i-would-like-a-banana-v1.0.3.zip"
-    },
-    {
       "package": "modern-react",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3530,13 +3283,6 @@
       "category": "malicious_intent",
       "cluster_id": "645a1b85626d1bf1",
       "zip_path": "samples/npm/malicious_intent/curve-ui-kit-security-notice/1.0.0/2025-10-01-curve-ui-kit-security-notice-v1.0.0.zip"
-    },
-    {
-      "package": "bingx-production",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "32d70b2b822f9282",
-      "zip_path": "samples/npm/malicious_intent/bingx-production/19.4.9/2025-02-11-bingx-production-v19.4.9.zip"
     },
     {
       "package": "confidential-package-nam",
@@ -3609,13 +3355,6 @@
       "zip_path": "samples/npm/malicious_intent/os-apps-ui-portal/99.0.0/2025-07-10-os-apps-ui-portal-v99.0.0.zip"
     },
     {
-      "package": "pc-analytics-promotion-creation-core",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "bec1809d579a0d90",
-      "zip_path": "samples/npm/malicious_intent/pc-analytics-promotion-creation-core/99.88.10/2025-09-24-pc-analytics-promotion-creation-core-v99.88.10.zip"
-    },
-    {
       "package": "ethgass-reporter",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3658,46 +3397,11 @@
       "zip_path": "samples/npm/malicious_intent/duckc2-v5.5.5/5.5.5/2024-10-29-duckc2-v5.5.5-v5.5.5.zip"
     },
     {
-      "package": "jenkins-trigger-actio",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "e9eb8a6f8f49bf99",
-      "zip_path": "samples/npm/malicious_intent/jenkins-trigger-actio/10.0.1/2025-08-13-jenkins-trigger-actio-v10.0.1.zip"
-    },
-    {
       "package": "crypto-notifier",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "eb774bce45d630dc",
       "zip_path": "samples/npm/malicious_intent/crypto-notifier/1.0.0/2025-07-11-crypto-notifier-v1.0.0.zip"
-    },
-    {
-      "package": "datlowe-font",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "49407d54e7c2bfa1",
-      "zip_path": "samples/npm/malicious_intent/datlowe-font/99.100.100/2025-01-14-datlowe-font-v99.100.100.zip"
-    },
-    {
-      "package": "markdown-agent",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "bcfd0dc633330a64",
-      "zip_path": "samples/npm/malicious_intent/markdown-agent/99.0.9/2025-08-23-markdown-agent-v99.0.9.zip"
-    },
-    {
-      "package": "okta-template-validator",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "48c651cacf778969",
-      "zip_path": "samples/npm/malicious_intent/okta-template-validator/99.99.99/2025-07-04-okta-template-validator-v99.99.99.zip"
-    },
-    {
-      "package": "take4-hello-world",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "f3ce2a03247bf403",
-      "zip_path": "samples/npm/malicious_intent/take4-hello-world/1.0.0/2024-11-18-take4-hello-world-v1.0.0.zip"
     },
     {
       "package": "elf-stats-mulled-stocking-538",
@@ -3728,13 +3432,6 @@
       "zip_path": "samples/npm/malicious_intent/protos-gen-node/1.0.0/2025-06-30-protos-gen-node-v1.0.0.zip"
     },
     {
-      "package": "do-not-install-this-plz",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "16df1fb8499cb8fd",
-      "zip_path": "samples/npm/malicious_intent/do-not-install-this-plz/1.0.2/2024-12-10-do-not-install-this-plz-v1.0.2.zip"
-    },
-    {
       "package": "stringify-coder",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3749,20 +3446,6 @@
       "zip_path": "samples/npm/malicious_intent/finalmoyloyt3/0.30.1/2025-11-06-finalmoyloyt3-v0.30.1.zip"
     },
     {
-      "package": "naftis",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "183719302fde2f62",
-      "zip_path": "samples/npm/malicious_intent/naftis/2.0.0/2025-10-24-naftis-v2.0.0.zip"
-    },
-    {
-      "package": "lbank-internal",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "4b8862cad67f7ff4",
-      "zip_path": "samples/npm/malicious_intent/lbank-internal/19.4.9/2025-02-11-lbank-internal-v19.4.9.zip"
-    },
-    {
       "package": "cloud-binary",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3775,13 +3458,6 @@
       "category": "malicious_intent",
       "cluster_id": "7df66c40641f9c31",
       "zip_path": "samples/npm/malicious_intent/elf-stats-merry-cookiejar-796/1.0.0/2025-12-03-elf-stats-merry-cookiejar-796-v1.0.0.zip"
-    },
-    {
-      "package": "uniswap-v4-scratchpad-poc",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "f21089d0062f4b92",
-      "zip_path": "samples/npm/malicious_intent/uniswap-v4-scratchpad-poc/1.0.3/2025-06-12-uniswap-v4-scratchpad-poc-v1.0.3.zip"
     },
     {
       "package": "sdbao-content-sems",
@@ -3805,13 +3481,6 @@
       "zip_path": "samples/npm/malicious_intent/lynx-explorer/1.0.1/2025-09-17-lynx-explorer-v1.0.1.zip"
     },
     {
-      "package": "layouts-lib",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "ec195bebc97b5055",
-      "zip_path": "samples/npm/malicious_intent/layouts-lib/1.0.3/2025-03-20-layouts-lib-v1.0.3.zip"
-    },
-    {
       "package": "eslint-plugin-dummy",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3826,32 +3495,11 @@
       "zip_path": "samples/npm/malicious_intent/mlb-site-core/1.0.5/2025-01-14-mlb-site-core-v1.0.5.zip"
     },
     {
-      "package": "experimenter-docs",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "40356ec632cc01fd",
-      "zip_path": "samples/npm/malicious_intent/experimenter-docs/9.0.0/2025-01-17-experimenter-docs-v9.0.0.zip"
-    },
-    {
-      "package": "spectrocoin",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "6111c7d220229ba2",
-      "zip_path": "samples/npm/malicious_intent/spectrocoin/99.99.1/2025-02-25-spectrocoin-v99.99.1.zip"
-    },
-    {
       "package": "os-apps-ui-curvelibrary1",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "a2499d7d7db2d3be",
       "zip_path": "samples/npm/malicious_intent/os-apps-ui-curvelibrary1/12.9.9/2025-07-18-os-apps-ui-curvelibrary1-v12.9.9.zip"
-    },
-    {
-      "package": "test_pkg_forppe",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "03fa0fa69c6c7444",
-      "zip_path": "samples/npm/malicious_intent/test_pkg_forppe/1.0.0/2026-03-14-test_pkg_forppe-v1.0.0.zip"
     },
     {
       "package": "elf-stats-midnight-rocket-499",
@@ -3866,13 +3514,6 @@
       "category": "malicious_intent",
       "cluster_id": "3b904db3f330c293",
       "zip_path": "samples/npm/malicious_intent/locale-clamp-middleware/99.99.9/2026-03-13-locale-clamp-middleware-v99.99.9.zip"
-    },
-    {
-      "package": "elf-stats-sleighing-hammer-902",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "d9681ac4f0c6a994",
-      "zip_path": "samples/npm/malicious_intent/elf-stats-sleighing-hammer-902/1.0.0/2025-12-03-elf-stats-sleighing-hammer-902-v1.0.0.zip"
     },
     {
       "package": "jz-test-npm",
@@ -3901,13 +3542,6 @@
       "category": "malicious_intent",
       "cluster_id": "c052f11d27697026",
       "zip_path": "samples/npm/malicious_intent/frontend-photoswipe/99.0.0/2025-10-03-frontend-photoswipe-v99.0.0.zip"
-    },
-    {
-      "package": "ark-experience",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "528d12c84c93e14d",
-      "zip_path": "samples/npm/malicious_intent/ark-experience/1.9.9/2025-10-25-ark-experience-v1.9.9.zip"
     },
     {
       "package": "elf-stats-snowdusted-stockpile-595",
@@ -3945,13 +3579,6 @@
       "zip_path": "samples/npm/malicious_intent/mercadolibre-prueba-front/55.3.56/2025-06-28-mercadolibre-prueba-front-v55.3.56.zip"
     },
     {
-      "package": "examples-formic",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "542830749153d8f3",
-      "zip_path": "samples/npm/malicious_intent/examples-formic/100.0.2/2025-05-18-examples-formic-v100.0.2.zip"
-    },
-    {
       "package": "dw-api-mock",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -3966,32 +3593,11 @@
       "zip_path": "samples/npm/malicious_intent/hrp9873/1.0.0/2025-09-07-hrp9873-v1.0.0.zip"
     },
     {
-      "package": "elf-stats-jubilant-ornament-641",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "cb1a6be6ceca54b3",
-      "zip_path": "samples/npm/malicious_intent/elf-stats-jubilant-ornament-641/999.0.2/2025-12-03-elf-stats-jubilant-ornament-641-v999.0.2.zip"
-    },
-    {
-      "package": "fluxible-minimal-example",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "2802578de30005b5",
-      "zip_path": "samples/npm/malicious_intent/fluxible-minimal-example/2.0.0/2025-08-13-fluxible-minimal-example-v2.0.0.zip"
-    },
-    {
       "package": "discord-json-requests",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "bd577c06c6ef3a93",
       "zip_path": "samples/npm/malicious_intent/discord-json-requests/1.0.6/2024-11-17-discord-json-requests-v1.0.6.zip"
-    },
-    {
-      "package": "cw-isdk",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "283e7c05d38ca682",
-      "zip_path": "samples/npm/malicious_intent/cw-isdk/40.0.9/2026-03-13-cw-isdk-v40.0.9.zip"
     },
     {
       "package": "dazz-redirects",
@@ -4013,13 +3619,6 @@
       "category": "malicious_intent",
       "cluster_id": "229f9373b1f915e3",
       "zip_path": "samples/npm/malicious_intent/postcss-optimizer/3.2.5/2024-12-23-postcss-optimizer-v3.2.5.zip"
-    },
-    {
-      "package": "symphony-data-map",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "0641f6826ca37fdd",
-      "zip_path": "samples/npm/malicious_intent/symphony-data-map/99.9.9/2025-03-04-symphony-data-map-v99.9.9.zip"
     },
     {
       "package": "enclose-eslint",
@@ -4057,25 +3656,11 @@
       "zip_path": "samples/npm/malicious_intent/kashif-mallah-fca/1.0.1/2025-11-29-kashif-mallah-fca-v1.0.1.zip"
     },
     {
-      "package": "formio-tenant",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "c4b85a0f38ab1253",
-      "zip_path": "samples/npm/malicious_intent/formio-tenant/1.18.9/2025-02-12-formio-tenant-v1.18.9.zip"
-    },
-    {
       "package": "svg-content-validation",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "43fc04b1042bf76b",
       "zip_path": "samples/npm/malicious_intent/svg-content-validation/2.3.3/2026-03-12-svg-content-validation-v2.3.3.zip"
-    },
-    {
-      "package": "healthbot-container",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "aab9d69fc447aa5c",
-      "zip_path": "samples/npm/malicious_intent/healthbot-container/5.0.0/2025-08-16-healthbot-container-v5.0.0.zip"
     },
     {
       "package": "uxline",
@@ -4118,13 +3703,6 @@
       "category": "malicious_intent",
       "cluster_id": "8c4fefd69ed85162",
       "zip_path": "samples/npm/malicious_intent/test552/1.999.0/2025-11-07-test552-v1.999.0.zip"
-    },
-    {
-      "package": "baidu-tester",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "9bfba3e602677e53",
-      "zip_path": "samples/npm/malicious_intent/baidu-tester/1.0.4/2025-12-09-baidu-tester-v1.0.4.zip"
     },
     {
       "package": "pp-react-grid",
@@ -4183,25 +3761,11 @@
       "zip_path": "samples/npm/malicious_intent/pentestlyio-testpackage/0.0.2/2025-11-13-pentestlyio-testpackage-v0.0.2.zip"
     },
     {
-      "package": "fatfingers-hahayeet333",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "e49df7b2984d7dd1",
-      "zip_path": "samples/npm/malicious_intent/fatfingers-hahayeet333/1.0.0/2025-04-10-fatfingers-hahayeet333-v1.0.0.zip"
-    },
-    {
       "package": "gunpowder-ghost-curse",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "5d46e807a0d3025a",
       "zip_path": "samples/npm/malicious_intent/gunpowder-ghost-curse/3.45.12/2025-10-29-gunpowder-ghost-curse-v3.45.12.zip"
-    },
-    {
-      "package": "gate-internal",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "ba0cdfb8e00eadea",
-      "zip_path": "samples/npm/malicious_intent/gate-internal/19.4.9/2025-02-11-gate-internal-v19.4.9.zip"
     },
     {
       "package": "solaraexecutor",
@@ -4251,20 +3815,6 @@
       "category": "malicious_intent",
       "cluster_id": "d1a46d5395d13aaa",
       "zip_path": "samples/npm/malicious_intent/uflexreward/99.9.9/2024-11-22-uflexreward-v99.9.9.zip"
-    },
-    {
-      "package": "aws-features-signin-proxy-client",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "6cc3c0499b913af6",
-      "zip_path": "samples/npm/malicious_intent/aws-features-signin-proxy-client/9.9.9/2025-03-03-aws-features-signin-proxy-client-v9.9.9.zip"
-    },
-    {
-      "package": "search-result",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "3a85a6280260d3d1",
-      "zip_path": "samples/npm/malicious_intent/search-result/10.11.0/2025-08-14-search-result-v10.11.0.zip"
     },
     {
       "package": "rca-search-filter",
@@ -4323,25 +3873,11 @@
       "zip_path": "samples/npm/malicious_intent/elf-stats-ginger-hammer-326/1.0.4/2025-12-03-elf-stats-ginger-hammer-326-v1.0.4.zip"
     },
     {
-      "package": "vladmandic",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "00f0847647f6d446",
-      "zip_path": "samples/npm/malicious_intent/vladmandic/99.99.99/2025-03-03-vladmandic-v99.99.99.zip"
-    },
-    {
       "package": "js-nodecat",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "9a5cfa9f49a184ca",
       "zip_path": "samples/npm/malicious_intent/js-nodecat/1.0.7/2026-02-24-js-nodecat-v1.0.7.zip"
-    },
-    {
-      "package": "ts-tweetnacl-utils",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "d28835f54e5f7778",
-      "zip_path": "samples/npm/malicious_intent/ts-tweetnacl-utils/0.0.5/2026-01-13-ts-tweetnacl-utils-v0.0.5.zip"
     },
     {
       "package": "urcheckin",
@@ -4400,25 +3936,11 @@
       "zip_path": "samples/npm/malicious_intent/supply_chain_dummy_test_4/1.0.0/2025-12-11-supply_chain_dummy_test_4-v1.0.0.zip"
     },
     {
-      "package": "asdasd-hello-world",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "3add8274b7e5c5c7",
-      "zip_path": "samples/npm/malicious_intent/asdasd-hello-world/1.0.0/2024-11-18-asdasd-hello-world-v1.0.0.zip"
-    },
-    {
       "package": "jridgewell-resolve-uri-latest",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "d410ba325202a386",
       "zip_path": "samples/npm/malicious_intent/jridgewell-resolve-uri-latest/999.999.999/2025-06-23-jridgewell-resolve-uri-latest-v999.999.999.zip"
-    },
-    {
-      "package": "focc-commons-lib-backend-commons-node",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "5bdf31061f4eb5a6",
-      "zip_path": "samples/npm/malicious_intent/focc-commons-lib-backend-commons-node/1.0.0/2025-02-26-focc-commons-lib-backend-commons-node-v1.0.0.zip"
     },
     {
       "package": "orderly-js-sdk-cra-template",
@@ -4470,13 +3992,6 @@
       "zip_path": "samples/npm/malicious_intent/igshared/8.1.2/2025-07-13-igshared-v8.1.2.zip"
     },
     {
-      "package": "react-native-windows-repo",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "c88d8c864d55787c",
-      "zip_path": "samples/npm/malicious_intent/react-native-windows-repo/1.0.5/2025-03-02-react-native-windows-repo-v1.0.5.zip"
-    },
-    {
       "package": "testt-tester",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -4498,13 +4013,6 @@
       "zip_path": "samples/npm/malicious_intent/tailwind-components-cli/1.0.0/2026-01-10-tailwind-components-cli-v1.0.0.zip"
     },
     {
-      "package": "google-library",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "88e3635d7c70afb4",
-      "zip_path": "samples/npm/malicious_intent/google-library/20.1.1/2025-08-22-google-library-v20.1.1.zip"
-    },
-    {
       "package": "colorful-buttons",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -4517,20 +4025,6 @@
       "category": "malicious_intent",
       "cluster_id": "b4b9f799d975b169",
       "zip_path": "samples/npm/malicious_intent/elf-stats-cheery-bell-343/999.0.2/2025-12-03-elf-stats-cheery-bell-343-v999.0.2.zip"
-    },
-    {
-      "package": "bitsight",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "0b71d39adfb2913c",
-      "zip_path": "samples/npm/malicious_intent/bitsight/1.0.9/2025-11-13-bitsight-v1.0.9.zip"
-    },
-    {
-      "package": "bybit-dev",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "a8fd789dfebb2e8b",
-      "zip_path": "samples/npm/malicious_intent/bybit-dev/19.4.9/2025-02-07-bybit-dev-v19.4.9.zip"
     },
     {
       "package": "abuse-ui-internal",
@@ -4559,19 +4053,6 @@
       "category": "malicious_intent",
       "cluster_id": "035c98f32e6feff1",
       "zip_path": "samples/npm/malicious_intent/bb-escape/9.9.5/2025-06-25-bb-escape-v9.9.5.zip"
-    },
-    {
-      "package": "dealer-web",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "41abf0b0757c298d",
-      "zip_path": "samples/npm/malicious_intent/dealer-web/100.0.0/2025-08-11-dealer-web-v100.0.0.zip"
-    },
-    {
-      "package": "arrdril712",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/arrdril712/42.7.2/2025-08-09-arrdril712-v42.7.2.zip"
     },
     {
       "package": "parser-session",
@@ -4614,12 +4095,6 @@
       "category": "malicious_intent",
       "cluster_id": "85a3e31288a1e14d",
       "zip_path": "samples/npm/malicious_intent/express-dompurify/3.1.4/2024-09-15-express-dompurify-v3.1.4.zip"
-    },
-    {
-      "package": "hiero-explorer",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/hiero-explorer/1.0.1/2024-12-22-hiero-explorer-v1.0.1.zip"
     },
     {
       "package": "sbrugna",
@@ -4671,13 +4146,6 @@
       "zip_path": "samples/npm/malicious_intent/hello-1st-anni/4.4.31/2024-05-30-hello-1st-anni-v4.4.31.zip"
     },
     {
-      "package": "bingx-internal",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "dbe88aa52bd8187d",
-      "zip_path": "samples/npm/malicious_intent/bingx-internal/19.4.9/2025-02-11-bingx-internal-v19.4.9.zip"
-    },
-    {
       "package": "spectral-corsair-navigator",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -4690,13 +4158,6 @@
       "category": "malicious_intent",
       "cluster_id": "83f274463b603713",
       "zip_path": "samples/npm/malicious_intent/bip40/1.0.6/2025-11-26-bip40-v1.0.6.zip"
-    },
-    {
-      "package": "upbit-test",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "11779467e0ec44ac",
-      "zip_path": "samples/npm/malicious_intent/upbit-test/19.4.9/2025-02-11-upbit-test-v19.4.9.zip"
     },
     {
       "package": "swagger-cli-express",
@@ -4753,13 +4214,6 @@
       "category": "malicious_intent",
       "cluster_id": "6042aff460ac9fda",
       "zip_path": "samples/npm/malicious_intent/mcp-server-todo/1.0.0/2026-03-19-mcp-server-todo-v1.0.0.zip"
-    },
-    {
-      "package": "elf-stats-sleighing-lantern-878",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "90298f97f01f9fde",
-      "zip_path": "samples/npm/malicious_intent/elf-stats-sleighing-lantern-878/1.1.2/2025-12-03-elf-stats-sleighing-lantern-878-v1.1.2.zip"
     },
     {
       "package": "vidio-kmm",
@@ -4832,13 +4286,6 @@
       "zip_path": "samples/npm/malicious_intent/node-telegram-bot-sdk/0.64.0/2025-01-30-node-telegram-bot-sdk-v0.64.0.zip"
     },
     {
-      "package": "model-viewer-space-opera",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "d73642d1da478ac4",
-      "zip_path": "samples/npm/malicious_intent/model-viewer-space-opera/1.1.0/2024-12-25-model-viewer-space-opera-v1.1.0.zip"
-    },
-    {
       "package": "buildkite-pipelines",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -4909,13 +4356,6 @@
       "zip_path": "samples/npm/malicious_intent/coldbox/6.7.71/2024-12-06-coldbox-v6.7.71.zip"
     },
     {
-      "package": "my-ctf-package",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "bf795d03ff974014",
-      "zip_path": "samples/npm/malicious_intent/my-ctf-package/0.30.3/2025-12-07-my-ctf-package-v0.30.3.zip"
-    },
-    {
       "package": "libxmljs10",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -4923,37 +4363,11 @@
       "zip_path": "samples/npm/malicious_intent/libxmljs10/0.30.1/2025-12-09-libxmljs10-v0.30.1.zip"
     },
     {
-      "package": "kcex-internal",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "0512e4f3c7dd98b2",
-      "zip_path": "samples/npm/malicious_intent/kcex-internal/19.4.9/2025-02-11-kcex-internal-v19.4.9.zip"
-    },
-    {
-      "package": "klywarns",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/klywarns/1.0.4/2025-12-27-klywarns-v1.0.4.zip"
-    },
-    {
       "package": "intercom-pulse",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "c7d7e5de80ac9279",
       "zip_path": "samples/npm/malicious_intent/intercom-pulse/99.99.99/2025-06-26-intercom-pulse-v99.99.99.zip"
-    },
-    {
-      "package": "budoux-extension",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "0f7608649aeedb09",
-      "zip_path": "samples/npm/malicious_intent/budoux-extension/99.0.0/2025-07-28-budoux-extension-v99.0.0.zip"
-    },
-    {
-      "package": "stardrop-windows-x64-baseline",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/stardrop-windows-x64-baseline/1.1.47/2026-03-14-stardrop-windows-x64-baseline-v1.1.47.zip"
     },
     {
       "package": "postcss-minify-browser",
@@ -4970,25 +4384,11 @@
       "zip_path": "samples/npm/malicious_intent/npm-test-lowerx/8.8.9/2025-04-01-npm-test-lowerx-v8.8.9.zip"
     },
     {
-      "package": "minimal-ts-webpack",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "670ce7ac9189e6d1",
-      "zip_path": "samples/npm/malicious_intent/minimal-ts-webpack/11.0.8/2025-06-06-minimal-ts-webpack-v11.0.8.zip"
-    },
-    {
       "package": "internallib_v320",
       "ecosystem": "npm",
       "category": "malicious_intent",
       "cluster_id": "59033331478f8038",
       "zip_path": "samples/npm/malicious_intent/internallib_v320/1.0.3/2025-08-25-internallib_v320-v1.0.3.zip"
-    },
-    {
-      "package": "buzzblocks",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "43dd4a5f8ecd6cba",
-      "zip_path": "samples/npm/malicious_intent/buzzblocks/7.0.0/2025-02-08-buzzblocks-v7.0.0.zip"
     },
     {
       "package": "strictructor",
@@ -5012,12 +4412,6 @@
       "zip_path": "samples/npm/malicious_intent/puppeteerrequestinterceptor/3.0.1/2024-10-31-puppeteerrequestinterceptor-v3.0.1.zip"
     },
     {
-      "package": "markast-win32-x64-msvc",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "zip_path": "samples/npm/malicious_intent/markast-win32-x64-msvc/0.1.2/2026-03-18-markast-win32-x64-msvc-v0.1.2.zip"
-    },
-    {
       "package": "zora-utils-core",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -5032,20 +4426,6 @@
       "zip_path": "samples/npm/malicious_intent/roblox.dll/1.0.0/2024-10-26-roblox.dll-v1.0.0.zip"
     },
     {
-      "package": "botframework-webchat-react-valibot",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "1a3b4091c9fa21ec",
-      "zip_path": "samples/npm/malicious_intent/botframework-webchat-react-valibot/9.9.9/2025-07-27-botframework-webchat-react-valibot-v9.9.9.zip"
-    },
-    {
-      "package": "online-learning-components",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "cff5b44b35c5a760",
-      "zip_path": "samples/npm/malicious_intent/online-learning-components/1.0.2/2025-07-01-online-learning-components-v1.0.2.zip"
-    },
-    {
       "package": "upgrade-solara",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -5058,13 +4438,6 @@
       "category": "malicious_intent",
       "cluster_id": "652002704c92e8a3",
       "zip_path": "samples/npm/malicious_intent/openblox-ts/1.0.65/2025-12-29-openblox-ts-v1.0.65.zip"
-    },
-    {
-      "package": "com.mixpanel.unity",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "7234446751b3a76d",
-      "zip_path": "samples/npm/malicious_intent/com.mixpanel.unity/5.5.3/2025-11-16-com.mixpanel.unity-v5.5.3.zip"
     },
     {
       "package": "internallib_v828",
@@ -5142,13 +4515,6 @@
       "category": "malicious_intent",
       "cluster_id": "2a2e44f827f9d063",
       "zip_path": "samples/npm/malicious_intent/hosts-reader-ctf-demo-xyz/1.0.0/2026-04-01-hosts-reader-ctf-demo-xyz-v1.0.0.zip"
-    },
-    {
-      "package": "ascendex",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "edfdb450bcf51300",
-      "zip_path": "samples/npm/malicious_intent/ascendex/19.4.9/2025-02-11-ascendex-v19.4.9.zip"
     },
     {
       "package": "spectro-cloud-tutorials",
@@ -5235,13 +4601,6 @@
       "zip_path": "samples/npm/malicious_intent/internallib_v381/1.0.4/2024-10-27-internallib_v381-v1.0.4.zip"
     },
     {
-      "package": "sn3akysnak3-test",
-      "ecosystem": "npm",
-      "category": "malicious_intent",
-      "cluster_id": "205be6991c2e2381",
-      "zip_path": "samples/npm/malicious_intent/sn3akysnak3-test/1.0.2/2026-03-29-sn3akysnak3-test-v1.0.2.zip"
-    },
-    {
       "package": "ember-bbva-components",
       "ecosystem": "npm",
       "category": "malicious_intent",
@@ -5254,6 +4613,664 @@
       "category": "malicious_intent",
       "cluster_id": "2b06d541d92be2b0",
       "zip_path": "samples/npm/malicious_intent/jssbx/2.0.0/2026-01-14-jssbx-v2.0.0.zip"
+    },
+    {
+      "package": "fairsequence",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/fairsequence/91.6/2024-11-12-fairsequence-v91.6.zip"
+    },
+    {
+      "package": "blazeted",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab7bf33c6b6b07c2",
+      "zip_path": "samples/pypi/malicious_intent/blazeted/1.0/2023-04-24-blazeted-v1.0.zip"
+    },
+    {
+      "package": "crypto-pygame",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "0bf68f27f2a3ea79",
+      "zip_path": "samples/pypi/malicious_intent/crypto-pygame/10.14.7/2023-05-20-crypto-pygame-v10.14.7.zip"
+    },
+    {
+      "package": "libkilledgame",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/libkilledgame/4.61/2023-02-27-libkilledgame-v4.61.zip"
+    },
+    {
+      "package": "pxz",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "348d573cadee9f18",
+      "zip_path": "samples/pypi/malicious_intent/pxz/1.1.9/2025-02-05-pxz-v1.1.9.zip"
+    },
+    {
+      "package": "esqvirtualintpep",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/esqvirtualintpep/2.60/2023-02-27-esqvirtualintpep-v2.60.zip"
+    },
+    {
+      "package": "tppyhttprand",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/tppyhttprand/6.97/2023-02-27-tppyhttprand-v6.97.zip"
+    },
+    {
+      "package": "monoliht",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/monoliht/912.6/2024-11-08-monoliht-v912.6.zip"
+    },
+    {
+      "package": "atlassian-exp",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/atlassian-exp/99.0.0/2025-11-26-atlassian-exp-v99.0.0.zip"
+    },
+    {
+      "package": "tpmaskpaypalping",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/tpmaskpaypalping/2.56/2023-02-27-tpmaskpaypalping-v2.56.zip"
+    },
+    {
+      "package": "youreallydontwantthispackage2131",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/youreallydontwantthispackage2131/1.0.1/2024-10-28-youreallydontwantthispackage2131-v1.0.1.zip"
+    },
+    {
+      "package": "modelize",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "e7d58e87d1658d7f",
+      "zip_path": "samples/pypi/malicious_intent/modelize/1/2023-04-25-modelize-v1.zip"
+    },
+    {
+      "package": "atm-event-app",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "c595021fbfbe7e50",
+      "zip_path": "samples/npm/malicious_intent/atm-event-app/1.0.0/2025-02-23-atm-event-app-v1.0.0.zip"
+    },
+    {
+      "package": "libsuperproofint",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/libsuperproofint/3.64/2023-02-27-libsuperproofint-v3.64.zip"
+    },
+    {
+      "package": "libpywvisavirtual",
+      "ecosystem": "pypi",
+      "category": "malicious_intent",
+      "cluster_id": "ab0c53faccfa2b87",
+      "zip_path": "samples/pypi/malicious_intent/libpywvisavirtual/2.26/2023-03-12-libpywvisavirtual-v2.26.zip"
+    },
+    {
+      "package": "momentjs-poc",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "b42420e1a6ab24e4",
+      "zip_path": "samples/npm/malicious_intent/momentjs-poc/1.0.1/2025-07-29-momentjs-poc-v1.0.1.zip"
+    },
+    {
+      "package": "lbank-test",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "7e8fe0663c3dce4d",
+      "zip_path": "samples/npm/malicious_intent/lbank-test/19.4.9/2025-02-11-lbank-test-v19.4.9.zip"
+    },
+    {
+      "package": "my-amazing-app",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "7ee5b33ef153c90e",
+      "zip_path": "samples/npm/malicious_intent/my-amazing-app/19.1.1/2025-03-11-my-amazing-app-v19.1.1.zip"
+    },
+    {
+      "package": "com.unity.learn.iet-framework",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "8f0d81ee7641d319",
+      "zip_path": "samples/npm/malicious_intent/com.unity.learn.iet-framework/3.1.3/2025-02-05-com.unity.learn.iet-framework-v3.1.3.zip"
+    },
+    {
+      "package": "cloude-code",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "fd9a5bb73538a6c2",
+      "zip_path": "samples/npm/malicious_intent/cloude-code/0.2.1/2026-02-17-cloude-code-v0.2.1.zip"
+    },
+    {
+      "package": "fooobar",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "e8cc3754338e1dd2",
+      "zip_path": "samples/npm/malicious_intent/fooobar/1.0.17/2024-12-19-fooobar-v1.0.17.zip"
+    },
+    {
+      "package": "expvariantassignmentsdk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "667697b3d832d0c8",
+      "zip_path": "samples/npm/malicious_intent/expvariantassignmentsdk/10.0.2/2025-08-27-expvariantassignmentsdk-v10.0.2.zip"
+    },
+    {
+      "package": "typescript-plugin-some-plugin",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "d82e7bc1a605a72b",
+      "zip_path": "samples/npm/malicious_intent/typescript-plugin-some-plugin/1.0.0/2025-04-21-typescript-plugin-some-plugin-v1.0.0.zip"
+    },
+    {
+      "package": "sd-ccp-module-client",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "06d9e3235d77f449",
+      "zip_path": "samples/npm/malicious_intent/sd-ccp-module-client/99.99.1/2026-01-10-sd-ccp-module-client-v99.99.1.zip"
+    },
+    {
+      "package": "elastic-docs-v3-utilities",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "a4d4af44e3a4c7e4",
+      "zip_path": "samples/npm/malicious_intent/elastic-docs-v3-utilities/999.0.0/2025-12-20-elastic-docs-v3-utilities-v999.0.0.zip"
+    },
+    {
+      "package": "braintree-sdk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "94f75f7ec6ed2752",
+      "zip_path": "samples/npm/malicious_intent/braintree-sdk/1.0.0/2025-08-14-braintree-sdk-v1.0.0.zip"
+    },
+    {
+      "package": "libxmlfinal",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "2f81d9eeb5fe85f9",
+      "zip_path": "samples/npm/malicious_intent/libxmlfinal/0.30.3/2025-12-09-libxmlfinal-v0.30.3.zip"
+    },
+    {
+      "package": "react-hook-eslint",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "ae85d9b33c2f3c4e",
+      "zip_path": "samples/npm/malicious_intent/react-hook-eslint/1.0.1/2025-08-01-react-hook-eslint-v1.0.1.zip"
+    },
+    {
+      "package": "healthbottestservice",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "95e1eb6b9185e6eb",
+      "zip_path": "samples/npm/malicious_intent/healthbottestservice/1.0.0/2025-07-03-healthbottestservice-v1.0.0.zip"
+    },
+    {
+      "package": "redirect-t65vz6",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "3991a37324ef3631",
+      "zip_path": "samples/npm/malicious_intent/redirect-t65vz6/1.0.0/2025-09-30-redirect-t65vz6-v1.0.0.zip"
+    },
+    {
+      "package": "helioviewer.org",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "41abf0b0757c298d",
+      "zip_path": "samples/npm/malicious_intent/helioviewer.org/10.2.0/2025-07-03-helioviewer.org-v10.2.0.zip"
+    },
+    {
+      "package": "i-just-love-bananas-dont-mind",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "d6174ef1ea07643d",
+      "zip_path": "samples/npm/malicious_intent/i-just-love-bananas-dont-mind/1.0.0/2025-06-27-i-just-love-bananas-dont-mind-v1.0.0.zip"
+    },
+    {
+      "package": "lowerx-package2",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "1da7c3c4484a4455",
+      "zip_path": "samples/npm/malicious_intent/lowerx-package2/1.0.9/2025-11-04-lowerx-package2-v1.0.9.zip"
+    },
+    {
+      "package": "node-db-init",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "74d4b5e57ce59d68",
+      "zip_path": "samples/npm/malicious_intent/node-db-init/1.0.0/2025-05-21-node-db-init-v1.0.0.zip"
+    },
+    {
+      "package": "sevilla-test-pkg",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "245426a5cc4d64a5",
+      "zip_path": "samples/npm/malicious_intent/sevilla-test-pkg/99.0.0/2025-10-01-sevilla-test-pkg-v99.0.0.zip"
+    },
+    {
+      "package": "erc4337",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "9bfba3e602677e53",
+      "zip_path": "samples/npm/malicious_intent/erc4337/0.0.2/2024-11-23-erc4337-v0.0.2.zip"
+    },
+    {
+      "package": "sqrt_module",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "978a00c65a4a1949",
+      "zip_path": "samples/npm/malicious_intent/sqrt_module/1.0.0/2025-08-12-sqrt_module-v1.0.0.zip"
+    },
+    {
+      "package": "rsk-transaction-helper",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "c45ee031d2e9a754",
+      "zip_path": "samples/npm/malicious_intent/rsk-transaction-helper/1.5.0/2024-12-23-rsk-transaction-helper-v1.5.0.zip"
+    },
+    {
+      "package": "hiagenttest",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "c2310ca631d75230",
+      "zip_path": "samples/npm/malicious_intent/hiagenttest/1.6.0/2026-03-06-hiagenttest-v1.6.0.zip"
+    },
+    {
+      "package": "buzzblocks",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "43dd4a5f8ecd6cba",
+      "zip_path": "samples/npm/malicious_intent/buzzblocks/7.0.0/2025-02-08-buzzblocks-v7.0.0.zip"
+    },
+    {
+      "package": "datadog-instrumentations",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "4c9d20f2875223a1",
+      "zip_path": "samples/npm/malicious_intent/datadog-instrumentations/1.0.1/2025-07-16-datadog-instrumentations-v1.0.1.zip"
+    },
+    {
+      "package": "v0-components",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "e7f1a1110fe489a7",
+      "zip_path": "samples/npm/malicious_intent/v0-components/999.999.999/2025-10-08-v0-components-v999.999.999.zip"
+    },
+    {
+      "package": "bonnet-ltd",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "45b2afb6efa2c7fe",
+      "zip_path": "samples/npm/malicious_intent/bonnet-ltd/1.0.0/2025-06-11-bonnet-ltd-v1.0.0.zip"
+    },
+    {
+      "package": "retaillocationserv-paypal",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "a46430b53404d618",
+      "zip_path": "samples/npm/malicious_intent/retaillocationserv-paypal/2.0.0/2025-11-17-retaillocationserv-paypal-v2.0.0.zip"
+    },
+    {
+      "package": "baby-electron",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "cb1affcd12bfbeed",
+      "zip_path": "samples/npm/malicious_intent/baby-electron/24.6.7/2024-12-28-baby-electron-v24.6.7.zip"
+    },
+    {
+      "package": "com.unity.2d.psdimporter",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "904176ef20695ecb",
+      "zip_path": "samples/npm/malicious_intent/com.unity.2d.psdimporter/40.1.1/2025-09-28-com.unity.2d.psdimporter-v40.1.1.zip"
+    },
+    {
+      "package": "crypto-buddies",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "f36d713871d63ef9",
+      "zip_path": "samples/npm/malicious_intent/crypto-buddies/9.9.9/2024-12-30-crypto-buddies-v9.9.9.zip"
+    },
+    {
+      "package": "modulous",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "7a34282d1b3925fd",
+      "zip_path": "samples/npm/malicious_intent/modulous/7.0.0/2025-02-06-modulous-v7.0.0.zip"
+    },
+    {
+      "package": "kyxhiagent123",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "2bec4f82075f7986",
+      "zip_path": "samples/npm/malicious_intent/kyxhiagent123/1.1.6/2026-03-04-kyxhiagent123-v1.1.6.zip"
+    },
+    {
+      "package": "react-native-xaml-repo",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "44af4d56d264fb0e",
+      "zip_path": "samples/npm/malicious_intent/react-native-xaml-repo/100.101.1337/2025-05-23-react-native-xaml-repo-v100.101.1337.zip"
+    },
+    {
+      "package": "com.unity.live-capture",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "405c8758ddc826d5",
+      "zip_path": "samples/npm/malicious_intent/com.unity.live-capture/1.0.2-pre.1/2025-05-13-com.unity.live-capture-v1.0.2-pre.1.zip"
+    },
+    {
+      "package": "reference-library",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "08279d9df993f91a",
+      "zip_path": "samples/npm/malicious_intent/reference-library/16.0.0/2025-07-29-reference-library-v16.0.0.zip"
+    },
+    {
+      "package": "meli-ai-chat-library",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "8a4a641388dd1435",
+      "zip_path": "samples/npm/malicious_intent/meli-ai-chat-library/99.6.5/2025-06-28-meli-ai-chat-library-v99.6.5.zip"
+    },
+    {
+      "package": "bitfinex-main",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "0f828450af699c69",
+      "zip_path": "samples/npm/malicious_intent/bitfinex-main/19.4.9/2025-02-11-bitfinex-main-v19.4.9.zip"
+    },
+    {
+      "package": "react-native-wm-utils",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "dc31de9ad0f1214c",
+      "zip_path": "samples/npm/malicious_intent/react-native-wm-utils/3.1.4/2025-08-31-react-native-wm-utils-v3.1.4.zip"
+    },
+    {
+      "package": "gafana-test-utils",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "026a8f1017e9f6e5",
+      "zip_path": "samples/npm/malicious_intent/gafana-test-utils/1.0.4/2025-07-25-gafana-test-utils-v1.0.4.zip"
+    },
+    {
+      "package": "ide-stubs",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "dcdc9e95ac8d3164",
+      "zip_path": "samples/npm/malicious_intent/ide-stubs/0.6.0/2025-08-04-ide-stubs-v0.6.0.zip"
+    },
+    {
+      "package": "keythereum-utils",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "33f92ab9937749fa",
+      "zip_path": "samples/npm/malicious_intent/keythereum-utils/1.2.7/2025-06-21-keythereum-utils-v1.2.7.zip"
+    },
+    {
+      "package": "pretty-changelog-logger",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "3e3934bd1c6633b2",
+      "zip_path": "samples/npm/malicious_intent/pretty-changelog-logger/1.0.0/2026-02-27-pretty-changelog-logger-v1.0.0.zip"
+    },
+    {
+      "package": "redirect-klea4q",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "f8df87bfb28787d2",
+      "zip_path": "samples/npm/malicious_intent/redirect-klea4q/1.0.0/2025-09-22-redirect-klea4q-v1.0.0.zip"
+    },
+    {
+      "package": "hemi-btc-staking-actions",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "d2b8cace3ca93e17",
+      "zip_path": "samples/npm/malicious_intent/hemi-btc-staking-actions/10.0.0/2026-01-23-hemi-btc-staking-actions-v10.0.0.zip"
+    },
+    {
+      "package": "redux-saga-guard",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "ad3254691c7ed935",
+      "zip_path": "samples/npm/malicious_intent/redux-saga-guard/10.3.13/2025-08-10-redux-saga-guard-v10.3.13.zip"
+    },
+    {
+      "package": "eth-rperrors",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "c2b2fec3c9ad6728",
+      "zip_path": "samples/npm/malicious_intent/eth-rperrors/4.0.3/2024-11-01-eth-rperrors-v4.0.3.zip"
+    },
+    {
+      "package": "api-react125",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "7f60de14b9f17cea",
+      "zip_path": "samples/npm/malicious_intent/api-react125/99.0.9/2025-08-22-api-react125-v99.0.9.zip"
+    },
+    {
+      "package": "sap-answer",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "d3c8ad8b8fff5ba3",
+      "zip_path": "samples/npm/malicious_intent/sap-answer/0.0.0/2024-07-11-sap-answer-v0.0.0.zip"
+    },
+    {
+      "package": "uniswap-v4-scratchpad-poc",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "f21089d0062f4b92",
+      "zip_path": "samples/npm/malicious_intent/uniswap-v4-scratchpad-poc/1.0.3/2025-06-12-uniswap-v4-scratchpad-poc-v1.0.3.zip"
+    },
+    {
+      "package": "dreame-claude",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "95742aa979f58be1",
+      "zip_path": "samples/npm/malicious_intent/dreame-claude/1.2.8/2025-11-27-dreame-claude-v1.2.8.zip"
+    },
+    {
+      "package": "peloton-creative-assets",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "a744d5771cef7dc8",
+      "zip_path": "samples/npm/malicious_intent/peloton-creative-assets/5.0.2/2025-10-21-peloton-creative-assets-v5.0.2.zip"
+    },
+    {
+      "package": "epxreso",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "aabb8aa5a3d037ae",
+      "zip_path": "samples/npm/malicious_intent/epxreso/5.3.4/2025-08-26-epxreso-v5.3.4.zip"
+    },
+    {
+      "package": "test-website-hashroute",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "9156bc2763d3f012",
+      "zip_path": "samples/npm/malicious_intent/test-website-hashroute/99.99.99/2024-12-24-test-website-hashroute-v99.99.99.zip"
+    },
+    {
+      "package": "couplus-cli",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "1afc86ccb6d40fb9",
+      "zip_path": "samples/npm/malicious_intent/couplus-cli/1.2.6/2026-03-12-couplus-cli-v1.2.6.zip"
+    },
+    {
+      "package": "permissionscaling",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "66f89979090e31ef",
+      "zip_path": "samples/npm/malicious_intent/permissionscaling/1.0.0/2024-11-07-permissionscaling-v1.0.0.zip"
+    },
+    {
+      "package": "vitetest-lint",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "f15e2dbb221fd891",
+      "zip_path": "samples/npm/malicious_intent/vitetest-lint/4.1.21/2026-02-25-vitetest-lint-v4.1.21.zip"
+    },
+    {
+      "package": "envs-loader",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "f10f7397ec6f8a81",
+      "zip_path": "samples/npm/malicious_intent/envs-loader/17.2.6/2025-09-11-envs-loader-v17.2.6.zip"
+    },
+    {
+      "package": "summerfi-typescript-config-security-notice",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "7183463a487c9b89",
+      "zip_path": "samples/npm/malicious_intent/summerfi-typescript-config-security-notice/1.0.0/2025-10-01-summerfi-typescript-config-security-notice-v1.0.0.zip"
+    },
+    {
+      "package": "abstract-http-request",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "deee5991acaedd5d",
+      "zip_path": "samples/npm/malicious_intent/abstract-http-request/2.3.1/2025-12-06-abstract-http-request-v2.3.1.zip"
+    },
+    {
+      "package": "com.unity.transport",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "a9d68b93aefad42e",
+      "zip_path": "samples/npm/malicious_intent/com.unity.transport/2.2.3/2025-08-27-com.unity.transport-v2.2.3.zip"
+    },
+    {
+      "package": "webpack-loadcss",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "5c63c0f19da5c924",
+      "zip_path": "samples/npm/malicious_intent/webpack-loadcss/1.1.17/2025-10-12-webpack-loadcss-v1.1.17.zip"
+    },
+    {
+      "package": "matlab-proxy",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "183719302fde2f62",
+      "zip_path": "samples/npm/malicious_intent/matlab-proxy/2.0.8/2025-10-21-matlab-proxy-v2.0.8.zip"
+    },
+    {
+      "package": "noya-vaults",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "30418c7e23d7c91a",
+      "zip_path": "samples/npm/malicious_intent/noya-vaults/1.0.1/2025-07-18-noya-vaults-v1.0.1.zip"
+    },
+    {
+      "package": "kiwi-module-browse",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "cffb2fa693874198",
+      "zip_path": "samples/npm/malicious_intent/kiwi-module-browse/3.1.3/2025-07-17-kiwi-module-browse-v3.1.3.zip"
+    },
+    {
+      "package": "strmaster-pro",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "34453c058f1e2b3e",
+      "zip_path": "samples/npm/malicious_intent/strmaster-pro/2.0.1/2025-09-02-strmaster-pro-v2.0.1.zip"
+    },
+    {
+      "package": "devops-debug-tool-ctf",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "9bae30a962290ecc",
+      "zip_path": "samples/npm/malicious_intent/devops-debug-tool-ctf/1.0.1/2026-03-28-devops-debug-tool-ctf-v1.0.1.zip"
+    },
+    {
+      "package": "analytics-browser",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "3428996b91f39be8",
+      "zip_path": "samples/npm/malicious_intent/analytics-browser/1.0.1/2026-01-08-analytics-browser-v1.0.1.zip"
+    },
+    {
+      "package": "mapkit-example-vanillajs",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "34294591271ccdfc",
+      "zip_path": "samples/npm/malicious_intent/mapkit-example-vanillajs/1.3.0/2026-01-17-mapkit-example-vanillajs-v1.3.0.zip"
+    },
+    {
+      "package": "grammyjs-sdk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "d0e5ff84a1be9cc1",
+      "zip_path": "samples/npm/malicious_intent/grammyjs-sdk/1.40.0/2025-02-07-grammyjs-sdk-v1.40.0.zip"
+    },
+    {
+      "package": "p2pb2b-test",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "9b937f5d77244a45",
+      "zip_path": "samples/npm/malicious_intent/p2pb2b-test/19.4.9/2025-02-11-p2pb2b-test-v19.4.9.zip"
+    },
+    {
+      "package": "elf-stats-cocoa-workshop-459",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "dd64362d8028d99a",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-cocoa-workshop-459/1.0.0/2025-12-04-elf-stats-cocoa-workshop-459-v1.0.0.zip"
+    },
+    {
+      "package": "debug-mj-v3",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "95d354883f021584",
+      "zip_path": "samples/npm/malicious_intent/debug-mj-v3/1.0.1/2025-10-10-debug-mj-v3-v1.0.1.zip"
+    },
+    {
+      "package": "delta666",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "d50e615fedb2a52f",
+      "zip_path": "samples/npm/malicious_intent/delta666/1.2.0/2026-03-10-delta666-v1.2.0.zip"
+    },
+    {
+      "package": "elf-stats-jubilant-chimney-189",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "4f9e2c4f6b100e46",
+      "zip_path": "samples/npm/malicious_intent/elf-stats-jubilant-chimney-189/1.0.0/2025-12-03-elf-stats-jubilant-chimney-189-v1.0.0.zip"
+    },
+    {
+      "package": "ts-jito",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "e1c9c97d6ad6ca02",
+      "zip_path": "samples/npm/malicious_intent/ts-jito/4.2.3/2025-08-24-ts-jito-v4.2.3.zip"
+    },
+    {
+      "package": "hackerxhj",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "ab0e567a835c29a7",
+      "zip_path": "samples/npm/malicious_intent/hackerxhj/1.4.0/2026-01-13-hackerxhj-v1.4.0.zip"
+    },
+    {
+      "package": "basstiontrestbeesk",
+      "ecosystem": "npm",
+      "category": "malicious_intent",
+      "cluster_id": "9b7d7c0f65da7eef",
+      "zip_path": "samples/npm/malicious_intent/basstiontrestbeesk/1.0.0/2025-04-21-basstiontrestbeesk-v1.0.0.zip"
     }
   ]
 }
