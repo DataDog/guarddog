@@ -107,6 +107,15 @@ def extract_zip(zip_path: str, dest: str):
             zf.extract(info, dest, pwd=b"infected")
 
 
+def find_metadata_file(extracted_dir: str) -> str | None:
+    """Find a package_info-*.json metadata file in the extracted directory."""
+    for root, _dirs, files in os.walk(extracted_dir):
+        for f in files:
+            if f.startswith("package_info-") and f.endswith(".json"):
+                return os.path.join(root, f)
+    return None
+
+
 def scan_package(extracted_dir: str, ecosystem: str, guarddog_bin: str | None = None) -> dict:
     """Run guarddog scan on the extracted directory via CLI."""
     import subprocess as sp
@@ -116,11 +125,15 @@ def scan_package(extracted_dir: str, ecosystem: str, guarddog_bin: str | None = 
     if not guarddog_bin:
         return {"results": {}, "error": "guarddog not found on PATH"}
 
+    cmd = [guarddog_bin, ecosystem, "scan", extracted_dir, "--output-format", "json"]
+
+    # Pass metadata file if available (enables metadata rules for local scans)
+    metadata_file = find_metadata_file(extracted_dir)
+    if metadata_file:
+        cmd.extend(["--metadata", metadata_file])
+
     try:
-        proc = sp.run(
-            [guarddog_bin, ecosystem, "scan", extracted_dir, "--output-format", "json"],
-            capture_output=True, text=True, timeout=90,
-        )
+        proc = sp.run(cmd, capture_output=True, text=True, timeout=90)
         stdout = proc.stdout.strip()
         if stdout:
             return {"results": json.loads(stdout), "error": None}

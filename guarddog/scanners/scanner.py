@@ -97,7 +97,8 @@ class PackageScanner:
         self.analyzer = analyzer
 
     def scan_local(
-        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
+        self, path, rules=None, callback: typing.Callable[[dict], None] = noop,
+        info=None,
     ) -> dict:
         """
         Scans local package
@@ -106,6 +107,8 @@ class PackageScanner:
             path (str): Path to the directory containing the package to analyze
             rules (set, optional): Set of rule names to use. Defaults to all rules.
             callback (typing.Callable[[dict], None], optional): Callback to apply to Analyzer output
+            info (dict, optional): Package metadata for metadata detectors.
+                When provided, metadata rules run alongside source code rules.
 
         Raises:
             Exception: Analyzer exception
@@ -117,10 +120,18 @@ class PackageScanner:
         if rules is not None:
             rules = set(rules)
 
+        if info is not None:
+            # Full analysis: source code + metadata
+            # analyzer.analyze() already formats risks and risk_score
+            pkg_name = (info.get("info") or info).get("name")
+            pkg_version = (info.get("info") or info).get("version")
+            return self.analyzer.analyze(
+                path, info=info, rules=rules, name=pkg_name, version=pkg_version)
+
+        # Source code only (original behavior)
         sourcecode_results = self.analyzer.analyze_sourcecode(path, rules=rules)
         callback(sourcecode_results)
 
-        # Calculate risk-based score for sourcecode results
         risk_score = self.analyzer.calculate_package_risk_score(sourcecode_results)
 
         # Extract and format risks for top-level output
@@ -151,11 +162,10 @@ class PackageScanner:
             for risk in risk_objects
         ]
 
-        # Add risk score to results
         return {
             **sourcecode_results,
             "risk_score": risk_score,
-            "risks": formatted_risks,  # Top-level only, not inside risk_score
+            "risks": formatted_risks,
         }
 
     @abstractmethod

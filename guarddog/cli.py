@@ -96,6 +96,12 @@ def scan_options(fn):
         default=None,
         help="Enable/disable kernel-level sandbox (default: auto-detect)",
     )(fn)
+    fn = click.option(
+        "--metadata",
+        default=None,
+        type=click.Path(exists=True),
+        help="Path to package metadata JSON file (enables metadata rules for local scans)",
+    )(fn)
     return fn
 
 
@@ -201,6 +207,7 @@ def _scan(
     exit_non_zero_on_finding,
     ecosystem: ECOSYSTEM,
     sandbox: Optional[bool] = None,
+    metadata: Optional[str] = None,
 ):
     """Scan a package
 
@@ -234,13 +241,20 @@ def _scan(
         log.error(f"Command scan is not supported for ecosystem {ecosystem}")
         sys.exit(1)
 
+    # Load metadata JSON if provided (enables metadata rules for local scans)
+    import json
+    metadata_info = None
+    if metadata:
+        with open(metadata, "r") as f:
+            metadata_info = json.load(f)
+
     result = {"package": identifier}
     try:
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
             if sandbox:
                 apply_sandbox(scan_paths=[identifier], writable_paths=[])
-            result |= scanner.scan_local(identifier, rule_param)
+            result |= scanner.scan_local(identifier, rule_param, info=metadata_info)
 
         elif os.path.isfile(identifier):
             log.debug(f"Considering that '{identifier}' is a local archive file")
@@ -248,7 +262,7 @@ def _scan(
                 if sandbox:
                     apply_sandbox(scan_paths=[identifier], writable_paths=[tempdir])
                 safe_extract(identifier, tempdir)
-                result |= scanner.scan_local(tempdir, rule_param)
+                result |= scanner.scan_local(tempdir, rule_param, info=metadata_info)
 
         else:
             log.debug(f"Considering that '{identifier}' is a remote target")
@@ -411,6 +425,7 @@ class CliEcosystem(click.Group):
             output_format,
             exit_non_zero_on_finding,
             sandbox,
+            metadata,
         ):
             return _scan(
                 target,
@@ -421,6 +436,7 @@ class CliEcosystem(click.Group):
                 exit_non_zero_on_finding,
                 self.ecosystem,
                 sandbox=sandbox,
+                metadata=metadata,
             )
 
         @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
@@ -482,6 +498,7 @@ def scan(
     output_format,
     exit_non_zero_on_finding,
     sandbox,
+    metadata,
 ):
     return _scan(
         target,
@@ -491,6 +508,7 @@ def scan(
         output_format,
         exit_non_zero_on_finding,
         ECOSYSTEM.PYPI,
+        metadata=metadata,
         sandbox=sandbox,
     )
 
