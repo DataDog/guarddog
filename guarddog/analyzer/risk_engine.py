@@ -63,7 +63,16 @@ ATTACK_PHASES = {
 }
 
 # Valid categories for the identifies field
-VALID_CATEGORIES = {"network", "filesystem", "process", "runtime", "system", "metadata", "setup", "npm"}
+VALID_CATEGORIES = {
+    "network",
+    "filesystem",
+    "process",
+    "runtime",
+    "system",
+    "metadata",
+    "setup",
+    "npm",
+}
 
 # Valid types for the identifies field
 VALID_TYPES = {"capability", "threat"}
@@ -574,12 +583,16 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     # Specificity gate: LOW-specificity-only packages with few distinct threat
     # categories are likely benign (legitimate libs using dangerous APIs).
     # Skip the cap if ANY risk has HIGH or MEDIUM specificity (strong signal).
-    has_meaningful_specificity = any(r.specificity in (Level.HIGH, Level.MEDIUM) for r in risks)
+    has_meaningful_specificity = any(
+        r.specificity in (Level.HIGH, Level.MEDIUM) for r in risks
+    )
     distinct_threat_categories = len(set(r.category for r in risks))
-    if (dominant_specificity == Level.LOW
-            and not has_meaningful_specificity
-            and num_stages < 3
-            and distinct_threat_categories < 3):
+    if (
+        dominant_specificity == Level.LOW
+        and not has_meaningful_specificity
+        and num_stages < 3
+        and distinct_threat_categories < 3
+    ):
         cap = 4.9
         if final_score > cap:
             log.debug(

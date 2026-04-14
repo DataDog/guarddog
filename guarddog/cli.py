@@ -243,6 +243,7 @@ def _scan(
 
     # Load metadata JSON if provided (enables metadata rules for local scans)
     import json
+
     metadata_info = None
     if metadata:
         with open(metadata, "r") as f:

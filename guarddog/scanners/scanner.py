@@ -97,7 +97,10 @@ class PackageScanner:
         self.analyzer = analyzer
 
     def scan_local(
-        self, path, rules=None, callback: typing.Callable[[dict], None] = noop,
+        self,
+        path,
+        rules=None,
+        callback: typing.Callable[[dict], None] = noop,
         info=None,
     ) -> dict:
         """
@@ -126,7 +129,8 @@ class PackageScanner:
             pkg_name = (info.get("info") or info).get("name")
             pkg_version = (info.get("info") or info).get("version")
             return self.analyzer.analyze(
-                path, info=info, rules=rules, name=pkg_name, version=pkg_version)
+                path, info=info, rules=rules, name=pkg_name, version=pkg_version
+            )
 
         # Source code only (original behavior)
         sourcecode_results = self.analyzer.analyze_sourcecode(path, rules=rules)
