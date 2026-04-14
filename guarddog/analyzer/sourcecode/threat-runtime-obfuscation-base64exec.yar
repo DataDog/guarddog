@@ -6,11 +6,12 @@ rule threat_runtime_obfuscation_base64exec
         identifies = "threat.runtime.obfuscation.base64exec"
         severity = "high"
         mitre_tactics = "defense-evasion"
-        specificity = "low"
+        specificity = "medium"
         sophistication = "medium"
 
         max_hits = 1
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
+
     strings:
         // Python - base64 decode + exec/eval
         $py_b64decode = /\bbase64\s*\.\s*b64decode\s*\(/ nocase
@@ -18,14 +19,13 @@ rule threat_runtime_obfuscation_base64exec
         $py_b64decode_std = /\bbase64\s*\.\s*standard_b64decode\s*\(/ nocase
         $py_exec = /\bexec\s*\(/ nocase
         $py_eval = /\beval\s*\(/ nocase
-        $py_compile = /\bcompile\s*\(/ nocase
 
-        // JavaScript/Node.js - atob/Buffer + eval
+        // JavaScript/Node.js - base64 decode patterns
         $js_atob = /\batob\s*\(/ nocase
-        $js_buffer_from = /\bBuffer\s*\.\s*from\s*\(/ nocase
-        $js_buffer_decode = /\.\s*toString\s*\(/ nocase
+        // Buffer.from with explicit base64 encoding (not just any Buffer.from)
+        $js_buffer_b64 = /Buffer\s*\.\s*from\s*\([^)]*['"]base64['"]/ nocase
         $js_eval = /\beval\s*\(/ nocase
-        $js_function = /\bFunction\s*\(/ nocase
+        $js_function = /\bnew\s+Function\s*\(/ nocase
 
         // Go - base64 decode + exec
         $go_b64decode = /\bbase64\s*\.\s*StdEncoding\s*\.\s*DecodeString\s*\(/ nocase
@@ -41,14 +41,10 @@ rule threat_runtime_obfuscation_base64exec
         // Ruby - eval methods
         $rb_eval = /\beval\s*\(/ nocase
         $rb_instance_eval = /\binstance_eval\s*\(/ nocase
-        $rb_class_eval = /\bclass_eval\s*\(/ nocase
-        $rb_module_eval = /\bmodule_eval\s*\(/ nocase
-        $rb_kernel_eval = /\bKernel\s*\.\s*eval\s*\(/ nocase
-        $rb_binding_eval = /\bbinding\s*\.\s*eval\s*\(/ nocase
 
     condition:
-        (any of ($py_b64decode*) and (any of ($py_exec, $py_eval, $py_compile))) or
-        (($js_atob or ($js_buffer_from and $js_buffer_decode)) and ($js_eval or $js_function)) or
+        (any of ($py_b64decode*) and any of ($py_exec, $py_eval)) or
+        (($js_atob or $js_buffer_b64) and ($js_eval or $js_function)) or
         (any of ($go_b64decode*) and $go_exec) or
-        (any of ($rb_b64decode*, $rb_unpack_m) and any of ($rb_eval, $rb_instance_eval, $rb_class_eval, $rb_module_eval, $rb_kernel_eval, $rb_binding_eval))
+        (any of ($rb_b64decode*, $rb_unpack_m) and any of ($rb_eval, $rb_instance_eval))
 }

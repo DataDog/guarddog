@@ -42,5 +42,6 @@ rule threat_runtime_system_info
         $rb_etc_getpwuid = /\bEtc\s*\.\s*getpwuid\s*\(/ nocase
 
     condition:
-        any of them
+        // Require 3+ distinct system info calls to indicate enumeration, not just platform check
+        3 of them
 }

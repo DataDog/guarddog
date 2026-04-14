@@ -63,7 +63,7 @@ ATTACK_PHASES = {
 }
 
 # Valid categories for the identifies field
-VALID_CATEGORIES = {"network", "filesystem", "process", "runtime", "system", "metadata"}
+VALID_CATEGORIES = {"network", "filesystem", "process", "runtime", "system", "metadata", "setup", "npm"}
 
 # Valid types for the identifies field
 VALID_TYPES = {"capability", "threat"}
@@ -320,8 +320,16 @@ def form_risks_from_findings(findings: List[Finding]) -> List[Risk]:
     risks = []
 
     for threat in threats:
-        # Runtime and metadata threats auto-form risks (no capability needed)
-        if threat.category in ("runtime", "metadata"):
+        # Standalone threat categories: form risks without capability pairing.
+        # - runtime/metadata: inherently self-contained (obfuscation, env reads, etc.)
+        # - setup/npm: install-time threats are already execution-context specific
+        # - HIGH specificity threats: malware-specific enough to stand alone
+        is_standalone = (
+            threat.category in ("runtime", "metadata", "setup", "npm")
+            or threat.specificity == Level.HIGH
+        )
+
+        if is_standalone:
             risks.append(
                 Risk(
                     category=threat.category,
@@ -336,16 +344,21 @@ def form_risks_from_findings(findings: List[Finding]) -> List[Risk]:
             )
             continue
 
-        # Find matching capability — prefer same file over cross-file
+        # Find matching capability — prefer same file, then cross-file same category,
+        # then cross-category (weaker correlation)
         same_file_cap = None
         cross_file_cap = None
+        cross_category_cap = None
         for capability in capabilities:
             if can_form_risk(threat, capability):
                 if capability.file_path == threat.file_path:
                     same_file_cap = capability
-                    break  # Same file is best, stop looking
+                    break
                 elif cross_file_cap is None:
                     cross_file_cap = capability
+            elif cross_category_cap is None:
+                # Any capability can form a weak cross-category risk
+                cross_category_cap = capability
 
         matched_cap = same_file_cap or cross_file_cap
         if matched_cap:
@@ -368,6 +381,26 @@ def form_risks_from_findings(findings: List[Finding]) -> List[Risk]:
                     sophistication=threat.sophistication,
                     threat_finding=threat,
                     capability_finding=matched_cap,
+                )
+            )
+        elif cross_category_cap:
+            # Cross-category pairing: threat in one domain + capability in another
+            # Downgrade severity by two levels (weaker signal)
+            risk_severity = _downgrade_severity(_downgrade_severity(threat.severity))
+            log.debug(
+                f"Cross-category risk: {threat.identifies} + "
+                f"{cross_category_cap.identifies} — severity {risk_severity.value}"
+            )
+            risks.append(
+                Risk(
+                    category=threat.category,
+                    detail=threat.detail,
+                    severity=risk_severity,
+                    mitre_tactics=threat.mitre_tactics,
+                    specificity=threat.specificity,
+                    sophistication=threat.sophistication,
+                    threat_finding=threat,
+                    capability_finding=cross_category_cap,
                 )
             )
 
@@ -515,7 +548,7 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     elif num_stages == 2:
         chain_value = 0.7
     else:
-        chain_value = 0.3
+        chain_value = 0.4
 
     chain_component = chain_value * 0.20
 
@@ -537,6 +570,22 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
         + sophistication_component
     )
     final_score = round(raw_score * 10, 1)
+
+    # Specificity gate: LOW-specificity-only packages with few distinct threat
+    # categories are likely benign (legitimate libs using dangerous APIs).
+    # Skip the cap if ANY risk has HIGH or MEDIUM specificity (strong signal).
+    has_meaningful_specificity = any(r.specificity in (Level.HIGH, Level.MEDIUM) for r in risks)
+    distinct_threat_categories = len(set(r.category for r in risks))
+    if (dominant_specificity == Level.LOW
+            and not has_meaningful_specificity
+            and num_stages < 3
+            and distinct_threat_categories < 3):
+        cap = 4.9
+        if final_score > cap:
+            log.debug(
+                f"Score capped at {cap}: LOW-specificity, <3 threat categories, no full chain"
+            )
+            final_score = cap
 
     # HIGH gate: require source code evidence for HIGH
     # Metadata alone cannot reach HIGH
