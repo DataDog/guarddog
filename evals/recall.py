@@ -169,6 +169,9 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
     sha = _github_api(f"repos/{repo}/commits/main")["sha"]
     print(f"  Dataset SHA: {sha}")
 
+    # Build ZIP index upfront so we only sample packages that actually have ZIPs
+    zip_index = _build_zip_index(repo, sha, ecosystems)
+
     samples = []
     for eco in ecosystems:
         manifest_url = f"https://raw.githubusercontent.com/{repo}/main/samples/{eco}/manifest.json"
@@ -176,6 +179,10 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
 
         compromised = sorted([k for k, v in manifest.items() if v is not None])
         malicious = sorted([k for k, v in manifest.items() if v is None])
+
+        # Filter to packages that have ZIPs in the dataset
+        compromised = [p for p in compromised if f"{eco}/compromised_lib/{p}" in zip_index]
+        malicious = [p for p in malicious if f"{eco}/malicious_intent/{p}" in zip_index]
 
         if empty_packages_set:
             compromised = [p for p in compromised
@@ -234,9 +241,7 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
               f"= {n_comp_actual + n_mal_actual}/{samples_per_eco} requested "
               f"(dataset has {len(malicious)} malicious + {len(compromised)} compromised)")
 
-    # Resolve ZIP paths via bulk tree index (~10 API calls)
-    ecosystems_in_samples = list(set(s["ecosystem"] for s in samples))
-    zip_index = _build_zip_index(repo, sha, ecosystems_in_samples)
+    # Resolve ZIP paths from the index built earlier
     resolved = 0
     for s in samples:
         key = f"{s['ecosystem']}/{s['category']}/{s['package']}"
