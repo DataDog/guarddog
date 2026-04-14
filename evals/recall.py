@@ -148,14 +148,17 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
         seed = secrets.token_hex(8)
     random.seed(seed)
 
-    # Load cluster index for deduplication
+    # Load cluster index for deduplication and empty-package filtering
     cluster_index = None
+    empty_packages_set = set()
     if max_per_cluster > 0:
         cluster_index = _load_cluster_index()
         if cluster_index:
             stats = cluster_index.get("stats", {})
+            empty_packages_set = set(cluster_index.get("empty_packages", []))
             print(f"Loaded cluster index: {stats.get('total_clusters', '?')} clusters, "
-                  f"max {max_per_cluster} per cluster")
+                  f"max {max_per_cluster} per cluster"
+                  f"{f', {len(empty_packages_set)} empty packages excluded' if empty_packages_set else ''}")
         else:
             print("WARNING: No cluster_index.json found. Run 'uv run evals/cluster.py' first.")
             print("  Falling back to random sampling without deduplication.")
@@ -173,6 +176,12 @@ def regenerate_samples(ecosystems: list[str], samples_per_eco: int, seed: str | 
 
         compromised = sorted([k for k, v in manifest.items() if v is not None])
         malicious = sorted([k for k, v in manifest.items() if v is None])
+
+        if empty_packages_set:
+            compromised = [p for p in compromised
+                           if f"{eco}/compromised_lib/{p}" not in empty_packages_set]
+            malicious = [p for p in malicious
+                         if f"{eco}/malicious_intent/{p}" not in empty_packages_set]
 
         available_total = len(compromised) + len(malicious)
         if samples_per_eco > available_total:

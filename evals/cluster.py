@@ -25,6 +25,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+import zipfile
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from html import escape
@@ -40,6 +41,8 @@ WORKER_SCRIPT = EVALS_DIR / "cluster_worker.py"
 
 DATASET_REPO = "DataDog/malicious-software-packages-dataset"
 MAX_ZIP_SIZE_BYTES_DEFAULT = 100 * 1024 * 1024  # 100 MB
+
+SOURCE_EXTENSIONS = {".py", ".js", ".ts", ".mjs", ".cjs", ".sh", ".rb", ".go"}
 
 
 def parse_args():
@@ -369,6 +372,56 @@ def download_all_zips(packages: list[dict], zip_dir: Path, sha: str,
 
 
 # ---------------------------------------------------------------------------
+# Phase 3b: Detect empty ZIPs (no source files)
+# ---------------------------------------------------------------------------
+
+def _zip_has_source_files(zip_path: Path) -> bool:
+    """Return True if the ZIP contains at least one source file.
+
+    Source files are identified by extension. Directories and metadata files
+    matching package_info-*.json are ignored.
+    """
+    try:
+        with zipfile.ZipFile(zip_path) as zf:
+            for info in zf.infolist():
+                if info.is_dir():
+                    continue
+                basename = os.path.basename(info.filename)
+                if basename.startswith("package_info-") and basename.endswith(".json"):
+                    continue
+                ext = os.path.splitext(basename)[1].lower()
+                if ext in SOURCE_EXTENSIONS:
+                    return True
+    except Exception:
+        pass
+    return False
+
+
+def find_empty_packages(pkg_to_zip: dict[str, Path], workers: int) -> list[str]:
+    """Return package keys whose ZIPs contain no source files."""
+    print(f"Checking {len(pkg_to_zip)} ZIPs for source files...")
+    empty = []
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(workers, 20)) as executor:
+        future_to_key = {
+            executor.submit(_zip_has_source_files, zip_path): key
+            for key, zip_path in pkg_to_zip.items()
+        }
+        for future in concurrent.futures.as_completed(future_to_key):
+            key = future_to_key[future]
+            try:
+                has_source = future.result()
+            except Exception:
+                has_source = False
+            if not has_source:
+                empty.append(key)
+
+    empty.sort()
+    print(f"  {len(empty)} empty packages (no source files)")
+    return empty
+
+
+# ---------------------------------------------------------------------------
 # Phase 4: Fingerprint (sandboxed workers)
 # ---------------------------------------------------------------------------
 
@@ -547,7 +600,8 @@ def _merge_clusters_tlsh(sha_clusters: dict[str, list[str]],
 
 
 def build_cluster_index(dataset_sha: str, packages: list[dict], fingerprint_results: dict[str, dict],
-                        max_zip_size_mb: int, tlsh_threshold: int) -> dict:
+                        max_zip_size_mb: int, tlsh_threshold: int,
+                        empty_packages: list[str] | None = None) -> dict:
     """Group packages by fingerprint, then merge similar clusters via TLSH."""
     fingerprints = {}
     tlsh_hashes = {}
@@ -606,6 +660,7 @@ def build_cluster_index(dataset_sha: str, packages: list[dict], fingerprint_resu
         "tlsh_hashes": tlsh_hashes,
         "sha_clusters": {k: v for k, v in sha_clusters.items()},
         "clusters": stable_clusters,
+        "empty_packages": empty_packages or [],
         "stats": {
             "total_packages": len(packages),
             "fingerprinted": len(fingerprints),
@@ -615,6 +670,7 @@ def build_cluster_index(dataset_sha: str, packages: list[dict], fingerprint_resu
             "total_clusters": len(stable_clusters),
             "largest_cluster": cluster_sizes[0] if cluster_sizes else 0,
             "singletons": singletons,
+            "empty": len(empty_packages) if empty_packages else 0,
         },
     }
 
@@ -637,6 +693,8 @@ def print_summary(index: dict):
         print(f"  Total clusters: {stats['total_clusters']}")
     print(f"  Largest cluster: {stats['largest_cluster']}")
     print(f"  Singletons: {stats['singletons']}")
+    if stats.get("empty"):
+        print(f"  Empty packages (no source files): {stats['empty']}")
 
     # Top 10 largest clusters
     clusters = index["clusters"]
@@ -915,9 +973,13 @@ def main():
     fingerprint_results = fingerprint_all(
         packages, pkg_to_zip, guarddog_bin, args.workers, args.timeout, args.no_sandbox)
 
+    # Phase 3b: Detect empty ZIPs
+    empty_packages = find_empty_packages(pkg_to_zip, args.workers)
+
     # Phase 5: Build index (SHA-256 exact + TLSH fuzzy merging)
     index = build_cluster_index(dataset_sha, packages, fingerprint_results,
-                                args.max_zip_size, args.tlsh_threshold)
+                                args.max_zip_size, args.tlsh_threshold,
+                                empty_packages=empty_packages)
 
     CLUSTER_INDEX_FILE.write_text(json.dumps(index, indent=2))
     print(f"\nCluster index written to {CLUSTER_INDEX_FILE}")
