@@ -17,7 +17,7 @@ rules:
           - patterns:
               - pattern-either:
                   - pattern: |
-                      $S = $OS.ReadFile($FILE)
+                      $OS.ReadFile($FILE)
                       ...
                   - patterns:
                       - pattern-either:
@@ -33,17 +33,17 @@ rules:
                           metavariable: $READCONENT
                           pattern-either:
                             - pattern: |
-                                $S = $IO.ReadAll($FILE)
+                                $IO.ReadAll($FILE)
                                 ...
                             - pattern: $S = $BUFIO.NewScanner($FILE)
                             - pattern: |
                                 $S = $BUFIO.NewReader($FILE)
                                 ...
                             - pattern: |
-                                $S = $F.Read($DATA)
+                                $F.Read($DATA)
                                 ...
                             - pattern: |
-                                $S = $F.ReadAll($FILE)
+                                $F.ReadAll($FILE)
                                 ...
               - metavariable-regex:
                   metavariable: $FILE
