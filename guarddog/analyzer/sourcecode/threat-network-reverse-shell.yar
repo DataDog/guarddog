@@ -34,6 +34,6 @@ rule threat_network_reverse_shell
 
     condition:
         any of ($bash_*, $nc_*, $ncat_*) or
-        ($py_socket_connect and ($py_pty_spawn or $py_subprocess_shell)) or
+        ($py_socket_connect and ($py_pty_spawn or $py_subprocess_shell or $py_socket_exec or $py_socket_eval)) or
         $func_reverse_shell
 }
