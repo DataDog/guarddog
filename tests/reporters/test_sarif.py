@@ -22,10 +22,8 @@ npm_local_scan_results = [
             "results": {
                 "typosquatting": None,
                 "direct_url_dependency": None,
-                "release_zero": None,
                 "deceptive_author": None,
-                "empty_information": "This package has an empty description on npm",
-                "npm_metadata_mismatch": None,
+                "metadata_mismatch": None,
                 "unclaimed_maintainer_email_domain": None,
                 "bundled_binary": None,
                 "potentially_compromised_email_domain": None,
@@ -57,10 +55,8 @@ npm_local_scan_results = [
             "results": {
                 "typosquatting": None,
                 "direct_url_dependency": None,
-                "release_zero": None,
                 "deceptive_author": None,
-                "empty_information": "This package has an empty description on npm",
-                "npm_metadata_mismatch": None,
+                "metadata_mismatch": None,
                 "unclaimed_maintainer_email_domain": None,
                 "bundled_binary": None,
                 "potentially_compromised_email_domain": None,
@@ -94,12 +90,9 @@ pypi_local_scan_results = [
             "errors": {},
             "results": {
                 "potentially_compromised_email_domain": None,
-                "empty_information": None,
                 "deceptive_author": None,
-                "release_zero": None,
                 "unclaimed_maintainer_email_domain": None,
                 "typosquatting": None,
-                "single_python_file": None,
                 "bundled_binary": None,
                 "obfuscation": {},
                 "download-executable": {},
@@ -130,10 +123,11 @@ pypi_local_scan_results = [
     }
 ]
 
+
 @pytest.mark.parametrize(
     "manifest, ecosystem, local_scan_results, warning_count",
     [
-        ("package.json", ECOSYSTEM.NPM, npm_local_scan_results, 4),
+        ("package.json", ECOSYSTEM.NPM, npm_local_scan_results, 2),
         ("requirements.txt", ECOSYSTEM.PYPI, pypi_local_scan_results, 2),
     ],
 )
@@ -146,9 +140,7 @@ def test_sarif_output(manifest, ecosystem, local_scan_results, warning_count):
                 dependencies=[
                     Dependency(
                         name=r["dependency"],
-                        versions={
-                            DependencyVersion(version=r["version"], location=1)
-                        },
+                        versions={DependencyVersion(version=r["version"], location=1)},
                     )
                     for r in local_scan_results
                 ],

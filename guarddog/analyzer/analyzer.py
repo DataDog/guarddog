@@ -5,13 +5,22 @@ import subprocess
 import yara  # type: ignore
 
 from collections import defaultdict
+from fnmatch import fnmatch
 from pathlib import Path
-from typing import Iterable, Optional, Dict
+from typing import Iterable, Optional, Dict, List
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import get_sourcecode_rules, SempgrepRule, YaraRule
+from guarddog.analyzer.risk_engine import (
+    Finding,
+    Level,
+    form_risks_from_findings,
+    calculate_risk_score,
+    validate_identifies,
+    validate_mitre_tactics,
+)
 from guarddog.utils.config import YARA_EXT_EXCLUDE
-from guarddog.ecosystems import ECOSYSTEM
+from guarddog.ecosystems import ECOSYSTEM, LANGUAGE
 
 MAX_BYTES_DEFAULT = 10_000_000
 SEMGREP_TIMEOUT_DEFAULT = 10
@@ -65,6 +74,149 @@ class Analyzer:
             ".semgrep_logs",
         ]
 
+    # Comment filtering helpers
+
+    @staticmethod
+    def _detect_language(file_path: str) -> Optional[LANGUAGE]:
+        """Detect programming language based on file extension."""
+        ext = Path(file_path).suffix.lower()
+        language_map = {
+            ".py": LANGUAGE.PYTHON,
+            ".pyx": LANGUAGE.PYTHON,
+            ".pyi": LANGUAGE.PYTHON,
+            ".js": LANGUAGE.JAVASCRIPT,
+            ".jsx": LANGUAGE.JAVASCRIPT,
+            ".mjs": LANGUAGE.JAVASCRIPT,
+            ".cjs": LANGUAGE.JAVASCRIPT,
+            ".ts": LANGUAGE.TYPESCRIPT,
+            ".tsx": LANGUAGE.TYPESCRIPT,
+            ".go": LANGUAGE.GO,
+            ".rb": LANGUAGE.RUBY,
+        }
+        return language_map.get(ext)
+
+    @staticmethod
+    def _is_in_multiline_comment(
+        file_path: str,
+        language: LANGUAGE,
+        byte_offset: Optional[int] = None,
+        line_number: Optional[int] = None,
+        context_window: int = 4096,
+    ) -> bool:
+        """
+        Check if a position is within a multi-line comment block.
+        Searches backwards in a limited window to find the first comment marker.
+
+        Args:
+            file_path: Path to the file
+            language: Programming language
+            byte_offset: Optional byte offset - if not provided, calculated from line_number
+            line_number: Optional line number - used to calculate byte_offset if not provided
+            context_window: Number of bytes to read before the match (default 4KB)
+        """
+        try:
+            # Calculate byte offset from line number if not provided
+            if byte_offset is None:
+                if line_number is None:
+                    return False
+                with open(file_path, "r", errors="ignore") as f:
+                    lines_before = [next(f) for _ in range(line_number - 1)]
+                    byte_offset = sum(
+                        len(line.encode("utf-8")) for line in lines_before
+                    )
+
+            # Read only a window of context before the match
+            start_pos = max(0, byte_offset - context_window)
+            with open(file_path, "rb") as f:
+                f.seek(start_pos)
+                window = f.read(byte_offset - start_pos).decode(
+                    "utf-8", errors="ignore"
+                )
+
+            if language in [LANGUAGE.JAVASCRIPT, LANGUAGE.TYPESCRIPT, LANGUAGE.GO]:
+                # Search backwards for first /* or */
+                last_open = window.rfind("/*")
+                last_close = window.rfind("*/")
+
+                # If we find an opening comment and it comes after the last closing,
+                # then we're inside a comment
+                if last_open > last_close:
+                    return True
+
+            elif language == LANGUAGE.PYTHON:
+                # For Python, check if we're inside """ or '''
+                for quote in ['"""', "'''"]:
+                    # Count occurrences - if odd, we're inside a docstring
+                    count = window.count(quote)
+                    if count % 2 == 1:
+                        return True
+
+        except Exception:
+            pass
+
+        return False
+
+    @staticmethod
+    def is_match_in_comment(
+        file_path: str,
+        line_number: int,
+        byte_offset: Optional[int] = None,
+        line_content: Optional[str] = None,
+    ) -> bool:
+        """
+        Check if a match at a given line is within a comment.
+
+        Args:
+            file_path: Path to the file
+            line_number: Line number (1-indexed) of the match
+            byte_offset: Optional byte offset for multi-line comment detection optimization
+            line_content: Optional pre-extracted line content to avoid re-reading file
+
+        Returns:
+            True if the match is in a comment, False otherwise
+        """
+        language = Analyzer._detect_language(file_path)
+        if not language:
+            return False
+
+        try:
+            # Get line content if not provided
+            if line_content is None:
+                with open(file_path, "r", errors="ignore") as f:
+                    for current_line_num, line in enumerate(f, start=1):
+                        if current_line_num == line_number:
+                            line_content = line
+                            break
+                        if current_line_num > line_number:
+                            return False
+
+            if line_content is None:
+                return False
+
+            # Check single-line comments
+            line_stripped = line_content.strip()
+            if language in [
+                LANGUAGE.PYTHON,
+                LANGUAGE.RUBY,
+            ] and line_stripped.startswith("#"):
+                return True
+            if language in [
+                LANGUAGE.JAVASCRIPT,
+                LANGUAGE.TYPESCRIPT,
+                LANGUAGE.GO,
+            ] and line_stripped.startswith("//"):
+                return True
+
+            # Check multi-line comments (byte_offset will be calculated inside if needed)
+            return Analyzer._is_in_multiline_comment(
+                file_path, language, byte_offset=byte_offset, line_number=line_number
+            )
+
+        except Exception:
+            pass
+
+        return False
+
     def analyze(
         self,
         path,
@@ -85,7 +237,7 @@ class Analyzer:
             Exception: "{rule} is not a valid rule."
 
         Returns:
-            dict[str]: map from each rule and their corresponding output
+            dict[str]: map from each rule and their corresponding output, including risk score
         """
 
         metadata_results = None
@@ -100,7 +252,47 @@ class Analyzer:
         results = metadata_results["results"] | sourcecode_results["results"]
         errors = metadata_results["errors"] | sourcecode_results["errors"]
 
-        return {"issues": issues, "errors": errors, "results": results, "path": path}
+        # Calculate risk-based score (sourcecode + metadata)
+        risk_score = self.calculate_package_risk_score(
+            sourcecode_results, metadata_results
+        )
+
+        # Extract and format risks for top-level output
+        risk_objects = risk_score.pop("_risks", [])
+        formatted_risks = [
+            {
+                "name": risk.name,
+                "category": risk.category,
+                "severity": risk.severity.value,
+                "mitre_tactics": risk.mitre_tactics,
+                "threat_identifies": risk.threat_finding.identifies,
+                "threat_rule": risk.threat_finding.rule_name,
+                "threat_description": risk.threat_finding.message or "",
+                "threat_location": risk.threat_finding.location or "",
+                "threat_code": risk.threat_finding.code_snippet or "",
+                "capability_identifies": (
+                    risk.capability_finding.identifies
+                    if risk.capability_finding
+                    else None
+                ),
+                "capability_rule": (
+                    risk.capability_finding.rule_name
+                    if risk.capability_finding
+                    else None
+                ),
+                "file_path": risk.threat_finding.file_path,
+            }
+            for risk in risk_objects
+        ]
+
+        return {
+            "issues": issues,
+            "errors": errors,
+            "results": results,
+            "path": path,
+            "risk_score": risk_score,
+            "risks": formatted_risks,  # Top-level only, not inside risk_score
+        }
 
     def analyze_metadata(
         self,
@@ -194,7 +386,7 @@ class Analyzer:
         errors: Dict[str, str] = {}
         issues = 0
 
-        rule_results: defaultdict[dict, list[dict]] = defaultdict(list)
+        rule_results: defaultdict[str, list[dict]] = defaultdict(list)
 
         rules_path = {
             rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
@@ -205,47 +397,150 @@ class Analyzer:
             log.debug("No yara rules to run")
             return {"results": results, "errors": errors, "issues": issues}
 
-        try:
-            scan_rules = yara.compile(filepaths=rules_path)
+        import time
 
-            for root, _, files in os.walk(path):
-                for f in files:
-                    # Skip files with excluded extensions
-                    if f.lower().endswith(tuple(YARA_EXT_EXCLUDE)):
-                        continue
+        # Get rule metadata to access max_hits
+        yara_rules = {r.id: r for r in get_sourcecode_rules(self.ecosystem, YaraRule)}
 
-                    scan_file_target_abspath = os.path.join(root, f)
-                    scan_file_target_relpath = os.path.relpath(
-                        scan_file_target_abspath, path
-                    )
+        # Run each rule separately to enable per-rule timing and max_hits optimization
+        for rule_name, rule_path in rules_path.items():
+            try:
+                log.debug(f"Executing rule {rule_name}.yar")
+                start_time = time.time()
 
-                    matches = scan_rules.match(scan_file_target_abspath)
-                    for m in matches:
+                scan_rule = yara.compile(filepath=rule_path)
 
-                        for s in m.strings:
-                            for i in s.instances:
-                                finding = {
-                                    "location": f"{scan_file_target_relpath}:{i.offset}",
-                                    "code": self.trim_code_snippet(str(i.matched_data)),
-                                    "message": m.meta.get(
-                                        "description", f"{m.rule} rule matched"
-                                    ),
-                                }
+                # Get rule metadata
+                rule_obj = yara_rules.get(rule_name)
+                max_hits = (
+                    rule_obj.max_hits
+                    if rule_obj and hasattr(rule_obj, "max_hits")
+                    else None
+                )
+                path_include = (
+                    rule_obj.path_include
+                    if rule_obj and hasattr(rule_obj, "path_include")
+                    else None
+                )
+                path_exclude = (
+                    rule_obj.path_exclude
+                    if rule_obj and hasattr(rule_obj, "path_exclude")
+                    else None
+                )
 
-                                # since yara can match the multiple times in the same file
-                                # leading to finding several times the same word or pattern
-                                # this dedup the matches
-                                if [
-                                    f
-                                    for f in rule_results[m.rule]
-                                    if finding["code"] == f["code"]
-                                ]:
-                                    continue
+                hits_found = 0
+                should_stop = False
 
-                                issues += len(m.strings)
-                                rule_results[m.rule].append(finding)
-        except Exception as e:
-            errors["rules-all"] = f"failed to run rule: {str(e)}"
+                for root, _, files in os.walk(path):
+                    if should_stop:
+                        break
+
+                    for f in files:
+                        if should_stop:
+                            break
+
+                        scan_file_target_abspath = os.path.join(root, f)
+                        scan_file_target_relpath = os.path.relpath(
+                            scan_file_target_abspath, path
+                        )
+
+                        # Check path_include patterns if specified (takes precedence)
+                        if path_include:
+                            patterns = [p.strip() for p in path_include.split(",")]
+                            matches_pattern = any(
+                                fnmatch(scan_file_target_relpath, pattern)
+                                for pattern in patterns
+                            )
+                            if not matches_pattern:
+                                continue
+                        else:
+                            # Default: Skip files with excluded extensions
+                            if f.lower().endswith(tuple(YARA_EXT_EXCLUDE)):
+                                continue
+
+                        # Check path_exclude patterns
+                        if path_exclude:
+                            exclude_patterns = [
+                                p.strip() for p in path_exclude.split(",")
+                            ]
+                            if any(
+                                fnmatch(scan_file_target_relpath, pat)
+                                or fnmatch(f, pat)
+                                for pat in exclude_patterns
+                            ):
+                                continue
+
+                        matches = scan_rule.match(scan_file_target_abspath)
+
+                        for m in matches:
+
+                            for s in m.strings:
+                                for i in s.instances:
+                                    # Convert byte offset to line number for better readability
+                                    line_number = self.get_line_number_from_offset(
+                                        scan_file_target_abspath, i.offset
+                                    )
+
+                                    # Filter out matches in comments
+                                    if self.is_match_in_comment(
+                                        scan_file_target_abspath,
+                                        line_number=line_number,
+                                        byte_offset=i.offset,
+                                    ):
+                                        log.debug(
+                                            f"Filtered match in comment at {scan_file_target_relpath}:{line_number}"
+                                        )
+                                        continue
+
+                                    # Extract the actual line of code at the match offset
+                                    line_of_code = self.get_line_at_offset(
+                                        scan_file_target_abspath, i.offset
+                                    )
+
+                                    finding = {
+                                        "location": f"{scan_file_target_relpath}:{line_number}",
+                                        "code": self.trim_code_snippet(line_of_code),
+                                        "message": m.meta.get(
+                                            "description", f"{m.rule} rule matched"
+                                        ),
+                                    }
+
+                                    # since yara can match the multiple times in the same file
+                                    # leading to finding several times the same word or pattern
+                                    # this dedup the matches
+                                    if [
+                                        f
+                                        for f in rule_results[rule_name]
+                                        if finding["code"] == f["code"]
+                                    ]:
+                                        continue
+
+                                    issues += len(m.strings)
+                                    rule_results[rule_name].append(finding)
+                                    hits_found += 1
+
+                                    # Check if we've reached max_hits
+                                    if max_hits is not None and hits_found >= max_hits:
+                                        should_stop = True
+                                        log.debug(
+                                            f"Rule {rule_name}.yar reached max_hits={max_hits}, stopping scan"
+                                        )
+                                        break
+
+                                if should_stop:
+                                    break
+
+                            if should_stop:
+                                break
+
+                elapsed_time = time.time() - start_time
+                log.debug(
+                    f"Rule {rule_name}.yar finished, took {elapsed_time:.2f}s ({hits_found} hits found)"
+                )
+
+            except Exception as e:
+                errors[rule_name] = f"failed to run rule: {str(e)}"
+                log.warning(f"Rule {rule_name}.yar failed: {str(e)}")
 
         return {"results": results | rule_results, "errors": errors, "issues": issues}
 
@@ -375,6 +670,14 @@ output: {e.output}
             end_line = result["end"]["line"]
 
             file_path = os.path.abspath(result["path"])
+
+            # Filter out matches in comments
+            if self.is_match_in_comment(file_path, line_number=start_line):
+                log.debug(
+                    f"Filtered semgrep match in comment at {file_path}:{start_line}"
+                )
+                continue
+
             code = self.trim_code_snippet(
                 self.get_snippet(
                     file_path=file_path, start_line=start_line, end_line=end_line
@@ -432,3 +735,288 @@ output: {e.output}
             return code[: THRESHOLD - 10] + "..." + code[len(code) - 10 :]
         else:
             return code
+
+    def get_line_number_from_offset(self, file_path: str, offset: int) -> int:
+        """
+        Convert a byte offset to a line number in a file
+
+        Args:
+            file_path: Path to the file
+            offset: Byte offset in the file
+
+        Returns:
+            Line number (1-indexed) at the given offset
+        """
+        try:
+            with open(file_path, "rb") as f:
+                content = f.read(offset)
+
+            # Count newlines up to the offset
+            line_number = content.count(b"\n") + 1
+            return line_number
+        except Exception as e:
+            log.debug(
+                f"Failed to get line number at offset {offset} from {file_path}: {e}"
+            )
+            return offset  # Fallback to offset if conversion fails
+
+    def get_line_at_offset(self, file_path: str, offset: int) -> str:
+        """
+        Extract the line of code at a given byte offset in a file
+
+        Args:
+            file_path: Path to the file
+            offset: Byte offset in the file
+
+        Returns:
+            The line of code containing the offset, stripped of whitespace
+        """
+        try:
+            with open(file_path, "rb") as f:
+                content = f.read()
+
+            # Find line boundaries around the offset
+            line_start = content.rfind(b"\n", 0, offset) + 1
+            line_end = content.find(b"\n", offset)
+            if line_end == -1:
+                line_end = len(content)
+
+            # Extract the line
+            line = content[line_start:line_end]
+
+            # Decode and strip
+            try:
+                return line.decode("utf-8", errors="replace").strip()
+            except Exception:
+                return line.decode("latin-1", errors="replace").strip()
+
+        except Exception as e:
+            log.debug(
+                f"Failed to extract line at offset {offset} from {file_path}: {e}"
+            )
+            return ""
+
+    def _convert_to_findings(self, results: dict, rules_dict: dict) -> List[Finding]:
+        """
+        Convert rule match results to Finding objects for risk analysis
+
+        Args:
+            results: Dict of rule_name -> list of matches
+            rules_dict: Dict of rule_name -> rule object
+
+        Returns:
+            List of Finding objects
+        """
+        findings = []
+
+        for rule_name, matches in results.items():
+            if not matches:
+                continue
+
+            # Handle both underscore and dash formats (YARA uses underscores in results)
+            rule_name_dash = rule_name.replace("_", "-")
+
+            if rule_name_dash not in rules_dict:
+                continue
+
+            rule = rules_dict[rule_name_dash]
+
+            # Skip rules without risk metadata
+            if not rule.identifies:
+                continue
+
+            # Validate metadata
+            if not validate_identifies(rule.identifies):
+                log.warning(
+                    f"Rule {rule_name} has invalid 'identifies' field: {rule.identifies}"
+                )
+                continue
+
+            if rule.mitre_tactics and not validate_mitre_tactics(rule.mitre_tactics):
+                log.warning(f"Rule {rule_name} has invalid MITRE tactics")
+
+            # Convert severity/specificity/sophistication strings to Level enum
+            try:
+                severity = Level(rule.severity) if rule.severity else Level.MEDIUM
+            except ValueError:
+                log.warning(
+                    f"Rule {rule_name} has invalid severity: {rule.severity}, using MEDIUM"
+                )
+                severity = Level.MEDIUM
+
+            try:
+                specificity = (
+                    Level(rule.specificity) if rule.specificity else Level.MEDIUM
+                )
+            except ValueError:
+                log.warning(
+                    f"Rule {rule_name} has invalid specificity: {rule.specificity}, using MEDIUM"
+                )
+                specificity = Level.MEDIUM
+
+            try:
+                sophistication = (
+                    Level(rule.sophistication) if rule.sophistication else Level.MEDIUM
+                )
+            except ValueError:
+                log.warning(
+                    f"Rule {rule_name} has invalid sophistication: {rule.sophistication}, using MEDIUM"
+                )
+                sophistication = Level.MEDIUM
+
+            # Create Finding for each match
+            for match in matches:
+                finding = Finding(
+                    rule_name=rule_name,
+                    file_path=(
+                        match.get("location", "").split(":")[0]
+                        if isinstance(match, dict)
+                        else ""
+                    ),
+                    identifies=rule.identifies,
+                    severity=severity,
+                    mitre_tactics=rule.mitre_tactics or [],
+                    specificity=specificity,
+                    sophistication=sophistication,
+                    max_hits=rule.max_hits,  # Pass max_hits from rule
+                    location=match.get("location") if isinstance(match, dict) else None,
+                    code_snippet=match.get("code") if isinstance(match, dict) else None,
+                    message=match.get("message") if isinstance(match, dict) else None,
+                )
+                findings.append(finding)
+
+        return findings
+
+    def _convert_metadata_to_findings(self, metadata_results: dict) -> List[Finding]:
+        """
+        Convert metadata rule results to Finding objects for risk analysis
+
+        Args:
+            metadata_results: Results from analyze_metadata
+
+        Returns:
+            List of Finding objects
+        """
+        findings = []
+
+        for rule_name, message in metadata_results.get("results", {}).items():
+            if not message:
+                continue
+
+            detector = self.metadata_detectors.get(rule_name)
+            if not detector or not detector.identifies:
+                continue
+
+            if not validate_identifies(detector.identifies):
+                log.warning(
+                    f"Metadata rule {rule_name} has invalid 'identifies': {detector.identifies}"
+                )
+                continue
+
+            mitre_tactics = (
+                [t.strip() for t in detector.mitre_tactics.split(",") if t.strip()]
+                if detector.mitre_tactics
+                else []
+            )
+
+            try:
+                severity = (
+                    Level(detector.severity) if detector.severity else Level.MEDIUM
+                )
+            except ValueError:
+                severity = Level.MEDIUM
+
+            try:
+                specificity = (
+                    Level(detector.specificity)
+                    if detector.specificity
+                    else Level.MEDIUM
+                )
+            except ValueError:
+                specificity = Level.MEDIUM
+
+            try:
+                sophistication = (
+                    Level(detector.sophistication)
+                    if detector.sophistication
+                    else Level.MEDIUM
+                )
+            except ValueError:
+                sophistication = Level.MEDIUM
+
+            finding = Finding(
+                rule_name=rule_name,
+                file_path="",
+                identifies=detector.identifies,
+                severity=severity,
+                mitre_tactics=mitre_tactics,
+                specificity=specificity,
+                sophistication=sophistication,
+                max_hits=None,
+                location=None,
+                code_snippet=None,
+                message=message,
+            )
+            findings.append(finding)
+
+        return findings
+
+    def calculate_package_risk_score(
+        self, sourcecode_results: dict, metadata_results: Optional[dict] = None
+    ) -> dict:
+        """
+        Calculate risk-based score for the package using the risk engine
+
+        Args:
+            sourcecode_results: Results from analyze_sourcecode
+            metadata_results: Results from analyze_metadata
+
+        Returns:
+            Dict with risk score information
+        """
+        # Build rules dictionary for lookup
+        rules_dict = {}
+        for rule in get_sourcecode_rules(self.ecosystem, SempgrepRule):
+            rules_dict[rule.id] = rule
+        for rule in get_sourcecode_rules(self.ecosystem, YaraRule):
+            rules_dict[rule.id] = rule
+
+        # Convert sourcecode results to Finding objects
+        all_findings = self._convert_to_findings(
+            sourcecode_results["results"], rules_dict
+        )
+
+        # Convert metadata results to Finding objects
+        if metadata_results:
+            metadata_findings = self._convert_metadata_to_findings(metadata_results)
+            all_findings.extend(metadata_findings)
+
+        if not all_findings:
+            log.debug("No findings with risk metadata to analyze")
+            return {
+                "score": 0.0,
+                "label": "none",
+                "risks": [],
+                "findings_count": 0,
+                "score_breakdown": {},
+            }
+
+        # Form risks at package level (not per-file)
+        # This allows correlation of capabilities and threats across different files
+        all_risks = form_risks_from_findings(all_findings)
+        log.debug(f"Formed {len(all_risks)} risk(s) at package level")
+
+        # Calculate overall package score
+        risk_score = calculate_risk_score(all_risks)
+
+        log.info(
+            f"Package risk score: {risk_score.score}/10 ({risk_score.label.value})"
+        )
+
+        return {
+            "score": risk_score.score,
+            "label": risk_score.label.value,
+            "findings_count": len(all_findings),
+            "score_breakdown": risk_score.score_breakdown,
+            "_risks": all_risks,  # Internal: Risk objects for caller to format
+        }

@@ -2,8 +2,8 @@ from copy import deepcopy
 
 import pytest
 
-from guarddog.analyzer.metadata.npm.npm_metadata_mismatch import (
-    NPMMetadataMismatch,
+from guarddog.analyzer.metadata.npm.metadata_mismatch import (
+    NPMMetadataMismatchDetector,
 )
 from tests.analyzer.metadata.resources.package_fixtures import (
     pypi_package_info,
@@ -31,7 +31,7 @@ def modified_npm_metadata_at_version(mod_keying, mod_value, info, version):
 
 
 class TestNPMMetadataMismatch:
-    mismatch_detector = NPMMetadataMismatch()
+    mismatch_detector = NPMMetadataMismatchDetector()
 
     target_version = "2.1.0"
     test_data = [

@@ -1,0 +1,643 @@
+"""
+Risk-Based Scoring Engine for GuardDog
+
+This module implements a risk correlation and scoring system that:
+1. Correlates capabilities with threats to form risks
+2. Scores packages based on attack chain completeness and sophistication
+3. Uses MITRE ATT&CK tactics to understand attack progression
+"""
+
+from dataclasses import dataclass
+from enum import Enum
+from typing import List, Optional, Dict, Union
+from collections import Counter
+import logging
+
+log = logging.getLogger("guarddog")
+
+
+# ============================================================================
+# Constants and Enums
+# ============================================================================
+
+
+class Level(str, Enum):
+    """Categorical levels for severity, specificity, and sophistication"""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class RiskLabel(str, Enum):
+    """Risk severity labels"""
+
+    NONE = "none"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+# Mapping of severity/specificity/sophistication levels to numeric values
+SEVERITY_VALUES = {Level.LOW: 1, Level.MEDIUM: 2, Level.HIGH: 3}
+
+LEVEL_VALUES = {Level.LOW: 0.3, Level.MEDIUM: 0.7, Level.HIGH: 1.0}
+
+# MITRE ATT&CK tactics grouped by attack phase
+ATTACK_PHASES = {
+    "early": ["reconnaissance", "resource-development", "initial-access", "execution"],
+    "mid": [
+        "persistence",
+        "privilege-escalation",
+        "defense-evasion",
+        "credential-access",
+        "discovery",
+    ],
+    "late": [
+        "lateral-movement",
+        "collection",
+        "command-and-control",
+        "exfiltration",
+        "impact",
+    ],
+}
+
+# Valid categories for the identifies field
+VALID_CATEGORIES = {
+    "network",
+    "filesystem",
+    "process",
+    "runtime",
+    "system",
+    "metadata",
+    "setup",
+    "npm",
+}
+
+# Valid types for the identifies field
+VALID_TYPES = {"capability", "threat"}
+
+
+# ============================================================================
+# Data Models
+# ============================================================================
+
+
+@dataclass
+class Finding:
+    """
+    A single rule match from Semgrep or YARA
+
+    Attributes:
+        rule_name: Name of the rule that matched
+        file_path: Path to the file where the match occurred
+        identifies: What this rule detects (e.g., "threat.network.outbound")
+        severity: Impact level (low/medium/high)
+        mitre_tactics: List of MITRE ATT&CK tactics
+        specificity: Pattern specificity - how specific to malware vs legitimate code (low/medium/high)
+        sophistication: Technique advancement level (low/medium/high)
+        max_hits: Maximum number of risks to form from this rule per file (None = unlimited)
+        location: Specific location in file (line number, offset)
+        code_snippet: Matched code
+        message: Description of what was found
+    """
+
+    rule_name: str
+    file_path: str
+    identifies: str
+    severity: Level
+    mitre_tactics: List[str]
+    specificity: Level = Level.MEDIUM
+    sophistication: Level = Level.MEDIUM
+    max_hits: Optional[int] = None
+    location: Optional[str] = None
+    code_snippet: Optional[str] = None
+    message: Optional[str] = None
+
+    @property
+    def type(self) -> str:
+        """Returns 'capability' or 'threat'"""
+        return self.identifies.split(".")[0]
+
+    @property
+    def category(self) -> str:
+        """Returns category: network, filesystem, process, runtime"""
+        parts = self.identifies.split(".")
+        return parts[1] if len(parts) > 1 else ""
+
+    @property
+    def detail(self) -> Optional[str]:
+        """Returns detail: outbound, inbound, read, write, etc."""
+        parts = self.identifies.split(".")
+        return parts[2] if len(parts) > 2 else None
+
+
+@dataclass
+class Risk:
+    """
+    A formed risk from correlating capability + threat (or runtime threat alone)
+
+    Attributes:
+        category: Risk category (network, filesystem, process, runtime)
+        detail: Optional detail (outbound, read, etc.)
+        severity: Severity level from threat
+        mitre_tactics: MITRE ATT&CK tactics from threat
+        specificity: Pattern specificity - how specific to malware
+        sophistication: Sophistication level
+        threat_finding: The threat finding that formed this risk
+        capability_finding: The capability finding (None for runtime threats)
+    """
+
+    category: str
+    detail: Optional[str]
+    severity: Level
+    mitre_tactics: List[str]
+    specificity: Level
+    sophistication: Level
+    threat_finding: Finding
+    capability_finding: Optional[Finding]
+
+    @property
+    def name(self) -> str:
+        """Returns risk name: 'risk.network' or 'risk.network.outbound'"""
+        if self.detail:
+            return f"risk.{self.category}.{self.detail}"
+        return f"risk.{self.category}"
+
+
+@dataclass
+class RiskScore:
+    """
+    Complete risk scoring result for a package
+
+    Attributes:
+        score: Numeric score from 0-10
+        label: Risk label (none/low/medium/high)
+        risks: List of Risk objects found
+        findings: List of all Finding objects
+        score_breakdown: Dict showing how each factor contributed
+    """
+
+    score: float
+    label: RiskLabel
+    risks: List[Risk]
+    findings: List[Finding]
+    score_breakdown: Dict[str, Union[float, int, bool, str]]
+
+
+# ============================================================================
+# Validation
+# ============================================================================
+
+
+def validate_identifies(identifies: str) -> bool:
+    """
+    Validates the 'identifies' field format
+
+    Expected format: {type}.{category}[.{specificity}]
+    - type: capability | threat
+    - category: network | filesystem | process | runtime
+    - specificity: optional additional detail
+
+    Returns:
+        True if valid, False otherwise
+    """
+    parts = identifies.split(".")
+
+    if len(parts) < 2:
+        return False
+
+    type_part = parts[0]
+    category_part = parts[1]
+
+    if type_part not in VALID_TYPES:
+        log.warning(
+            f"Invalid type in identifies '{identifies}': must be 'capability' or 'threat'"
+        )
+        return False
+
+    if category_part not in VALID_CATEGORIES:
+        log.warning(
+            f"Invalid category in identifies '{identifies}': must be one of {VALID_CATEGORIES}"
+        )
+        return False
+
+    return True
+
+
+def validate_mitre_tactics(tactics: List[str]) -> bool:
+    """
+    Validates that MITRE tactics are recognized
+
+    Returns:
+        True if all tactics are valid, False otherwise
+    """
+    all_valid_tactics = set()
+    for phase_tactics in ATTACK_PHASES.values():
+        all_valid_tactics.update(phase_tactics)
+
+    invalid_tactics = [t for t in tactics if t not in all_valid_tactics]
+
+    if invalid_tactics:
+        log.warning(f"Unknown MITRE tactics: {invalid_tactics}")
+        return False
+
+    return True
+
+
+# ============================================================================
+# Risk Formation
+# ============================================================================
+
+
+def _downgrade_severity(level: Level) -> Level:
+    """Reduce severity by one level for cross-file risk correlation."""
+    if level == Level.HIGH:
+        return Level.MEDIUM
+    if level == Level.MEDIUM:
+        return Level.LOW
+    return Level.LOW
+
+
+def can_form_risk(threat: Finding, capability: Finding) -> bool:
+    """
+    Check if a threat and capability can form a risk
+
+    Rules:
+    1. Same category (network + network, filesystem + filesystem)
+    2. Detail compatibility:
+       - If either is general (None): match
+       - If both specific: must be identical
+
+    Args:
+        threat: Threat finding
+        capability: Capability finding
+
+    Returns:
+        True if they can form a risk, False otherwise
+    """
+    # Must be same category
+    if threat.category != capability.category:
+        return False
+
+    # Check detail compatibility
+    threat_detail = threat.detail
+    cap_detail = capability.detail
+
+    # If either is general (None), they match
+    if threat_detail is None or cap_detail is None:
+        return True
+
+    # Both specific: must be identical
+    return threat_detail == cap_detail
+
+
+def form_risks_from_findings(findings: List[Finding]) -> List[Risk]:
+    """
+    Form risks from findings in the same file
+
+    Args:
+        findings: List of Finding objects from the same file
+
+    Returns:
+        List of Risk objects (limited by max_hits per rule)
+    """
+    from collections import defaultdict
+
+    # Group findings by rule_name to apply max_hits per rule
+    findings_by_rule = defaultdict(list)
+    for finding in findings:
+        findings_by_rule[finding.rule_name].append(finding)
+
+    # Apply max_hits limit per rule
+    limited_findings = []
+    for rule_name, rule_findings in findings_by_rule.items():
+        # Get max_hits from first finding of this rule (all have same value)
+        max_hits = rule_findings[0].max_hits
+
+        if max_hits is not None and len(rule_findings) > max_hits:
+            # Limit to max_hits findings
+            limited_findings.extend(rule_findings[:max_hits])
+        else:
+            # Take all findings
+            limited_findings.extend(rule_findings)
+
+    # Now form risks from the limited findings
+    capabilities = [f for f in limited_findings if f.type == "capability"]
+    threats = [f for f in limited_findings if f.type == "threat"]
+
+    risks = []
+
+    for threat in threats:
+        # Standalone threat categories: form risks without capability pairing.
+        # - runtime/metadata: inherently self-contained (obfuscation, env reads, etc.)
+        # - setup/npm: install-time threats are already execution-context specific
+        # - HIGH specificity threats: malware-specific enough to stand alone
+        is_standalone = (
+            threat.category in ("runtime", "metadata", "setup", "npm")
+            or threat.specificity == Level.HIGH
+        )
+
+        if is_standalone:
+            risks.append(
+                Risk(
+                    category=threat.category,
+                    detail=threat.detail,
+                    severity=threat.severity,
+                    mitre_tactics=threat.mitre_tactics,
+                    specificity=threat.specificity,
+                    sophistication=threat.sophistication,
+                    threat_finding=threat,
+                    capability_finding=None,
+                )
+            )
+            continue
+
+        # Find matching capability — prefer same file, then cross-file same category,
+        # then cross-category (weaker correlation)
+        same_file_cap = None
+        cross_file_cap = None
+        cross_category_cap = None
+        for capability in capabilities:
+            if can_form_risk(threat, capability):
+                if capability.file_path == threat.file_path:
+                    same_file_cap = capability
+                    break
+                elif cross_file_cap is None:
+                    cross_file_cap = capability
+            elif cross_category_cap is None:
+                # Any capability can form a weak cross-category risk
+                cross_category_cap = capability
+
+        matched_cap = same_file_cap or cross_file_cap
+        if matched_cap:
+            is_cross_file = matched_cap.file_path != threat.file_path
+            risk_severity = threat.severity
+            if is_cross_file:
+                risk_severity = _downgrade_severity(threat.severity)
+                log.debug(
+                    f"Cross-file risk: {threat.identifies} ({threat.file_path}) + "
+                    f"{matched_cap.identifies} ({matched_cap.file_path}) — "
+                    f"severity downgraded {threat.severity.value} → {risk_severity.value}"
+                )
+            risks.append(
+                Risk(
+                    category=threat.category,
+                    detail=threat.detail or matched_cap.detail,
+                    severity=risk_severity,
+                    mitre_tactics=threat.mitre_tactics,
+                    specificity=threat.specificity,
+                    sophistication=threat.sophistication,
+                    threat_finding=threat,
+                    capability_finding=matched_cap,
+                )
+            )
+        elif cross_category_cap:
+            # Cross-category pairing: threat in one domain + capability in another
+            # Downgrade severity by two levels (weaker signal)
+            risk_severity = _downgrade_severity(_downgrade_severity(threat.severity))
+            log.debug(
+                f"Cross-category risk: {threat.identifies} + "
+                f"{cross_category_cap.identifies} — severity {risk_severity.value}"
+            )
+            risks.append(
+                Risk(
+                    category=threat.category,
+                    detail=threat.detail,
+                    severity=risk_severity,
+                    mitre_tactics=threat.mitre_tactics,
+                    specificity=threat.specificity,
+                    sophistication=threat.sophistication,
+                    threat_finding=threat,
+                    capability_finding=cross_category_cap,
+                )
+            )
+
+    return risks
+
+
+# ============================================================================
+# Scoring
+# ============================================================================
+
+
+def get_primary_phase(risk: Risk) -> Optional[str]:
+    """
+    Get the primary attack phase from the first MITRE tactic
+
+    Args:
+        risk: Risk object
+
+    Returns:
+        Phase name ('early', 'mid', 'late') or None if no tactics
+    """
+    if not risk.mitre_tactics:
+        return None
+
+    primary_tactic = risk.mitre_tactics[0]
+
+    for phase, tactics in ATTACK_PHASES.items():
+        if primary_tactic in tactics:
+            return phase
+
+    log.warning(f"Unknown MITRE tactic '{primary_tactic}' for risk {risk.name}")
+    return None
+
+
+def get_dominant_level(levels: List[Level]) -> Level:
+    """
+    Get the dominant level from a list
+
+    Rules:
+    - If >50% are low: return low
+    - If any high: return high
+    - Otherwise: return medium
+
+    Args:
+        levels: List of Level values
+
+    Returns:
+        Dominant Level
+    """
+    if not levels:
+        return Level.MEDIUM
+
+    counts = Counter(levels)
+
+    # If more than half are low, overall is low
+    if counts[Level.LOW] > len(levels) / 2:
+        return Level.LOW
+    # If any high, overall is high
+    elif counts.get(Level.HIGH, 0) > 0:
+        return Level.HIGH
+    else:
+        return Level.MEDIUM
+
+
+def has_credential_access_with_exfil(risks: List[Risk]) -> bool:
+    """
+    Check if package has credential access + network exfiltration
+
+    This is a special case: credential theft with exfiltration should
+    be treated as a full attack chain even without traditional early-stage execution.
+
+    Args:
+        risks: List of Risk objects
+
+    Returns:
+        True if credential-access + network exfiltration detected
+    """
+    has_credential_access = False
+    has_network_exfil = False
+
+    for risk in risks:
+        if "credential-access" in risk.mitre_tactics:
+            has_credential_access = True
+        if risk.category == "network" and any(
+            t in ["exfiltration", "command-and-control"] for t in risk.mitre_tactics
+        ):
+            has_network_exfil = True
+
+    return has_credential_access and has_network_exfil
+
+
+def calculate_risk_score(risks: List[Risk]) -> RiskScore:
+    """
+    Calculate final risk score using Factor Rating method
+
+    Scoring factors (weights):
+    - Severity (30%): Highest severity finding
+    - Attack Chain (20%): Presence of complete attack stages (1=0.3, 2=0.7, 3=1.0)
+    - Specificity (30%): Pattern specificity (how specific to malware vs legitimate code)
+    - Sophistication (20%): Technique sophistication level
+
+    Args:
+        risks: List of Risk objects for a package
+
+    Returns:
+        RiskScore object with score, label, and breakdown
+    """
+    if not risks:
+        return RiskScore(
+            score=0.0,
+            label=RiskLabel.NONE,
+            risks=[],
+            findings=[],
+            score_breakdown={
+                "severity_component": 0.0,
+                "chain_component": 0.0,
+                "specificity_component": 0.0,
+                "sophistication_component": 0.0,
+            },
+        )
+
+    # Factor 1: Severity (30% weight -- strongest signal)
+    max_severity = max(SEVERITY_VALUES[r.severity] for r in risks)
+    severity_component = (max_severity / 3.0) * 0.30
+
+    # Factor 2: Attack Chain (20% weight)
+    # Count distinct attack stages present
+    # Single-stage attacks (e.g. setup.py dropper) get partial credit
+    # since most real malware is single-stage
+    stages_present = set()
+    for risk in risks:
+        phase = get_primary_phase(risk)
+        if phase:
+            stages_present.add(phase)
+
+    num_stages = len(stages_present)
+
+    # Special case: credential access + network exfiltration = full chain
+    if num_stages < 3 and has_credential_access_with_exfil(risks):
+        num_stages = 3
+        log.debug("Treating credential-access + exfiltration as full chain")
+
+    if num_stages >= 3:
+        chain_value = 1.0
+    elif num_stages == 2:
+        chain_value = 0.7
+    else:
+        chain_value = 0.4
+
+    chain_component = chain_value * 0.20
+
+    # Factor 3: Specificity (30% weight -- most discriminating factor)
+    specificity_levels = [r.specificity for r in risks]
+    dominant_specificity = get_dominant_level(specificity_levels)
+    specificity_component = LEVEL_VALUES[dominant_specificity] * 0.30
+
+    # Factor 4: Sophistication (20% weight)
+    sophistication_levels = [r.sophistication for r in risks]
+    dominant_sophistication = get_dominant_level(sophistication_levels)
+    sophistication_component = LEVEL_VALUES[dominant_sophistication] * 0.20
+
+    # Calculate final score
+    raw_score = (
+        severity_component
+        + chain_component
+        + specificity_component
+        + sophistication_component
+    )
+    final_score = round(raw_score * 10, 1)
+
+    # Specificity gate: LOW-specificity-only packages with few distinct threat
+    # categories are likely benign (legitimate libs using dangerous APIs).
+    # Skip the cap if ANY risk has HIGH or MEDIUM specificity (strong signal).
+    has_meaningful_specificity = any(
+        r.specificity in (Level.HIGH, Level.MEDIUM) for r in risks
+    )
+    distinct_threat_categories = len(set(r.category for r in risks))
+    if (
+        dominant_specificity == Level.LOW
+        and not has_meaningful_specificity
+        and num_stages < 3
+        and distinct_threat_categories < 3
+    ):
+        cap = 4.9
+        if final_score > cap:
+            log.debug(
+                f"Score capped at {cap}: LOW-specificity, <3 threat categories, no full chain"
+            )
+            final_score = cap
+
+    # HIGH gate: require source code evidence for HIGH
+    # Metadata alone cannot reach HIGH
+    has_source_code_risks = any(r.category != "metadata" for r in risks)
+    if final_score > 7.5 and not has_source_code_risks:
+        final_score = 7.5
+        log.debug("Score capped at 7.5: HIGH requires source code risks")
+
+    # Map to label
+    if final_score == 0:
+        label = RiskLabel.NONE
+    elif final_score <= 3:
+        label = RiskLabel.LOW
+    elif final_score <= 7.5:
+        label = RiskLabel.MEDIUM
+    else:
+        label = RiskLabel.HIGH
+
+    # Collect all findings
+    all_findings = []
+    for risk in risks:
+        all_findings.append(risk.threat_finding)
+        if risk.capability_finding:
+            all_findings.append(risk.capability_finding)
+
+    return RiskScore(
+        score=final_score,
+        label=label,
+        risks=risks,
+        findings=all_findings,
+        score_breakdown={
+            "severity_component": round(severity_component, 3),
+            "chain_component": round(chain_component, 3),
+            "specificity_component": round(specificity_component, 3),
+            "sophistication_component": round(sophistication_component, 3),
+            "num_stages": num_stages,
+            "has_source_code_risks": has_source_code_risks,
+            "max_severity": max_severity,
+            "dominant_specificity": dominant_specificity.value,
+            "dominant_sophistication": dominant_sophistication.value,
+        },
+    )

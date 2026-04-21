@@ -8,9 +8,9 @@
   <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
 </p>
 
-GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages, Go modules, RubyGems, GitHub actions, or VSCode extensions. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
+GuardDog is a CLI tool that identifies malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs static analysis on package source code (through Semgrep and YARA rules) and analyzes package metadata to detect supply chain attacks.
 
-GuardDog can be used to scan local or remote PyPI and npm packages, Go modules, RubyGems, GitHub actions, or VSCode extensions using any of the available [heuristics](#heuristics).
+**What makes GuardDog different:** Instead of just listing suspicious patterns, GuardDog correlates findings to identify actual **risks** based on attack chains. A package needs both the **capability** to perform an action (e.g., network access) and a **threat indicator** (e.g., suspicious domain) in the same file to be flagged as high risk.
 
 It downloads and scans code from:
 
@@ -23,6 +23,44 @@ It downloads and scans code from:
 
 ![GuardDog demo usage](https://github.com/DataDog/guarddog/blob/main/docs/images/demo.png?raw=true)
 
+## How GuardDog Works
+
+GuardDog uses a **risk-based detection model** that correlates code capabilities with threat indicators:
+
+1. **Detection**: Rules identify either **capabilities** (what code *can* do) or **threats** (suspicious indicators)
+2. **Correlation**: Capabilities and threats found in the same file form **risks**
+3. **Scoring**: Risks are scored (0-10) based on attack chain completeness and sophistication
+4. **Reporting**: Packages receive a severity rating (low/medium/high) with detailed risk breakdown
+
+### Why This Approach?
+
+Traditional SAST tools flag every suspicious pattern independently, leading to alert fatigue. GuardDog understands that:
+
+- **Capability alone** isn't malicious (network libraries should make HTTP requests)
+- **Threat indicators alone** might be false positives (test fixtures, documentation)
+- **Capability + Threat together** indicates actual risk (code that can *and will* do something malicious)
+
+### Risk Scoring
+
+Packages receive a score from **0-10** based on four factors:
+
+| Factor | Weight | Description |
+|--------|--------|-------------|
+| **Severity** | 25% | Highest severity finding (low/medium/high) |
+| **Attack Chain** | 30% | Presence of complete attack stages (early → mid/late) |
+| **Specificity** | 25% | How specific patterns are (vs generic/common code) |
+| **Sophistication** | 20% | Use of evasion techniques (obfuscation, anti-debugging) |
+
+**Score Labels:**
+- **0**: No risks detected
+- **1-3**: Low risk (single-stage threats, low specificity)
+- **3.1-7.5**: Medium risk (partial attack chain, metadata indicators, or single-stage code findings)
+- **7.6-10**: High risk (multi-stage attack chain with source code evidence — near-certainty of compromise)
+
+**Attack Chain Stages** (based on MITRE ATT&CK):
+- **Early**: Initial access, execution capabilities
+- **Mid**: Persistence, defense evasion, credential access
+- **Late**: Command & control, exfiltration, impact
 ---
 ### Check out the new Datadog Agent [integration](https://docs.datadoghq.com/integrations/guarddog/) and Cloud SIEM [content pack](https://app.datadoghq.com/security/siem/content-packs?query=guarddog) for GuardDog.
 ---
@@ -115,203 +153,40 @@ guarddog --log-level debug npm scan express
 ```
 
 
-## Heuristics
+## Sandboxed Scanning
 
-GuardDog comes with 2 types of heuristics:
+When scanning packages, GuardDog runs source code analysis inside a **kernel-level sandbox** (Linux via Landlock, macOS via Seatbelt, using [nono](https://github.com/always-further/nono-py)). The sandbox blocks all network access and restricts filesystem operations to only the paths needed for analysis. This protects against malicious packages that attempt to execute code during archive extraction or scanning.
 
-* [**Source code heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/sourcecode): Semgrep rules running against the package source code.
+By default, the sandbox is used if available, with a warning if it's not. You can also force it on (hard-fail if unavailable) or off:
 
-* [**Package metadata heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata): Python or Javascript heuristics running against the package metadata on PyPI or npm.
+```sh
+# Default: auto-detect, warn if unavailable
+guarddog pypi scan requests
 
-<!-- BEGIN_RULE_LIST -->
-### PyPI
+# Force sandbox on (exit with error if unavailable)
+guarddog pypi scan requests --sandbox
 
-Source code heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| api-obfuscation | Identify obfuscated API calls using alternative Python syntax patterns |
-| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
-| obfuscation | Identify when a package uses a common obfuscation method often used by malware |
-| clipboard-access | Identify when a package reads or write data from the clipboard |
-| exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
-| download-executable | Identify when a package downloads and makes executable a remote binary |
-| exec-base64 | Identify when a package dynamically executes base64-encoded code |
-| silent-process-execution | Identify when a package silently executes an executable |
-| dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
-| steganography | Identify when a package retrieves hidden data from an image and executes it |
-| code-execution | Identify when an OS command is executed in the setup.py file |
-| unicode | Identify suspicious unicode characters |
-| cmd-overwrite | Identify when the 'install' command is overwritten in setup.py, indicating a piece of code automatically running when the package is installed |
-| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
-
-Metadata heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| empty_information | Identify packages with an empty description field |
-| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
-| typosquatting | Identify packages that are named closely to an highly popular package |
-| potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised |
-| unclaimed_maintainer_email_domain | Identify when a package maintainer e-mail domain (and therefore npm account) is unclaimed and can be registered by an attacker |
-| repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
-| single_python_file | Identify packages that have only a single Python file |
-| bundled_binary | Identify packages bundling binaries |
-| deceptive_author | This heuristic detects when an author is using a disposable email |
-
-
-### npm
-
-Source code heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| npm-serialize-environment | Identify when a package serializes 'process.env' to exfiltrate environment variables |
-| npm-obfuscation | Identify when a package uses a common obfuscation method often used by malware |
-| npm-silent-process-execution | Identify when a package silently executes an executable |
-| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
-| npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
-| npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
-| npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
-| npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
-| npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
-| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
-
-Metadata heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| empty_information | Identify packages with an empty description field |
-| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
-| potentially_compromised_email_domain | Identify when a package maintainer e-mail domain (and therefore package manager account) might have been compromised; note that NPM's API may not provide accurate information regarding the maintainer's email, so this detector may cause false positives for NPM packages. see https://www.theregister.com/2022/05/10/security_npm_email/ |
-| unclaimed_maintainer_email_domain | Identify when a package maintainer e-mail domain (and therefore npm account) is unclaimed and can be registered by an attacker; note that NPM's API may not provide accurate information regarding the maintainer's email, so this detector may cause false positives for NPM packages. see https://www.theregister.com/2022/05/10/security_npm_email/ |
-| typosquatting | Identify packages that are named closely to an highly popular package |
-| direct_url_dependency | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. |
-| npm_metadata_mismatch | Identify packages which have mismatches between the npm package manifest and the package info for some critical fields |
-| bundled_binary | Identify packages bundling binaries |
-| deceptive_author | This heuristic detects when an author is using a disposable email |
-
-
-### go
-
-Source code heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
-| go-exec-base64 | Identify Base64-decoded content being passed to execution functions in Go |
-| go-exfiltrate-sensitive-data | This rule identifies when a package reads and exfiltrates sensitive data from the local system. |
-| go-exec-download | This rule downloads and executes a remote binary after setting executable permissions. |
-| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
-
-Metadata heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| typosquatting | Identify packages that are named closely to an highly popular package |
-
-
-### GitHub Action
-
-Source code heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| npm-serialize-environment | Identify when a package serializes 'process.env' to exfiltrate environment variables |
-| npm-obfuscation | Identify when a package uses a common obfuscation method often used by malware |
-| npm-silent-process-execution | Identify when a package silently executes an executable |
-| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
-| npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
-| npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
-| npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
-| npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
-| npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
-| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
-### Extension
-
-Source code heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| npm-serialize-environment | Identify when a package serializes 'process.env' to exfiltrate environment variables |
-| npm-obfuscation | Identify when a package uses a common obfuscation method often used by malware |
-| npm-silent-process-execution | Identify when a package silently executes an executable |
-| shady-links | Identify when a package contains an URL to a domain with a suspicious extension |
-| npm-exec-base64 | Identify when a package dynamically executes code through 'eval' |
-| npm-install-script | Identify when a package has a pre or post-install script automatically running commands |
-| npm-steganography | Identify when a package retrieves hidden data from an image and executes it |
-| npm-dll-hijacking | Identifies when a malicious package manipulates a trusted application into loading a malicious DLL |
-| npm-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
-| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
-### RubyGems
-
-Source code heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| rubygems-code-execution | Identify when a gem executes OS commands |
-| rubygems-exfiltrate-sensitive-data | Identify when a package reads and exfiltrates sensitive data from the local system |
-| rubygems-serialize-environment | Identify when a package serializes ENV to exfiltrate environment variables |
-| rubygems-network-on-require | Identify when a gem makes network requests when required |
-| rubygems-install-hook | Identify when a gem registers installation hooks |
-| rubygems-exec-base64 | Identify when a package dynamically executes base64-encoded code |
-| suspicious_passwd_access_linux | Detects suspicious read access to /etc/passwd file, which is often targeted by malware for credential harvesting |
-
-Metadata heuristics:
-
-| **Heuristic** | **Description** |
-|:-------------:|:---------------:|
-| typosquatting | Identify packages that are named closely to an highly popular package |
-| empty_information | Identify packages with an empty description field |
-| release_zero | Identify packages with an release version that's 0.0 or 0.0.0 |
-| bundled_binary | Identify packages bundling binaries |
-| repository_integrity_mismatch | Identify packages with a linked GitHub repository where the package has extra unexpected files |
-
-
-<!-- END_RULE_LIST -->
-
-## Custom Rules
-
-Guarddog allows to implement custom sourcecode rules.
-Sourcecode rules live under the [guarddog/analyzer/sourcecode](guarddog/analyzer/sourcecode) directory, and supported formats are [Semgrep](https://github.com/semgrep/semgrep) or [Yara](https://github.com/VirusTotal/yara).
-
-* Semgrep rules are language-dependent, and Guarddog will import all `.yml` rules where the language matches the ecosystem selected by the user in CLI.
-* Yara rules on the other hand are language agnostic, therefore all matching `.yar` rules present will be imported.
-
-Is possible then to write your own rule and drop it into that directory, Guarddog will allow you to select it or exclude it as any built-in rule as well as appending the findings to its output.
-
-For example, you can create the following semgrep rule:
-```yaml
-rules:
-  - id: sample-rule
-    languages:
-      - python
-    message: Output message when rule matches
-    metadata:
-      description: Description used in the CLI help
-    patterns:
-        YOUR RULE HEURISTICS GO HERE
-    severity: WARNING
+# Explicitly disable the sandbox (not recommended)
+guarddog pypi scan requests --no-sandbox
 ```
 
-Then you'll need to save it as `sample-rule.yml` and note that the id must match the filename
+For remote packages, three phases run with different privilege levels:
+1. **Download** and **metadata analysis** run without sandbox (need network access)
+2. **Archive extraction** runs in a sandboxed subprocess (network blocked, filesystem restricted)
+3. **Source code analysis** (YARA/Semgrep) runs in the main process after a sandbox is applied (network blocked, filesystem restricted to extracted files)
 
-In the case of Yara, you can create the following rule:
-```
-rule sample-rule
-{
-  meta:
-    description = "Description used in the output message"
-    target_entity = "file"
-  strings:
-    $exec = "exec"
-  condition:
-    1 of them
-}
-```
-Then you'll need to save it as `sample-rule.yar`.
+The sandbox was introduced to mitigate path traversal and code execution vulnerabilities during archive extraction (CVE-2022-23530, CVE-2022-23531, CVE-2026-22870, CVE-2026-22871).
 
-Note that in both cases, the rule id must match the filename
+## Rules
+
+GuardDog uses two types of detection rules, both participating in the risk-based scoring engine:
+
+* **Source code rules** (YARA/Semgrep): Static analysis of package source code detecting capabilities and threats
+* **Metadata rules** (Python detectors): Analysis of package registry metadata detecting supply chain attack indicators
+
+For the full list of rules per ecosystem, see **[RULES.md](RULES.md)**.
+
+For guidance on writing new rules, see **[WRITING_RULES.md](WRITING_RULES.md)**.
 
 ## Running GuardDog in a GitHub Action
 

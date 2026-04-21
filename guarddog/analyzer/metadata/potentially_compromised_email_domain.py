@@ -14,6 +14,11 @@ class PotentiallyCompromisedEmailDomainDetector(Detector):
             name="potentially_compromised_email_domain",
             description="Identify when a package maintainer e-mail domain (and therefore package manager account) "
             "might have been compromised",
+            identifies="threat.metadata.compromised-email",
+            severity="high",
+            mitre_tactics="initial-access",
+            specificity="medium",
+            sophistication="medium",
         )
         self.ecosystem = ecosystem
 

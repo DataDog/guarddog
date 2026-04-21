@@ -1,0 +1,12 @@
+// Private rule for LOLBAS system information gathering tools detection
+// These patterns are reused across multiple threat and capability rules
+
+rule lolbas_sysinfo
+{
+    strings:
+        $whoami= /\bwhoami\b/ 
+        $hostname = /['"]hostname["']/
+
+    condition:
+        any of them
+}

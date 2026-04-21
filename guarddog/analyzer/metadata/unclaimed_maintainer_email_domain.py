@@ -17,6 +17,11 @@ class UnclaimedMaintainerEmailDomainDetector(Detector):
         super().__init__(
             name="unclaimed_maintainer_email_domain",
             description=description,
+            identifies="threat.metadata.unclaimed-email",
+            severity="high",
+            mitre_tactics="initial-access",
+            specificity="medium",
+            sophistication="low",
         )
         self.ecosystem = ecosystem
 

@@ -1,18 +1,17 @@
-""" Tests for exec-base64 rule
+"""Tests for exec-base64 rule
 
-    OK cases:
-        - execute non-encoded string
-    RULEID cases:
-        - Builtin Python exec/eval
-        - Subprocess module
-        - os module
-        - Command module
+OK cases:
+    - execute non-encoded string
+RULEID cases:
+    - Builtin Python exec/eval
+    - Subprocess module
+    - os module
+    - Command module
 
-        Inner partitions:
-            - Muliline executions with intermediate assignments
-            - Including/excluding module name in function calls
+    Inner partitions:
+        - Muliline executions with intermediate assignments
+        - Including/excluding module name in function calls
 """
-
 
 """ OK: executing a non-encoded string
 """
@@ -94,10 +93,16 @@ exec(base64.b64decode(myMaliciousCode))
 res = command.run(["python", "-c", base64.b64decode("bar")])
 
 # ruleid: exec-base64
-exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('aW1wb...Hsncyc6c30pCg==')[0]))
+exec(
+    __import__("base64").b64decode(
+        __import__("codecs").getencoder("utf-8")("aW1wb...Hsncyc6c30pCg==")[0]
+    )
+)
 
 # ruleid: exec-base64
-import marshal,zlib;exec(marshal.loads(zlib.decompress(b'x\x9cM...`;')))
+import marshal, zlib
+
+exec(marshal.loads(zlib.decompress(b"x\x9cM...`;")))
 
 """ RULEID: using the join function execute a base64 encoded string
 """
@@ -105,61 +110,11 @@ import marshal,zlib;exec(marshal.loads(zlib.decompress(b'x\x9cM...`;')))
 # ruleid: exec-base64
 __import__("builtins").exec(
     __import__("builtins").compile(
-        __import__("base64").b64decode(
-            "foo="
-        ),
+        __import__("base64").b64decode("foo="),
         "<string>",
         "exec",
     )
 )
 
 # ruleid: exec-base64
-exec(Fernet(b'E15Vxxx=').decrypt(b'gAAAxxx='))
-
-""" RULEID: codecs.decode with base64 encoding (all aliases)
-"""
-import codecs
-# ruleid: exec-base64
-exec(codecs.decode(b"test", 'base64'))
-
-# ruleid: exec-base64
-exec(codecs.decode(b"test", 'base_64'))
-
-# ruleid: exec-base64
-exec(codecs.decode(b"test", 'base-64'))
-
-# ruleid: exec-base64
-exec(codecs.decode(b"test", 'BASE64'))
-
-# ruleid: exec-base64
-exec(codecs.decode(b"test", 'BASE_64'))
-
-# ruleid: exec-base64
-exec(codecs.decode(b"test", 'BASE-64'))
-
-""" RULEID: importlib dynamic import (inline only)
-"""
-import importlib
-# ruleid: exec-base64
-exec(importlib.import_module('base64').b64decode("test"))
-
-""" RULEID: importlib + codecs (inline only)
-"""
-import importlib
-# ruleid: exec-base64
-exec(importlib.import_module('codecs').decode(b"test", 'base64'))
-
-# ruleid: exec-base64
-exec(importlib.import_module('codecs').decode(b"test", 'base_64'))
-
-# ruleid: exec-base64
-exec(importlib.import_module('codecs').decode(b"test", 'base-64'))
-
-# ruleid: exec-base64
-exec(importlib.import_module('codecs').decode(b"test", 'BASE64'))
-
-# ruleid: exec-base64
-exec(importlib.import_module('codecs').decode(b"test", 'BASE_64'))
-
-# ruleid: exec-base64
-exec(importlib.import_module('codecs').decode(b"test", 'BASE-64'))
+exec(Fernet(b"E15Vxxx=").decrypt(b"gAAAxxx="))

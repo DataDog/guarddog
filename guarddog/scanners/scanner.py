@@ -97,7 +97,11 @@ class PackageScanner:
         self.analyzer = analyzer
 
     def scan_local(
-        self, path, rules=None, callback: typing.Callable[[dict], None] = noop
+        self,
+        path,
+        rules=None,
+        callback: typing.Callable[[dict], None] = noop,
+        info=None,
     ) -> dict:
         """
         Scans local package
@@ -106,6 +110,8 @@ class PackageScanner:
             path (str): Path to the directory containing the package to analyze
             rules (set, optional): Set of rule names to use. Defaults to all rules.
             callback (typing.Callable[[dict], None], optional): Callback to apply to Analyzer output
+            info (dict, optional): Package metadata for metadata detectors.
+                When provided, metadata rules run alongside source code rules.
 
         Raises:
             Exception: Analyzer exception
@@ -117,10 +123,54 @@ class PackageScanner:
         if rules is not None:
             rules = set(rules)
 
-        results = self.analyzer.analyze_sourcecode(path, rules=rules)
-        callback(results)
+        if info is not None:
+            # Full analysis: source code + metadata
+            # analyzer.analyze() already formats risks and risk_score
+            pkg_name = (info.get("info") or info).get("name")
+            pkg_version = (info.get("info") or info).get("version")
+            return self.analyzer.analyze(
+                path, info=info, rules=rules, name=pkg_name, version=pkg_version
+            )
 
-        return results
+        # Source code only (original behavior)
+        sourcecode_results = self.analyzer.analyze_sourcecode(path, rules=rules)
+        callback(sourcecode_results)
+
+        risk_score = self.analyzer.calculate_package_risk_score(sourcecode_results)
+
+        # Extract and format risks for top-level output
+        risk_objects = risk_score.pop("_risks", [])
+        formatted_risks = [
+            {
+                "name": risk.name,
+                "category": risk.category,
+                "severity": risk.severity.value,
+                "mitre_tactics": risk.mitre_tactics,
+                "threat_identifies": risk.threat_finding.identifies,
+                "threat_rule": risk.threat_finding.rule_name,
+                "threat_description": risk.threat_finding.message or "",
+                "threat_location": risk.threat_finding.location or "",
+                "threat_code": risk.threat_finding.code_snippet or "",
+                "capability_identifies": (
+                    risk.capability_finding.identifies
+                    if risk.capability_finding
+                    else None
+                ),
+                "capability_rule": (
+                    risk.capability_finding.rule_name
+                    if risk.capability_finding
+                    else None
+                ),
+                "file_path": risk.threat_finding.file_path,
+            }
+            for risk in risk_objects
+        ]
+
+        return {
+            **sourcecode_results,
+            "risk_score": risk_score,
+            "risks": formatted_risks,
+        }
 
     @abstractmethod
     def download_and_get_package_info(
