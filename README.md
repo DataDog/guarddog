@@ -21,7 +21,7 @@ It downloads and scans code from:
 * GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
 * VSCode Extensions: Extensions (.vsix) packages hosted in [marketplace.visualstudio.com](https://marketplace.visualstudio.com/)
 
-![GuardDog demo usage](https://github.com/DataDog/guarddog/blob/main/docs/images/demo.png?raw=true)
+![GuardDog demo usage](https://github.com/DataDog/guarddog/blob/v3/docs/images/demo.png?raw=true)
 
 ## How GuardDog Works
 
