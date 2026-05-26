@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    branches: [main, v3]
   workflow_dispatch:
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
         id: octo-sts
         with:
           scope: DataDog/guarddog
-          policy: self.github.tag-release.main
+          policy: self.github.tag-release.${{ github.ref_name }}
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
@@ -168,4 +168,4 @@ jobs:
             VERSION=${{ needs.package-validation.outputs.new_version }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.package-validation.outputs.new_version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ github.ref_name == 'main' && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME) || '' }}
