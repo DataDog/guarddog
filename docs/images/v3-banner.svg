@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" role="img" aria-label="GuardDog v3 is here. Explore the v3 branch.">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#632CA6"/>
+      <stop offset="100%" stop-color="#4A1F80"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="340" rx="16" ry="16" fill="url(#bg)"/>
+
+  <text x="600" y="78" text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="16" font-weight="700" fill="#E4D5F5" letter-spacing="3">
+    📣 ANNOUNCEMENT
+  </text>
+
+  <text x="600" y="150" text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="46" font-weight="700" fill="#ffffff">
+    GuardDog v3 is here
+  </text>
+
+  <text x="600" y="200" text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="20" fill="#E4D5F5">
+    Better 🔥 Faster ⚡ Stronger 💪
+  </text>
+
+  <g transform="translate(450, 245)">
+    <rect width="300" height="56" rx="10" ry="10" fill="#ffffff"/>
+    <text x="150" y="36" text-anchor="middle"
+          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+          font-size="17" font-weight="600" fill="#632CA6">
+      Explore the v3 branch →
+    </text>
+  </g>
+</svg>
