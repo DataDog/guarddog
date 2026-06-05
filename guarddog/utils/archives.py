@@ -145,13 +145,6 @@ def safe_extract(
 
     archive_size = os.path.getsize(source_archive)
 
-    # Explicitly read the magic bytes so a sandbox denial surfaces as an
-    # OSError rather than being swallowed by is_tarfile/is_zipfile (both of
-    # which catch OSError internally and return False — turning a permission
-    # error into a misleading "unsupported archive extension" message).
-    with open(source_archive, "rb") as _probe:
-        _probe.read(8)
-
     if tarsafe.is_tarfile(source_archive):
         if zip_password is not None:
             raise ValueError(
