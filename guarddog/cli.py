@@ -253,6 +253,10 @@ def _scan(
     try:
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
+            # Resolve symlinks so the sandbox sees the real path (macOS /tmp ->
+            # /private/tmp); nono doesn't resolve symlinks and would otherwise
+            # deny reads under the real path.
+            identifier = os.path.realpath(identifier)
             if sandbox:
                 apply_sandbox(scan_paths=[identifier], writable_paths=[])
             result |= scanner.scan_local(identifier, rule_param, info=metadata_info)
