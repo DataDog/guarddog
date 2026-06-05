@@ -47,7 +47,6 @@ def common_options(fn):
     return fn
 
 
-
 def verify_options(fn):
     fn = click.option(
         "--output-format",
@@ -453,7 +452,6 @@ class CliEcosystem(click.Group):
 # Adding all ecosystems as subcommands
 for e in ECOSYSTEM:
     cli.add_command(CliEcosystem(e), e.name.lower())
-
 
 
 # Given the results, exit with the appropriate status code
