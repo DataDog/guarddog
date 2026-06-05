@@ -507,7 +507,7 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
 
     Scoring factors (weights):
     - Severity (30%): Highest severity finding
-    - Attack Chain (20%): Presence of complete attack stages (1=0.3, 2=0.7, 3=1.0)
+    - Attack Chain (20%): Presence of complete attack stages (1=0.4, 2=0.7, 3=1.0)
     - Specificity (30%): Pattern specificity (how specific to malware vs legitimate code)
     - Sophistication (20%): Technique sophistication level
 
@@ -532,6 +532,7 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
         )
 
     # Factor 1: Severity (30% weight -- strongest signal)
+    # NOTE: if you change these weights, update the Risk Scoring table in README.md
     max_severity = max(SEVERITY_VALUES[r.severity] for r in risks)
     severity_component = (max_severity / 3.0) * 0.30
 

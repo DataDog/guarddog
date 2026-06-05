@@ -28,7 +28,7 @@ It downloads and scans code from:
 GuardDog uses a **risk-based detection model** that correlates code capabilities with threat indicators:
 
 1. **Detection**: Rules identify either **capabilities** (what code *can* do) or **threats** (suspicious indicators)
-2. **Correlation**: Capabilities and threats found in the same file form **risks**
+2. **Correlation**: Capabilities and threats found in the same file form **risks** (cross-file matches also form risks, with downgraded severity)
 3. **Scoring**: Risks are scored (0-10) based on attack chain completeness and sophistication
 4. **Reporting**: Packages receive a severity rating (low/medium/high) with detailed risk breakdown
 
@@ -46,14 +46,14 @@ Packages receive a score from **0-10** based on four factors:
 
 | Factor | Weight | Description |
 |--------|--------|-------------|
-| **Severity** | 25% | Highest severity finding (low/medium/high) |
-| **Attack Chain** | 30% | Presence of complete attack stages (early → mid/late) |
-| **Specificity** | 25% | How specific patterns are (vs generic/common code) |
-| **Sophistication** | 20% | Use of evasion techniques (obfuscation, anti-debugging) |
+| **Severity** | 30% | Highest severity finding (low/medium/high) |
+| **Attack Chain** | 20% | Presence of complete attack stages (early → mid/late) |
+| **Specificity** | 30% | How specific patterns are to malware vs legitimate code |
+| **Sophistication** | 20% | Technique advancement level |
 
 **Score Labels:**
 - **0**: No risks detected
-- **1-3**: Low risk (single-stage threats, low specificity)
+- **0.1-3**: Low risk (single-stage threats, low specificity)
 - **3.1-7.5**: Medium risk (partial attack chain, metadata indicators, or single-stage code findings)
 - **7.6-10**: High risk (multi-stage attack chain with source code evidence — near-certainty of compromise)
 
