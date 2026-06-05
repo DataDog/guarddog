@@ -799,7 +799,9 @@ class Analyzer:
             Dict with risk score information
         """
         # Build rules dictionary for lookup
-        rules_dict = {rule.id: rule for rule in get_sourcecode_rules(self.ecosystem, YaraRule)}
+        rules_dict = {
+            rule.id: rule for rule in get_sourcecode_rules(self.ecosystem, YaraRule)
+        }
 
         # Convert sourcecode results to Finding objects
         all_findings = self._convert_to_findings(
