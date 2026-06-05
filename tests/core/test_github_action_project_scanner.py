@@ -51,7 +51,6 @@ def test_githubactions_find_requirements():
             os.path.join(repo_root, ".github", "workflows", "docker-release.yml"),
             os.path.join(repo_root, ".github", "workflows", "guarddog.yml"),
             os.path.join(repo_root, ".github", "workflows", "pypi-release.yml"),
-            os.path.join(repo_root, ".github", "workflows", "semgrep.yml"),
             os.path.join(repo_root, ".github", "workflows", "test.yml"),
         ].sort()
     )

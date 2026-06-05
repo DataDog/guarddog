@@ -1,16 +1,14 @@
-import json
 import logging
 import os
-import subprocess
 import yara  # type: ignore
 
 from collections import defaultdict
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Iterable, Optional, Dict, List
+from typing import Optional, Dict, List
 
 from guarddog.analyzer.metadata import get_metadata_detectors
-from guarddog.analyzer.sourcecode import get_sourcecode_rules, SempgrepRule, YaraRule
+from guarddog.analyzer.sourcecode import get_sourcecode_rules, YaraRule
 from guarddog.analyzer.risk_engine import (
     Finding,
     Level,
@@ -21,9 +19,6 @@ from guarddog.analyzer.risk_engine import (
 )
 from guarddog.utils.config import YARA_EXT_EXCLUDE
 from guarddog.ecosystems import ECOSYSTEM, LANGUAGE
-
-MAX_BYTES_DEFAULT = 10_000_000
-SEMGREP_TIMEOUT_DEFAULT = 10
 
 SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 log = logging.getLogger("guarddog")
@@ -51,9 +46,6 @@ class Analyzer:
         self.metadata_detectors = get_metadata_detectors(ecosystem)
 
         self.metadata_ruleset: set[str] = set(self.metadata_detectors.keys())
-        self.semgrep_ruleset: set[str] = set(
-            r.id for r in get_sourcecode_rules(ecosystem, SempgrepRule)
-        )
         self.yara_ruleset: set[str] = set(
             r.id for r in get_sourcecode_rules(ecosystem, YaraRule)
         )
@@ -68,10 +60,8 @@ class Analyzer:
             ".env",
             "dist",
             "build",
-            "semgrep",
             "migrations",
             ".github",
-            ".semgrep_logs",
         ]
 
     # Comment filtering helpers
@@ -353,16 +343,7 @@ class Analyzer:
         Returns:
             dict[str]: map from each source code rule and their corresponding output
         """
-        semgrepscan_results = self.analyze_semgrep(path, rules)
-
-        yarascan_results = self.analyze_yara(path, rules)
-
-        # Concatenate dictionaries together
-        issues = semgrepscan_results["issues"] + yarascan_results["issues"]
-        results = semgrepscan_results["results"] | yarascan_results["results"]
-        errors = semgrepscan_results["errors"] | yarascan_results["errors"]
-
-        return {"issues": issues, "errors": errors, "results": results, "path": path}
+        return self.analyze_yara(path, rules)
 
     def analyze_yara(self, path: str, rules: Optional[set] = None) -> dict:
         """
@@ -543,163 +524,6 @@ class Analyzer:
                 log.warning(f"Rule {rule_name}.yar failed: {str(e)}")
 
         return {"results": results | rule_results, "errors": errors, "issues": issues}
-
-    def analyze_semgrep(self, path, rules=None) -> dict:
-        """
-        Analyzes the source code of a given package
-
-        Args:
-            path (str): path to directory of package
-            rules (set, optional): Set of source code rules to analyze. Defaults to all rules.
-
-        Returns:
-            dict[str]: map from each source code rule and their corresponding output
-        """
-        log.debug(f"Running semgrep rules against directory '{path}'")
-
-        targetpath = Path(path)
-        all_rules = self.semgrep_ruleset
-        if rules is not None:
-            # filtering the full ruleset witht the user's input
-            all_rules = self.semgrep_ruleset & rules
-
-        results = {rule: {} for rule in all_rules}  # type: dict
-        errors = {}
-        issues = 0
-
-        rules_path = list(
-            map(
-                lambda rule_name: os.path.join(
-                    SOURCECODE_RULES_PATH, f"{rule_name}.yml"
-                ),
-                all_rules,
-            )
-        )
-
-        if len(rules_path) == 0:
-            log.debug("No semgrep code rules to run")
-            return {"results": {}, "errors": {}, "issues": 0}
-
-        try:
-            log.debug(f"Running semgrep code rules against {path}")
-            response = self._invoke_semgrep(target=path, rules=rules_path)
-            rule_results = self._format_semgrep_response(
-                response, targetpath=targetpath
-            )
-            issues += sum(len(res) for res in rule_results.values())
-
-            results = results | rule_results
-        except Exception as e:
-            errors["rules-all"] = f"failed to run rule: {str(e)}"
-
-        return {"results": results, "errors": errors, "issues": issues}
-
-    def _invoke_semgrep(self, target: str, rules: Iterable[str]):
-        try:
-            SEMGREP_MAX_TARGET_BYTES = int(
-                os.getenv("GUARDDOG_SEMGREP_MAX_TARGET_BYTES", MAX_BYTES_DEFAULT)
-            )
-            SEMGREP_TIMEOUT = int(
-                os.getenv("GUARDDOG_SEMGREP_TIMEOUT", SEMGREP_TIMEOUT_DEFAULT)
-            )
-            cmd = ["semgrep"]
-            for rule in rules:
-                cmd.extend(["--config", rule])
-
-            for excluded in self.exclude:
-                cmd.append(f"--exclude='{excluded}'")
-            cmd.append(f"--timeout={SEMGREP_TIMEOUT}")
-            cmd.append("--no-git-ignore")
-            cmd.append("--json")
-            cmd.append("--quiet")
-            cmd.append("--disable-nosem")
-            cmd.append(f"--max-target-bytes={SEMGREP_MAX_TARGET_BYTES}")
-            cmd.append(target)
-            log.debug(f"Invoking semgrep with command line: {' '.join(cmd)}")
-            result = subprocess.run(
-                cmd, capture_output=True, check=True, encoding="utf-8"
-            )
-            return json.loads(str(result.stdout))
-        except FileNotFoundError:
-            raise Exception("unable to find semgrep binary")
-        except subprocess.CalledProcessError as e:
-            error_message = f"""
-An error occurred when running Semgrep.
-
-command: {" ".join(e.cmd)}
-status code: {e.returncode}
-output: {e.output}
-"""
-            raise Exception(error_message)
-        except json.JSONDecodeError as e:
-            raise Exception("unable to parse semgrep JSON output: " + str(e))
-        except ValueError as e:
-            raise Exception("Invalid environment variable value: " + str(e))
-
-    def _format_semgrep_response(self, response, rule=None, targetpath=None):
-        """
-        Formats the response from Semgrep
-
-        Args:
-            response (dict): response from Semgrep
-            rule (str, optional): name of rule to format. Defaults to all rules.
-            targetpath (str, optional): root directory of scan. Defaults to None.
-                Paths in formatted response will be rooted from targetpath.
-
-        Returns:
-            dict: formatted response in the form...
-
-            {
-                ...
-                <rule-name>: [
-                    {
-                        <path-to-code:line-num>: <dangerous-code>
-                        ...
-                    },
-                    ...
-                ],
-                ...
-            }
-        """
-
-        results = defaultdict(list)
-
-        for result in response["results"]:
-            rule_name = rule or result["check_id"].split(".")[-1]
-            start_line = result["start"]["line"]
-            end_line = result["end"]["line"]
-
-            file_path = os.path.abspath(result["path"])
-
-            # Filter out matches in comments
-            if self.is_match_in_comment(file_path, line_number=start_line):
-                log.debug(
-                    f"Filtered semgrep match in comment at {file_path}:{start_line}"
-                )
-                continue
-
-            code = self.trim_code_snippet(
-                self.get_snippet(
-                    file_path=file_path, start_line=start_line, end_line=end_line
-                )
-            )
-            if targetpath:
-                file_path = os.path.relpath(file_path, targetpath)
-
-            location = file_path + ":" + str(start_line)
-
-            finding = {
-                "location": location,
-                "code": code,
-                "message": result["extra"]["message"],
-            }
-
-            rule_results = results[rule_name]
-            if finding in rule_results:
-                continue
-            results[rule_name].append(finding)
-
-        return results
 
     def get_snippet(self, file_path: str, start_line: int, end_line: int) -> str:
         """
@@ -975,11 +799,7 @@ output: {e.output}
             Dict with risk score information
         """
         # Build rules dictionary for lookup
-        rules_dict = {}
-        for rule in get_sourcecode_rules(self.ecosystem, SempgrepRule):
-            rules_dict[rule.id] = rule
-        for rule in get_sourcecode_rules(self.ecosystem, YaraRule):
-            rules_dict[rule.id] = rule
+        rules_dict = {rule.id: rule for rule in get_sourcecode_rules(self.ecosystem, YaraRule)}
 
         # Convert sourcecode results to Finding objects
         all_findings = self._convert_to_findings(

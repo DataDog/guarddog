@@ -301,7 +301,7 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
     Phase 1 (unsandboxed): download, extract (in sandboxed subprocess),
       and run metadata analysis (needs network for DNS/email checks).
     Phase 2 (sandboxed): apply sandbox to the main process, then run
-      source code analysis (YARA/Semgrep).
+      source code analysis (YARA).
     Results are combined identically to Analyzer.analyze().
     """
     # Use mkdtemp + realpath instead of TemporaryDirectory context manager.
