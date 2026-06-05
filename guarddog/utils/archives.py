@@ -42,6 +42,7 @@ def is_supported_archive(path: str) -> bool:
 def safe_extract(
     source_archive: str,
     target_directory: str,
+    zip_password: bytes | None = None,
 ) -> None:
     """
     safe_extract safely extracts archives to a target directory.
@@ -53,6 +54,9 @@ def safe_extract(
 
     @param source_archive:      The archive to extract
     @param target_directory:    The directory where to extract the archive to
+    @param zip_password:        Optional password for encrypted ZIP archives. Tar
+                                archives have no native password support; passing
+                                a password alongside a tar archive raises ValueError.
     @raise ValueError           If the archive type is unsupported or exceeds safety limits
 
     """
@@ -111,7 +115,7 @@ def safe_extract(
         if (attr & 0o170000) != 0o120000:
             return False
 
-        linkname = zip_file.read(zip_info).decode("utf-8")
+        linkname = zip_file.read(zip_info, pwd=zip_password).decode("utf-8")
 
         symlink_file = pathlib.Path(
             os.path.normpath(os.path.join(target_directory, linkname))
@@ -141,7 +145,20 @@ def safe_extract(
 
     archive_size = os.path.getsize(source_archive)
 
+    # Explicitly read the magic bytes so a sandbox denial surfaces as an
+    # OSError rather than being swallowed by is_tarfile/is_zipfile (both of
+    # which catch OSError internally and return False — turning a permission
+    # error into a misleading "unsupported archive extension" message).
+    with open(source_archive, "rb") as _probe:
+        _probe.read(8)
+
     if tarsafe.is_tarfile(source_archive):
+        if zip_password is not None:
+            raise ValueError(
+                "--zip-password is only supported for ZIP archives "
+                "(.zip, .whl, .egg); tar archives have no native password support"
+            )
+
 
         def add_exec(path):
             st = os.stat(path)
@@ -198,6 +215,19 @@ def safe_extract(
                     continue
 
                 # Extract file safely using zip.extract which handles path sanitization
-                zip_file.extract(member, path=target_directory)
+                try:
+                    zip_file.extract(member, path=target_directory, pwd=zip_password)
+                except RuntimeError as e:
+                    msg = str(e)
+                    if "password required" in msg:
+                        raise RuntimeError(
+                            f"{member.filename}: password required for encrypted ZIP "
+                            f"(pass --zip-password)"
+                        ) from None
+                    if "Bad password" in msg:
+                        raise RuntimeError(
+                            f"{member.filename}: Bad password for encrypted ZIP"
+                        ) from None
+                    raise
     else:
         raise ValueError(f"unsupported archive extension: {source_archive}")

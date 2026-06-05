@@ -42,14 +42,16 @@ def apply_sandbox(
     for path in scan_paths:
         real = os.path.realpath(path)
         if os.path.isfile(real):
-            real = os.path.dirname(real)
-        log.info(f"Sandbox: READ {real}")
-        caps.allow_path(real, nono.AccessMode.READ)
+            log.debug(f"Sandbox: READ file {real}")
+            caps.allow_file(real, nono.AccessMode.READ)
+        else:
+            log.debug(f"Sandbox: READ {real}")
+            caps.allow_path(real, nono.AccessMode.READ)
 
     for path in writable_paths:
         real = os.path.realpath(path)
         os.makedirs(real, exist_ok=True)
-        log.info(f"Sandbox: READ_WRITE {real}")
+        log.debug(f"Sandbox: READ_WRITE {real}")
         caps.allow_path(real, nono.AccessMode.READ_WRITE)
 
     # Tools may write temp files outside the extraction dir
@@ -57,7 +59,7 @@ def apply_sandbox(
     caps.allow_path(tmp, nono.AccessMode.READ_WRITE)
 
     caps.block_network()
-    log.info("Sandbox: network blocked")
+    log.debug("Sandbox: network blocked")
     log.debug(
         "Sandbox capabilities: READ %s | READ_WRITE %s | network=blocked",
         [os.path.realpath(p) for p in scan_paths] + _get_common_read_paths(),
@@ -65,7 +67,7 @@ def apply_sandbox(
     )
 
     nono.apply(caps)
-    log.info("Sandbox: applied")
+    log.debug("Sandbox: applied")
 
 
 def extract_sandboxed(archive_path: str, target_dir: str) -> None:
@@ -111,6 +113,17 @@ def _get_common_read_paths() -> list[str]:
     import guarddog
 
     paths.add(os.path.realpath(os.path.dirname(guarddog.__file__)))
+
+    # Every existing sys.path entry: Python's import machinery stats each
+    # entry when resolving lazy imports (e.g. tarfile.gzopen -> import gzip).
+    # Under the sandbox, a stat of an unlisted dir fails with EPERM, which
+    # surfaces deep inside stdlib code as a confusing PermissionError.
+    for entry in sys.path:
+        if not entry:
+            continue
+        real = os.path.realpath(entry)
+        if os.path.isdir(real):
+            paths.add(real)
 
     return list(paths)
 

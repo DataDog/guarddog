@@ -6,6 +6,7 @@ Includes rules based on package registry metadata and source code analysis.
 
 import logging
 import os
+import shutil
 import sys
 import tempfile
 from typing import Optional
@@ -75,6 +76,15 @@ def scan_options(fn):
         default=None,
         type=click.Path(exists=True),
         help="Path to package metadata JSON file (enables metadata rules for local scans)",
+    )(fn)
+    fn = click.option(
+        "--zip-password",
+        default=None,
+        help=(
+            "Password for encrypted ZIP archives (.zip, .whl, .egg). "
+            "Pass '-' to read the password from stdin. "
+            "Not supported for tar archives."
+        ),
     )(fn)
     return fn
 
@@ -182,6 +192,7 @@ def _scan(
     ecosystem: ECOSYSTEM,
     sandbox: Optional[bool] = None,
     metadata: Optional[str] = None,
+    zip_password: Optional[str] = None,
 ):
     """Scan a package
 
@@ -223,6 +234,13 @@ def _scan(
         with open(metadata, "r") as f:
             metadata_info = json.load(f)
 
+    zip_password_bytes: Optional[bytes] = None
+    if zip_password is not None:
+        if zip_password == "-":
+            zip_password_bytes = sys.stdin.readline().rstrip("\n").encode()
+        else:
+            zip_password_bytes = zip_password.encode()
+
     result = {"package": identifier}
     try:
         if os.path.isdir(identifier):
@@ -237,18 +255,44 @@ def _scan(
 
         elif os.path.isfile(identifier):
             log.debug(f"Considering that '{identifier}' is a local archive file")
+            # Resolve symlinks so the sandbox sees the real path (macOS /tmp ->
+            # /private/tmp); nono doesn't resolve symlinks and would otherwise
+            # deny reads under the symlinked path.
+            identifier = os.path.realpath(identifier)
             # Create the temp dir under the resolved tmp root so the path
             # doesn't traverse a symlink (macOS /var -> /private/var); nono
             # doesn't resolve symlinks, so the symlinked path would be blocked.
             tmp_root = os.path.realpath(tempfile.gettempdir())
             with tempfile.TemporaryDirectory(dir=tmp_root) as tempdir:
+                # Copy the archive into the sandboxed temp dir BEFORE applying
+                # the sandbox: the kernel sandbox on macOS denies content reads
+                # of allow-listed files outside the writable tree, but the temp
+                # dir is whitelisted READ_WRITE so a copy inside it is readable.
+                # This matches how extract_sandboxed handles remote archives.
+                sandboxed_archive = os.path.join(
+                    tempdir, os.path.basename(identifier)
+                )
+                shutil.copyfile(identifier, sandboxed_archive)
                 if sandbox:
-                    apply_sandbox(scan_paths=[identifier], writable_paths=[tempdir])
-                safe_extract(identifier, tempdir)
-                result |= scanner.scan_local(tempdir, rule_param, info=metadata_info)
+                    apply_sandbox(scan_paths=[], writable_paths=[tempdir])
+                extract_dir = os.path.join(tempdir, "_extracted")
+                os.makedirs(extract_dir, exist_ok=True)
+                safe_extract(
+                    sandboxed_archive,
+                    extract_dir,
+                    zip_password=zip_password_bytes,
+                )
+                result |= scanner.scan_local(
+                    extract_dir, rule_param, info=metadata_info
+                )
 
         else:
             log.debug(f"Considering that '{identifier}' is a remote target")
+            if zip_password_bytes is not None:
+                log.error(
+                    "--zip-password is only supported for local archive scans"
+                )
+                sys.exit(1)
             if sandbox:
                 result |= _scan_remote_sandboxed(
                     scanner, identifier, version, rule_param
@@ -409,6 +453,7 @@ class CliEcosystem(click.Group):
             exit_non_zero_on_finding,
             sandbox,
             metadata,
+            zip_password,
         ):
             return _scan(
                 target,
@@ -420,6 +465,7 @@ class CliEcosystem(click.Group):
                 self.ecosystem,
                 sandbox=sandbox,
                 metadata=metadata,
+                zip_password=zip_password,
             )
 
         @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
