@@ -8,7 +8,7 @@
   <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
 </p>
 
-GuardDog is a CLI tool that identifies malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs static analysis on package source code (through Semgrep and YARA rules) and analyzes package metadata to detect supply chain attacks.
+GuardDog is a CLI tool that identifies malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs static analysis on package source code (through YARA rules) and analyzes package metadata to detect supply chain attacks.
 
 **What makes GuardDog different:** Instead of just listing suspicious patterns, GuardDog correlates findings to identify actual **risks** based on attack chains. A package needs both the **capability** to perform an action (e.g., network access) and a **threat indicator** (e.g., suspicious domain) in the same file to be flagged as high risk.
 
@@ -173,7 +173,7 @@ guarddog pypi scan requests --no-sandbox
 For remote packages, three phases run with different privilege levels:
 1. **Download** and **metadata analysis** run without sandbox (need network access)
 2. **Archive extraction** runs in a sandboxed subprocess (network blocked, filesystem restricted)
-3. **Source code analysis** (YARA/Semgrep) runs in the main process after a sandbox is applied (network blocked, filesystem restricted to extracted files)
+3. **Source code analysis** (YARA) runs in the main process after a sandbox is applied (network blocked, filesystem restricted to extracted files)
 
 The sandbox was introduced to mitigate path traversal and code execution vulnerabilities during archive extraction (CVE-2022-23530, CVE-2022-23531, CVE-2026-22870, CVE-2026-22871).
 
@@ -181,7 +181,7 @@ The sandbox was introduced to mitigate path traversal and code execution vulnera
 
 GuardDog uses two types of detection rules, both participating in the risk-based scoring engine:
 
-* **Source code rules** (YARA/Semgrep): Static analysis of package source code detecting capabilities and threats
+* **Source code rules** (YARA): Static analysis of package source code detecting capabilities and threats
 * **Metadata rules** (Python detectors): Analysis of package registry metadata detecting supply chain attack indicators
 
 For the full list of rules per ecosystem, see **[RULES.md](RULES.md)**.
@@ -248,8 +248,6 @@ jobs:
 
 Running all unit tests: `make test`
 
-Running unit tests against Semgrep rules: `make test-semgrep-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/sourcecode)). These use the standard methodology for [testing Semgrep rules](https://semgrep.dev/docs/writing-rules/testing-rules/).
-
 Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/metadata)).
 
 ### Benchmarking
@@ -280,15 +278,6 @@ GuardDog's behavior can be customized using environment variables:
 | `GUARDDOG_VERIFY_EXHAUSTIVE_DEPENDENCIES` | Analyze all possible versions of dependencies (`true`/`false`) | `false` |
 | `GUARDDOG_TOP_PACKAGES_CACHE_LOCATION` | Location of the top packages cache directory | `guarddog/analyzer/metadata/resources` |
 | `GUARDDOG_YARA_EXT_EXCLUDE` | Comma-separated list of file extensions to exclude from YARA scanning | `ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,csv,sql,pdf,doc,docx,ppt,pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info,d.ts` |
-
-#### Semgrep Configuration
-
-GuardDog uses `Semgrep`, a powerful static analysis tool that scans code for patterns. 
-
-| Environment Variable | Description | Default Value |
-|---------------------|-------------|---------------|
-| `GUARDDOG_SEMGREP_MAX_TARGET_BYTES` | Maximum size of a file that Semgrep will analyze (files exceeding this will be skipped) | 10MB (10485760 bytes) |
-| `GUARDDOG_SEMGREP_TIMEOUT` | Maximum time in seconds that Semgrep will spend running a rule on a single file | 10 seconds |
 
 #### Archive Extraction Security Limits
 

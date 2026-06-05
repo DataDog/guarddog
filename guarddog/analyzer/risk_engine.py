@@ -86,7 +86,7 @@ VALID_TYPES = {"capability", "threat"}
 @dataclass
 class Finding:
     """
-    A single rule match from Semgrep or YARA
+    A single YARA rule match
 
     Attributes:
         rule_name: Name of the rule that matched

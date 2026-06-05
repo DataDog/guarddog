@@ -52,7 +52,7 @@ def apply_sandbox(
         log.info(f"Sandbox: READ_WRITE {real}")
         caps.allow_path(real, nono.AccessMode.READ_WRITE)
 
-    # Semgrep and other tools may write temp files outside the extraction dir
+    # Tools may write temp files outside the extraction dir
     tmp = os.path.realpath(tempfile.gettempdir())
     caps.allow_path(tmp, nono.AccessMode.READ_WRITE)
 
@@ -106,7 +106,7 @@ def _get_common_read_paths() -> list[str]:
         if os.path.isdir(real):
             paths.add(real)
 
-    # guarddog package dir: needed for YARA/Semgrep rule files, which may
+    # guarddog package dir: needed for YARA rule files, which may
     # live outside sys.prefix when running from source (e.g. uv run)
     import guarddog
 

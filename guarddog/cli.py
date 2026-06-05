@@ -253,13 +253,21 @@ def _scan(
     try:
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
+            # Resolve symlinks so the sandbox sees the real path (macOS /tmp ->
+            # /private/tmp); nono doesn't resolve symlinks and would otherwise
+            # deny reads under the real path.
+            identifier = os.path.realpath(identifier)
             if sandbox:
                 apply_sandbox(scan_paths=[identifier], writable_paths=[])
             result |= scanner.scan_local(identifier, rule_param, info=metadata_info)
 
         elif os.path.isfile(identifier):
             log.debug(f"Considering that '{identifier}' is a local archive file")
-            with tempfile.TemporaryDirectory() as tempdir:
+            # Create the temp dir under the resolved tmp root so the path
+            # doesn't traverse a symlink (macOS /var -> /private/var); nono
+            # doesn't resolve symlinks, so the symlinked path would be blocked.
+            tmp_root = os.path.realpath(tempfile.gettempdir())
+            with tempfile.TemporaryDirectory(dir=tmp_root) as tempdir:
                 if sandbox:
                     apply_sandbox(scan_paths=[identifier], writable_paths=[tempdir])
                 safe_extract(identifier, tempdir)
@@ -293,7 +301,7 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
     Phase 1 (unsandboxed): download, extract (in sandboxed subprocess),
       and run metadata analysis (needs network for DNS/email checks).
     Phase 2 (sandboxed): apply sandbox to the main process, then run
-      source code analysis (YARA/Semgrep).
+      source code analysis (YARA).
     Results are combined identically to Analyzer.analyze().
     """
     # Use mkdtemp + realpath instead of TemporaryDirectory context manager.

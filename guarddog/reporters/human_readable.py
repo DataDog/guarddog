@@ -262,7 +262,7 @@ class HumanReadableReporter(BaseReporter):
                         + _sanitize(description)
                     )
                     lines.append("")
-                elif isinstance(description, list):  # semgrep/yara rule result:
+                elif isinstance(description, list):  # yara rule result:
                     source_code_findings = description
                     lines.append(
                         colored(safe_rule_name, None, attrs=["bold"])

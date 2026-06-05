@@ -71,9 +71,6 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
-    - name: Semgrep rules unit tests
-      run: poetry run make test-semgrep-rules
-
     - name: Python unit tests
       run: poetry run make test-metadata-rules
 

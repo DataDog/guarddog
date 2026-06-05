@@ -4,9 +4,6 @@ import pathlib
 from dataclasses import dataclass
 from typing import Optional, Iterable, List
 
-import yaml
-from yaml.loader import SafeLoader
-
 from guarddog.ecosystems import ECOSYSTEM
 
 current_dir = pathlib.Path(__file__).parent.resolve()
@@ -56,21 +53,7 @@ class SourceCodeRule:
 
 @dataclass
 class YaraRule(SourceCodeRule):
-    """
-    Yara rule just reimplements base
-    """
-
     pass
-
-
-@dataclass
-class SempgrepRule(SourceCodeRule):
-    """
-    Semgrep rule are language specific
-    Content of rule in yaml format is accessible through rule_content
-    """
-
-    rule_content: Optional[dict] = None
 
 
 def get_sourcecode_rules(
@@ -92,67 +75,6 @@ def get_sourcecode_rules(
 
 
 SOURCECODE_RULES: list[SourceCodeRule] = list()
-
-semgrep_rule_file_names = list(
-    filter(lambda x: x.endswith("yml"), os.listdir(current_dir))
-)
-# all yml files placed in the sourcecode directory are loaded as semgrep rules
-# refer to README.md for more information
-for file_name in semgrep_rule_file_names:
-    with open(os.path.join(current_dir, file_name), "r") as fd:
-        data = yaml.load(fd, Loader=SafeLoader)
-        for rule in data["rules"]:
-            metadata = rule.get("metadata", {})
-
-            # Extract risk-based metadata from Semgrep rules
-            identifies = metadata.get("identifies")
-            severity = metadata.get("severity")
-            mitre_tactics = metadata.get("mitre_tactics", [])  # Default to empty list
-            specificity = metadata.get("specificity")
-            sophistication = metadata.get("sophistication")
-            max_hits = metadata.get("max_hits")  # None = unlimited
-
-            for lang in rule["languages"]:
-                ecosystems = set()
-                match lang:
-                    case "python":
-                        ecosystems.add(ECOSYSTEM.PYPI)
-                    case "javascript" | "typescript" | "json":
-                        ecosystems.add(ECOSYSTEM.NPM)
-                        ecosystems.add(ECOSYSTEM.GITHUB_ACTION)
-                        ecosystems.add(ECOSYSTEM.EXTENSION)
-                    case "go":
-                        ecosystems.add(ECOSYSTEM.GO)
-                    case "ruby":
-                        ecosystems.add(ECOSYSTEM.RUBYGEMS)
-                    case _:
-                        continue
-
-                for ecosystem in ecosystems:
-                    # avoids duplicates when multiple languages are supported
-                    # by a rule
-                    if not next(
-                        filter(
-                            lambda r: r.id == rule["id"],
-                            get_sourcecode_rules(ecosystem, SempgrepRule),
-                        ),
-                        None,
-                    ):
-                        SOURCECODE_RULES.append(
-                            SempgrepRule(
-                                id=rule["id"],
-                                ecosystem=ecosystem,
-                                description=metadata.get("description", ""),
-                                file=file_name,
-                                rule_content=rule,
-                                identifies=identifies,
-                                severity=severity,
-                                mitre_tactics=mitre_tactics,
-                                specificity=specificity,
-                                sophistication=sophistication,
-                                max_hits=max_hits,
-                            )
-                        )
 
 yara_rule_file_names = list(
     filter(lambda x: x.endswith("yar"), os.listdir(current_dir))
