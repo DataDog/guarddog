@@ -8,6 +8,13 @@
   <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
 </p>
 
+<p align="center">
+  <a href="https://github.com/DataDog/guarddog/tree/v3">
+    <img src="docs/images/v3-banner.svg" alt="GuardDog v3 is here — Explore the v3 branch" width="800" />
+  </a>
+</p>
+
+
 GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages, Go modules, RubyGems, GitHub actions, or VSCode extensions. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
 
 GuardDog can be used to scan local or remote PyPI and npm packages, Go modules, RubyGems, GitHub actions, or VSCode extensions using any of the available [heuristics](#heuristics).

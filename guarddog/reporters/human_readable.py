@@ -1,8 +1,20 @@
+import re
+
 from termcolor import colored
 from guarddog.reporters import BaseReporter
 from typing import List
 from guarddog.scanners.scanner import DependencyFile
 from guarddog.ecosystems import ECOSYSTEM
+
+# C0 controls except \n (0x0a) and \t (0x09); DEL (0x7f); C1 controls (0x80-0x9f).
+# Attacker-controlled values (file paths, code snippets, messages, identifiers)
+# may contain these bytes; rendering them raw would let a malicious package
+# inject ANSI/OSC sequences into analyst terminals or CI logs.
+_TERMINAL_CONTROL_RE = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
+
+
+def _sanitize(value: object) -> str:
+    return _TERMINAL_CONTROL_RE.sub(lambda m: f"\\x{ord(m.group(0)):02x}", str(value))
 
 
 class HumanReadableReporter(BaseReporter):
@@ -20,13 +32,15 @@ class HumanReadableReporter(BaseReporter):
         lines.append("")
         lines.append(
             colored(
-                "Some rules failed to run while scanning " + identifier + ":",
+                "Some rules failed to run while scanning "
+                + _sanitize(identifier)
+                + ":",
                 "yellow",
             )
         )
         lines.append("")
         for rule in errors:
-            lines.append(f"* {rule}: {errors[rule]}")
+            lines.append(f"* {_sanitize(rule)}: {_sanitize(errors[rule])}")
 
         return "\n".join(lines)
 
@@ -35,13 +49,14 @@ class HumanReadableReporter(BaseReporter):
 
         def _format_code_line_for_output(code) -> str:
             return "    " + colored(
-                code.strip().replace("\n", "\n    ").replace("\t", "  "),
+                _sanitize(code).strip().replace("\n", "\n    ").replace("\t", "  "),
                 None,
                 "on_red",
                 attrs=["bold"],
             )
 
         num_issues = results.get("issues")
+        safe_identifier = _sanitize(identifier)
         lines = []
 
         if num_issues == 0:
@@ -49,7 +64,7 @@ class HumanReadableReporter(BaseReporter):
                 "Found "
                 + colored("0 potentially malicious indicators", "green", attrs=["bold"])
                 + " scanning "
-                + colored(identifier, None, attrs=["bold"])
+                + colored(safe_identifier, None, attrs=["bold"])
             )
             lines.append("")
         else:
@@ -61,22 +76,25 @@ class HumanReadableReporter(BaseReporter):
                     attrs=["bold"],
                 )
                 + " in "
-                + colored(identifier, None, attrs=["bold"])
+                + colored(safe_identifier, None, attrs=["bold"])
             )
             lines.append("")
 
             findings = results.get("results", [])
             for finding in findings:
                 description = findings[finding]
+                safe_rule_name = _sanitize(finding)
                 if isinstance(description, str):  # package metadata
                     lines.append(
-                        colored(finding, None, attrs=["bold"]) + ": " + description
+                        colored(safe_rule_name, None, attrs=["bold"])
+                        + ": "
+                        + _sanitize(description)
                     )
                     lines.append("")
                 elif isinstance(description, list):  # semgrep rule result:
                     source_code_findings = description
                     lines.append(
-                        colored(finding, None, attrs=["bold"])
+                        colored(safe_rule_name, None, attrs=["bold"])
                         + ": found "
                         + str(len(source_code_findings))
                         + " source code matches"
@@ -84,9 +102,9 @@ class HumanReadableReporter(BaseReporter):
                     for finding in source_code_findings:
                         lines.append(
                             "  * "
-                            + finding["message"]
+                            + _sanitize(finding["message"])
                             + " at "
-                            + finding["location"]
+                            + _sanitize(finding["location"])
                             + "\n    "
                             + _format_code_line_for_output(finding["code"])
                         )

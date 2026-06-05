@@ -8,6 +8,7 @@ from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import List, Optional, Set, Tuple
+from urllib.parse import quote, urlparse
 
 import requests
 
@@ -16,6 +17,40 @@ from guarddog.utils.archives import safe_extract
 from guarddog.utils.config import PARALLELISM
 
 log = logging.getLogger("guarddog")
+
+_GITHUB_HOSTS = {"github.com", "www.github.com"}
+
+
+def _build_raw_github_url(url: str, branch: str, requirements_name: str) -> str:
+    """Build a raw.githubusercontent.com URL from a validated GitHub repo URL.
+
+    Raises ValueError if `url` is not an http(s) URL pointing at github.com
+    with an `owner/repo` path. Userinfo (`user:pass@host`) and explicit ports
+    are rejected so that GitHub credentials cannot be sent to a non-GitHub
+    host via a crafted authority component.
+    """
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(f"Invalid GitHub repo URL scheme: {url!r}")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError(f"GitHub repo URL must not contain userinfo: {url!r}")
+    if (parsed.hostname or "").lower() not in _GITHUB_HOSTS:
+        raise ValueError(f"Invalid GitHub repo URL host: {url!r}")
+    if parsed.port is not None:
+        raise ValueError(f"GitHub repo URL must not specify a port: {url!r}")
+
+    path = parsed.path.strip("/").removesuffix(".git")
+    parts = path.split("/")
+    if len(parts) != 2 or not all(parts):
+        raise ValueError(f"GitHub repo URL must be of the form owner/repo: {url!r}")
+    owner, repo = parts
+
+    quoted_branch = quote(branch, safe="/")
+    quoted_name = quote(requirements_name, safe="/")
+    return (
+        f"https://raw.githubusercontent.com/{owner}/{repo}"
+        f"/{quoted_branch}/{quoted_name}"
+    )
 
 
 def noop(arg: typing.Any) -> None:
@@ -358,9 +393,8 @@ class ProjectScanner:
             }
         """
 
+        req_url = _build_raw_github_url(url, branch, requirements_name)
         token = self._authenticate_by_access_token()
-        githubusercontent_url = url.replace("github", "raw.githubusercontent")
-        req_url = f"{githubusercontent_url}/{branch}/{requirements_name}"
         resp = requests.get(url=req_url, auth=token)
         resp.raise_for_status()
         dependencies = self.parse_requirements(resp.content.decode())

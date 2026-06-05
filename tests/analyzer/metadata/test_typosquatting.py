@@ -37,7 +37,8 @@ class TestTyposquatting:
         ("wich-boxed-primitive", "which-boxed-primitive"),
         ("twetnacl", "tweetnacl"),
         ("jest-watchers", "jest-watcher"),
-        ("shpk", "sshpk")
+        ("shpk", "sshpk"),
+        ("jsonstream", "JSONStream"),
     ]
 
     golang_typosquats = [
