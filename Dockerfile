@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye AS base
+FROM python:3.10-slim-bullseye@sha256:f1fb49e4d5501ac93d0ca519fb7ee6250842245aba8612926a46a0832a1ed089 AS base
 LABEL org.opencontainers.image.source="https://github.com/DataDog/guarddog/"
 
 RUN addgroup --system --gid 1000 guarddog \
@@ -12,7 +12,7 @@ FROM base as builder
 COPY . /app
 # install any build time deps + Python deps
 RUN --mount=type=cache,mode=0755,id=pip,target=/root/.cache/pip \
-    pip install --root-user-action=ignore poetry \
+    pip install --root-user-action=ignore -r .github/workflows/requirements.txt \
     && poetry config virtualenvs.create false \
     && pip install .
 

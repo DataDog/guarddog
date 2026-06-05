@@ -1,0 +1,33 @@
+rules:
+  - id: pyarmor
+    message: This package uses PyArmor obfuscation, which is commonly used to hide malicious code
+    metadata:
+      description: Identify when a package uses PyArmor obfuscation to hide its code
+    patterns:
+      - pattern-either:
+          # PyArmor bootstrap code - the main obfuscation wrapper
+          - pattern: __pyarmor__(__name__, __file__, ...)
+
+          # Legacy pytransform runtime imports (PyArmor < 8.0)
+          - pattern: from pytransform import pyarmor_runtime
+          - pattern: from pytransform import pyarmor_runtime, ...
+          - pattern: import pytransform
+
+          # pytransform runtime initialization
+          - pattern: pyarmor_runtime()
+          - pattern: pyarmor_runtime(...)
+
+          # Modern pyarmor_runtime package imports (PyArmor >= 8.0)
+          - pattern-regex: from pyarmor_runtime[_\w]* import __pyarmor__
+
+          # Armor enter/exit function markers used in obfuscated bytecode
+          - pattern-regex: __armor_enter__|__armor_exit__
+          - pattern-regex: __pyarmor_enter__|__pyarmor_exit__
+
+          # PyArmor obfuscation verification functions
+          - pattern: check_armored(...)
+          - pattern: "@assert_armored(...)"
+
+    languages:
+      - python
+    severity: WARNING
