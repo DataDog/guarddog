@@ -202,7 +202,14 @@ class IntegrityMismatch(Detector):
         for root, dirs, files in os.walk(base_path):
             relative_path = os.path.relpath(root, base_path)
             repo_root = os.path.join(repo_path, relative_path)
-            if not os.path.exists(repo_root):
+            # The package and the repository can disagree on what a given path
+            # is: a name that is a directory in the package may be a regular
+            # file in the repository (e.g. a "LICENSE" file vs a "LICENSE"
+            # directory). os.path.exists() is true in both cases, so listing
+            # the path would raise NotADirectoryError. Only descend when the
+            # repository side is an actual directory; otherwise there are no
+            # repository files to compare for this subtree.
+            if not os.path.isdir(repo_root):
                 continue
             repo_files = list(
                 filter(
