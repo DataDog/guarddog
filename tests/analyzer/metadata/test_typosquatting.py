@@ -41,6 +41,7 @@ class TestTyposquatting:
         ("twetnacl", "tweetnacl"),
         ("jest-watchers", "jest-watcher"),
         ("shpk", "sshpk"),
+        ("jsonstream", "JSONStream"),
     ]
 
     golang_typosquats = [
