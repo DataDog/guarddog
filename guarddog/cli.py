@@ -4,7 +4,6 @@ CLI command that scans a package version for user-specified malware flags.
 Includes rules based on package registry metadata and source code analysis.
 """
 
-from functools import reduce
 import logging
 import os
 import sys
@@ -45,31 +44,6 @@ def common_options(fn):
         help="Exit with a non-zero status code if at least one issue is identified",
     )(fn)
     fn = click.argument("target")(fn)
-    return fn
-
-
-def legacy_rules_options(fn):
-    ALL_RULES = reduce(
-        lambda a, b: a | b,
-        map(
-            lambda e: set(r.id for r in get_sourcecode_rules(e))
-            | set(get_metadata_detectors(e).keys()),
-            [e for e in ECOSYSTEM],
-        ),
-    )
-
-    fn = click.option(
-        "-r",
-        "--rules",
-        multiple=True,
-        type=click.Choice(ALL_RULES, case_sensitive=False),
-    )(fn)
-    fn = click.option(
-        "-x",
-        "--exclude-rules",
-        multiple=True,
-        type=click.Choice(ALL_RULES, case_sensitive=False),
-    )(fn)
     return fn
 
 
@@ -478,48 +452,6 @@ class CliEcosystem(click.Group):
 # Adding all ecosystems as subcommands
 for e in ECOSYSTEM:
     cli.add_command(CliEcosystem(e), e.name.lower())
-
-
-@cli.command("verify", deprecated=True)
-@common_options
-@verify_options
-@legacy_rules_options
-def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    return verify(
-        target,
-        rules,
-        exclude_rules,
-        output_format,
-        exit_non_zero_on_finding,
-        ECOSYSTEM.PYPI,
-    )
-
-
-@cli.command("scan", deprecated=True)
-@common_options
-@scan_options
-@legacy_rules_options
-def scan(
-    target,
-    version,
-    rules,
-    exclude_rules,
-    output_format,
-    exit_non_zero_on_finding,
-    sandbox,
-    metadata,
-):
-    return _scan(
-        target,
-        version,
-        rules,
-        exclude_rules,
-        output_format,
-        exit_non_zero_on_finding,
-        ECOSYSTEM.PYPI,
-        metadata=metadata,
-        sandbox=sandbox,
-    )
 
 
 # Given the results, exit with the appropriate status code
