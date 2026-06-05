@@ -102,6 +102,48 @@ class TestCli(unittest.TestCase):
                         cm.output,
                     )
 
+    def test_remote_url(self):
+        """Test that the CLI identifies remote archive URLs correctly"""
+        self._test_remote_url_template("https://example.com/package.whl")
+        self._test_remote_url_template("http://example.com/package.tar.gz")
+
+    def test_remote_url_rejects_version(self):
+        """Test that --version is rejected for remote archive URL scans"""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with self.assertRaises(SystemExit):
+                    guarddog.cli._scan(
+                        "https://example.com/package.whl",
+                        "1.0.0",
+                        (), (), None, False, ECOSYSTEM.PYPI,
+                        sandbox=False,
+                    )
+
+    def _test_remote_url_template(self, url: str):
+        mock_response = mock.MagicMock()
+        mock_response.raw.read.return_value = b""
+
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch("guarddog.cli.requests.get", return_value=mock_response):
+                    with mock.patch("guarddog.cli.safe_extract"):
+                        with mock.patch.object(
+                            scanner.PackageScanner, "scan_local", return_value={}
+                        ):
+                            with self.assertLogs("guarddog", level="DEBUG") as cm:
+                                guarddog.cli._scan(
+                                    url, None, (), (), None, False, ECOSYSTEM.PYPI,
+                                    sandbox=False,
+                                )
+                            self.assertIn(
+                                f"DEBUG:guarddog:Considering that '{url}' is a remote archive URL",
+                                cm.output,
+                            )
+                            self.assertNotIn(
+                                f"DEBUG:guarddog:Considering that '{url}' is a remote target",
+                                cm.output,
+                            )
+
     def _test_local_file_template(self, filename: str):
         # `filename` is a file
         with mock.patch("os.path.isdir") as isdir:

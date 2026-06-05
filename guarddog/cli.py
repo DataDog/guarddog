@@ -10,8 +10,10 @@ import shutil
 import sys
 import tempfile
 from typing import Optional
+from urllib.parse import urlparse
 
 import click
+import requests
 from prettytable import PrettyTable
 
 from guarddog.analyzer.metadata import get_metadata_detectors
@@ -280,6 +282,30 @@ def _scan(
                     extract_dir,
                     zip_password=zip_password_bytes,
                 )
+                result |= scanner.scan_local(
+                    extract_dir, rule_param, info=metadata_info
+                )
+
+        elif identifier.startswith(("http://", "https://")):
+            log.debug(f"Considering that '{identifier}' is a remote archive URL")
+            if version is not None:
+                log.error("--version is not supported for remote archive URL scans")
+                sys.exit(1)
+            tmp_root = os.path.realpath(tempfile.gettempdir())
+            with tempfile.TemporaryDirectory(dir=tmp_root) as tempdir:
+                # Download before sandbox: network access is needed here.
+                filename = os.path.basename(urlparse(identifier).path) or "archive"
+                archive_path = os.path.join(tempdir, filename)
+                log.debug(f"Downloading remote archive from {identifier}")
+                response = requests.get(identifier, stream=True)
+                response.raise_for_status()
+                with open(archive_path, "wb") as f:
+                    f.write(response.raw.read())
+                if sandbox:
+                    apply_sandbox(scan_paths=[], writable_paths=[tempdir])
+                extract_dir = os.path.join(tempdir, "_extracted")
+                os.makedirs(extract_dir, exist_ok=True)
+                safe_extract(archive_path, extract_dir, zip_password=zip_password_bytes)
                 result |= scanner.scan_local(
                     extract_dir, rule_param, info=metadata_info
                 )
