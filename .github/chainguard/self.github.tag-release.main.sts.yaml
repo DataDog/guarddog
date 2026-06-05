@@ -1,0 +1,12 @@
+# Policy for: .github/workflows/tag-release.yml (job: package-validation) in DataDog/guarddog
+issuer: https://token.actions.githubusercontent.com
+subject: repo:DataDog/guarddog:ref:refs/heads/main
+
+claim_pattern:
+  event_name: (push|workflow_dispatch)
+  job_workflow_ref: DataDog/guarddog/\.github/workflows/tag-release\.yml@refs/heads/main
+  ref: refs/heads/main
+  repository: DataDog/guarddog
+
+permissions:
+  contents: write
