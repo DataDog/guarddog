@@ -269,9 +269,7 @@ def _scan(
                 # of allow-listed files outside the writable tree, but the temp
                 # dir is whitelisted READ_WRITE so a copy inside it is readable.
                 # This matches how extract_sandboxed handles remote archives.
-                sandboxed_archive = os.path.join(
-                    tempdir, os.path.basename(identifier)
-                )
+                sandboxed_archive = os.path.join(tempdir, os.path.basename(identifier))
                 shutil.copyfile(identifier, sandboxed_archive)
                 if sandbox:
                     apply_sandbox(scan_paths=[], writable_paths=[tempdir])
@@ -289,9 +287,7 @@ def _scan(
         else:
             log.debug(f"Considering that '{identifier}' is a remote target")
             if zip_password_bytes is not None:
-                log.error(
-                    "--zip-password is only supported for local archive scans"
-                )
+                log.error("--zip-password is only supported for local archive scans")
                 sys.exit(1)
             if sandbox:
                 result |= _scan_remote_sandboxed(

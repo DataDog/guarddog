@@ -152,7 +152,6 @@ def safe_extract(
                 "(.zip, .whl, .egg); tar archives have no native password support"
             )
 
-
         def add_exec(path):
             st = os.stat(path)
             os.chmod(path, st.st_mode | stat.S_IXUSR)
