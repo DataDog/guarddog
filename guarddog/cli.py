@@ -259,7 +259,11 @@ def _scan(
 
         elif os.path.isfile(identifier):
             log.debug(f"Considering that '{identifier}' is a local archive file")
-            with tempfile.TemporaryDirectory() as tempdir:
+            # Create the temp dir under the resolved tmp root so the path
+            # doesn't traverse a symlink (macOS /var -> /private/var); nono
+            # doesn't resolve symlinks, so the symlinked path would be blocked.
+            tmp_root = os.path.realpath(tempfile.gettempdir())
+            with tempfile.TemporaryDirectory(dir=tmp_root) as tempdir:
                 if sandbox:
                     apply_sandbox(scan_paths=[identifier], writable_paths=[tempdir])
                 safe_extract(identifier, tempdir)
