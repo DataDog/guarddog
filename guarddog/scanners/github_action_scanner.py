@@ -51,5 +51,8 @@ class GithubActionScanner(PackageScanner):
     def _get_git_tarball_url(self, repo: str, version=None) -> str:
         if not version:
             return f"https://api.github.com/repos/{repo}/zipball"
-        else:
-            return f"https://github.com/{repo}/archive/refs/tags/{version}.zip"
+        # GitHub's /archive/<ref>.zip endpoint resolves any ref type
+        # (tag, branch, or commit SHA), so a single form covers all of them.
+        # The previous "/archive/refs/tags/<version>.zip" form only worked for
+        # tags and 404'd for commit-sha or branch refs (issue #714).
+        return f"https://github.com/{repo}/archive/{version}.zip"
