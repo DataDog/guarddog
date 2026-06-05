@@ -76,9 +76,15 @@ class NPMTyposquatDetector(TyposquatDetector):
 
     def _get_confused_forms(self, package_name) -> list:
         """Gets confused terms for npm packages.
-        Currently, there are no confused terms for npm packages.
+        Older npm packages may use uppercase letters, while new packages must be
+        lowercase. Treat the lowercase form as confusingly similar so packages
+        like "jsonstream" can be flagged against "JSONStream".
         """
-        return []
+        lowercase_package_name = package_name.lower()
+        if lowercase_package_name == package_name:
+            return []
+
+        return [lowercase_package_name]
 
 
 if __name__ == "__main__":
