@@ -2,8 +2,8 @@ from copy import deepcopy
 
 import pytest
 
-from guarddog.analyzer.metadata.npm.npm_metadata_mismatch import (
-    NPMMetadataMismatch,
+from guarddog.analyzer.metadata.npm.metadata_mismatch import (
+    NPMMetadataMismatchDetector,
     _normalize_git_url,
     diff_at_key_dict,
 )
