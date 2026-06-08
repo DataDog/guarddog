@@ -54,7 +54,9 @@ class NPMRequirementsScanner(ProjectScanner):
         )
         raw_requirement_lines = raw_requirements.splitlines()
 
-        def resolve_dependency_spec(package_name: str, selector: str) -> tuple[str, str]:
+        def resolve_dependency_spec(
+            package_name: str, selector: str
+        ) -> tuple[str, str]:
             """
             Normalizes npm alias selectors so scanning targets the real package.
             ex: {"alias": "npm:react@19.2.3"} -> ("react", "19.2.3")
