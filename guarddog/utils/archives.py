@@ -222,4 +222,9 @@ def safe_extract(
                         ) from None
                     raise
     else:
-        raise ValueError(f"unsupported archive extension: {source_archive}")
+        # Detection is content-based (tarsafe.is_tarfile / zipfile.is_zipfile),
+        # not extension-based: reaching here means the bytes were not recognized
+        # as a tar or zip, or could not be read.
+        raise ValueError(
+            f"unsupported or unreadable archive (not a valid tar or zip): {source_archive}"
+        )

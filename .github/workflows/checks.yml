@@ -116,6 +116,19 @@ jobs:
       - name: Run GuardDog against a remote package
         run: poetry run guarddog npm scan express
 
+      # Sandbox non-regression tests. --sandbox forces kernel-level sandboxing
+      # and exits non-zero if it is unavailable, so these fail loudly if the
+      # sandbox breaks. They exercise the gzip/tar lazy-import path and the
+      # remote-archive-URL extraction path that previously regressed.
+      - name: Run GuardDog against a remote package with the sandbox enabled
+        run: poetry run guarddog npm scan react --sandbox
+
+      - name: Run GuardDog against a remote tar.gz archive with the sandbox enabled
+        run: poetry run guarddog npm scan https://registry.npmjs.org/react/-/react-18.2.0.tgz --sandbox
+
+      - name: Run GuardDog against a remote zip archive (wheel) with the sandbox enabled
+        run: poetry run guarddog pypi scan https://files.pythonhosted.org/packages/70/8e/0e2d847013cb52cd35b38c009bb167a1a26b2ce6cd6965bf26b47bc0bf44/requests-2.31.0-py3-none-any.whl --sandbox
+
       - name: Run GuardDog against a local requirements.txt file
         run: |
           echo -e "requests\npywin32" > requirements.txt
