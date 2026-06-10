@@ -39,19 +39,27 @@ def test_sanitize_neutralizes_osc_8_hyperlink():
     assert "https://attacker.example" in sanitized
 
 
+def _risk(**overrides) -> dict:
+    """A minimal formed-risk dict for exercising the findings render path."""
+    risk = {
+        "threat_rule": "some-rule",
+        "threat_description": "match",
+        "threat_location": "ok.py:1",
+        "threat_code": "x = 1",
+        "mitre_tactics": ["execution"],
+        "severity": "low",
+        "file_path": "ok.py",
+    }
+    risk.update(overrides)
+    return risk
+
+
 def test_print_scan_results_escapes_malicious_filename_in_location():
     results = {
         "issues": 1,
         "errors": {},
-        "results": {
-            "some-rule": [
-                {
-                    "location": "evil\x1b[2J.py:3",
-                    "code": "x = 1",
-                    "message": "match",
-                }
-            ]
-        },
+        "results": {},
+        "risks": [_risk(threat_location="evil\x1b[2J.py:3", file_path="evil\x1b[2J.py")],
     }
     out = HumanReadableReporter.print_scan_results("pkg", results)
     assert not _has_raw_escape(out)
@@ -62,15 +70,12 @@ def test_print_scan_results_escapes_osc_hyperlink_in_message():
     results = {
         "issues": 1,
         "errors": {},
-        "results": {
-            "some-rule": [
-                {
-                    "location": "ok.py:1",
-                    "code": "x = 1",
-                    "message": "\x1b]8;;https://attacker.example\x07evil\x1b]8;;\x07",
-                }
-            ]
-        },
+        "results": {},
+        "risks": [
+            _risk(
+                threat_description="\x1b]8;;https://attacker.example\x07evil\x1b]8;;\x07"
+            )
+        ],
     }
     out = HumanReadableReporter.print_scan_results("pkg", results)
     assert not _has_raw_escape(out)
@@ -81,26 +86,18 @@ def test_print_scan_results_escapes_code_snippet_but_keeps_newlines_tabs():
     results = {
         "issues": 1,
         "errors": {},
-        "results": {
-            "some-rule": [
-                {
-                    "location": "ok.py:1",
-                    "code": "line1\nline2\twith\x07bell\x0dcr",
-                    "message": "match",
-                }
-            ]
-        },
+        "results": {},
+        "risks": [_risk(threat_code="line1\nline2\twith\x07bell\x0dcr")],
     }
     out = HumanReadableReporter.print_scan_results("pkg", results)
     plain = _strip_color(out)
     assert not _has_raw_escape(out)
     assert "\\x07" in plain
     assert "\\x0d" in plain
-    # The code formatter expands \n into "\n    " for indentation; the line
-    # boundary must survive sanitization.
+    # The line boundary must survive sanitization.
     assert "line1\n" in plain
-    # \t in the snippet is replaced with two spaces by the formatter.
-    assert "line2  with" in plain
+    # Tabs in the snippet are preserved (not expanded) on the findings path.
+    assert "line2\twith" in plain
 
 
 def test_print_scan_results_escapes_malicious_identifier():
@@ -110,13 +107,20 @@ def test_print_scan_results_escapes_malicious_identifier():
     assert "pkg\\x1b[31mred" in _strip_color(out)
 
 
-def test_print_scan_results_escapes_metadata_description():
+def test_print_scan_results_escapes_risk_description():
     results = {
         "issues": 1,
         "errors": {},
-        "results": {
-            "metadata-rule": "found suspicious file evil\x1b[2J.py",
-        },
+        "results": {},
+        "risks": [
+            _risk(
+                threat_rule="metadata-rule",
+                threat_description="found suspicious file evil\x1b[2J.py",
+                threat_location="",
+                threat_code="",
+                file_path="",
+            )
+        ],
     }
     out = HumanReadableReporter.print_scan_results("pkg", results)
     assert not _has_raw_escape(out)
@@ -140,15 +144,16 @@ def test_print_scan_results_benign_input_is_preserved():
     results = {
         "issues": 1,
         "errors": {},
-        "results": {
-            "rule-name": [
-                {
-                    "location": "café/módulo.py:42",
-                    "code": "print('déjà vu')",
-                    "message": "matched a benign-looking pattern",
-                }
-            ]
-        },
+        "results": {},
+        "risks": [
+            _risk(
+                threat_rule="rule-name",
+                threat_description="matched a benign-looking pattern",
+                threat_location="café/módulo.py:42",
+                threat_code="print('déjà vu')",
+                file_path="café/módulo.py",
+            )
+        ],
     }
     out = HumanReadableReporter.print_scan_results("requests", results)
     plain = _strip_color(out)

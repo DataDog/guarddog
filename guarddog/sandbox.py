@@ -8,7 +8,6 @@ Can also be invoked as a subprocess for sandboxed archive extraction:
 import argparse
 import logging
 import os
-import subprocess
 import sys
 import tempfile
 
@@ -73,30 +72,44 @@ def apply_sandbox(
 def extract_sandboxed(archive_path: str, target_dir: str) -> None:
     """Extract an archive in a sandboxed subprocess.
 
-    Spawns a child process that applies a nono sandbox (blocking network,
-    restricting filesystem to archive + target dir) before calling safe_extract.
-    This closes the TOCTOU gap for remote scans where the main process needs
-    network access after extraction.
+    Uses nono.sandboxed_exec so the sandbox is applied by the parent before
+    exec'ing the child — avoiding the nested-sandbox restriction that would
+    occur if the child called nono.apply() itself.
     """
+    import nono_py as nono  # type: ignore[import-not-found]
+
     archive_path = os.path.realpath(archive_path)
     target_dir = os.path.realpath(target_dir)
 
     log.debug("Extracting %s -> %s in sandboxed subprocess", archive_path, target_dir)
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "guarddog.sandbox", archive_path, target_dir],
-            capture_output=True,
-            text=True,
-            cwd=os.path.dirname(archive_path),
-            timeout=EXTRACTION_TIMEOUT_SECONDS,
+
+    caps = nono.CapabilitySet()
+
+    for path in _get_common_read_paths():
+        caps.allow_path(path, nono.AccessMode.READ)
+
+    # allow_path requires directories; allow the archive's parent dir for READ
+    caps.allow_path(os.path.dirname(archive_path), nono.AccessMode.READ)
+
+    os.makedirs(target_dir, exist_ok=True)
+    caps.allow_path(target_dir, nono.AccessMode.READ_WRITE)
+
+    tmp = os.path.realpath(tempfile.gettempdir())
+    caps.allow_path(tmp, nono.AccessMode.READ_WRITE)
+
+    caps.block_network()
+
+    result = nono.sandboxed_exec(
+        caps,
+        [sys.executable, "-m", "guarddog.sandbox", archive_path, target_dir],
+        cwd=os.path.dirname(archive_path),
+    )
+    if result.exit_code != 0:
+        stderr = (
+            result.stderr.decode("utf-8", errors="replace").strip()
+            if result.stderr
+            else ""
         )
-    except subprocess.TimeoutExpired:
-        raise RuntimeError(
-            f"Sandboxed extraction timed out after {EXTRACTION_TIMEOUT_SECONDS}s "
-            f"(possible decompression bomb): {archive_path}"
-        )
-    if result.returncode != 0:
-        stderr = result.stderr.strip()
         raise RuntimeError(f"Sandboxed extraction failed: {stderr}")
 
 
@@ -147,7 +160,7 @@ def _get_common_read_paths() -> list[str]:
 
 
 def _main():
-    """Subprocess entry point: apply sandbox then extract archive."""
+    """Subprocess entry point: sandbox is pre-applied by parent via sandboxed_exec."""
     parser = argparse.ArgumentParser()
     parser.add_argument("archive_path")
     parser.add_argument("target_dir")
@@ -155,11 +168,6 @@ def _main():
 
     archive_path = os.path.realpath(args.archive_path)
     target_dir = os.path.realpath(args.target_dir)
-
-    apply_sandbox(
-        scan_paths=[],
-        writable_paths=[target_dir],
-    )
 
     from guarddog.utils.archives import safe_extract
 

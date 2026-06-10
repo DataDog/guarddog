@@ -271,7 +271,7 @@ class TestScoring:
     def test_no_risks_returns_zero(self):
         score = calculate_risk_score([])
         assert score.score == 0.0
-        assert score.label == RiskLabel.NONE
+        assert score.label == RiskLabel.NO_RISKS_DETECTED
 
     def test_single_runtime_threat(self):
         """Single runtime threat with all-HIGH attributes scores HIGH"""
@@ -296,10 +296,10 @@ class TestScoring:
         score = calculate_risk_score(risks)
         # 1 stage (mid) → chain=0.4, raw=(1.0*0.30)+(0.4*0.20)+(1.0*0.30)+(1.0*0.20)=0.88→8.8
         assert score.score == 8.8
-        assert score.label == RiskLabel.HIGH
+        assert score.label == RiskLabel.MALICIOUS
 
     def test_full_attack_chain(self):
-        """Two-stage attack chain with source code should score HIGH"""
+        """Two-stage attack chain with source code should be malicious"""
         risks = [
             Risk(
                 category="process",
@@ -350,7 +350,7 @@ class TestScoring:
         # 2 stages (early + late) → chain=0.7, high severity/specificity, medium sophistication
         # Expected: (1.0*0.30) + (0.7*0.20) + (1.0*0.30) + (0.7*0.20) = 0.88 * 10 = 8.8
         assert score.score == 8.8
-        assert score.label == RiskLabel.HIGH
+        assert score.label == RiskLabel.MALICIOUS
 
     def test_credential_access_with_exfil_is_full_chain(self):
         """Credential access + network exfiltration should be treated as full chain"""
@@ -405,10 +405,10 @@ class TestScoring:
         assert score.score_breakdown["num_stages"] == 3
         # (1.0*0.25) + (1.0*0.30) + (1.0*0.25) + (0.7*0.20) = 0.94 * 10
         assert score.score == 9.4
-        assert score.label == RiskLabel.HIGH
+        assert score.label == RiskLabel.MALICIOUS
 
-    def test_metadata_only_capped_at_medium(self):
-        """Metadata-only findings should never reach HIGH"""
+    def test_metadata_only_capped_below_malicious(self):
+        """Metadata-only findings should never be labelled malicious"""
         risks = [
             Risk(
                 category="metadata",
@@ -430,12 +430,12 @@ class TestScoring:
             )
         ]
         score = calculate_risk_score(risks)
-        # 1 stage (early), no source code → MEDIUM
-        assert score.label == RiskLabel.MEDIUM
-        assert score.score <= 7.5
+        # 1 stage (early), no source code → suspicious (capped below malicious)
+        assert score.label == RiskLabel.SUSPICIOUS
+        assert score.score < 7
 
-    def test_single_stage_source_code_capped_at_medium(self):
-        """Single-stage source code finding should not reach HIGH"""
+    def test_single_stage_source_code_high_severity_is_malicious(self):
+        """Single-stage HIGH-severity source-code threat lands at malicious"""
         risks = [
             Risk(
                 category="runtime",
@@ -455,12 +455,12 @@ class TestScoring:
             )
         ]
         score = calculate_risk_score(risks)
-        # 1 stage → MEDIUM regardless of severity
-        assert score.label == RiskLabel.MEDIUM
-        assert score.score <= 7.5
+        # 1 stage, HIGH severity, source code → malicious
+        assert score.label == RiskLabel.MALICIOUS
+        assert score.score >= 7
 
-    def test_metadata_plus_source_code_reaches_high(self):
-        """Metadata + source code forming 2 stages should reach HIGH"""
+    def test_metadata_plus_source_code_reaches_malicious(self):
+        """Metadata + source code forming 2 stages should reach malicious"""
         risks = [
             # Metadata: typosquatting (initial-access → early)
             Risk(
@@ -502,7 +502,7 @@ class TestScoring:
             ),
         ]
         score = calculate_risk_score(risks)
-        # 2 stages (early + mid), has source code → HIGH gate passes
+        # 2 stages (early + mid), has source code → malicious gate passes
         assert score.score_breakdown["num_stages"] == 2
         assert score.score_breakdown["has_source_code_risks"] is True
-        assert score.label == RiskLabel.HIGH
+        assert score.label == RiskLabel.MALICIOUS
