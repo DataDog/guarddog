@@ -119,7 +119,7 @@ def scan_package(extracted_dir: str, ecosystem: str, guarddog_bin: str | None = 
     if not guarddog_bin:
         return {"results": {}, "error": "guarddog not found on PATH"}
 
-    # --no-sandbox: this worker is already sandboxed by nono; nono cannot be nested
+    # --no-sandbox: the worker process is already sandboxed; guarddog must not apply a second sandbox
     cmd = [guarddog_bin, ecosystem, "scan", extracted_dir, "--output-format", "json", "--no-sandbox"]
 
     # Pass metadata file if available (enables metadata rules for local scans)
