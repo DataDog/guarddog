@@ -42,8 +42,8 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: s
 
     caps = nono.CapabilitySet()
     caps.allow_path(tmp_dir, nono.AccessMode.READ_WRITE)
-    caps.allow_path(zip_path, nono.AccessMode.READ)
-    caps.allow_path(output_path, nono.AccessMode.READ_WRITE)
+    caps.allow_file(zip_path, nono.AccessMode.READ)
+    caps.allow_file(output_path, nono.AccessMode.READ_WRITE)
 
     # Allow Python runtime + site-packages (guarddog, semgrep, yara, etc.)
     python_prefix = os.path.realpath(sys.prefix)
@@ -61,19 +61,13 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: s
 
     caps.block_network()
 
-    # Dry-run validation
+    # Dry-run validation (only for directory paths; allow_file paths can't be query_path'd)
     ctx = nono.QueryContext(caps)
-    checks = [
-        (tmp_dir, nono.AccessMode.READ_WRITE, "tmp_dir"),
-        (zip_path, nono.AccessMode.READ, "zip_path"),
-        (output_path, nono.AccessMode.READ_WRITE, "output_path"),
-    ]
-    for path, mode, label in checks:
-        result = ctx.query_path(path, mode)
-        status = result.get("status") if isinstance(result, dict) else getattr(result, "status", None)
-        if status == "denied":
-            print(f"ERROR: sandbox validation failed for {label} ({path})", file=sys.stderr)
-            sys.exit(1)
+    result = ctx.query_path(tmp_dir, nono.AccessMode.READ_WRITE)
+    status = result.get("status") if isinstance(result, dict) else getattr(result, "status", None)
+    if status == "denied":
+        print(f"ERROR: sandbox validation failed for tmp_dir ({tmp_dir})", file=sys.stderr)
+        sys.exit(1)
 
     nono.apply(caps)
 
@@ -125,7 +119,8 @@ def scan_package(extracted_dir: str, ecosystem: str, guarddog_bin: str | None = 
     if not guarddog_bin:
         return {"results": {}, "error": "guarddog not found on PATH"}
 
-    cmd = [guarddog_bin, ecosystem, "scan", extracted_dir, "--output-format", "json"]
+    # --no-sandbox: this worker is already sandboxed by nono; nono cannot be nested
+    cmd = [guarddog_bin, ecosystem, "scan", extracted_dir, "--output-format", "json", "--no-sandbox"]
 
     # Pass metadata file if available (enables metadata rules for local scans)
     metadata_file = find_metadata_file(extracted_dir)
