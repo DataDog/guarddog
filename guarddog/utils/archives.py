@@ -207,16 +207,16 @@ def safe_extract(
                     continue
 
                 # Extract file safely using zip.extract which handles path sanitization
+                is_encrypted = bool(member.flag_bits & 0x1)
+                if is_encrypted and zip_password is None:
+                    raise RuntimeError(
+                        f"{member.filename}: password required for encrypted ZIP "
+                        f"(pass --zip-password)"
+                    )
                 try:
                     zip_file.extract(member, path=target_directory, pwd=zip_password)
-                except RuntimeError as e:
-                    msg = str(e)
-                    if "password required" in msg:
-                        raise RuntimeError(
-                            f"{member.filename}: password required for encrypted ZIP "
-                            f"(pass --zip-password)"
-                        ) from None
-                    if "Bad password" in msg:
+                except RuntimeError:
+                    if is_encrypted:
                         raise RuntimeError(
                             f"{member.filename}: Bad password for encrypted ZIP"
                         ) from None
