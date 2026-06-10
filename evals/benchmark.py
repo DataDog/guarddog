@@ -15,7 +15,6 @@ import argparse
 import concurrent.futures
 import json
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -41,17 +40,14 @@ def parse_args():
     p.add_argument("--workers", type=int, default=20)
     p.add_argument("--timeout", type=int, default=300)
     p.add_argument("--force-fetch", action="store_true")
-    p.add_argument("--guarddog-bin", default=None, help="Path to guarddog binary")
+    p.add_argument("--guarddog-bin", default=None, help="Path to guarddog binary (default: uv run guarddog)")
     return p.parse_args()
 
 
-def find_guarddog_bin(override: str | None) -> str:
+def find_guarddog_cmd(override: str | None) -> list[str]:
     if override:
-        return override
-    found = shutil.which("guarddog")
-    if found:
-        return found
-    sys.exit("ERROR: guarddog not found on PATH. Install it or pass --guarddog-bin")
+        return [override]
+    return ["uv", "run", "guarddog"]
 
 
 # ---------------------------------------------------------------------------
@@ -110,7 +106,7 @@ def sanitize_filename(name: str) -> str:
     return name.replace("@", "_at_").replace("/", "__")
 
 
-def scan_package(package: str, ecosystem: str, gd_bin: str,
+def scan_package(package: str, ecosystem: str, gd_cmd: list[str],
                  results_dir: Path, timeout: int) -> dict:
     safe = sanitize_filename(package)
     out_dir = results_dir / ecosystem
@@ -123,7 +119,7 @@ def scan_package(package: str, ecosystem: str, gd_bin: str,
     result = {"package": package, "ecosystem": ecosystem,
               "scan_time": None, "error": None, "output": None}
 
-    cmd = [gd_bin, ecosystem, "scan", package, "--output-format", "json"]
+    cmd = [*gd_cmd, ecosystem, "scan", package, "--output-format", "json"]
     start = time.time()
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
@@ -146,7 +142,7 @@ def scan_package(package: str, ecosystem: str, gd_bin: str,
     return result
 
 
-def run_scan(work_dir: Path, ecosystems: list[str], gd_bin: str,
+def run_scan(work_dir: Path, ecosystems: list[str], gd_cmd: list[str],
              workers: int, timeout: int):
     results_dir = work_dir / "results"
 
@@ -169,7 +165,7 @@ def run_scan(work_dir: Path, ecosystems: list[str], gd_bin: str,
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {}
         for name, eco in tasks:
-            fut = executor.submit(scan_package, name, eco, gd_bin, results_dir, timeout)
+            fut = executor.submit(scan_package, name, eco, gd_cmd, results_dir, timeout)
             futures[fut] = (name, eco)
 
         for fut in concurrent.futures.as_completed(futures):
@@ -483,9 +479,9 @@ def main():
     if phase in ("all", "fetch"):
         run_fetch(work_dir, args.ecosystems, args.max_packages, args.force_fetch)
     if phase in ("all", "scan"):
-        gd_bin = find_guarddog_bin(args.guarddog_bin)
-        print(f"Using guarddog: {gd_bin}")
-        run_scan(work_dir, args.ecosystems, gd_bin, args.workers, args.timeout)
+        gd_cmd = find_guarddog_cmd(args.guarddog_bin)
+        print(f"Using guarddog: {' '.join(gd_cmd)}")
+        run_scan(work_dir, args.ecosystems, gd_cmd, args.workers, args.timeout)
     if phase in ("all", "report"):
         run_report(work_dir, args.ecosystems)
 
