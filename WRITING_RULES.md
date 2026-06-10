@@ -271,27 +271,6 @@ rule threat_filesystem_read
 }
 ```
 
-### Semgrep Rule Example
-
-```yaml
-rules:
-  - id: threat-network-suspicious-domain
-    languages:
-      - python
-      - javascript
-    message: Detects connection to suspicious domain
-    metadata:
-      identifies: "threat.network.outbound"
-      severity: "high"
-      mitre_tactics: "exfiltration"
-      specificity: "high"
-      sophistication: "low"
-      description: "Detects URLs to suspicious domains used for exfiltration"
-    patterns:
-      - pattern-regex: '(pastebin\.com|transfer\.sh|discord\.com/api/webhooks)'
-    severity: WARNING
-```
-
 ## Pattern Writing Best Practices
 
 ### 1. Use Word Boundaries
@@ -413,54 +392,69 @@ rule threat_process_hooks
 
 ### Unit Testing
 
-Create test files in `tests/analyzer/sourcecode/` following this structure:
+The YARA test harness lives in `tests/analyzer/sourcecode/test_sourcecode_yara.py`. It does three
+things for every rule: compiles it, asserts it matches each positive test file, and asserts it does
+**not** match the benign files. Tests are matched to a rule **by filename prefix**, so test files are
+flat (no per-rule subdirectory) and named after the rule id.
+
+**The YARA rule's internal name must be the rule id with hyphens replaced by underscores.** The
+no-false-positive check filters matches to that exact name, so a mismatch silently drops coverage:
+
+```yara
+// file: capability-network-outbound.yar
+rule capability_network_outbound { ... }
+```
+
+**Positive tests** — add one file per language the rule should flag. The harness asserts the rule
+matches it:
 
 ```
 tests/analyzer/sourcecode/
-  ruleset_test_<rule-id>/
-    <rule-id>.py        # Test case for Python
-    <rule-id>.js        # Test case for JavaScript
-    <rule-id>.go        # Test case for Go
+  capability-network-outbound.py    # requests.get("https://example.com")
+  capability-network-outbound.js    # fetch("https://example.com")
+  capability-network-outbound.go    # http.Get("https://example.com")
 ```
 
-Test file should contain patterns that **should** and **should not** match:
+**Negative tests** — add legitimate code that must NOT trigger the rule under `benign/`. Every new
+or changed rule should have one to lock in against false positives:
 
-```python
-# tests/analyzer/sourcecode/ruleset_test_capability-network-outbound/capability-network-outbound.py
+```
+tests/analyzer/sourcecode/benign/
+  capability-network-outbound.py    # import requests   (declared but never called)
+```
 
-# ruleid: capability-network-outbound
-import requests
-requests.get("https://example.com")
+Run the suite:
 
-# ok: capability-network-outbound
-# Just importing shouldn't match
-import requests
+```bash
+make test-yara-rules
+# or just one rule:
+uv run pytest tests/analyzer/sourcecode -k capability-network-outbound
 ```
 
 ### Manual Testing
 
 ```bash
 # Test on a specific package
-guarddog pypi scan package-name --rules my-rule
+uv run guarddog pypi scan package-name --rules my-rule
 
 # Test with specific rules only
-guarddog pypi scan package-name --rules rule1 --rules rule2
+uv run guarddog pypi scan package-name --rules rule1 --rules rule2
 
 # Exclude specific rules
-guarddog pypi scan package-name --exclude-rules my-rule
+uv run guarddog pypi scan package-name --exclude-rules my-rule
 
 # Test on local directory
-guarddog pypi scan /path/to/package/
+uv run guarddog pypi scan /path/to/package/
 
 # Output JSON for analysis
-guarddog pypi scan package-name --output-format json
+uv run guarddog pypi scan package-name --output-format json
 ```
 
 ### Validation Checklist
 
 Before submitting a rule:
 
-- [ ] Rule filename matches rule ID
+- [ ] Rule filename matches rule ID, and the YARA `rule` name is the id with hyphens as underscores
 - [ ] `identifies` field follows `{type}.{category}[.{detail}]` format
 - [ ] Category is one of: `network`, `filesystem`, `process`, `runtime`, `system`
 - [ ] Category matches between capability and threat (for risk formation)
@@ -474,7 +468,7 @@ Before submitting a rule:
 - [ ] Duplicated patterns extracted to `.meta` files
 - [ ] Include paths are correct and `.meta` files exist
 - [ ] Private rules cannot be used together from same file (split if needed)
-- [ ] Test cases created with positive and negative examples
+- [ ] Positive test file(s) added under `tests/analyzer/sourcecode/` and a `benign/` negative test
 - [ ] Rule tested manually on real packages
 - [ ] Verified no false positives from shebangs, READMEs, or non-hook code
 
@@ -577,23 +571,16 @@ rule lolbas_net
 
 Use word boundaries (`\b`) to avoid false positives from substring matches.
 
-## Support Formats
+## Rule Format
 
-GuardDog supports two rule formats:
+Source-code rules are written in YARA (`.yar`):
 
-### YARA Rules (`.yar`)
-- **Language-agnostic**: All YARA rules are loaded regardless of ecosystem
-- **Binary-safe**: Can scan any file type
-- **Pattern matching**: Great for byte patterns, strings, regex
-- **Best for**: Cross-language patterns, obfuscation detection, binary analysis
+- **Language-agnostic**: every YARA rule is loaded regardless of ecosystem
+- **Binary-safe**: can scan any file type
+- **Pattern matching**: great for byte patterns, strings, and regex
+- **Best for**: cross-language patterns, obfuscation detection, binary analysis
 
-### Semgrep Rules (`.yml`)
-- **Language-aware**: Only loaded when language matches ecosystem
-- **AST-based**: Understands code structure
-- **Metavariables**: Can match and reuse code fragments
-- **Best for**: Complex code patterns, language-specific detection
-
-Choose YARA for broad pattern matching across all files. Choose Semgrep for language-specific code analysis.
+Shared private rules go in `.meta` files (see the DRY section above).
 
 ## File Organization
 

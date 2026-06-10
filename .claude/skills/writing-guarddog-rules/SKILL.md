@@ -37,9 +37,7 @@ or a *suspicious indicator* (threat)? Does it stand alone without a capability (
 1. **Decide type and category.** Pick `capability` vs `threat`, then category and optional detail.
    Confirm the matching counterpart exists or will exist so a risk can form.
 2. **Write patterns** as YARA (`.yar`). Source-code rules are YARA-only and language-agnostic
-   (loaded for every ecosystem). Note that `WRITING_RULES.md` still shows a Semgrep `.yml` example;
-   that path no longer exists in this codebase, so ignore it and write YARA. Follow the best
-   practices in `WRITING_RULES.md` (word boundaries `\b`,
+   (loaded for every ecosystem). Follow the best practices in `WRITING_RULES.md` (word boundaries `\b`,
    match method calls not object names, require quote context for bare strings, establish context
    with private rules before matching threats). Extract shared building blocks (LOLBAS, hooks) into
    `.meta` files instead of repeating them.
@@ -53,15 +51,14 @@ or a *suspicious indicator* (threat)? Does it stand alone without a capability (
 
 ## Testing rules (the real harness)
 
-The testing section of `WRITING_RULES.md` is out of date for YARA. Use the actual harness in
-`tests/analyzer/sourcecode/test_sourcecode_yara.py`:
+The harness is `tests/analyzer/sourcecode/test_sourcecode_yara.py`. Key points:
 
 - **The YARA rule's internal name must be the file id with hyphens replaced by underscores.**
   File `capability-filesystem-read.yar` must contain `rule capability_filesystem_read`. The
   no-false-positive test filters matches to this exact name, so a mismatch silently skips coverage.
 - **Positive test:** add a file `tests/analyzer/sourcecode/<rule-id>.<ext>` containing code the rule
   should flag (e.g. `<rule-id>.py`, `.js`, `.go`, `.rb`). The harness asserts the rule matches it.
-  These are matched by filename prefix, not by `# ruleid:` comments.
+  These are matched by filename prefix.
 - **Negative test (false positives):** add `tests/analyzer/sourcecode/benign/<rule-id>.<ext>` with
   legitimate code that must NOT trigger the main rule. Every new or changed rule should have one.
 - **Compilation:** all `.yar` files must compile, including `include "...meta"` references resolving.
