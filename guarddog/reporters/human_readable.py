@@ -182,10 +182,20 @@ class HumanReadableReporter(BaseReporter):
         return out
 
     @staticmethod
+    def _rail(lines: List[str], color: str | None) -> List[str]:
+        """Prefix each line with a colored vertical rail, grouping a risk block."""
+        bar = colored("│", color)
+        return [f"{bar} {line}" for line in lines]
+
+    @staticmethod
     def _format_one_risk(
         risk: dict, path_prefix: Optional[str], ceiling: str | None
     ) -> List[str]:
-        """Render a single risk as a multi-line block: rule, desc, location, code."""
+        """Render a single risk as a railed block: rule, desc, location, code.
+
+        The rail carries the band color (red/yellow), or a muted grey for the Low
+        band, so each finding reads as its own cell without fragile box borders.
+        """
         sev_color = HumanReadableReporter._clamp_color(
             HumanReadableReporter._severity_color(risk.get("severity", "low")),
             ceiling,
@@ -201,26 +211,24 @@ class HumanReadableReporter(BaseReporter):
         loc_kw = "at" if loc_raw else "in"
 
         block: List[str] = [
-            "  * " + colored(rule, sev_color, attrs=["bold"]),
+            "* " + colored(rule, sev_color, attrs=["bold"]),
         ]
         if desc:
-            block.append("    " + colored(desc, sev_color))
-        block.append("    " + colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey"))
+            block.append("  " + colored(desc, sev_color))
+        block.append("  " + colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey"))
 
         code = risk.get("threat_code", "")
         if code:
             block += HumanReadableReporter._render_code_block(
-                code, risk.get("threat_match")
+                code, risk.get("threat_match"), indent="    "
             )
 
         cap = risk.get("capability_identifies")
         if cap:
-            block.append(
-                "    " + colored(f"(enabled by {_sanitize(cap)})", "dark_grey")
-            )
+            block.append("  " + colored(f"(enabled by {_sanitize(cap)})", "dark_grey"))
 
-        block.append("")
-        return block
+        rail_color = ceiling or "dark_grey"
+        return HumanReadableReporter._rail(block, rail_color) + [""]
 
     @staticmethod
     def _format_findings(
