@@ -6,6 +6,7 @@ import pytest
 
 from guarddog import ecosystems
 from guarddog.analyzer.analyzer import Analyzer
+import guarddog.analyzer.analyzer as analyzer_module
 from guarddog.ecosystems import LANGUAGE
 
 pypi_analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
@@ -67,6 +68,49 @@ def test_get_snippet_file_not_found():
         snippet = analyzer.get_snippet(path, start_line, stop_line)
 
     assert snippet == ""
+
+
+def test_analyze_yara_excludes_files_matching_regex():
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+    rule = next(iter(analyzer.yara_ruleset))
+
+    class FakeCompiledRules:
+        def __init__(self):
+            self.scanned_files = []
+
+        def match(self, file_path):
+            self.scanned_files.append(file_path)
+            return []
+
+    fake_compiled_rules = FakeCompiledRules()
+
+    with patch.object(analyzer_module, "YARA_EXT_EXCLUDE", []), patch.object(
+        analyzer_module, "YARA_PATH_EXCLUDE_REGEX", r"\.min\.js$"
+    ), patch.object(
+        analyzer_module.yara, "compile", return_value=fake_compiled_rules
+    ), patch.object(
+        analyzer_module.os,
+        "walk",
+        return_value=[("/tmp/pkg", [], ["keep.py", "bundle.min.js"])],
+    ):
+        analyzer.analyze_yara("/tmp/pkg", {rule})
+
+    assert "/tmp/pkg/keep.py" in fake_compiled_rules.scanned_files
+    assert "/tmp/pkg/bundle.min.js" not in fake_compiled_rules.scanned_files
+
+
+def test_analyze_yara_returns_error_for_invalid_exclude_regex():
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+    rule = next(iter(analyzer.yara_ruleset))
+
+    with patch.object(analyzer_module, "YARA_PATH_EXCLUDE_REGEX", "("), patch.object(
+        analyzer_module.yara, "compile"
+    ) as yara_compile:
+        result = analyzer.analyze_yara("/tmp/pkg", {rule})
+
+    assert "rules-all" in result["errors"]
+    assert "GUARDDOG_YARA_PATH_EXCLUDE_REGEX" in result["errors"]["rules-all"]
+    yara_compile.assert_not_called()
 
 
 # Comment filtering tests
