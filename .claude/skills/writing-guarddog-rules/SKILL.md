@@ -1,6 +1,6 @@
 ---
 name: writing-guarddog-rules
-description: Author, edit, and review GuardDog source-code detection rules (YARA .yar / Semgrep .yml) that follow the capability/threat/risk model. Use when adding a new detection rule, changing an existing rule's patterns or metadata, splitting capabilities from threats, debugging false positives, or writing rule test cases under guarddog/analyzer/sourcecode/.
+description: Author, edit, and review GuardDog YARA source-code detection rules (.yar) that follow the capability/threat/risk model. Use when adding a new detection rule, changing an existing rule's patterns or metadata, splitting capabilities from threats, debugging false positives, or writing rule test cases under guarddog/analyzer/sourcecode/.
 ---
 
 # Writing GuardDog Rules
@@ -36,20 +36,20 @@ or a *suspicious indicator* (threat)? Does it stand alone without a capability (
 
 1. **Decide type and category.** Pick `capability` vs `threat`, then category and optional detail.
    Confirm the matching counterpart exists or will exist so a risk can form.
-2. **Pick the format.** YARA (`.yar`) for cross-language byte/regex/string patterns and obfuscation;
-   Semgrep (`.yml`) for AST-aware, language-specific code structure. YARA rules load for all
-   ecosystems; Semgrep rules load only when the language matches the ecosystem.
-3. **Write patterns** following the best practices in `WRITING_RULES.md` (word boundaries `\b`,
+2. **Write patterns** as YARA (`.yar`). Source-code rules are YARA-only and language-agnostic
+   (loaded for every ecosystem). Note that `WRITING_RULES.md` still shows a Semgrep `.yml` example;
+   that path no longer exists in this codebase, so ignore it and write YARA. Follow the best
+   practices in `WRITING_RULES.md` (word boundaries `\b`,
    match method calls not object names, require quote context for bare strings, establish context
    with private rules before matching threats). Extract shared building blocks (LOLBAS, hooks) into
    `.meta` files instead of repeating them.
-4. **Add metadata.** Required: `identifies`, `severity`, `description`. Threat rules also need a
-   single `mitre_tactics`. Optional `specificity`/`sophistication` default to `medium`. YARA-only:
-   `max_hits`, `path_include`. See the schema section of `WRITING_RULES.md`.
-5. **Name and place the file** under `guarddog/analyzer/sourcecode/` as `{type}-{category}-{detail}.yar`
-   (or `.yml`). `.meta` files are `{pattern-name}.meta`.
-6. **Write test cases** (see below).
-7. **Run the checklist** at the end of `WRITING_RULES.md` before finishing.
+3. **Add metadata.** Required: `identifies`, `severity`, `description`. Threat rules also need a
+   single `mitre_tactics`. Optional `specificity`/`sophistication` default to `medium`. Also
+   available: `max_hits`, `path_include`. See the schema section of `WRITING_RULES.md`.
+4. **Name and place the file** under `guarddog/analyzer/sourcecode/` as `{type}-{category}-{detail}.yar`.
+   `.meta` files (shared private rules) are `{pattern-name}.meta`.
+5. **Write test cases** (see below).
+6. **Run the checklist** at the end of `WRITING_RULES.md` before finishing.
 
 ## Testing rules (the real harness)
 
