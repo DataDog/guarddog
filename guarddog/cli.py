@@ -10,7 +10,8 @@ import shutil
 import sys
 import tempfile
 from typing import Optional
-from urllib.parse import urlparse
+import re
+from urllib.parse import urlparse, unquote
 
 import click
 import requests
@@ -124,6 +125,20 @@ def _get_all_rules(ecosystem: ECOSYSTEM) -> set[str]:
     return set(r.id for r in get_sourcecode_rules(ecosystem)) | set(
         get_metadata_detectors(ecosystem).keys()
     )
+
+
+_GITHUB_BLOB_RE = re.compile(
+    r"^(https?://(?:www\.)?github\.com/[^/]+/[^/]+)/blob(/.*)"
+)
+
+
+def _to_raw_github_url(url: str) -> str:
+    """Convert a github.com /blob/ URL to raw.githubusercontent.com."""
+    m = _GITHUB_BLOB_RE.match(url)
+    if not m:
+        return url
+    repo_base = m.group(1).replace("github.com", "raw.githubusercontent.com", 1)
+    return repo_base + m.group(2)
 
 
 def _get_rule_param(
@@ -294,10 +309,11 @@ def _scan(
             tmp_root = os.path.realpath(tempfile.gettempdir())
             with tempfile.TemporaryDirectory(dir=tmp_root) as tempdir:
                 # Download before sandbox: network access is needed here.
-                filename = os.path.basename(urlparse(identifier).path) or "archive"
+                download_url = _to_raw_github_url(identifier)
+                filename = unquote(os.path.basename(urlparse(download_url).path)) or "archive"
                 archive_path = os.path.join(tempdir, filename)
-                log.debug(f"Downloading remote archive from {identifier}")
-                response = requests.get(identifier, stream=True)
+                log.debug(f"Downloading remote archive from {download_url}")
+                response = requests.get(download_url, stream=True)
                 response.raise_for_status()
                 with open(archive_path, "wb") as f:
                     f.write(response.raw.read())
