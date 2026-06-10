@@ -36,6 +36,7 @@ termcolor = "^3.3.0"
 urllib3 = "^2.7.0"
 yara-python = "^4.5.4"
 nono-py = ">=0.10.1"
+packaging = ">=21.0"
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.13.5"
