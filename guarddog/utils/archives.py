@@ -42,6 +42,7 @@ def is_supported_archive(path: str) -> bool:
 def safe_extract(
     source_archive: str,
     target_directory: str,
+    zip_password: bytes | None = None,
 ) -> None:
     """
     safe_extract safely extracts archives to a target directory.
@@ -53,6 +54,9 @@ def safe_extract(
 
     @param source_archive:      The archive to extract
     @param target_directory:    The directory where to extract the archive to
+    @param zip_password:        Optional password for encrypted ZIP archives. Tar
+                                archives have no native password support; passing
+                                a password alongside a tar archive raises ValueError.
     @raise ValueError           If the archive type is unsupported or exceeds safety limits
 
     """
@@ -111,7 +115,7 @@ def safe_extract(
         if (attr & 0o170000) != 0o120000:
             return False
 
-        linkname = zip_file.read(zip_info).decode("utf-8")
+        linkname = zip_file.read(zip_info, pwd=zip_password).decode("utf-8")
 
         symlink_file = pathlib.Path(
             os.path.normpath(os.path.join(target_directory, linkname))
@@ -142,6 +146,11 @@ def safe_extract(
     archive_size = os.path.getsize(source_archive)
 
     if tarsafe.is_tarfile(source_archive):
+        if zip_password is not None:
+            raise ValueError(
+                "--zip-password is only supported for ZIP archives "
+                "(.zip, .whl, .egg); tar archives have no native password support"
+            )
 
         def add_exec(path):
             st = os.stat(path)
@@ -198,6 +207,24 @@ def safe_extract(
                     continue
 
                 # Extract file safely using zip.extract which handles path sanitization
-                zip_file.extract(member, path=target_directory)
+                is_encrypted = bool(member.flag_bits & 0x1)
+                if is_encrypted and zip_password is None:
+                    raise RuntimeError(
+                        f"{member.filename}: password required for encrypted ZIP "
+                        f"(pass --zip-password)"
+                    )
+                try:
+                    zip_file.extract(member, path=target_directory, pwd=zip_password)
+                except RuntimeError:
+                    if is_encrypted:
+                        raise RuntimeError(
+                            f"{member.filename}: Bad password for encrypted ZIP"
+                        ) from None
+                    raise
     else:
-        raise ValueError(f"unsupported archive extension: {source_archive}")
+        # Detection is content-based (tarsafe.is_tarfile / zipfile.is_zipfile),
+        # not extension-based: reaching here means the bytes were not recognized
+        # as a tar or zip, or could not be read.
+        raise ValueError(
+            f"unsupported or unreadable archive (not a valid tar or zip): {source_archive}"
+        )

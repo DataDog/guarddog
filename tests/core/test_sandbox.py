@@ -3,7 +3,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from guarddog.sandbox import is_available, apply_sandbox, _get_common_read_paths
+from guarddog.sandbox import (
+    is_available,
+    apply_sandbox,
+    _get_common_read_paths,
+    _path_variants,
+)
 
 
 class TestIsAvailable:
@@ -59,10 +64,45 @@ class TestApplySandbox:
         assert any(p == os.path.realpath(sys.prefix) for p in paths)
 
 
+class TestPathVariants:
+    def test_plain_path_returns_single_entry(self):
+        assert _path_variants("/usr") == ["/usr"]
+
+    def test_symlink_returns_both_link_and_target(self, tmp_path):
+        """Both the symlink path and its target must be granted: the import
+        machinery walks sys.path via the symlink (e.g. cpython-3.12 ->
+        cpython-3.12.8), so granting only the realpath breaks lazy imports."""
+        target = tmp_path / "cpython-3.12.8"
+        target.mkdir()
+        link = tmp_path / "cpython-3.12"
+        link.symlink_to(target)
+
+        variants = _path_variants(str(link))
+
+        assert str(link) in variants
+        assert str(target) in variants
+
+    def test_symlinked_stdlib_dir_is_granted_via_both_paths(self, tmp_path):
+        """A managed-interpreter layout where the stdlib lives behind a
+        versioned symlink must yield read access through the symlink path."""
+        real_lib = tmp_path / "cpython-3.12.8" / "lib"
+        real_lib.mkdir(parents=True)
+        link = tmp_path / "cpython-3.12"
+        link.symlink_to(tmp_path / "cpython-3.12.8")
+        symlinked_lib = link / "lib"
+
+        variants = _path_variants(str(symlinked_lib))
+
+        assert str(symlinked_lib) in variants
+        assert str(real_lib) in variants
+
+
 class TestScanCLISandboxFlag:
     @patch("guarddog.cli.get_package_scanner")
     @patch("guarddog.cli.sandbox_available", return_value=False)
-    def test_exits_when_sandbox_forced_but_unavailable(self, _mock_avail, _mock_scanner):
+    def test_exits_when_sandbox_forced_but_unavailable(
+        self, _mock_avail, _mock_scanner
+    ):
         """--sandbox flag should hard-fail when sandbox is not available"""
         from click.testing import CliRunner
         from guarddog.cli import cli
@@ -78,8 +118,12 @@ class TestScanCLISandboxFlag:
 
         mock_scanner = MagicMock()
         mock_scanner.scan_remote.return_value = {
-            "issues": 0, "errors": {}, "results": {},
-            "risk_score": {}, "risks": [], "path": "/tmp/x",
+            "issues": 0,
+            "errors": {},
+            "results": {},
+            "risk_score": {},
+            "risks": [],
+            "path": "/tmp/x",
         }
         mock_get_scanner.return_value = mock_scanner
 
