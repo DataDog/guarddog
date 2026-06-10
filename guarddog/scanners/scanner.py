@@ -21,15 +21,10 @@ log = logging.getLogger("guarddog")
 _GITHUB_HOSTS = {"github.com", "www.github.com"}
 
 
-def _build_raw_github_url(url: str, branch: str, requirements_name: str) -> str:
-    """Build a raw.githubusercontent.com URL from a validated GitHub repo URL.
-
-    Raises ValueError if `url` is not an http(s) URL pointing at github.com
-    with an `owner/repo` path. Userinfo (`user:pass@host`) and explicit ports
-    are rejected so that GitHub credentials cannot be sent to a non-GitHub
-    host via a crafted authority component.
+def _assert_safe_github_url(parsed, url: str) -> None:
+    """Reject schemes, userinfo, and ports that could send GitHub credentials
+    to a non-GitHub host via a crafted authority component (GHSA-587r-mc96-6f2p).
     """
-    parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise ValueError(f"Invalid GitHub repo URL scheme: {url!r}")
     if parsed.username is not None or parsed.password is not None:
@@ -38,6 +33,16 @@ def _build_raw_github_url(url: str, branch: str, requirements_name: str) -> str:
         raise ValueError(f"Invalid GitHub repo URL host: {url!r}")
     if parsed.port is not None:
         raise ValueError(f"GitHub repo URL must not specify a port: {url!r}")
+
+
+def _build_raw_github_url(url: str, branch: str, requirements_name: str) -> str:
+    """Build a raw.githubusercontent.com URL from a validated GitHub repo URL.
+
+    Raises ValueError if `url` is not an http(s) URL pointing at github.com
+    with an `owner/repo` path.
+    """
+    parsed = urlparse(url)
+    _assert_safe_github_url(parsed, url)
 
     path = parsed.path.strip("/").removesuffix(".git")
     parts = path.split("/")
@@ -51,6 +56,29 @@ def _build_raw_github_url(url: str, branch: str, requirements_name: str) -> str:
         f"https://raw.githubusercontent.com/{owner}/{repo}"
         f"/{quoted_branch}/{quoted_name}"
     )
+
+
+def github_blob_to_raw_url(url: str) -> str:
+    """Convert a github.com `/blob/` URL to its raw.githubusercontent.com
+    equivalent so the file content (not the HTML viewer) is downloaded.
+
+    Non-GitHub URLs, and GitHub URLs that aren't `/owner/repo/blob/...` links,
+    are returned unchanged so direct archive URLs still download as-is. A URL
+    that is recognizably GitHub but carries userinfo or an explicit port is
+    rejected, reusing the same credential-leak protection as repo scanning.
+    """
+    parsed = urlparse(url)
+    if (parsed.hostname or "").lower() not in _GITHUB_HOSTS:
+        return url
+    _assert_safe_github_url(parsed, url)
+
+    parts = parsed.path.lstrip("/").split("/", 3)
+    if len(parts) < 4 or parts[2] != "blob" or not (parts[0] and parts[1]):
+        return url
+    owner, repo, _, blob_path = parts
+
+    raw = f"https://raw.githubusercontent.com/{owner}/{repo}/{blob_path}"
+    return f"{raw}?{parsed.query}" if parsed.query else raw
 
 
 def noop(arg: typing.Any) -> None:
