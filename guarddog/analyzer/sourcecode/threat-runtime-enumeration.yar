@@ -25,7 +25,8 @@ rule threat_runtime_enumeration
         // Python - network interface enumeration
         $py_netifaces = "netifaces.interfaces()" nocase
         $py_ifconfig = "ifconfig" nocase
-        $py_ip_addr = "ip addr" nocase
+        // Word boundary after "addr" so prose like "IP Address" does not match.
+        $py_ip_addr = /\bip\s+addr\b/ nocase
 
         // Node.js - network enumeration
         $js_os_networkinterfaces = "os.networkInterfaces()" nocase
@@ -35,9 +36,11 @@ rule threat_runtime_enumeration
         $py_etc_passwd = "/etc/passwd" nocase
         $py_pwd_getpwall = "pwd.getpwall()" nocase
 
-        // Port scanning indicators
-        $port_scan = /port.{1,10}scan/i nocase
-        $nmap = "nmap" nocase
+        // Port scanning indicators. Keep "port" and "scan" adjacent so they can't
+        // span unrelated identifiers like "afterImportPos = scanner". Match nmap
+        // case-sensitively with word boundaries so it can't match "ChainMap".
+        $port_scan = /\bport[\s_-]?scan/i nocase
+        $nmap = /\bnmap\b/
 
     condition:
         2 of them

@@ -30,8 +30,9 @@ rule threat_process_cryptomining
         $stratum = "stratum+tcp://" nocase
         $stratum_ssl = "stratum+ssl://" nocase
 
-        // Monero addresses (very specific, 95 chars starting with 4)
-        $monero_address = /4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}/ nocase
+        // Monero address (95 chars starting with 4). Word boundaries keep it from
+        // matching inside a longer base64 blob.
+        $monero_address = /\b4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}\b/ nocase
 
         // Mining-related terms in combination (require more context)
         $mining_hashrate = "hashrate" nocase

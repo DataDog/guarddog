@@ -67,8 +67,10 @@ rule threat_process_memory
         (any of ($py_psutil_memory, $py_memory_info, $py_memory_maps) and
          (any of ($search_password, $extract_memory, $regex_password, $regex_token))) or
 
-        // Python low-level memory access
-        any of ($py_ptrace_attach, $py_ptrace_peek, $py_readprocessmemory, $py_openprocess) or
+        // Low-level memory access. OpenProcess only counts with an actual memory
+        // read (alone it is a benign liveness check).
+        any of ($py_ptrace_attach, $py_ptrace_peek, $py_readprocessmemory) or
+        ($py_openprocess and $py_readprocessmemory) or
 
         // Python credential dumping tools
         any of ($py_mimikatz, $py_pypykatz, $py_lsass, $py_secretsdump) or

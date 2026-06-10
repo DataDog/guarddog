@@ -47,7 +47,6 @@ rule threat_runtime_keylogging
 
         // Hook installation patterns
         $hook_keyboard = "hook_keyboard" nocase
-        $global_hook = "global_hook" nocase
         $set_hook = "SetWindowsHookEx" nocase
 
         // Combination: listener + file write
@@ -72,7 +71,7 @@ rule threat_runtime_keylogging
         any of ($log_keystroke, $steal_password) or
 
         // Hook patterns
-        any of ($hook_keyboard, $global_hook, $set_hook) or
+        any of ($hook_keyboard, $set_hook) or
 
         // Combination: keyboard listener + file write (very suspicious)
         ((any of ($py_pynput_*, $py_keyboard_*, $js_iohook, $js_keypress)) and

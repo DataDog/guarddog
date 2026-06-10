@@ -12,31 +12,26 @@ rule threat_runtime_obfuscation_unicode
 	path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
         max_hits = 1
     strings:
-        // Mathematical Alphanumeric Symbols (specific examples of common homoglyphs)
-        $unicode_math_bold = "\xf0\x9d\x90\x80" // 𝐀 (bold A)
-        $unicode_math_italic = "\xf0\x9d\x90\xb4" // 𝐴 (italic A)
-        $unicode_math_script = "\xf0\x9d\x92\x9c" // 𝒜 (script A)
+        // Homoglyph obfuscation hides a lookalike char inside an ASCII word
+        // (e.g. "pаypal" with a Cyrillic 'а'). Match a Cyrillic/Greek/math letter
+        // adjacent to an ASCII letter; pure non-ASCII data (charset/i18n tables)
+        // has no such boundary.
 
-        // Cyrillic lookalikes (UTF-8 encoded)
-        $cyrillic_a = "\xd0\xb0" // а (Cyrillic a looks like Latin a)
-        $cyrillic_e = "\xd0\xb5" // е (Cyrillic e looks like Latin e)
-        $cyrillic_o = "\xd0\xbe" // о (Cyrillic o looks like Latin o)
-        $cyrillic_p = "\xd1\x80" // р (Cyrillic r looks like Latin p)
-        $cyrillic_c = "\xd1\x81" // с (Cyrillic s looks like Latin c)
-        $cyrillic_y = "\xd1\x83" // у (Cyrillic u looks like Latin y)
-        $cyrillic_x = "\xd1\x85" // х (Cyrillic h looks like Latin x)
+        // Cyrillic block (U+0400-U+047F) touching an ASCII letter
+        $cyr_after_ascii  = /[a-zA-Z][\xd0\xd1][\x80-\xbf]/
+        $cyr_before_ascii = /[\xd0\xd1][\x80-\xbf][a-zA-Z]/
 
-        // Greek lookalikes (UTF-8 encoded)
-        $greek_alpha = "\xce\xb1" // α
-        $greek_beta = "\xce\xb2" // β
-        $greek_omicron = "\xce\xbf" // ο (looks like Latin o)
-        $greek_rho = "\xcf\x81" // ρ (looks like Latin p)
+        // Greek block (U+0380-U+03FF) touching an ASCII letter
+        $grk_after_ascii  = /[a-zA-Z][\xce\xcf][\x80-\xbf]/
+        $grk_before_ascii = /[\xce\xcf][\x80-\xbf][a-zA-Z]/
 
-        // Zero-width characters (invisible, UTF-8 encoded)
-        $zero_width_space = "\xe2\x80\x8b"
-        $zero_width_non_joiner = "\xe2\x80\x8c"
-        $zero_width_joiner = "\xe2\x80\x8d"
+        // Mathematical Alphanumeric Symbols (U+1D400+) touching an ASCII letter
+        $math_after_ascii  = /[a-zA-Z]\xf0\x9d[\x80-\xbf][\x80-\xbf]/
+        $math_before_ascii = /\xf0\x9d[\x80-\xbf][\x80-\xbf][a-zA-Z]/
+
+        // Zero-width characters wedged between ASCII letters (invisible splitter)
+        $zw_between = /[a-zA-Z]\xe2\x80[\x8b-\x8d][a-zA-Z]/
 
     condition:
-        2 of them
+        any of them
 }

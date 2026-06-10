@@ -30,5 +30,7 @@ rule threat_process_injection_dll
     condition:
         2 of ($win_*) or
         any of ($dll_rundll32, $dll_regsvr32, $dll_mshta) or
-        $py_ctypes_windll
+        // ctypes kernel32 only counts when paired with an injection API (alone it
+        // serves many benign calls like OpenProcess/LocalFree)
+        ($py_ctypes_windll and 1 of ($win_*))
 }

@@ -20,8 +20,8 @@ rule threat_runtime_dynamic_loader
         // getattr for dynamic function resolution
         $getattr_call = /getattr\s*\(\s*\w+\s*,/ nocase
 
-        // Network download
-        $urllib_request = /urllib\.request/ nocase
+        // Network download via an actual fetch call, not a bare urllib import
+        $urllib_dl = /urllib\.\w*request\w*\.(urlopen|urlretrieve)\s*\(/ nocase
         $requests_get = /requests\.get\s*\(/ nocase
 
         // base64 decode (for obfuscated module names/URLs)

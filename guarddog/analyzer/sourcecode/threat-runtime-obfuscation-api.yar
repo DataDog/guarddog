@@ -12,13 +12,14 @@ rule threat_runtime_obfuscation_api
         max_hits = 1
         path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
-        // Python - getattr used to dynamically call dangerous builtins
-        $py_getattr_exec = /\bgetattr\s*\([^,]+,\s*['"](__import__|exec|eval|compile)['"]/ nocase
-        // Python - __builtins__ introspection to reach exec/eval
-        $py_builtins_getattr = /\bgetattr\s*\(\s*__builtins__/ nocase
+        // getattr that fetches AND immediately calls a dangerous builtin, e.g.
+        // getattr(o, "exec")(...). The trailing call excludes assign-only shims.
+        $py_getattr_exec = /\bgetattr\s*\([^,]+,\s*['"](__import__|exec|eval|compile)['"]\s*\)\s*\(/ nocase
+        // getattr on __builtins__ whose result is immediately invoked
+        $py_builtins_getattr = /\bgetattr\s*\(\s*__builtins__\s*,[^)]*\)\s*\(/ nocase
 
-        // JavaScript - advanced introspection patterns (rarely used in legitimate code)
-        $js_get_own_prop_desc = /\bObject\s*\.\s*getOwnPropertyDescriptor\s*\([^)]+,\s*[^)]+\)\s*\.\s*\bvalue\b/ nocase
+        // JS reflection where the resolved descriptor .value is then invoked
+        $js_get_own_prop_desc = /\bObject\s*\.\s*getOwnPropertyDescriptor\s*\([^)]+,\s*[^)]+\)\s*\.\s*\bvalue\b\s*\(/ nocase
         $js_get_own_prop_names = /\[\s*\bObject\s*\.\s*getOwnPropertyNames\s*\([^)]+\)\s*\.\s*\bfind\s*\(/ nocase
         $js_object_keys_find = /\[\s*\bObject\s*\.\s*\bkeys\s*\([^)]+\)\s*\.\s*\bfind\s*\(/ nocase
         $js_entries_find = /\bObject\s*\.\s*\bentries\s*\([^)]+\)\s*\.\s*\bfind\s*\([^)]+\)\s*\[\s*1\s*\]/ nocase

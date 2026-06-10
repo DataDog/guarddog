@@ -1,6 +1,6 @@
 include "lolbas-sysinfo.meta"
 
-rule threat_process_spawn_sysinfo
+rule threat_process_sysinfo
 {
     meta:
         author = "GuardDog Team, Datadog"

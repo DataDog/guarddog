@@ -14,7 +14,8 @@ rule threat_network_exfil_sysinfo
     strings:
         // System info collection
         $py_hostname = /socket\.gethostname\s*\(\s*\)/ nocase
-        $py_platform = /platform\.(node|system|machine|uname)\s*\(\s*\)/ nocase
+        // node/uname reveal host identity; system/machine are routine OS branching
+        $py_platform = /platform\.(node|uname)\s*\(\s*\)/ nocase
         $py_getuser = /getpass\.getuser\s*\(\s*\)/ nocase
         $py_getlogin = /os\.getlogin\s*\(\s*\)/ nocase
         $py_username = /os\.environ\s*\[\s*['"]USER(NAME)?['"]\s*\]/ nocase

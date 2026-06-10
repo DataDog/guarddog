@@ -58,10 +58,10 @@ rule threat_process_download_exec
         // Node.js: fetch + eval
         $js_fetch_eval = /fetch\s*\(.*\).*\.then\s*\(.*eval/ nocase
 
-        // Node.js: import child_process exec + fetch in same file
-        $js_import_exec = /from\s+['"]child_process['"]\s*/ nocase
-        $js_cp_exec = /child_process/ nocase
+        // Node.js: remote fetch combined with execution of the fetched code
         $js_fetch = /\bfetch\s*\(\s*['"]https?:/ nocase
+        $js_eval = /\beval\s*\(/ nocase
+        $js_new_function = /\bnew\s+Function\s*\(/ nocase
 
         // Shell download + execute chains
         $shell_curl_pipe = /curl\s+.*\|\s*(bash|sh|python|node|perl)\b/ nocase
@@ -75,17 +75,18 @@ rule threat_process_download_exec
         $ps_downloadfile = /DownloadFile\s*\(/ nocase
 
     condition:
-        // Direct download-execute patterns
+        // Direct download-execute patterns (high-signal strings only)
         any of ($py_system_*, $py_subprocess_curl, $py_subprocess_wget, $py_subprocess_ps,
                 $py_subprocess_sh, $py_pip_install, $py_os_pip, $py_import_pip,
                 $py_pip_check_call, $py_pip_executable,
-                $py_exec_compile, $js_*, $shell_*, $ps_*) or
+                $py_exec_compile,
+                $js_exec_curl, $js_exec_wget, $js_fetch_eval, $shell_*, $ps_*) or
         // from pip import main + main(['install'...])
         ($py_pip_from_import and $py_main_install) or
         // Download + exec/eval in same file
         (any of ($py_download_*) and any of ($py_exec, $py_eval)) or
         // Download + subprocess execution in same file (download binary + run it)
         (any of ($py_download_urlretrieve) and $py_subprocess_run) or
-        // Node.js: child_process + fetch in same file (download + exec pattern)
-        (any of ($js_import_exec, $js_cp_exec) and $js_fetch)
+        // Node.js: fetch a remote payload and execute it via eval / new Function
+        ($js_fetch and any of ($js_eval, $js_new_function))
 }

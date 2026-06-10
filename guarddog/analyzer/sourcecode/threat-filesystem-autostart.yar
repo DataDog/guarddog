@@ -15,7 +15,8 @@ rule threat_filesystem_autostart
         // Python - bashrc/profile modifications
         $py_bashrc = ".bashrc" nocase
         $py_bash_profile = ".bash_profile" nocase
-        $py_profile = ".profile" nocase
+        // ~/.profile but not identifiers like ".profile_config"
+        $py_profile = /\.profile\b/ nocase
         $py_zshrc = ".zshrc" nocase
 
         // Python - system-wide startup scripts
