@@ -521,7 +521,9 @@ class Analyzer:
 
                                     finding = {
                                         "location": f"{scan_file_target_relpath}:{line_number}",
-                                        "code": self.trim_code_snippet(line_of_code),
+                                        "code": self.trim_code_snippet(
+                                            line_of_code, matched_text
+                                        ),
                                         "match": matched_text,
                                         "message": m.meta.get(
                                             "description", f"{m.rule} rule matched"
@@ -594,13 +596,28 @@ class Analyzer:
 
         return "".join(snippet)
 
-    # Makes sure the matching code to be displayed isn't too long
-    def trim_code_snippet(self, code):
+    # Makes sure the matching code to be displayed isn't too long. When the
+    # matched bytes are known, the kept window is centered on them so the
+    # flagged span survives truncation and the reporter can still highlight it
+    # (otherwise a match buried in a long minified line gets elided away).
+    def trim_code_snippet(self, code: str, match: str = "") -> str:
         THRESHOLD = 250
-        if len(code) > THRESHOLD:
-            return code[: THRESHOLD - 10] + "..." + code[len(code) - 10 :]
-        else:
+        if len(code) <= THRESHOLD:
             return code
+
+        ellipsis = "..."
+        match_start = code.find(match) if match else -1
+        if match_start == -1:
+            head = code[: THRESHOLD - len(ellipsis) - 10]
+            return head + ellipsis + code[-10:]
+
+        match_end = match_start + len(match)
+        pad = max(THRESHOLD - len(match), 0) // 2
+        window_start = max(match_start - pad, 0)
+        window_end = min(match_end + pad, len(code))
+        prefix = ellipsis if window_start > 0 else ""
+        suffix = ellipsis if window_end < len(code) else ""
+        return prefix + code[window_start:window_end] + suffix
 
     def get_line_number_from_offset(self, file_path: str, offset: int) -> int:
         """
