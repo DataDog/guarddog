@@ -16,9 +16,9 @@ rule threat_runtime_obfuscation_steganography
         $py_stego_decode = "steganography.decode(" nocase
         $py_lsb_reveal = "lsb.reveal(" nocase
         $py_stegano = "stegano" nocase
-        $py_pil_image = "PIL.Image" nocase
-        $py_exec = "exec(" nocase
-        $py_eval = "eval(" nocase
+        // bare exec(/eval( builtins, not ast.literal_eval()/img.eval() method calls
+        $py_exec = /[^.\w]exec\s*\(/ nocase
+        $py_eval = /[^.\w]eval\s*\(/ nocase
 
         // JavaScript/Node.js - steganography
         $js_steggy = "steggy.reveal(" nocase
@@ -32,6 +32,6 @@ rule threat_runtime_obfuscation_steganography
         $img_png = /\.(png|jpg|jpeg|gif|bmp)['"]/ nocase
 
     condition:
-        (any of ($py_stego*, $py_lsb*, $py_stegano, $py_pil*) and $img_png and ($py_exec or $py_eval)) or
+        (any of ($py_stego_decode, $py_lsb_reveal, $py_stegano) and $img_png and ($py_exec or $py_eval)) or
         (any of ($js_*) and $img_png and $js_eval)
 }

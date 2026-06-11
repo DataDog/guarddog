@@ -17,8 +17,9 @@ rule threat_runtime_obfuscation_base64exec
         $py_b64decode = /\bbase64\s*\.\s*b64decode\s*\(/ nocase
         $py_b64decode_alt = /\bbase64\s*\.\s*decodebytes\s*\(/ nocase
         $py_b64decode_std = /\bbase64\s*\.\s*standard_b64decode\s*\(/ nocase
-        $py_exec = /\bexec\s*\(/ nocase
-        $py_eval = /\beval\s*\(/ nocase
+        // bare exec(/eval( builtins, not method calls like model.eval()
+        $py_exec = /[^.\w]exec\s*\(/ nocase
+        $py_eval = /[^.\w]eval\s*\(/ nocase
 
         // JavaScript/Node.js - base64 decode patterns
         $js_atob = /\batob\s*\(/ nocase

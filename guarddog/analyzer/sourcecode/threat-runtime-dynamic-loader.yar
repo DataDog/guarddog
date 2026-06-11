@@ -28,9 +28,14 @@ rule threat_runtime_dynamic_loader
         $b64_decode = /base64\.\w*decode/ nocase
         $b64_b64decode = /b64decode\s*\(/ nocase
 
+        // Execution sink: bare exec(/eval(, not method calls. Required alongside
+        // import+download, which co-occur in many benign plugin loaders.
+        $exec_sink = /[^.\w]exec\s*\(/ nocase
+        $eval_sink = /[^.\w]eval\s*\(/ nocase
+
     condition:
-        // Dynamic import + network download = loading remote code
-        (any of ($importlib_*, $builtins_import) and any of ($urllib_*, $requests_get)) or
+        // Dynamic import + network download + execution of the payload
+        (any of ($importlib_*, $builtins_import) and any of ($urllib_*, $requests_get) and any of ($exec_sink, $eval_sink)) or
         // Dynamic import + getattr + base64 (obfuscated dynamic loading)
         (any of ($importlib_*, $builtins_import) and $getattr_call and any of ($b64_*))
 }

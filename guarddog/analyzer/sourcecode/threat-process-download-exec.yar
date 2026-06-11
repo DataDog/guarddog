@@ -41,12 +41,14 @@ rule threat_process_download_exec
         // Python: exec(compile(open())) - execute file content
         $py_exec_compile = /exec\s*\(\s*compile\s*\(\s*open\s*\(/ nocase
 
-        // Python: download (requests/urllib) + exec/eval in same file
-        $py_download_requests = /requests\.get\s*\(/ nocase
+        // Python: download (requests/urllib) + exec/eval in same file.
+        // \b avoids matching JS map access like `_requests.get(`.
+        $py_download_requests = /\brequests\.get\s*\(/ nocase
         $py_download_urllib = /urllib\.\w+\.urlopen\s*\(/ nocase
         $py_download_urlretrieve = /urllib\.\w+\.urlretrieve\s*\(/ nocase
-        $py_exec = /\bexec\s*\(/ nocase
-        $py_eval = /\beval\s*\(/ nocase
+        // Bare exec(/eval( builtins, not method calls like regex.exec()
+        $py_exec = /[^.\w]exec\s*\(/ nocase
+        $py_eval = /[^.\w]eval\s*\(/ nocase
 
         // Python: download + subprocess.run([file_path]) - download binary then execute
         $py_subprocess_run = /subprocess\.(run|call|Popen)\s*\(/ nocase
