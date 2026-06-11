@@ -42,9 +42,7 @@ fixed, its row should flip to `OK`. A row must never become `BROKEN`.
 fail while any `FP PRESENT` remains (useful once all fixes are expected to land).
 
 The validator parses the public rule name(s) directly from each `.yar` file, so
-it is correct even where the rule name differs from the filename (e.g.
-`threat-process-sysinfo` defines `threat_process_spawn_sysinfo`, and
-`threat-network-exfiltration` defines `threat_network_outbound`).
+it is correct even where the rule name differs from the filename.
 
 ## Editing fixtures
 

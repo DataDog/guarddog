@@ -10,7 +10,7 @@ rule threat_process_injection_dll
         sophistication = "high"
 
         max_hits = 5
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Windows API injection chain (need 2+ to indicate actual injection)

@@ -9,7 +9,7 @@ rule threat_process_memory
         specificity = "low"
         sophistication = "high"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Python - process memory access

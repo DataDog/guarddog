@@ -9,7 +9,7 @@ rule capability_network_download
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
         // Python - downloading
         $py_urlretrieve = /urllib\.request\.urlretrieve\s*\(/ nocase

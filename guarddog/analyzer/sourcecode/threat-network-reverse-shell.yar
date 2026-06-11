@@ -9,7 +9,7 @@ rule threat_network_reverse_shell
         specificity = "high"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.sh,*.rb"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.sh,*.rb"
 
     strings:
         // Bash reverse shells

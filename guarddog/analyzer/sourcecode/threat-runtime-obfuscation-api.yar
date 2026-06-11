@@ -10,7 +10,7 @@ rule threat_runtime_obfuscation_api
         sophistication = "medium"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
         // getattr that fetches AND immediately calls a dangerous builtin, e.g.
         // getattr(o, "exec")(...). The trailing call excludes assign-only shims.

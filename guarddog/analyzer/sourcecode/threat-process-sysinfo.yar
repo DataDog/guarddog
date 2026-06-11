@@ -12,7 +12,7 @@ rule threat_process_sysinfo
         sophistication = "low"
 
         max_hits = 5
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     condition:
         lolbas_sysinfo

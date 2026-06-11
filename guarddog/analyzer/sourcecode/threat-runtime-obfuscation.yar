@@ -9,15 +9,15 @@ rule threat_runtime_obfuscation
         specificity = "medium"
         sophistication = "low"
 
-	path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+	path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
         max_hits = 1
     strings:
-        // A quoted long base64 run containing at least one base64-only character
-        // (G-Z, g-z, +, /, =) so it can't match a pure hex literal (crypto constant).
-        // The surrounding quote/backtick delimiters anchor the match so each
-        // distinct blob counts once (an unanchored run yields many overlapping
-        // matches, which would make the count threshold below meaningless).
-        $b64_1 = /["'`][A-Za-z0-9+\/]{40,}[G-Zg-z+\/=][A-Za-z0-9+\/]{40,}={0,2}["'`]/
+        // A quoted long base64 run with a base64-only char (G-Z, g-z, +, /) in a
+        // bounded prefix. Quotes bound the match so each blob counts once; the
+        // marker sits in a bounded prefix rather than between two open-ended runs,
+        // which on a large base64 blob explodes into millions of candidate matches
+        // (YARA ERROR_TOO_MANY_MATCHES).
+        $b64_1 = /["'`][A-Za-z0-9+\/]{0,30}[G-Zg-z+\/][A-Za-z0-9+\/]{40,}={0,2}["'`]/
 
         // Hex-encoded strings
         $hex_1 = /\\x[0-9a-fA-F]{2}([\\x][0-9a-fA-F]{2}){20,}/

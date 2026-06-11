@@ -9,7 +9,7 @@ rule threat_runtime_keylogging
         specificity = "low"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Python - keylogging libraries

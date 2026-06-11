@@ -9,7 +9,7 @@ rule threat_runtime_dynamic_loader
         specificity = "high"
         sophistication = "high"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi"
+        path_include = "*.py,*.pyx,*.pyi,*.pth"
 
     strings:
         // Dynamic import mechanisms

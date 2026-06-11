@@ -9,7 +9,7 @@ rule threat_runtime_obfuscation_pyarmor
         specificity = "high"
         sophistication = "medium"
 
-        path_include = "*.py,*.pyx,*.pyi"
+        path_include = "*.py,*.pyx,*.pyi,*.pth"
         max_hits = 1
 
     strings:

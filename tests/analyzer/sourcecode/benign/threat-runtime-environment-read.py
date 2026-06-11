@@ -11,3 +11,7 @@ debug = os.environ.get("DEBUG", "false")
 log_level = os.getenv("LOG_LEVEL", "INFO")
 home = os.environ.get("HOME")
 path = os.environ["PATH"]
+
+# Copying the environment to pass to a subprocess is not exfiltration
+child_env = os.environ.copy()
+also_env = dict(os.environ)

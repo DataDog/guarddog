@@ -6,8 +6,7 @@ For each rule with a fixture pair under fixtures/<rule>/:
   - benign.*     MUST NOT match the rule (false positive eliminated)
 
 It parses the public (non-included) rule name(s) directly from each .yar file so
-it works even when the YARA rule name differs from the filename (e.g.
-threat-process-sysinfo -> threat_process_spawn_sysinfo).
+it works even when the YARA rule name differs from the filename.
 
 Statuses:
   OK          malicious matches, benign does not  -> rule behaves correctly

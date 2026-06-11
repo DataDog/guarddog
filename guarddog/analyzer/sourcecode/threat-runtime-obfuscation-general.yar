@@ -10,7 +10,7 @@ rule threat_runtime_obfuscation_general
         sophistication = "medium"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Python - 50+ consecutive hex escapes (crypto test vectors are shorter)

@@ -10,7 +10,7 @@ rule threat_runtime_environment_read
         sophistication = "low"
 
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // JavaScript/Node.js - credential-related env vars (process.env is runtime global)
         $js_env_api_key = /process\.env\.[A-Z_]*API[_]?KEY[A-Z_]*/ nocase

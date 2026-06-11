@@ -10,7 +10,7 @@ rule threat_runtime_obfuscation_steganography
         sophistication = "high"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
     strings:
         // Python - steganography libraries
         $py_stego_decode = "steganography.decode(" nocase

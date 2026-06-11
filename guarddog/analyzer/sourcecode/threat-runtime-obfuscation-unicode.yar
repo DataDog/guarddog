@@ -9,7 +9,7 @@ rule threat_runtime_obfuscation_unicode
         specificity = "low"
         sophistication = "medium"
 
-	path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+	path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
         max_hits = 1
     strings:
         // Homoglyph obfuscation hides a lookalike char inside an ASCII word

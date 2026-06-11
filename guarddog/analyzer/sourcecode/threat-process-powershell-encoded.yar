@@ -9,7 +9,7 @@ rule threat_process_powershell_encoded
         specificity = "high"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // PowerShell encoded command (base64-encoded PS commands)
