@@ -246,6 +246,7 @@ dependencies = [
     { name = "configparser" },
     { name = "disposable-email-domains" },
     { name = "nono-py" },
+    { name = "packaging" },
     { name = "prettytable" },
     { name = "pygit2" },
     { name = "python-dateutil" },
@@ -265,6 +266,7 @@ requires-dist = [
     { name = "configparser", specifier = ">=5.3,<8.0" },
     { name = "disposable-email-domains", specifier = ">=0.0.103,<0.0.170" },
     { name = "nono-py", specifier = ">=0.10.1" },
+    { name = "packaging", specifier = ">=21.0" },
     { name = "prettytable", specifier = ">=3.17.0,<4.0.0" },
     { name = "pygit2", specifier = ">=1.11,<1.19" },
     { name = "python-dateutil", specifier = ">=2.9.0,<3.0.0" },
@@ -313,6 +315,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ed/d9/2b4e26f650938e8081510681204c94cc1fcc97060ffdf4b71464007a1788/nono_py-0.10.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:2a2f9d944b71b930aa7e7c4d156b363dfb63a85b3d07815f7d7cb6510fd531d2", size = 3294446, upload-time = "2026-05-23T12:59:18.872Z" },
     { url = "https://files.pythonhosted.org/packages/2a/d7/d87b4e934763379423a7545b901f27147beb3a571eb24eea1ea95f96b7ba/nono_py-0.10.1-cp314-cp314-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:04f1d46c3a85bdd0cc89d88e2771867941b6aff15b5dbd26104046297f86283e", size = 4736360, upload-time = "2026-05-23T12:59:20.636Z" },
     { url = "https://files.pythonhosted.org/packages/95/e2/61feb295647530e31bcf891ba16b0080ad65dbb2e7b7549fb8c8947830d0/nono_py-0.10.1-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:12db2cd45638e7576f8972090c0344d02a8b6d9c7ed6435fa2fbf1c8797742ae", size = 4938066, upload-time = "2026-05-23T12:59:22.64Z" },
+]
+
+[[package]]
+name = "packaging"
+version = "26.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d7/f1/e7a6dd94a8d4a5626c03e4e99c87f241ba9e350cd9e6d75123f992427270/packaging-26.2.tar.gz", hash = "sha256:ff452ff5a3e828ce110190feff1178bb1f2ea2281fa2075aadb987c2fb221661", size = 228134, upload-time = "2026-04-24T20:15:23.917Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl", hash = "sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e", size = 100195, upload-time = "2026-04-24T20:15:22.081Z" },
 ]
 
 [[package]]

@@ -42,17 +42,28 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: s
 
     caps = nono.CapabilitySet()
     caps.allow_path(tmp_dir, nono.AccessMode.READ_WRITE)
-    caps.allow_path(zip_path, nono.AccessMode.READ)
-    caps.allow_path(output_path, nono.AccessMode.READ_WRITE)
+    caps.allow_file(zip_path, nono.AccessMode.READ)
+    caps.allow_file(output_path, nono.AccessMode.READ_WRITE)
 
     # Allow Python runtime + site-packages (guarddog, semgrep, yara, etc.)
     python_prefix = os.path.realpath(sys.prefix)
     caps.allow_path(python_prefix, nono.AccessMode.READ)
 
-    # Also allow the real base prefix (for system Python libs)
+    # Allow the base prefix (for system Python libs). Use both realpath and the
+    # raw path because the sandbox checks raw paths without resolving symlinks —
+    # uv installs Python under a versioned dir (cpython-3.12.8-...) but exposes
+    # a symlink (cpython-3.12-...) and Python loads stdlib via the symlink path.
     base_prefix = os.path.realpath(sys.base_prefix)
     if base_prefix != python_prefix:
         caps.allow_path(base_prefix, nono.AccessMode.READ)
+    stdlib_dir = os.path.dirname(os.__file__)
+    if not stdlib_dir.startswith(base_prefix) and not stdlib_dir.startswith(python_prefix):
+        caps.allow_path(stdlib_dir, nono.AccessMode.READ)
+
+    # Allow guarddog source tree (installed as editable via .pth, so the source
+    # dir is separate from the venv and must be explicitly allowed)
+    project_root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+    caps.allow_path(project_root, nono.AccessMode.READ)
 
     # Allow guarddog binary and its directory (for subprocess execution)
     if guarddog_bin:
@@ -61,19 +72,13 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: s
 
     caps.block_network()
 
-    # Dry-run validation
+    # Dry-run validation (only for directory paths; allow_file paths can't be query_path'd)
     ctx = nono.QueryContext(caps)
-    checks = [
-        (tmp_dir, nono.AccessMode.READ_WRITE, "tmp_dir"),
-        (zip_path, nono.AccessMode.READ, "zip_path"),
-        (output_path, nono.AccessMode.READ_WRITE, "output_path"),
-    ]
-    for path, mode, label in checks:
-        result = ctx.query_path(path, mode)
-        status = result.get("status") if isinstance(result, dict) else getattr(result, "status", None)
-        if status == "denied":
-            print(f"ERROR: sandbox validation failed for {label} ({path})", file=sys.stderr)
-            sys.exit(1)
+    result = ctx.query_path(tmp_dir, nono.AccessMode.READ_WRITE)
+    status = result.get("status") if isinstance(result, dict) else getattr(result, "status", None)
+    if status == "denied":
+        print(f"ERROR: sandbox validation failed for tmp_dir ({tmp_dir})", file=sys.stderr)
+        sys.exit(1)
 
     nono.apply(caps)
 
@@ -125,7 +130,8 @@ def scan_package(extracted_dir: str, ecosystem: str, guarddog_bin: str | None = 
     if not guarddog_bin:
         return {"results": {}, "error": "guarddog not found on PATH"}
 
-    cmd = [guarddog_bin, ecosystem, "scan", extracted_dir, "--output-format", "json"]
+    # --no-sandbox: the worker process is already sandboxed; guarddog must not apply a second sandbox
+    cmd = [guarddog_bin, ecosystem, "scan", "--no-sandbox", "--output-format", "json", extracted_dir]
 
     # Pass metadata file if available (enables metadata rules for local scans)
     metadata_file = find_metadata_file(extracted_dir)
