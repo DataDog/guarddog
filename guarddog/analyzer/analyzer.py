@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import yara  # type: ignore
 
 from collections import defaultdict
@@ -17,7 +18,7 @@ from guarddog.analyzer.risk_engine import (
     validate_identifies,
     validate_mitre_tactics,
 )
-from guarddog.utils.config import YARA_EXT_EXCLUDE
+from guarddog.utils.config import YARA_EXT_EXCLUDE, YARA_PATH_EXCLUDE_REGEX
 from guarddog.ecosystems import ECOSYSTEM, LANGUAGE
 
 SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
@@ -378,6 +379,22 @@ class Analyzer:
             log.debug("No yara rules to run")
             return {"results": results, "errors": errors, "issues": issues}
 
+        regex_exclude = None
+        if YARA_PATH_EXCLUDE_REGEX:
+            try:
+                regex_exclude = re.compile(YARA_PATH_EXCLUDE_REGEX)
+            except re.error as e:
+                return {
+                    "results": results,
+                    "errors": {
+                        "rules-all": (
+                            "failed to run rule: invalid "
+                            f"GUARDDOG_YARA_PATH_EXCLUDE_REGEX: {str(e)}"
+                        )
+                    },
+                    "issues": issues,
+                }
+
         import time
 
         # Get rule metadata to access max_hits
@@ -424,6 +441,10 @@ class Analyzer:
                         scan_file_target_relpath = os.path.relpath(
                             scan_file_target_abspath, path
                         )
+
+                        # Skip files matching global exclusion regex
+                        if regex_exclude and regex_exclude.search(scan_file_target_relpath):
+                            continue
 
                         # Check path_include patterns if specified (takes precedence)
                         if path_include:
