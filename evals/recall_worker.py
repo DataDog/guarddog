@@ -49,10 +49,21 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: s
     python_prefix = os.path.realpath(sys.prefix)
     caps.allow_path(python_prefix, nono.AccessMode.READ)
 
-    # Also allow the real base prefix (for system Python libs)
+    # Allow the base prefix (for system Python libs). Use both realpath and the
+    # raw path because the sandbox checks raw paths without resolving symlinks —
+    # uv installs Python under a versioned dir (cpython-3.12.8-...) but exposes
+    # a symlink (cpython-3.12-...) and Python loads stdlib via the symlink path.
     base_prefix = os.path.realpath(sys.base_prefix)
     if base_prefix != python_prefix:
         caps.allow_path(base_prefix, nono.AccessMode.READ)
+    stdlib_dir = os.path.dirname(os.__file__)
+    if not stdlib_dir.startswith(base_prefix) and not stdlib_dir.startswith(python_prefix):
+        caps.allow_path(stdlib_dir, nono.AccessMode.READ)
+
+    # Allow guarddog source tree (installed as editable via .pth, so the source
+    # dir is separate from the venv and must be explicitly allowed)
+    project_root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+    caps.allow_path(project_root, nono.AccessMode.READ)
 
     # Allow guarddog binary and its directory (for subprocess execution)
     if guarddog_bin:
