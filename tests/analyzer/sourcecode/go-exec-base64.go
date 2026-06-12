@@ -165,7 +165,7 @@ func test9() {
 }
 
 func test10() {
-	data := "L29wdC9ob21lYnJldy9vcHQvY29yZXV0aWxzL2xpYmV4ZWMvZ251YmluL3RvdWNoIHRlc3RfZmlsZV83"
+	data := "L29wdC9ob21lYnJldy9vcHQv==DEFANGED==Y29yZXV0aWxzL2xpYmV4ZWMvZ251YmluL3RvdWNoI"
 	sDec, _ := b64.StdEncoding.DecodeString(data)
 	parts := strings.Fields(string(sDec))
 	env := os.Environ()
@@ -174,7 +174,7 @@ func test10() {
 }
 
 func test11() {
-	data := "L29wdC9ob21lYnJldy9vcHQvY29yZXV0aWxzL2xpYmV4ZWMvZ251YmluL3RvdWNoIHRlc3RfZmlsZQ=="
+	data := "L29wdC9ob21lYnJldy9vcHQvY2==DEFANGED==9yZXV0aWxzL2xpYmV4ZWMvZ251YmluL3RvdWNoIHRl"
 	sDec, _ := b64.StdEncoding.DecodeString(data)
 	cmdParts := strings.Fields(string(sDec))
 	if len(cmdParts) == 0 {
@@ -325,7 +325,7 @@ func test19() {
 }
 
 func test20() {
-	encoded := "SGVsbG8sIHdvcmxkIQ=="
+	encoded := "SGVsb==DEFANGED==IHdvcmxkIQ"
 	decoded, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
 		fmt.Println("Error decoding:", err)

