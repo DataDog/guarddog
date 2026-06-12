@@ -27,7 +27,7 @@ def f():
 
 def f():
     # ruleid: obfuscation
-    b'\x85\xa7\x85\x83M\xfc\x89\x94\x97\x96\x99\xa3@\x99\x85\x98\xa4\x85\xa2\xa3\xa2^\x85\xa7\x85\x83M\x99\x85\x98\xa4\x85\xa2\xa3\xa2K\x87\x85\xa3M}\x88\xa3\xa3\x97\xa2zaa\x99\x85\x95\xa3\x99\xa8K\x8'.decode('cp1026')
+    b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfc'.decode('cp1026')
 
 def f():
     """
@@ -52,6 +52,6 @@ def f():
 
 def f():
     # ruleid: obfuscation
-    exec(''.join(chr(c) for c in [112, 114, 105, 110, 116, 40, 34, 72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 34, 41]))
+    exec(''.join(chr(c) for c in [0,0,0,0,0,0,0,0,0,0,0]))
     # ruleid: obfuscation
-    exec(''.join(map(chr, [112, 114, 105, 110, 116, 40, 34, 72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 34, 41])))
+    exec(''.join(map(chr, [0,0,0,0,0,0,0,0,0,0,0])))
