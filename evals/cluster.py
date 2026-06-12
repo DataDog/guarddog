@@ -215,7 +215,12 @@ def _resolve_zip_path_api(pkg: dict, sha: str) -> str | None:
 
 def _resolve_zip_path_local(pkg: dict, dataset_path: Path) -> str | None:
     """Find the latest ZIP path for a package from a local clone."""
-    dir_path = f"samples/{pkg['ecosystem']}/{pkg['category']}/{pkg['package']}"
+    # Scoped npm packages are keyed as @scope/name in the manifest but stored
+    # on disk as @scope@name (mirrors the tree-walk conversion above).
+    package = pkg["package"]
+    if package.startswith("@"):
+        package = package.replace("/", "@", 1)
+    dir_path = f"samples/{pkg['ecosystem']}/{pkg['category']}/{package}"
     local_dir = dataset_path / dir_path
     if not local_dir.is_dir():
         return None
