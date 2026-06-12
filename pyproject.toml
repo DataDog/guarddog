@@ -40,6 +40,8 @@ packaging = ">=21.0"
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.13.5"
+# Used by the eval clustering tooling (evals/cluster.py) for fuzzy fingerprint matching
+python-tlsh = "^4.5.0"
 flake8 = ">=5.0.4,<8.0.0"
 mypy = "^1.4.1"
 pytest = ">=7.4,<10.0"

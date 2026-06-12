@@ -299,9 +299,16 @@ def _build_sandbox_caps(tmp_dir: str, zip_dir: str, output_dir: str,
     python_prefix = os.path.realpath(sys.prefix)
     caps.allow_path(python_prefix, nono.AccessMode.READ)
 
+    # Allow the base prefix (for system Python libs). The sandbox checks raw
+    # paths without resolving symlinks — uv installs Python under a versioned
+    # dir (cpython-3.12.8-...) but exposes a symlink (cpython-3.12-...) and
+    # Python loads stdlib via the symlink path, so allow it explicitly.
     base_prefix = os.path.realpath(sys.base_prefix)
     if base_prefix != python_prefix:
         caps.allow_path(base_prefix, nono.AccessMode.READ)
+    stdlib_dir = os.path.dirname(os.__file__)
+    if not stdlib_dir.startswith(base_prefix) and not stdlib_dir.startswith(python_prefix):
+        caps.allow_path(stdlib_dir, nono.AccessMode.READ)
 
     if guarddog_bin:
         gd_dir = os.path.realpath(os.path.dirname(guarddog_bin))
