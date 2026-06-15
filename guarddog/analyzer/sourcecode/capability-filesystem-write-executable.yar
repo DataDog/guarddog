@@ -9,7 +9,7 @@ rule capability_filesystem_write_executable
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
         // Python - chmod to executable
         $py_chmod_755 = "os.chmod(" nocase

@@ -9,7 +9,7 @@ rule capability_process_spawn
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,extconf.rb,*/extconf.rb,Rakefile,*/Rakefile"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,extconf.rb,*/extconf.rb,Rakefile,*/Rakefile"
     strings:
         // Python - subprocess
         $py_subprocess_call = /subprocess\.(call|run|check_call|check_output|Popen)/ nocase

@@ -10,7 +10,7 @@ rule threat_process_spawn_silent
         sophistication = "medium"
 
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
 
     strings:
         // Python - require BOTH stdout AND stderr suppressed (full silencing)

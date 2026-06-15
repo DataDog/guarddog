@@ -8,7 +8,7 @@ rule capability_filesystem_browser
         specificity = "high"
         sophistication = "low"
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Browser-specific filesystem paths (high confidence)

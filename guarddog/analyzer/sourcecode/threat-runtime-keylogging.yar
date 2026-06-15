@@ -9,14 +9,13 @@ rule threat_runtime_keylogging
         specificity = "low"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Python - keylogging libraries
         $py_pynput_keyboard = "from pynput import keyboard" nocase
         $py_pynput_listener = "keyboard.Listener(" nocase
         $py_pynput_on_press = "on_press" nocase
-        $py_keyboard_lib = "import keyboard" nocase
         $py_keyboard_hook = "keyboard.hook(" nocase
         $py_keyboard_on_press = "keyboard.on_press(" nocase
 
@@ -47,7 +46,6 @@ rule threat_runtime_keylogging
 
         // Hook installation patterns
         $hook_keyboard = "hook_keyboard" nocase
-        $global_hook = "global_hook" nocase
         $set_hook = "SetWindowsHookEx" nocase
 
         // Combination: listener + file write
@@ -57,9 +55,10 @@ rule threat_runtime_keylogging
         $js_fs_append = "fs.appendFile(" nocase
 
     condition:
-        // Python keylogging libraries
-        (any of ($py_pynput_*) and $py_pynput_on_press) or
-        (any of ($py_keyboard_*)) or
+        // Python keylogging libraries. Require an actual capture call, not a bare
+        // `import keyboard` (the keyboard lib has legitimate hotkey uses).
+        (($py_pynput_keyboard or $py_pynput_listener) and $py_pynput_on_press) or
+        (any of ($py_keyboard_hook, $py_keyboard_on_press)) or
         (any of ($py_pyhook, $py_hookmanager)) or
         (any of ($py_evdev, $py_inputdevice) and $py_event_kbd) or
         (any of ($py_xlib, $py_xlib_display) and $py_record_context) or
@@ -72,9 +71,9 @@ rule threat_runtime_keylogging
         any of ($log_keystroke, $steal_password) or
 
         // Hook patterns
-        any of ($hook_keyboard, $global_hook, $set_hook) or
+        any of ($hook_keyboard, $set_hook) or
 
         // Combination: keyboard listener + file write (very suspicious)
-        ((any of ($py_pynput_*, $py_keyboard_*, $js_iohook, $js_keypress)) and
+        ((any of ($py_pynput_keyboard, $py_pynput_listener, $py_keyboard_hook, $py_keyboard_on_press, $js_iohook, $js_keypress)) and
          (any of ($py_file_write, $py_file_append, $js_fs_write, $js_fs_append)))
 }

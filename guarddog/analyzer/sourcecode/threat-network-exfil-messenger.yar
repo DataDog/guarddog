@@ -9,7 +9,7 @@ rule threat_network_exfil_messenger
         specificity = "high"
         sophistication = "low"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Telegram bot tokens (format: digits:alphanumeric)

@@ -10,7 +10,7 @@ rule threat_process_injection_dll
         sophistication = "high"
 
         max_hits = 5
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Windows API injection chain (need 2+ to indicate actual injection)
@@ -30,5 +30,7 @@ rule threat_process_injection_dll
     condition:
         2 of ($win_*) or
         any of ($dll_rundll32, $dll_regsvr32, $dll_mshta) or
-        $py_ctypes_windll
+        // ctypes kernel32 only counts when paired with an injection API (alone it
+        // serves many benign calls like OpenProcess/LocalFree)
+        ($py_ctypes_windll and 1 of ($win_*))
 }

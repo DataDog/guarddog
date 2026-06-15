@@ -4,8 +4,9 @@
 rule lolbas_sysinfo
 {
     strings:
-        $whoami= /\bwhoami\b/ 
-        $hostname = /['"]hostname["']/
+        $whoami = /\bwhoami\b/
+        // hostname only when invoked as a command, not as a quoted dict key
+        $hostname = /(system|popen|exec\w*|spawn\w*|call|run|Popen|check_output|check_call)\s*\(\s*\[?\s*['"]hostname\b/ nocase
 
     condition:
         any of them

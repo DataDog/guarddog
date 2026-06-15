@@ -9,7 +9,7 @@ rule capability_runtime_clipboard
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
     strings:
         // Python - pyperclip
         $py_pyperclip_paste = "pyperclip.paste()" nocase

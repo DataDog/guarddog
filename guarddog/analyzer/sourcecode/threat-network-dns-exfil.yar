@@ -9,7 +9,7 @@ rule threat_network_dns_exfil
         specificity = "high"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Python: socket.getaddrinfo with f-string or format (data in subdomain)

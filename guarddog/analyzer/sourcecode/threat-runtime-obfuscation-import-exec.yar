@@ -9,7 +9,7 @@ rule threat_runtime_obfuscation_import_exec
         specificity = "high"
         sophistication = "medium"
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi"
+        path_include = "*.py,*.pyx,*.pyi,*.pth"
 
     strings:
         // exec(__import__('...')) - dynamic import + exec chain

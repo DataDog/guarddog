@@ -10,7 +10,7 @@ rule threat_runtime_system_info
         sophistication = "low"
 
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // Python - require platform/socket module prefix for specificity
         $py_platform_system = /\bplatform\.system\s*\(\s*\)/ nocase

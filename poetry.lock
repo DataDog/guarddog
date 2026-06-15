@@ -2046,6 +2046,17 @@ lxml = ">=3.1.0"
 typing_extensions = ">=4.9.0"
 
 [[package]]
+name = "python-tlsh"
+version = "4.5.0"
+description = "TLSH (C++ Python extension)"
+optional = false
+python-versions = ">=3.6"
+groups = ["dev"]
+files = [
+    {file = "python-tlsh-4.5.0.tar.gz", hash = "sha256:55e3df72cabdf48bf576b4580d7fa2feba9c14aacde0a8bd7b1ef40b03cb7969"},
+]
+
+[[package]]
 name = "python-whois"
 version = "0.9.6"
 description = "Whois querying and parsing of domain registration information."
@@ -2468,4 +2479,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4"
-content-hash = "f7d6d6b2a1c3878e413d781f9f7a9f4e2fa0ce467324db0512d8b33c4eb35100"
+content-hash = "92749085fc08755b4679625701139170207f6b137e8c4be99a61fb8a8c0e0de8"

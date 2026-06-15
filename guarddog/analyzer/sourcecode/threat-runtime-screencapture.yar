@@ -10,7 +10,7 @@ rule threat_runtime_system_capture
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi"
+        path_include = "*.py,*.pyx,*.pyi,*.pth"
 
     strings:
         // Python - PIL ImageGrab

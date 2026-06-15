@@ -9,7 +9,7 @@ rule threat_filesystem_destruction
         specificity = "high"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Recursive/dangerous deletions
@@ -23,19 +23,13 @@ rule threat_filesystem_destruction
         $wipe_users = /rm.*['"]\/Users[\/'"]/i nocase
         $wipe_root = /rm.*['"]\/['"]\s*$/i nocase
 
-        // Database destruction
-        $drop_database = "DROP DATABASE" nocase
-        $drop_table = "DROP TABLE" nocase
-        $truncate_table = "TRUNCATE TABLE" nocase
-
         // Disk wiping utilities
         $dd_zero = "dd if=/dev/zero" nocase
         $dd_random = "dd if=/dev/urandom" nocase
         $shred = "shred -" nocase
 
-        // Node.js - dangerous patterns
+        // Node.js - recursive deletion of a hardcoded root/absolute path
         $js_rimraf_root = /rimraf\s*\(\s*['"]\/[^'"]*['"]/ nocase
-        $js_fs_rm_recursive = /fs\.rm[^(]*\([^)]*recursive:\s*true/ nocase
 
     condition:
         any of them
