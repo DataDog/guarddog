@@ -69,6 +69,35 @@ def test_get_snippet_file_not_found():
     assert snippet == ""
 
 
+def test_trim_code_snippet_keeps_short_code_unchanged():
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+    code = "eval(atob('Zm9v'))"
+    assert analyzer.trim_code_snippet(code, "atob(") == code
+
+
+def test_trim_code_snippet_centers_window_on_buried_match():
+    # A short match buried in a long minified line must survive truncation so
+    # the reporter can still highlight it (regression: the match used to be
+    # elided into the middle "..." and could no longer be found).
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+    code = "a" * 500 + "atob(" + "b" * 500
+    trimmed = analyzer.trim_code_snippet(code, "atob(")
+
+    assert "atob(" in trimmed
+    assert trimmed.startswith("...") and trimmed.endswith("...")
+    assert len(trimmed) <= 256
+
+
+def test_trim_code_snippet_falls_back_when_match_absent():
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+    code = "x" * 500
+    trimmed = analyzer.trim_code_snippet(code, "not-in-code")
+
+    assert trimmed.startswith("x" * 10)
+    assert trimmed.endswith("x" * 10)
+    assert "..." in trimmed
+
+
 # Comment filtering tests
 
 

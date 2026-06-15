@@ -207,6 +207,56 @@ class Analyzer:
 
         return False
 
+    @staticmethod
+    def format_risks(risk_objects: list, sourcecode_results: Optional[dict]) -> list:
+        """Format Risk objects into the dicts consumed by reporters.
+
+        Re-joins the exact matched bytes (`threat_match`) from the raw sourcecode
+        findings by (rule, location), since the risk engine drops that detail and
+        the reporter uses it to emphasize the flagged span within the snippet.
+        """
+        matches_by_rule_location: Dict[tuple, str] = {}
+        for rule_name, rule_matches in (
+            (sourcecode_results or {}).get("results", {}).items()
+        ):
+            if not isinstance(rule_matches, list):
+                continue
+            for match in rule_matches:
+                if isinstance(match, dict) and match.get("location"):
+                    matches_by_rule_location[(rule_name, match["location"])] = (
+                        match.get("match", "")
+                    )
+
+        return [
+            {
+                "name": risk.name,
+                "category": risk.category,
+                "severity": risk.severity.value,
+                "mitre_tactics": risk.mitre_tactics,
+                "threat_identifies": risk.threat_finding.identifies,
+                "threat_rule": risk.threat_finding.rule_name,
+                "threat_description": risk.threat_finding.message or "",
+                "threat_location": risk.threat_finding.location or "",
+                "threat_code": risk.threat_finding.code_snippet or "",
+                "threat_match": matches_by_rule_location.get(
+                    (risk.threat_finding.rule_name, risk.threat_finding.location or ""),
+                    "",
+                ),
+                "capability_identifies": (
+                    risk.capability_finding.identifies
+                    if risk.capability_finding
+                    else None
+                ),
+                "capability_rule": (
+                    risk.capability_finding.rule_name
+                    if risk.capability_finding
+                    else None
+                ),
+                "file_path": risk.threat_finding.file_path,
+            }
+            for risk in risk_objects
+        ]
+
     def analyze(
         self,
         path,
@@ -249,31 +299,7 @@ class Analyzer:
 
         # Extract and format risks for top-level output
         risk_objects = risk_score.pop("_risks", [])
-        formatted_risks = [
-            {
-                "name": risk.name,
-                "category": risk.category,
-                "severity": risk.severity.value,
-                "mitre_tactics": risk.mitre_tactics,
-                "threat_identifies": risk.threat_finding.identifies,
-                "threat_rule": risk.threat_finding.rule_name,
-                "threat_description": risk.threat_finding.message or "",
-                "threat_location": risk.threat_finding.location or "",
-                "threat_code": risk.threat_finding.code_snippet or "",
-                "capability_identifies": (
-                    risk.capability_finding.identifies
-                    if risk.capability_finding
-                    else None
-                ),
-                "capability_rule": (
-                    risk.capability_finding.rule_name
-                    if risk.capability_finding
-                    else None
-                ),
-                "file_path": risk.threat_finding.file_path,
-            }
-            for risk in risk_objects
-        ]
+        formatted_risks = self.format_risks(risk_objects, sourcecode_results)
 
         return {
             "issues": issues,
@@ -473,14 +499,32 @@ class Analyzer:
                                         )
                                         continue
 
-                                    # Extract the actual line of code at the match offset
-                                    line_of_code = self.get_line_at_offset(
-                                        scan_file_target_abspath, i.offset
+                                    # Extract a small window of code around the match offset
+                                    # for better readability in the report.
+                                    line_of_code = self.get_lines_around_offset(
+                                        scan_file_target_abspath,
+                                        i.offset,
+                                        before=1,
+                                        after=2,
                                     )
+
+                                    # The exact bytes YARA matched, so the reporter can
+                                    # emphasize the flagged span within the snippet.
+                                    matched_text = ""
+                                    try:
+                                        if isinstance(i.matched_data, bytes):
+                                            matched_text = i.matched_data.decode(
+                                                "utf-8", errors="replace"
+                                            )
+                                    except Exception:
+                                        matched_text = ""
 
                                     finding = {
                                         "location": f"{scan_file_target_relpath}:{line_number}",
-                                        "code": self.trim_code_snippet(line_of_code),
+                                        "code": self.trim_code_snippet(
+                                            line_of_code, matched_text
+                                        ),
+                                        "match": matched_text,
                                         "message": m.meta.get(
                                             "description", f"{m.rule} rule matched"
                                         ),
@@ -552,13 +596,28 @@ class Analyzer:
 
         return "".join(snippet)
 
-    # Makes sure the matching code to be displayed isn't too long
-    def trim_code_snippet(self, code):
+    # Makes sure the matching code to be displayed isn't too long. When the
+    # matched bytes are known, the kept window is centered on them so the
+    # flagged span survives truncation and the reporter can still highlight it
+    # (otherwise a match buried in a long minified line gets elided away).
+    def trim_code_snippet(self, code: str, match: str = "") -> str:
         THRESHOLD = 250
-        if len(code) > THRESHOLD:
-            return code[: THRESHOLD - 10] + "..." + code[len(code) - 10 :]
-        else:
+        if len(code) <= THRESHOLD:
             return code
+
+        ellipsis = "..."
+        match_start = code.find(match) if match else -1
+        if match_start == -1:
+            head = code[: THRESHOLD - len(ellipsis) - 10]
+            return head + ellipsis + code[-10:]
+
+        match_end = match_start + len(match)
+        pad = max(THRESHOLD - len(match), 0) // 2
+        window_start = max(match_start - pad, 0)
+        window_end = min(match_end + pad, len(code))
+        prefix = ellipsis if window_start > 0 else ""
+        suffix = ellipsis if window_end < len(code) else ""
+        return prefix + code[window_start:window_end] + suffix
 
     def get_line_number_from_offset(self, file_path: str, offset: int) -> int:
         """
@@ -617,6 +676,48 @@ class Analyzer:
         except Exception as e:
             log.debug(
                 f"Failed to extract line at offset {offset} from {file_path}: {e}"
+            )
+            return ""
+
+    def get_lines_around_offset(
+        self, file_path: str, offset: int, before: int, after: int
+    ) -> str:
+        """
+        Extract a window of lines around a given byte offset.
+
+        Returns the matched line plus `before` lines preceding it and `after`
+        lines following it, joined by newlines. Leading/trailing blank lines
+        are stripped but interior structure is preserved.
+        """
+        try:
+            with open(file_path, "rb") as f:
+                content = f.read()
+
+            line_start = content.rfind(b"\n", 0, offset) + 1
+            line_end = content.find(b"\n", offset)
+            if line_end == -1:
+                line_end = len(content)
+
+            start = line_start
+            for _ in range(before):
+                if start <= 0:
+                    break
+                prev = content.rfind(b"\n", 0, start - 1)
+                start = prev + 1 if prev != -1 else 0
+
+            end = line_end
+            for _ in range(after):
+                if end >= len(content):
+                    break
+                nxt = content.find(b"\n", end + 1)
+                end = nxt if nxt != -1 else len(content)
+
+            window = content[start:end]
+            return window.decode("utf-8", errors="replace").strip("\n")
+
+        except Exception as e:
+            log.debug(
+                f"Failed to extract lines around offset {offset} from {file_path}: {e}"
             )
             return ""
 
@@ -817,7 +918,7 @@ class Analyzer:
             log.debug("No findings with risk metadata to analyze")
             return {
                 "score": 0.0,
-                "label": "none",
+                "label": "no_risks_detected",
                 "risks": [],
                 "findings_count": 0,
                 "score_breakdown": {},
@@ -831,7 +932,7 @@ class Analyzer:
         # Calculate overall package score
         risk_score = calculate_risk_score(all_risks)
 
-        log.info(
+        log.debug(
             f"Package risk score: {risk_score.score}/10 ({risk_score.label.value})"
         )
 
