@@ -13,7 +13,7 @@ from collections import defaultdict
 
 class AttackStage(str, Enum):
     INITIAL_EXECUTION = "Initial execution"
-    POST_COMPROMISE = "Post-compromise behavior"
+    POST_COMPROMISE = "Post-compromise"
     EXFILTRATION = "Exfiltration"
 
 
