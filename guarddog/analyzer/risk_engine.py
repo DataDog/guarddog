@@ -35,7 +35,7 @@ class RiskLabel(str, Enum):
     NO_RISKS_DETECTED = "no_risks_detected"
     LOW = "low"
     SUSPICIOUS = "suspicious"
-    MALICIOUS = "malicious"
+    HIGH_RISK = "high_risk"
 
 
 # Mapping of severity/specificity/sophistication levels to numeric values
@@ -601,12 +601,12 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
             )
             final_score = cap
 
-    # Malicious gate: require source code evidence to be labelled malicious.
-    # Metadata-only signals never cross into "malicious".
+    # High-risk gate: require source code evidence to be labelled high_risk.
+    # Metadata-only signals never cross into "high_risk".
     has_source_code_risks = any(r.category != "metadata" for r in risks)
     if final_score >= 7 and not has_source_code_risks:
         final_score = 6.9
-        log.debug("Score capped at 6.9: malicious label requires source code risks")
+        log.debug("Score capped at 6.9: high_risk label requires source code risks")
 
     # Map score to label
     if final_score == 0:
@@ -616,7 +616,7 @@ def calculate_risk_score(risks: List[Risk]) -> RiskScore:
     elif final_score < 7:
         label = RiskLabel.SUSPICIOUS
     else:
-        label = RiskLabel.MALICIOUS
+        label = RiskLabel.HIGH_RISK
 
     # Collect all findings
     all_findings = []

@@ -83,12 +83,12 @@ class HumanReadableReporter(BaseReporter):
         RiskLabel.NO_RISKS_DETECTED: "No risks detected",
         RiskLabel.LOW: "Low risk",
         RiskLabel.SUSPICIOUS: "Suspicious",
-        RiskLabel.MALICIOUS: "Malicious",
+        RiskLabel.HIGH_RISK: "High risk",
     }
 
     @staticmethod
     def _score_color(label: str) -> str | None:
-        if label == RiskLabel.MALICIOUS:
+        if label == RiskLabel.HIGH_RISK:
             return "red"
         if label == RiskLabel.SUSPICIOUS:
             return "yellow"
@@ -107,7 +107,7 @@ class HumanReadableReporter(BaseReporter):
     # (often a low-specificity false positive) would otherwise out-shout a real
     # attack chain built from many low-severity findings.
     _BAND_CEILING = {
-        RiskLabel.MALICIOUS: "red",
+        RiskLabel.HIGH_RISK: "red",
         RiskLabel.SUSPICIOUS: "yellow",
         RiskLabel.LOW: None,
         RiskLabel.NO_RISKS_DETECTED: None,
@@ -289,10 +289,8 @@ class HumanReadableReporter(BaseReporter):
         label_display = HumanReadableReporter.LABEL_DISPLAY.get(label, label)
         score_color = HumanReadableReporter._score_color(label)
 
-        score_line = (
-            colored(f"{score}/10", score_color, attrs=["bold"])
-            + " "
-            + colored(label_display, score_color, attrs=["bold"])
+        assessment = colored(label_display, score_color, attrs=["bold"]) + colored(
+            f"  ({score}/10)", "dark_grey"
         )
         noun = "risk" if num_risks == 1 else "risks"
         stats = f"{num_risks} {noun} detected"
@@ -300,7 +298,7 @@ class HumanReadableReporter(BaseReporter):
         return [
             "",
             colored("─" * 40, "dark_grey"),
-            f"Risk score:  {score_line}",
+            f"Assessment:  {assessment}",
             colored(stats, "dark_grey"),
         ]
 
