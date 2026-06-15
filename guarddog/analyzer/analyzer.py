@@ -713,11 +713,7 @@ class Analyzer:
                 end = nxt if nxt != -1 else len(content)
 
             window = content[start:end]
-            try:
-                text = window.decode("utf-8", errors="replace")
-            except Exception:
-                text = window.decode("latin-1", errors="replace")
-            return text.strip("\n")
+            return window.decode("utf-8", errors="replace").strip("\n")
 
         except Exception as e:
             log.debug(
