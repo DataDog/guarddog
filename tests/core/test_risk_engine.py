@@ -296,10 +296,10 @@ class TestScoring:
         score = calculate_risk_score(risks)
         # 1 stage (mid) → chain=0.4, raw=(1.0*0.30)+(0.4*0.20)+(1.0*0.30)+(1.0*0.20)=0.88→8.8
         assert score.score == 8.8
-        assert score.label == RiskLabel.MALICIOUS
+        assert score.label == RiskLabel.HIGH_RISK
 
     def test_full_attack_chain(self):
-        """Two-stage attack chain with source code should be malicious"""
+        """Two-stage attack chain with source code should be high_risk"""
         risks = [
             Risk(
                 category="process",
@@ -350,7 +350,7 @@ class TestScoring:
         # 2 stages (early + late) → chain=0.7, high severity/specificity, medium sophistication
         # Expected: (1.0*0.30) + (0.7*0.20) + (1.0*0.30) + (0.7*0.20) = 0.88 * 10 = 8.8
         assert score.score == 8.8
-        assert score.label == RiskLabel.MALICIOUS
+        assert score.label == RiskLabel.HIGH_RISK
 
     def test_credential_access_with_exfil_is_full_chain(self):
         """Credential access + network exfiltration should be treated as full chain"""
@@ -405,10 +405,10 @@ class TestScoring:
         assert score.score_breakdown["num_stages"] == 3
         # (1.0*0.25) + (1.0*0.30) + (1.0*0.25) + (0.7*0.20) = 0.94 * 10
         assert score.score == 9.4
-        assert score.label == RiskLabel.MALICIOUS
+        assert score.label == RiskLabel.HIGH_RISK
 
     def test_metadata_only_capped_below_malicious(self):
-        """Metadata-only findings should never be labelled malicious"""
+        """Metadata-only findings should never be labelled high_risk"""
         risks = [
             Risk(
                 category="metadata",
@@ -435,7 +435,7 @@ class TestScoring:
         assert score.score < 7
 
     def test_single_stage_source_code_high_severity_is_malicious(self):
-        """Single-stage HIGH-severity source-code threat lands at malicious"""
+        """Single-stage HIGH-severity source-code threat lands at high_risk"""
         risks = [
             Risk(
                 category="runtime",
@@ -456,11 +456,11 @@ class TestScoring:
         ]
         score = calculate_risk_score(risks)
         # 1 stage, HIGH severity, source code → malicious
-        assert score.label == RiskLabel.MALICIOUS
+        assert score.label == RiskLabel.HIGH_RISK
         assert score.score >= 7
 
     def test_metadata_plus_source_code_reaches_malicious(self):
-        """Metadata + source code forming 2 stages should reach malicious"""
+        """Metadata + source code forming 2 stages should reach high_risk"""
         risks = [
             # Metadata: typosquatting (initial-access → early)
             Risk(
@@ -505,4 +505,4 @@ class TestScoring:
         # 2 stages (early + mid), has source code → malicious gate passes
         assert score.score_breakdown["num_stages"] == 2
         assert score.score_breakdown["has_source_code_risks"] is True
-        assert score.label == RiskLabel.MALICIOUS
+        assert score.label == RiskLabel.HIGH_RISK
