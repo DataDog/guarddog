@@ -9,15 +9,13 @@ rule threat_runtime_obfuscation
         specificity = "medium"
         sophistication = "low"
 
-	path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
+	path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go"
         max_hits = 1
     strings:
-        // A quoted long base64 run with a base64-only char (G-Z, g-z, +, /) in a
-        // bounded prefix. Quotes bound the match so each blob counts once; the
-        // marker sits in a bounded prefix rather than between two open-ended runs,
-        // which on a large base64 blob explodes into millions of candidate matches
-        // (YARA ERROR_TOO_MANY_MATCHES).
-        $b64_1 = /["'`][A-Za-z0-9+\/]{0,30}[G-Zg-z+\/][A-Za-z0-9+\/]{40,}={0,2}["'`]/
+        // Base64 patterns (multiple long strings). Require an opening quote and a
+        // long run so quoted SDK identifiers, doc links and long URLs (all well
+        // under this length) are not counted as base64 payloads.
+        $b64_1 = /['"][A-Za-z0-9+\/]{150,}={0,2}/
 
         // Hex-encoded strings
         $hex_1 = /\\x[0-9a-fA-F]{2}([\\x][0-9a-fA-F]{2}){20,}/
@@ -25,8 +23,10 @@ rule threat_runtime_obfuscation
         // Unicode escape sequences
         $unicode_1 = /\\u[0-9a-fA-F]{4}(\\u[0-9a-fA-F]{4}){10,}/
 
-        // Hex-suffixed identifiers emitted by JS obfuscators (e.g. _0x3f2a)
-        $random_vars = /\b_0x[a-f0-9]{4,6}\b/
+        // Obfuscated variable names (obfuscator.io-style hex identifiers).
+        // The previous [A-Z]{10,} branch also matched ALLCAPS words (license
+        // text, constants like INTERACTIVE) and was a heavy false-positive source.
+        $random_vars = /\b[a-zA-Z]_0x[a-f0-9]{4,6}\b/
 
         // String concatenation obfuscation
         $concat = /['"]\s*\+\s*['"]/

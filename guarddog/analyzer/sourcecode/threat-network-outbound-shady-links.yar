@@ -10,7 +10,7 @@ rule threat_network_outbound_shady_links
         sophistication = "low"
 
         max_hits = 5
-        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // URL shorteners - complete domains
         $shortener = /(\b|^|[\s"'(])(https??:\/\/)??[a-zA-Z0-9.-]*?(bit\.ly)\b/ nocase

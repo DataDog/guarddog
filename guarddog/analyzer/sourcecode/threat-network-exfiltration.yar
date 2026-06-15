@@ -10,6 +10,7 @@ rule threat_network_exfiltration
         sophistication = "medium"
 
         max_hits = 5
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // Webhook/tunneling services
         $webhook1 = "webhook.site" nocase
@@ -42,11 +43,11 @@ rule threat_network_exfiltration
         $tld2 = /https?:\/\/[^\s\/]+\.(pw|top|club|bid|icu)([\/:?#"'\s)]|$)/
         $tld3 = /https?:\/\/[^\s\/]+\.(zip|stream|link|quest)([\/:?#"'\s)]|$)/
 
-        // Direct IPs in URLs, excluding non-routable ranges (see $ip_internal)
+        // Direct IPs in URLs; $ip_internal excludes non-routable ranges
         $ip = /https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/
-        $ip_internal = /https?:\/\/(127\.|10\.|0\.|192\.168\.|169\.254\.|172\.(1[6-9]|2[0-9]|3[01])\.)/
+        $ip_internal = /https?:\/\/(127\.\d{1,3}\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2[0-9]|3[01])\.\d{1,3}\.\d{1,3}|169\.254\.\d{1,3}\.\d{1,3}|0\.0\.0\.0)/
 
     condition:
         any of ($webhook*, $tunnel*, $paste*, $comm*, $tld*) or
-        (#ip > #ip_internal)
+        ($ip and not $ip_internal)
 }

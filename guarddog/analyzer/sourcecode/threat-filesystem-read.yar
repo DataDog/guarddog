@@ -10,8 +10,7 @@ rule threat_filesystem_read
         sophistication = "low"
 
         max_hits = 5
-        // Source files only; package metadata documents these paths in prose
-        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // Password/credential files
         $passwd = "/etc/passwd" nocase

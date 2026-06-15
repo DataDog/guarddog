@@ -4,9 +4,11 @@
 rule lolbas_sysinfo
 {
     strings:
-        $whoami = /\bwhoami\b/
-        // hostname only when invoked as a command, not as a quoted dict key
-        $hostname = /(system|popen|exec\w*|spawn\w*|call|run|Popen|check_output|check_call)\s*\(\s*\[?\s*['"]hostname\b/ nocase
+        // Require the sysinfo command to appear as the argument of an exec call,
+        // so dict keys (result['hostname']), XML lookups (findall("hostname"))
+        // and API paths (/workers/whoami) no longer match.
+        $whoami = /\b(popen|system|getoutput|getstatusoutput|check_output|check_call|Popen|run|call|spawn\w*|execl?p?e?|exec_command)\s*\(\s*\[?\s*['"]whoami\b/ nocase
+        $hostname = /\b(popen|system|getoutput|getstatusoutput|check_output|check_call|Popen|run|call|spawn\w*|execl?p?e?|exec_command)\s*\(\s*\[?\s*['"]hostname\b/ nocase
 
     condition:
         any of them
