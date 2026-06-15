@@ -18,7 +18,7 @@ rule threat_npm_http_dependency
         // Generic HTTP dependency pointing to non-standard hosts
         $http_plain = /:\s*"http:\/\/[^"]+"/
         // Plain-http URLs in package metadata fields (author/repo/homepage)
-        $http_meta = /"(url|web|website|homepage|funding|bugs|email|wiki|blog|docs|documentation|repository|author|maintainers|contributors|logo|image)"\s*:\s*"http:\/\//  nocase
+        $http_meta = /"(web|website|homepage|funding|bugs|email|wiki|blog|docs|documentation|repository|author|maintainers|contributors|logo|image)"\s*:\s*"http:\/\//  nocase
 
     condition:
         $http_ip or

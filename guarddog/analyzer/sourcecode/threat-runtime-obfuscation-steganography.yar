@@ -17,8 +17,8 @@ rule threat_runtime_obfuscation_steganography
         $py_lsb_reveal = "lsb.reveal(" nocase
         $py_stegano = "stegano" nocase
         // bare exec(/eval( builtins, not ast.literal_eval()/img.eval() method calls
-        $py_exec = /[^.\w]exec\s*\(/ nocase
-        $py_eval = /[^.\w]eval\s*\(/ nocase
+        $py_exec = /(?<![.\w])exec\s*\(/ nocase
+        $py_eval = /(?<![.\w])eval\s*\(/ nocase
 
         // JavaScript/Node.js - steganography
         $js_steggy = "steggy.reveal(" nocase
