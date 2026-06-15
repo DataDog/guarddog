@@ -125,12 +125,15 @@ class HumanReadableReporter(BaseReporter):
         if not prefix or not path:
             return path
         loc, _, line = path.partition(":")
-        try:
-            rel = os.path.relpath(loc, prefix)
-        except ValueError:
+        # Avoid os.path.relpath here: it calls os.getcwd() (via abspath), which
+        # raises OSError under the scan sandbox, whose allow-list excludes the
+        # invocation directory. prefix always comes from os.path.commonpath over
+        # the locations, so it is an ancestor of loc and a plain string strip is
+        # both correct and getcwd-free.
+        prefix = prefix.rstrip(os.sep)
+        if loc == prefix or not loc.startswith(prefix + os.sep):
             return path
-        if rel.startswith(".."):
-            return path
+        rel = loc[len(prefix) + 1 :]
         return f"{rel}:{line}" if line else rel
 
     @staticmethod
