@@ -1,12 +1,21 @@
 import os
 import re
+from enum import Enum
 
 from termcolor import colored
 from guarddog.reporters import BaseReporter
+from guarddog.analyzer.risk_engine import Level, RiskLabel
 from typing import List, Optional
 from guarddog.scanners.scanner import DependencyFile
 from guarddog.ecosystems import ECOSYSTEM
 from collections import defaultdict
+
+
+class AttackStage(str, Enum):
+    INITIAL_EXECUTION = "Initial execution"
+    POST_COMPROMISE = "Post-compromise behavior"
+    EXFILTRATION = "Exfiltration"
+
 
 # C0 controls except \n (0x0a) and \t (0x09); DEL (0x7f); C1 controls (0x80-0x9f).
 # Attacker-controlled values (file paths, code snippets, messages, identifiers)
@@ -48,20 +57,20 @@ class HumanReadableReporter(BaseReporter):
 
     # MITRE ATT&CK tactics grouped under plain-English stage labels.
     ATTACK_STAGES = {
-        "Initial execution": [
+        AttackStage.INITIAL_EXECUTION: [
             "reconnaissance",
             "resource-development",
             "initial-access",
             "execution",
         ],
-        "Post-compromise behavior": [
+        AttackStage.POST_COMPROMISE: [
             "persistence",
             "privilege-escalation",
             "defense-evasion",
             "credential-access",
             "discovery",
         ],
-        "Exfiltration": [
+        AttackStage.EXFILTRATION: [
             "lateral-movement",
             "collection",
             "command-and-control",
@@ -71,25 +80,25 @@ class HumanReadableReporter(BaseReporter):
     }
 
     LABEL_DISPLAY = {
-        "no_risks_detected": "No risks detected",
-        "low": "Low risk",
-        "suspicious": "Suspicious",
-        "malicious": "Malicious",
+        RiskLabel.NO_RISKS_DETECTED: "No risks detected",
+        RiskLabel.LOW: "Low risk",
+        RiskLabel.SUSPICIOUS: "Suspicious",
+        RiskLabel.MALICIOUS: "Malicious",
     }
 
     @staticmethod
     def _score_color(label: str) -> str | None:
-        if label == "malicious":
+        if label == RiskLabel.MALICIOUS:
             return "red"
-        if label == "suspicious":
+        if label == RiskLabel.SUSPICIOUS:
             return "yellow"
         return None
 
     @staticmethod
     def _severity_color(severity: str) -> str | None:
-        if severity == "high":
+        if severity == Level.HIGH:
             return "red"
-        if severity == "medium":
+        if severity == Level.MEDIUM:
             return "yellow"
         return None
 
@@ -98,10 +107,10 @@ class HumanReadableReporter(BaseReporter):
     # (often a low-specificity false positive) would otherwise out-shout a real
     # attack chain built from many low-severity findings.
     _BAND_CEILING = {
-        "malicious": "red",
-        "suspicious": "yellow",
-        "low": None,
-        "no_risks_detected": None,
+        RiskLabel.MALICIOUS: "red",
+        RiskLabel.SUSPICIOUS: "yellow",
+        RiskLabel.LOW: None,
+        RiskLabel.NO_RISKS_DETECTED: None,
     }
 
     _COLOR_RANK = {None: 0, "yellow": 1, "red": 2}
@@ -197,7 +206,7 @@ class HumanReadableReporter(BaseReporter):
         band, so each finding reads as its own cell without fragile box borders.
         """
         sev_color = HumanReadableReporter._clamp_color(
-            HumanReadableReporter._severity_color(risk.get("severity", "low")),
+            HumanReadableReporter._severity_color(risk.get("severity", Level.LOW)),
             ceiling,
         )
         rule = _sanitize(risk.get("threat_identifies", risk["threat_rule"]))
@@ -276,7 +285,7 @@ class HumanReadableReporter(BaseReporter):
     @staticmethod
     def _format_summary(risk_score: dict, num_risks: int) -> List[str]:
         score = risk_score.get("score", 0)
-        label = risk_score.get("label", "no_risks_detected")
+        label = RiskLabel(risk_score.get("label", RiskLabel.NO_RISKS_DETECTED))
         label_display = HumanReadableReporter.LABEL_DISPLAY.get(label, label)
         score_color = HumanReadableReporter._score_color(label)
 
@@ -316,10 +325,10 @@ class HumanReadableReporter(BaseReporter):
             HumanReadableReporter._collect_locations(risks)
         )
 
-        label = (
-            risk_score.get("label", "no_risks_detected")
+        label = RiskLabel(
+            risk_score.get("label", RiskLabel.NO_RISKS_DETECTED)
             if risk_score
-            else "no_risks_detected"
+            else RiskLabel.NO_RISKS_DETECTED
         )
         ceiling = HumanReadableReporter._BAND_CEILING.get(label)
 
