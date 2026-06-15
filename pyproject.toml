@@ -26,7 +26,7 @@ semantic-version = "^2.10.0"
 semgrep = "^1.147.0"
 tarsafe = "^0.0.5"
 termcolor = "^3.3.0"
-urllib3 = "^2.5.0"
+urllib3 = "^2.7.0"
 yara-python = "^4.5.1"
 
 [tool.poetry.group.dev.dependencies]
