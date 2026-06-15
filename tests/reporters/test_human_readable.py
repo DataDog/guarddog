@@ -1,4 +1,5 @@
 import re
+from unittest import mock
 
 from guarddog.reporters.human_readable import HumanReadableReporter, _sanitize
 
@@ -162,3 +163,21 @@ def test_print_scan_results_benign_input_is_preserved():
     assert "matched a benign-looking pattern" in plain
     assert "requests" in plain
     assert "rule-name" in plain
+
+
+def test_strip_prefix():
+    strip = HumanReadableReporter._strip_prefix
+    # Strips a common ancestor; leaves non-descendants and edge cases untouched.
+    assert strip("package/dist/node/axios.cjs:42", "package/dist") == "node/axios.cjs:42"
+    assert strip("package/dist/axios.js:7", "package/dist/") == "axios.js:7"
+    assert strip("other/file.js:1", "package/dist") == "other/file.js:1"
+    assert strip("package/dist", "package/dist") == "package/dist"
+    assert strip("axios.js:5", None) == "axios.js:5"
+
+    # Under the scan sandbox os.getcwd() raises OSError; stripping must still
+    # work via plain string ops rather than crashing through relpath/abspath.
+    def blocked():
+        raise PermissionError(1, "Operation not permitted")
+
+    with mock.patch("os.getcwd", blocked):
+        assert strip("package/dist/node/axios.cjs:42", "package/dist") == "node/axios.cjs:42"
