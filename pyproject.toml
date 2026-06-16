@@ -13,7 +13,7 @@ authors = ["Ellen Wang", "Christophe Tafani-Dereeper"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/DataDog/guarddog"
-version = "3.0.0a1"
+version = "3.0.0a2"
 
 [tool.poetry.scripts]
 guarddog = "guarddog.cli:cli"
