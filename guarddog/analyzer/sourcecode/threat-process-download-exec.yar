@@ -47,8 +47,8 @@ rule threat_process_download_exec
         $py_download_urllib = /urllib\.\w+\.urlopen\s*\(/ nocase
         $py_download_urlretrieve = /urllib\.\w+\.urlretrieve\s*\(/ nocase
         // Bare exec(/eval( builtins, not method calls like regex.exec()
-        $py_exec = /(?<![.\w])exec\s*\(/ nocase
-        $py_eval = /(?<![.\w])eval\s*\(/ nocase
+        $py_exec = /[^.\w]exec\s*\(/ nocase
+        $py_eval = /[^.\w]eval\s*\(/ nocase
 
         // Python: download + subprocess.run([file_path]) - download binary then execute
         $py_subprocess_run = /subprocess\.(run|call|Popen)\s*\(/ nocase

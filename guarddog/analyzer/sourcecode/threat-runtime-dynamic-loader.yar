@@ -30,8 +30,8 @@ rule threat_runtime_dynamic_loader
 
         // Execution sink: bare exec(/eval(, not method calls. Required alongside
         // import+download, which co-occur in many benign plugin loaders.
-        $exec_sink = /(?<![.\w])exec\s*\(/ nocase
-        $eval_sink = /(?<![.\w])eval\s*\(/ nocase
+        $exec_sink = /[^.\w]exec\s*\(/ nocase
+        $eval_sink = /[^.\w]eval\s*\(/ nocase
 
     condition:
         // Dynamic import + network download + execution of the payload
