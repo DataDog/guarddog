@@ -41,6 +41,15 @@ YARA_EXT_EXCLUDE: list[str] = os.environ.get(
 ).split(",")
 
 """
+This parameter specifies a regex pattern to exclude files from YARA scanning.
+The regex is matched against the file path relative to the scan root.
+- Default: empty (disabled)
+"""
+YARA_PATH_EXCLUDE_REGEX: str = os.environ.get(
+    "GUARDDOG_YARA_PATH_EXCLUDE_REGEX", ""
+)
+
+"""
 This parameter specifies the maximum uncompressed size allowed for archive extraction
 - Default: 2 GB in bytes
 """
