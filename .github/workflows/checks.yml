@@ -71,6 +71,9 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
+    - name: YARA rules unit tests
+      run: poetry run make test-yara-rules
+
     - name: Python unit tests
       run: poetry run make test-metadata-rules
 
