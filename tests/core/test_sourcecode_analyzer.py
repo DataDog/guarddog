@@ -29,6 +29,43 @@ def test_source_code_analyzer_ran_with_no_rules(analyzer: Analyzer):
     assert len(result["errors"]) == 0
 
 
+def _write(directory, name, content):
+    full_path = os.path.join(directory, name)
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+    with open(full_path, "w") as f:
+        f.write(content)
+    return full_path
+
+
+def test_filesystem_read_path_include_skips_metadata():
+    """
+    threat-filesystem-read must only scan source files: a sensitive path
+    documented inside a .dist-info/METADATA file is a false positive
+    (regression for botocore '~/.aws/credentials' and dotenv docs), while the
+    same indicator in real source code must still be flagged.
+    """
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+    rules = {"threat-filesystem-read"}
+
+    with tempfile.TemporaryDirectory() as metadata_dir:
+        _write(
+            metadata_dir,
+            "pkg-1.0.0.dist-info/METADATA",
+            "Next, set up credentials in ``~/.aws/credentials``:\n",
+        )
+        metadata_result = analyzer.analyze_sourcecode(metadata_dir, rules)
+        assert not metadata_result["results"].get("threat-filesystem-read")
+
+    with tempfile.TemporaryDirectory() as source_dir:
+        _write(
+            source_dir,
+            "client.py",
+            'creds = open("/home/user/.aws/credentials").read()\n',
+        )
+        source_result = analyzer.analyze_sourcecode(source_dir, rules)
+        assert source_result["results"].get("threat-filesystem-read")
+
+
 def test_get_snippet_valid_range():
     analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
     path = "/tmp/sample.py"

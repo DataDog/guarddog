@@ -26,7 +26,7 @@ test-reporters:
 	COVERAGE_FILE=.coverage_reporters coverage run -m pytest tests/reporters
 
 coverage-report:
-	coverage combine .coverage_metadata .coverage_core .coverage_reporters
+	coverage combine .coverage_yara .coverage_metadata .coverage_core .coverage_reporters
 	coverage report
 
 docs:

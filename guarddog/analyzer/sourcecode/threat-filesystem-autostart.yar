@@ -9,14 +9,15 @@ rule threat_filesystem_autostart
         specificity = "high"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
         // Python - bashrc/profile modifications
         $py_bashrc = ".bashrc" nocase
         $py_bash_profile = ".bash_profile" nocase
-        // ~/.profile as a path/string literal, not a `.profile` attribute access
-        $py_profile = /['"~\/]\.profile\b/ nocase
+        // Require quoted-path context so attribute access (self.profile,
+        // config.profile) and identifiers (.profile_manager) don't match.
+        $py_profile = /['"][^'"]*\.profile['"]/ nocase
         $py_zshrc = ".zshrc" nocase
 
         // Python - system-wide startup scripts
@@ -52,7 +53,8 @@ rule threat_filesystem_autostart
 
         // Combined patterns (file write + startup location)
         $py_write_mode = /'[wa]\+?'/ nocase
-        $py_open_write = "open(" nocase
+        // Word boundary so urlopen()/fdopen() don't satisfy the open() condition.
+        $py_open_write = /\bopen\s*\(/ nocase
 
     condition:
         // Startup script modification patterns

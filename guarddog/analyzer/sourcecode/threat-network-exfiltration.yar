@@ -10,6 +10,7 @@ rule threat_network_exfiltration
         sophistication = "medium"
 
         max_hits = 5
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
     strings:
         // Webhook/tunneling services
         $webhook1 = "webhook.site" nocase
@@ -42,11 +43,15 @@ rule threat_network_exfiltration
         $tld2 = /https?:\/\/[^\s\/]+\.(pw|top|club|bid|icu)([\/:?#"'\s)]|$)/
         $tld3 = /https?:\/\/[^\s\/]+\.(zip|stream|link|quest)([\/:?#"'\s)]|$)/
 
-        // Direct IPs in URLs, excluding non-routable ranges (see $ip_internal)
-        $ip = /https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/
-        $ip_internal = /https?:\/\/(127\.|10\.|0\.|192\.168\.|169\.254\.|172\.(1[6-9]|2[0-9]|3[01])\.)/
+        // Direct IP addresses in URLs, restricted to public addresses. The
+        // exclusion of loopback/private ranges (0/8, 10/8, 127/8, 169.254/16,
+        // 172.16-31, 192.168/16) is baked into the regex so it applies per
+        // match: a private URL elsewhere in the file cannot suppress a real
+        // public-IP C2 endpoint. First two octets gate the private ranges;
+        // remaining octets are any valid 0-255.
+        $ip = /https?:\/\/(([1-9]|1[1-9]|[2-9][0-9]|1[01][0-9]|12[0-6]|12[89]|1[3-5][0-9]|16[0-8]|17[01]|17[3-9]|18[0-9]|19[01]|19[3-9]|2[0-4][0-9]|25[0-5])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])|169\.(25[0-3]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]|255)|172\.([0-9]|1[0-5]|3[2-9]|[4-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])|192\.([0-9]|[1-9][0-9]|1[0-5][0-9]|16[0-7]|169|17[0-9]|18[0-9]|19[0-9]|2[0-4][0-9]|25[0-5]))\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])/
 
     condition:
         any of ($webhook*, $tunnel*, $paste*, $comm*, $tld*) or
-        (#ip > #ip_internal)
+        $ip
 }
