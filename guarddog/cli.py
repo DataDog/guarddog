@@ -223,6 +223,10 @@ def _scan(
     else:
         log.warning("Scanning without kernel-level sandbox protection.")
 
+    # Propagate the resolved sandbox decision so any sub-dependency scan spawned by a
+    # metadata rule (risky_new_dependency) is sandboxed identically to this scan.
+    os.environ["GUARDDOG_SUBSCAN_SANDBOX"] = "1" if sandbox else "0"
+
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = get_package_scanner(ecosystem)
     if scanner is None:
