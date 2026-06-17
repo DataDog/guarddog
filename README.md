@@ -113,6 +113,10 @@ guarddog pypi scan /tmp/triage.tar.gz
 # Scan a local package directory
 guarddog pypi scan /tmp/triage/
 
+# Scan a package stored in S3 (a folder/prefix or a single archive object)
+guarddog pypi scan s3://my-bucket/path/to/package/
+guarddog pypi scan s3://my-bucket/path/to/package.tar.gz
+
 # Scan every package referenced in a requirements.txt file of a local folder
 guarddog pypi verify workspace/guarddog/requirements.txt
 
@@ -176,6 +180,17 @@ For remote packages, three phases run with different privilege levels:
 3. **Source code analysis** (YARA) runs in the main process after a sandbox is applied (network blocked, filesystem restricted to extracted files)
 
 The sandbox was introduced to mitigate path traversal and code execution vulnerabilities during archive extraction (CVE-2022-23530, CVE-2022-23531, CVE-2026-22870, CVE-2026-22871).
+
+## Scanning packages from S3
+
+GuardDog can scan a package stored in S3, either as a folder/prefix or a single archive object:
+
+```sh
+guarddog npm scan s3://my-bucket/path/to/package/
+guarddog npm scan s3://my-bucket/path/to/package.tar.gz
+```
+
+This uses your existing AWS credentials (environment variables, `~/.aws`, SSO, or an IAM role). GuardDog verifies authentication via STS before doing anything and exits with an error if no valid credentials are found. The objects are synced to a temporary directory, scanned under the sandbox like any other untrusted content, and removed from disk afterward.
 
 ## Rules
 

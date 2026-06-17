@@ -144,6 +144,64 @@ class TestCli(unittest.TestCase):
                                 cm.output,
                             )
 
+    def test_s3_url(self):
+        """Test that the CLI routes s3:// targets through the S3 branch"""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch(
+                    "guarddog.utils.s3.verify_aws_authentication"
+                ) as verify:
+                    with mock.patch(
+                        "guarddog.utils.s3.download_from_s3",
+                        return_value=("folder", "/tmp/synced"),
+                    ) as download:
+                        with mock.patch.object(
+                            scanner.PackageScanner, "scan_local", return_value={}
+                        ) as scan_local:
+                            with self.assertLogs("guarddog", level="DEBUG") as cm:
+                                guarddog.cli._scan(
+                                    "s3://bucket/path/to/pkg",
+                                    None, (), (), None, False, ECOSYSTEM.NPM,
+                                    sandbox=False,
+                                )
+                            self.assertIn(
+                                "DEBUG:guarddog:Considering that "
+                                "'s3://bucket/path/to/pkg' is an S3 path",
+                                cm.output,
+                            )
+                            verify.assert_called_once()
+                            download.assert_called_once()
+                            scan_local.assert_called_once()
+                            self.assertEqual(
+                                scan_local.call_args.args[0], "/tmp/synced"
+                            )
+
+    def test_s3_url_auth_failure_exits(self):
+        """Test that a failed AWS auth check exits non-zero for S3 scans"""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch(
+                    "guarddog.utils.s3.verify_aws_authentication",
+                    side_effect=RuntimeError("no AWS credentials found"),
+                ):
+                    with self.assertRaises(SystemExit):
+                        guarddog.cli._scan(
+                            "s3://bucket/path/to/pkg",
+                            None, (), (), None, False, ECOSYSTEM.NPM,
+                            sandbox=False,
+                        )
+
+    def test_s3_url_rejects_version(self):
+        """Test that --version is rejected for S3 scans"""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with self.assertRaises(SystemExit):
+                    guarddog.cli._scan(
+                        "s3://bucket/path/to/pkg",
+                        "1.0.0", (), (), None, False, ECOSYSTEM.NPM,
+                        sandbox=False,
+                    )
+
     def _test_local_file_template(self, filename: str):
         # `filename` is a file
         with mock.patch("os.path.isdir") as isdir:

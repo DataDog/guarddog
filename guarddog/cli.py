@@ -314,6 +314,43 @@ def _scan(
                     extract_dir, rule_param, info=metadata_info
                 )
 
+        elif identifier.startswith("s3://"):
+            log.debug(f"Considering that '{identifier}' is an S3 path")
+            if version is not None:
+                log.error("--version is not supported for S3 scans")
+                sys.exit(1)
+            from guarddog.utils.s3 import (
+                verify_aws_authentication,
+                download_from_s3,
+            )
+
+            try:
+                verify_aws_authentication()
+            except Exception as e:
+                log.error(f"AWS authentication failed: {e}")
+                sys.exit(1)
+            tmp_root = os.path.realpath(tempfile.gettempdir())
+            with tempfile.TemporaryDirectory(dir=tmp_root) as tempdir:
+                download_root = os.path.join(tempdir, "_s3")
+                os.makedirs(download_root, exist_ok=True)
+                # Sync before sandbox: network access is needed here (mirrors the
+                # http/https branch).
+                kind, local_path = download_from_s3(identifier, download_root)
+                if sandbox:
+                    apply_sandbox(scan_paths=[], writable_paths=[tempdir])
+                if kind == "archive":
+                    extract_dir = os.path.join(tempdir, "_extracted")
+                    os.makedirs(extract_dir, exist_ok=True)
+                    safe_extract(
+                        local_path, extract_dir, zip_password=zip_password_bytes
+                    )
+                    scan_target = extract_dir
+                else:
+                    scan_target = local_path
+                result |= scanner.scan_local(
+                    scan_target, rule_param, info=metadata_info
+                )
+
         else:
             log.debug(f"Considering that '{identifier}' is a remote target")
             if zip_password_bytes is not None:
