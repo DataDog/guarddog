@@ -1,11 +1,29 @@
 """Shared helpers for resolving npm package versions from the registry."""
 
 import logging
+import re
 
 import requests
 from semantic_version import NpmSpec, Version  # type: ignore
 
 log = logging.getLogger("guarddog")
+
+# Matches npm alias specifiers, e.g. "npm:react@19.2.3" or "npm:@scope/pkg@^1".
+NPM_ALIAS_PATTERN = re.compile(
+    r"^npm:(?P<package>@[^/@\s]+/[^@\s]+|[^@\s]+)(?:@(?P<selector>.+))?$"
+)
+
+
+def resolve_npm_alias(package_name: str, selector: str) -> tuple[str, str]:
+    """Normalize an npm alias so scanning targets the real package.
+
+    ex: ("alias", "npm:react@19.2.3") -> ("react", "19.2.3").
+    Non-alias specifiers are returned unchanged.
+    """
+    match = NPM_ALIAS_PATTERN.match(selector)
+    if match is None:
+        return package_name, selector
+    return match.group("package"), match.group("selector") or "*"
 
 
 def find_all_versions(package_name: str) -> set[str]:

@@ -16,7 +16,7 @@ from typing import List, Optional
 
 from guarddog.analyzer.metadata.detector import Detector
 from guarddog.utils.config import NEW_DEPENDENCY_RISK_THRESHOLD
-from guarddog.utils.npm import highest_matching_version
+from guarddog.utils.npm import highest_matching_version, resolve_npm_alias
 
 log = logging.getLogger("guarddog")
 
@@ -94,8 +94,8 @@ class NPMRiskyNewDependencyDetector(Detector):
             )
             return False, None
 
-        current_deps = versions.get(current_version, {}).get("dependencies", {})
-        previous_deps = versions.get(previous_version, {}).get("dependencies", {})
+        current_deps = self._installed_dependencies(versions.get(current_version, {}))
+        previous_deps = self._installed_dependencies(versions.get(previous_version, {}))
         new_dependencies = set(current_deps) - set(previous_deps)
         if not new_dependencies:
             log.debug(
@@ -165,6 +165,20 @@ class NPMRiskyNewDependencyDetector(Detector):
         if not earlier:
             return None
         return max(earlier)[1]
+
+    @staticmethod
+    def _installed_dependencies(version_info: dict) -> dict:
+        """Map real package name -> version selector for the dependencies npm
+        installs by default: `dependencies` and `optionalDependencies` (optional
+        installs are non-fatal but still run). npm aliases are resolved to the real
+        package so the diff and sub-scan target the aliased package, not the local
+        alias name (e.g. "x": "npm:evil@1" -> {"evil": "1"})."""
+        resolved: dict = {}
+        for section in ("dependencies", "optionalDependencies"):
+            for name, spec in (version_info.get(section) or {}).items():
+                real_name, selector = resolve_npm_alias(name, spec)
+                resolved[real_name] = selector
+        return resolved
 
     def _scan_dependency(self, dep_name: str, spec: str) -> Optional[DependencyRisk]:
         """Scan a single dependency as a subprocess and return its risk outcome.

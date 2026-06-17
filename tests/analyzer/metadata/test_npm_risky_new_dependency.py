@@ -133,6 +133,116 @@ class TestDetectLogic:
         assert "good" not in message
 
 
+def make_info_full(versions, times, latest, name="parent"):
+    """Like make_info, but each version maps to a full version_info dict so
+    optionalDependencies / alias specifiers can be expressed."""
+    return {
+        "name": name,
+        "dist-tags": {"latest": latest},
+        "versions": versions,
+        "time": times,
+    }
+
+
+TIMES = {
+    "1.0.0": "2020-01-01T00:00:00.000Z",
+    "1.1.0": "2020-06-01T00:00:00.000Z",
+}
+
+
+class TestDependencyCollection:
+    detector = NPMRiskyNewDependencyDetector()
+
+    def test_includes_dependencies_and_optional_dependencies(self):
+        info = {
+            "dependencies": {"a": "^1.0.0"},
+            "optionalDependencies": {"b": "^2.0.0"},
+            "devDependencies": {"c": "^3.0.0"},  # not installed for consumers
+        }
+        assert self.detector._installed_dependencies(info) == {
+            "a": "^1.0.0",
+            "b": "^2.0.0",
+        }
+
+    def test_resolves_npm_alias_to_real_package(self):
+        info = {"dependencies": {"local-name": "npm:evil-pkg@1.2.3"}}
+        assert self.detector._installed_dependencies(info) == {"evil-pkg": "1.2.3"}
+
+    def test_alias_without_version_uses_wildcard(self):
+        info = {"dependencies": {"local": "npm:evil-pkg"}}
+        assert self.detector._installed_dependencies(info) == {"evil-pkg": "*"}
+
+
+class TestDetectAliasAndOptional:
+    detector = NPMRiskyNewDependencyDetector()
+
+    def _capture(self, monkeypatch, risk_for):
+        scanned = []
+
+        def fake(dep_name, spec):
+            scanned.append((dep_name, spec))
+            return risk_for.get(dep_name)
+
+        monkeypatch.setattr(self.detector, "_scan_dependency", fake)
+        return scanned
+
+    def test_new_optional_dependency_is_scanned_and_flagged(self, monkeypatch):
+        info = make_info_full(
+            versions={
+                "1.0.0": {"dependencies": {"a": "^1.0.0"}},
+                "1.1.0": {
+                    "dependencies": {"a": "^1.0.0"},
+                    "optionalDependencies": {"evil": "^2.0.0"},
+                },
+            },
+            times=TIMES,
+            latest="1.1.0",
+        )
+        scanned = self._capture(
+            monkeypatch, {"evil": DependencyRisk("2.0.0", 9.0, "high_risk")}
+        )
+        matched, message = self.detector.detect(info, version="1.1.0")
+        assert ("evil", "^2.0.0") in scanned
+        assert matched is True
+        assert "evil@2.0.0" in message
+
+    def test_aliased_new_dependency_scans_real_package(self, monkeypatch):
+        info = make_info_full(
+            versions={
+                "1.0.0": {"dependencies": {"a": "^1.0.0"}},
+                "1.1.0": {"dependencies": {"a": "^1.0.0", "x": "npm:evil-pkg@1.2.3"}},
+            },
+            times=TIMES,
+            latest="1.1.0",
+        )
+        scanned = self._capture(
+            monkeypatch, {"evil-pkg": DependencyRisk("1.2.3", 8.0, "high_risk")}
+        )
+        matched, message = self.detector.detect(info, version="1.1.0")
+        # scans the real package, not the local alias key
+        assert ("evil-pkg", "1.2.3") in scanned
+        assert "x" not in [name for name, _ in scanned]
+        assert matched is True
+        assert "evil-pkg@1.2.3" in message
+
+    def test_alias_retarget_same_key_is_detected(self, monkeypatch):
+        # the local key "x" is unchanged but it now aliases a different package
+        info = make_info_full(
+            versions={
+                "1.0.0": {"dependencies": {"x": "npm:safe-pkg@1.0.0"}},
+                "1.1.0": {"dependencies": {"x": "npm:evil-pkg@1.0.0"}},
+            },
+            times=TIMES,
+            latest="1.1.0",
+        )
+        scanned = self._capture(
+            monkeypatch, {"evil-pkg": DependencyRisk("1.0.0", 9.0, "high_risk")}
+        )
+        matched, _ = self.detector.detect(info, version="1.1.0")
+        assert ("evil-pkg", "1.0.0") in scanned
+        assert matched is True
+
+
 class TestScanDependencySubprocess:
     detector = NPMRiskyNewDependencyDetector()
 

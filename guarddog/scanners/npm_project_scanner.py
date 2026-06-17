@@ -7,13 +7,13 @@ from typing import List
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
 from guarddog.scanners.scanner import Dependency, DependencyVersion, ProjectScanner
 from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
-from guarddog.utils.npm import find_all_versions, get_matched_versions
+from guarddog.utils.npm import (
+    find_all_versions,
+    get_matched_versions,
+    resolve_npm_alias,
+)
 
 log = logging.getLogger("guarddog")
-
-NPM_ALIAS_PATTERN = re.compile(
-    r"^npm:(?P<package>@[^/@\s]+/[^@\s]+|[^@\s]+)(?:@(?P<selector>.+))?$"
-)
 
 
 class NPMRequirementsScanner(ProjectScanner):
@@ -52,28 +52,12 @@ class NPMRequirementsScanner(ProjectScanner):
         )
         raw_requirement_lines = raw_requirements.splitlines()
 
-        def resolve_dependency_spec(
-            package_name: str, selector: str
-        ) -> tuple[str, str]:
-            """
-            Normalizes npm alias selectors so scanning targets the real package.
-            ex: {"alias": "npm:react@19.2.3"} -> ("react", "19.2.3")
-            """
-            match = NPM_ALIAS_PATTERN.match(selector)
-            if match is None:
-                return package_name, selector
-
-            resolved_selector = match.group("selector") or "*"
-            return match.group("package"), resolved_selector
-
         merged = {}  # type: dict[str, set[str]]
         merged_original_names = {}  # type: dict[str, set[str]]
         for package, selector in list(dependencies_attr.items()) + list(
             dev_dependencies_attr.items()
         ):
-            resolved_package, resolved_selector = resolve_dependency_spec(
-                package, selector
-            )
+            resolved_package, resolved_selector = resolve_npm_alias(package, selector)
             if resolved_package not in merged:
                 merged[resolved_package] = set()
             merged[resolved_package].add(resolved_selector)
