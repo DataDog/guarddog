@@ -231,16 +231,18 @@ class HumanReadableReporter(BaseReporter):
         ]
         if desc:
             block.append("  " + colored(desc, sev_color))
-
-        inspector_url = (
-            HumanReadableReporter._pypi_finding_inspector_url(deep_base, loc_raw)
-            if deep_base and loc_raw
-            else None
-        )
-        loc_line = colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey")
-        if inspector_url:
-            loc_line = HumanReadableReporter._hyperlink(inspector_url, loc_line)
-        block.append("  " + loc_line)
+        # Metadata findings carry no file location; only show the line when there is
+        # one so it never renders as a bare "in ".
+        if loc:
+            inspector_url = (
+                HumanReadableReporter._pypi_finding_inspector_url(deep_base, loc_raw)
+                if deep_base and loc_raw
+                else None
+            )
+            loc_line = colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey")
+            if inspector_url:
+                loc_line = HumanReadableReporter._hyperlink(inspector_url, loc_line)
+            block.append("  " + loc_line)
 
         code = risk.get("threat_code", "")
         if code:

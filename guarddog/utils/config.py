@@ -19,6 +19,17 @@ VERIFY_EXHAUSTIVE_DEPENDENCIES: bool = (
 )
 
 """
+Risk score (0-10) at or above which a newly added npm dependency is flagged by the
+risky_new_dependency rule. The default of 7.0 matches GuardDog's `high_risk` band,
+which requires source-code evidence and excludes metadata-only signals (capped at
+6.9); this avoids flagging legitimate packages on manifest-mismatch alone.
+- Default: 7.0
+"""
+NEW_DEPENDENCY_RISK_THRESHOLD: float = float(
+    os.environ.get("GUARDDOG_NEW_DEPENDENCY_RISK_THRESHOLD", 7.0)
+)
+
+"""
 This parameter specifies the location of the top packages cache
 - Default: guarddog/analyzer/metadata/resources
 """
