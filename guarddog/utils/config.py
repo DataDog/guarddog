@@ -20,13 +20,14 @@ VERIFY_EXHAUSTIVE_DEPENDENCIES: bool = (
 
 """
 Risk score (0-10) at or above which a newly added npm dependency is flagged by the
-risky_new_dependency rule. The default of 7.0 matches GuardDog's `high_risk` band,
-which requires source-code evidence and excludes metadata-only signals (capped at
-6.9); this avoids flagging legitimate packages on manifest-mismatch alone.
-- Default: 7.0
+risky_new_dependency rule. The default of 5.0 (GuardDog's `suspicious` band) is
+viable because the sub-scan runs source-code rules only: across 3000 popular npm
+packages the 5.0-6.9 band was empty of false positives, so 5.0 catches genuinely
+suspicious dependencies without the metadata noise that previously required 7.0.
+- Default: 5.0
 """
 NEW_DEPENDENCY_RISK_THRESHOLD: float = float(
-    os.environ.get("GUARDDOG_NEW_DEPENDENCY_RISK_THRESHOLD", 7.0)
+    os.environ.get("GUARDDOG_NEW_DEPENDENCY_RISK_THRESHOLD", 5.0)
 )
 
 """
