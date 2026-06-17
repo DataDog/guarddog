@@ -96,6 +96,24 @@ def download_from_s3(s3_uri: str, dest_dir: str) -> Tuple[str, str]:
     if key and not key.endswith("/"):
         try:
             client.head_object(Bucket=bucket, Key=key)
+        except ClientError as e:
+            error_code = e.response.get("Error", {}).get("Code")
+            # 404/NoSuchKey: no object at the bare key -> treat it as a prefix.
+            # 403/AccessDenied: the caller may lack HeadObject on the bare key while
+            # still being able to ListBucket + GetObject under <key>/ (a common IAM
+            # setup for folder scans), so fall back to a prefix sync rather than
+            # failing outright.
+            fall_through = (
+                "404",
+                "NoSuchKey",
+                "NotFound",
+                "403",
+                "AccessDenied",
+                "Forbidden",
+            )
+            if error_code not in fall_through:
+                raise
+        else:
             local_path = _safe_join(dest_dir, os.path.basename(key))
             os.makedirs(os.path.dirname(local_path), exist_ok=True)
             log.debug(f"Downloading s3://{bucket}/{key} -> {local_path}")
@@ -103,11 +121,6 @@ def download_from_s3(s3_uri: str, dest_dir: str) -> Tuple[str, str]:
             if is_supported_archive(local_path):
                 return "archive", local_path
             return "folder", dest_dir
-        except ClientError as e:
-            error_code = e.response.get("Error", {}).get("Code")
-            if error_code not in ("404", "NoSuchKey", "NotFound"):
-                raise
-            # Not a single object: fall through and treat the key as a prefix.
 
     _download_prefix(client, bucket, key, dest_dir)
     return "folder", dest_dir
@@ -119,20 +132,27 @@ def _download_prefix(client, bucket: str, prefix: str, dest_dir: str) -> None:
     Objects are downloaded concurrently via a thread pool; the boto3 low-level client
     is thread-safe and shared across workers.
     """
+    # Normalize to a folder boundary so a bare prefix like "path/pkg" doesn't also
+    # match sibling keys such as "path/pkg-other/..." (list_objects_v2 Prefix
+    # matching is purely lexical, not path-segment aware).
+    list_prefix = prefix.rstrip("/")
+    if list_prefix:
+        list_prefix += "/"
+
     paginator = client.get_paginator("list_objects_v2")
     jobs: List[Tuple[str, str]] = []  # (object_key, local_path)
-    for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+    for page in paginator.paginate(Bucket=bucket, Prefix=list_prefix):
         for obj in page.get("Contents", []):
             object_key = obj["Key"]
             if object_key.endswith("/"):
                 continue
             relative_path = (
-                os.path.relpath(object_key, prefix) if prefix else object_key
+                os.path.relpath(object_key, list_prefix) if list_prefix else object_key
             )
             jobs.append((object_key, _safe_join(dest_dir, relative_path)))
 
     if not jobs:
-        raise RuntimeError(f"no objects found at s3://{bucket}/{prefix}")
+        raise RuntimeError(f"no objects found at s3://{bucket}/{list_prefix}")
 
     # Create parent directories up front so parallel downloads don't race on mkdir.
     for _, local_path in jobs:

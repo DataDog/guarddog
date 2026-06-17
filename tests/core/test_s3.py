@@ -50,9 +50,19 @@ class TestVerifyAuth(unittest.TestCase):
 
 
 def _not_found_error():
+    return ClientError({"Error": {"Code": "404", "Message": "Not Found"}}, "HeadObject")
+
+
+def _access_denied_error():
     return ClientError(
-        {"Error": {"Code": "404", "Message": "Not Found"}}, "HeadObject"
+        {"Error": {"Code": "AccessDenied", "Message": "Forbidden"}}, "HeadObject"
     )
+
+
+def _prefix_paginator(keys):
+    paginator = mock.MagicMock()
+    paginator.paginate.return_value = [{"Contents": [{"Key": k} for k in keys]}]
+    return paginator
 
 
 class TestDownloadFromS3(unittest.TestCase):
@@ -95,9 +105,7 @@ class TestDownloadFromS3(unittest.TestCase):
         client.get_paginator.return_value = paginator
         with mock.patch("boto3.client", return_value=client):
             with mock.patch("os.makedirs"):
-                kind, path = s3.download_from_s3(
-                    "s3://bucket/path/pkg", "/tmp/dest"
-                )
+                kind, path = s3.download_from_s3("s3://bucket/path/pkg", "/tmp/dest")
         assert kind == "folder"
         assert path == "/tmp/dest"
         assert client.download_file.call_count == 2
@@ -106,6 +114,28 @@ class TestDownloadFromS3(unittest.TestCase):
             "path/pkg/package.json",
             "path/pkg/lib/index.js",
         }
+        # The bare key must be normalized to a folder boundary so sibling prefixes
+        # (e.g. path/pkg-other/) are not pulled in by lexical Prefix matching.
+        paginator.paginate.assert_called_once_with(Bucket="bucket", Prefix="path/pkg/")
+
+    def test_head_object_forbidden_falls_back_to_prefix(self):
+        client = mock.MagicMock()
+        client.head_object.side_effect = _access_denied_error()
+        client.get_paginator.return_value = _prefix_paginator(["path/pkg/package.json"])
+        with mock.patch("boto3.client", return_value=client):
+            with mock.patch("os.makedirs"):
+                kind, _ = s3.download_from_s3("s3://bucket/path/pkg", "/tmp/dest")
+        assert kind == "folder"
+        assert client.download_file.call_count == 1
+
+    def test_unexpected_client_error_propagates(self):
+        client = mock.MagicMock()
+        client.head_object.side_effect = ClientError(
+            {"Error": {"Code": "500", "Message": "boom"}}, "HeadObject"
+        )
+        with mock.patch("boto3.client", return_value=client):
+            with pytest.raises(ClientError):
+                s3.download_from_s3("s3://bucket/path/pkg", "/tmp/dest")
 
     def test_empty_prefix_raises(self):
         client = mock.MagicMock()

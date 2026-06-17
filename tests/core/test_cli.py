@@ -60,7 +60,13 @@ class TestCli(unittest.TestCase):
                 listdir.return_value = []
                 with self.assertLogs("guarddog", level="DEBUG") as cm:
                     guarddog.cli._scan(
-                        directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI,
+                        directory,
+                        "0.1.0",
+                        (),
+                        (),
+                        None,
+                        False,
+                        ECOSYSTEM.PYPI,
                         sandbox=False,
                     )
                 self.assertIn(
@@ -86,7 +92,13 @@ class TestCli(unittest.TestCase):
                 ) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(
-                            directory, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI,
+                            directory,
+                            "0.1.0",
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.PYPI,
                             sandbox=False,
                         )
                     self.assertNotIn(
@@ -115,7 +127,11 @@ class TestCli(unittest.TestCase):
                     guarddog.cli._scan(
                         "https://example.com/package.whl",
                         "1.0.0",
-                        (), (), None, False, ECOSYSTEM.PYPI,
+                        (),
+                        (),
+                        None,
+                        False,
+                        ECOSYSTEM.PYPI,
                         sandbox=False,
                     )
 
@@ -125,14 +141,22 @@ class TestCli(unittest.TestCase):
 
         with mock.patch("os.path.isdir", return_value=False):
             with mock.patch("os.path.isfile", return_value=False):
-                with mock.patch("guarddog.cli.requests.get", return_value=mock_response):
+                with mock.patch(
+                    "guarddog.cli.requests.get", return_value=mock_response
+                ):
                     with mock.patch("guarddog.cli.safe_extract"):
                         with mock.patch.object(
                             scanner.PackageScanner, "scan_local", return_value={}
                         ):
                             with self.assertLogs("guarddog", level="DEBUG") as cm:
                                 guarddog.cli._scan(
-                                    url, None, (), (), None, False, ECOSYSTEM.PYPI,
+                                    url,
+                                    None,
+                                    (),
+                                    (),
+                                    None,
+                                    False,
+                                    ECOSYSTEM.PYPI,
                                     sandbox=False,
                                 )
                             self.assertIn(
@@ -161,7 +185,12 @@ class TestCli(unittest.TestCase):
                             with self.assertLogs("guarddog", level="DEBUG") as cm:
                                 guarddog.cli._scan(
                                     "s3://bucket/path/to/pkg",
-                                    None, (), (), None, False, ECOSYSTEM.NPM,
+                                    None,
+                                    (),
+                                    (),
+                                    None,
+                                    False,
+                                    ECOSYSTEM.NPM,
                                     sandbox=False,
                                 )
                             self.assertIn(
@@ -187,7 +216,12 @@ class TestCli(unittest.TestCase):
                     with self.assertRaises(SystemExit):
                         guarddog.cli._scan(
                             "s3://bucket/path/to/pkg",
-                            None, (), (), None, False, ECOSYSTEM.NPM,
+                            None,
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.NPM,
                             sandbox=False,
                         )
 
@@ -198,9 +232,78 @@ class TestCli(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     guarddog.cli._scan(
                         "s3://bucket/path/to/pkg",
-                        "1.0.0", (), (), None, False, ECOSYSTEM.NPM,
+                        "1.0.0",
+                        (),
+                        (),
+                        None,
+                        False,
+                        ECOSYSTEM.NPM,
                         sandbox=False,
                     )
+
+    def test_s3_archive_object_is_extracted(self):
+        """A single archive object from S3 is extracted before scanning"""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch("guarddog.utils.s3.verify_aws_authentication"):
+                    with mock.patch(
+                        "guarddog.utils.s3.download_from_s3",
+                        return_value=("archive", "/tmp/dl/pkg.tgz"),
+                    ):
+                        with mock.patch("guarddog.cli.safe_extract") as safe_extract:
+                            with mock.patch.object(
+                                scanner.PackageScanner, "scan_local", return_value={}
+                            ) as scan_local:
+                                guarddog.cli._scan(
+                                    "s3://bucket/path/pkg.tgz",
+                                    None,
+                                    (),
+                                    (),
+                                    None,
+                                    False,
+                                    ECOSYSTEM.NPM,
+                                    sandbox=False,
+                                )
+                            safe_extract.assert_called_once()
+                            scan_local.assert_called_once()
+                            # Scans the extracted dir, not the raw archive.
+                            self.assertTrue(
+                                scan_local.call_args.args[0].endswith("_extracted")
+                            )
+
+    def test_s3_sync_runs_before_sandbox(self):
+        """The S3 sync (needs network) must run before the sandbox is applied"""
+        order = []
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch("guarddog.cli.sandbox_available", return_value=True):
+                    with mock.patch("guarddog.utils.s3.verify_aws_authentication"):
+                        with mock.patch(
+                            "guarddog.utils.s3.download_from_s3",
+                            side_effect=lambda *a, **k: (
+                                order.append("download") or ("folder", "/tmp/synced")
+                            ),
+                        ):
+                            with mock.patch(
+                                "guarddog.cli.apply_sandbox",
+                                side_effect=lambda *a, **k: order.append("sandbox"),
+                            ):
+                                with mock.patch.object(
+                                    scanner.PackageScanner,
+                                    "scan_local",
+                                    return_value={},
+                                ):
+                                    guarddog.cli._scan(
+                                        "s3://bucket/path/pkg",
+                                        None,
+                                        (),
+                                        (),
+                                        None,
+                                        False,
+                                        ECOSYSTEM.NPM,
+                                        sandbox=True,
+                                    )
+        self.assertEqual(order, ["download", "sandbox"])
 
     def _test_local_file_template(self, filename: str):
         # `filename` is a file
@@ -255,7 +358,13 @@ class TestCli(unittest.TestCase):
                 ) as _:
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(
-                            filename, "0.1.0", (), (), None, False, ECOSYSTEM.PYPI,
+                            filename,
+                            "0.1.0",
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.PYPI,
                             sandbox=False,
                         )
                     self.assertNotIn(
