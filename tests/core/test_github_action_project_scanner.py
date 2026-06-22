@@ -59,6 +59,7 @@ def test_githubactions_find_requirements():
         os.path.join(repo_root, ".github", "workflows", "checks.yml"),
         os.path.join(repo_root, ".github", "workflows", "docker-publish.yml"),
         os.path.join(repo_root, ".github", "workflows", "guarddog.yml"),
+        os.path.join(repo_root, ".github", "workflows", "nightly-evals.yml"),
         os.path.join(repo_root, ".github", "workflows", "pr.yml"),
         os.path.join(repo_root, ".github", "workflows", "pypi-publish.yml"),
         os.path.join(repo_root, ".github", "workflows", "scorecard.yml"),
