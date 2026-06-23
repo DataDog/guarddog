@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from guarddog.analyzer.metadata.detector import Detector
+from guarddog.analyzer.risk_engine import RiskLabel
 from guarddog.utils.config import NEW_DEPENDENCY_RISK_THRESHOLD
 from guarddog.utils.npm import highest_matching_version, resolve_npm_alias
 
@@ -39,9 +40,9 @@ _NON_VERSION_TIME_KEYS = {"created", "modified"}
 
 # Risk labels phrased to match GuardDog's overall assessment wording.
 _LABEL_PHRASE = {
-    "high_risk": "high risk",
-    "suspicious": "suspicious",
-    "low": "low risk",
+    RiskLabel.HIGH_RISK.value: "high risk",
+    RiskLabel.SUSPICIOUS.value: "suspicious",
+    RiskLabel.LOW.value: "low risk",
 }
 
 
