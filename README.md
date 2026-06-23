@@ -5,7 +5,7 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12273/badge)](https://www.bestpractices.dev/projects/12273)
 
 <p align="center">
-  <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
+  <img src="https://github.com/DataDog/guarddog/blob/v3/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
 </p>
 
 GuardDog is a CLI tool that identifies malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs static analysis on package source code (through YARA rules) and analyzes package metadata to detect supply chain attacks.
@@ -263,7 +263,7 @@ jobs:
 
 Running all unit tests: `make test`
 
-Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/metadata)).
+Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/v3/tests/analyzer/metadata)).
 
 ### Benchmarking
 

@@ -2,7 +2,7 @@ name: OpenSSF Scorecard
 
 on:
   push:
-    branches: [main]
+    branches: [v3]
   schedule:
     - cron: '0 6 * * 1'
 
