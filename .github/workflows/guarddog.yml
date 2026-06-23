@@ -3,7 +3,7 @@ name: GuardDog
 on:
   pull_request:
     branches:
-      - main
+      - v2
       - v*
     paths:
       - 'requirements.txt'

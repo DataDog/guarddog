@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [main, v3]
+    branches: [v2, v3]
   workflow_dispatch:
 
 permissions:
@@ -168,4 +168,4 @@ jobs:
             VERSION=${{ needs.package-validation.outputs.new_version }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.package-validation.outputs.new_version }}
-            ${{ github.ref_name == 'main' && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME) || '' }}
+            ${{ github.ref_name == 'v2' && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME) || '' }}

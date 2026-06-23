@@ -5,15 +5,8 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12273/badge)](https://www.bestpractices.dev/projects/12273)
 
 <p align="center">
-  <img src="https://github.com/DataDog/guarddog/blob/main/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
+  <img src="https://github.com/DataDog/guarddog/blob/v2/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
 </p>
-
-<p align="center">
-  <a href="https://github.com/DataDog/guarddog/tree/v3">
-    <img src="docs/images/v3-banner.svg" alt="GuardDog v3 is here — Explore the v3 branch" width="800" />
-  </a>
-</p>
-
 
 GuardDog is a CLI tool that allows to identify malicious PyPI and npm packages, Go modules, RubyGems, GitHub actions, or VSCode extensions. It runs a set of heuristics on the package source code (through Semgrep rules) and on the package metadata.
 
@@ -28,7 +21,7 @@ It downloads and scans code from:
 * GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
 * VSCode Extensions: Extensions (.vsix) packages hosted in [marketplace.visualstudio.com](https://marketplace.visualstudio.com/)
 
-![GuardDog demo usage](https://github.com/DataDog/guarddog/blob/main/docs/images/demo.png?raw=true)
+![GuardDog demo usage](https://github.com/DataDog/guarddog/blob/v2/docs/images/demo.png?raw=true)
 
 ---
 ### Check out the new Datadog Agent [integration](https://docs.datadoghq.com/integrations/guarddog/) and Cloud SIEM [content pack](https://app.datadoghq.com/security/siem/content-packs?query=guarddog) for GuardDog.
@@ -126,9 +119,9 @@ guarddog --log-level debug npm scan express
 
 GuardDog comes with 2 types of heuristics:
 
-* [**Source code heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/sourcecode): Semgrep rules running against the package source code.
+* [**Source code heuristics**](https://github.com/DataDog/guarddog/tree/v2/guarddog/analyzer/sourcecode): Semgrep rules running against the package source code.
 
-* [**Package metadata heuristics**](https://github.com/DataDog/guarddog/tree/main/guarddog/analyzer/metadata): Python or Javascript heuristics running against the package metadata on PyPI or npm.
+* [**Package metadata heuristics**](https://github.com/DataDog/guarddog/tree/v2/guarddog/analyzer/metadata): Python or Javascript heuristics running against the package metadata on PyPI or npm.
 
 <!-- BEGIN_RULE_LIST -->
 ### PyPI
@@ -380,9 +373,9 @@ jobs:
 
 Running all unit tests: `make test`
 
-Running unit tests against Semgrep rules: `make test-semgrep-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/sourcecode)). These use the standard methodology for [testing Semgrep rules](https://semgrep.dev/docs/writing-rules/testing-rules/).
+Running unit tests against Semgrep rules: `make test-semgrep-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/v2/tests/analyzer/sourcecode)). These use the standard methodology for [testing Semgrep rules](https://semgrep.dev/docs/writing-rules/testing-rules/).
 
-Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/main/tests/analyzer/metadata)).
+Running unit tests against package metadata heuristics: `make test-metadata-rules` (tests are [here](https://github.com/DataDog/guarddog/tree/v2/tests/analyzer/metadata)).
 
 ### Benchmarking
 
