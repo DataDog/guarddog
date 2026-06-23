@@ -21,7 +21,7 @@ guarddog = "guarddog.cli:cli"
 [tool.poetry.dependencies]
 click = "^8.4.1"
 configparser = ">=5.3,<8.0"
-disposable-email-domains = ">=0.0.103,<0.0.170"
+disposable-email-domains = ">=0.0.207,<0.0.208"
 prettytable="^3.17.0"
 python = ">=3.10,<4"
 python-dateutil = "^2.9.0"
