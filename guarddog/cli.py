@@ -39,31 +39,64 @@ def common_options(fn):
         is_flag=True,
         help="Exit with a non-zero status code if at least one issue is identified",
     )(fn)
+    fn = click.option(
+        "--verbose",
+        default=False,
+        is_flag=True,
+        help="Show detailed explanations and reference links for each finding",
+    )(fn)
     fn = click.argument("target")(fn)
     return fn
 
 
-def legacy_rules_options(fn):
-    ALL_RULES = reduce(
-        lambda a, b: a | b,
-        map(
-            lambda e: set(r.id for r in get_sourcecode_rules(e))
-            | set(get_metadata_detectors(e).keys()),
-            [e for e in ECOSYSTEM],
-        ),
-    )
+class _LazyRulesChoice(click.Choice):
+    """Defers computation of rule sets until first access.
 
+    This avoids eagerly instantiating metadata detectors at import time
+    (which can trigger network requests for cache refresh).
+    """
+
+    def __init__(self, ecosystems=None):
+        super().__init__([], case_sensitive=False)
+        self._resolved = False
+        self._ecosystems = ecosystems
+
+    def _resolve(self):
+        if not self._resolved:
+            targets = self._ecosystems or list(ECOSYSTEM)
+            self.choices = sorted(
+                reduce(
+                    lambda a, b: a | b,
+                    map(
+                        lambda e: set(r.id for r in get_sourcecode_rules(e))
+                        | set(get_metadata_detectors(e).keys()),
+                        targets,
+                    ),
+                )
+            )
+            self._resolved = True
+
+    def get_metavar(self, param):
+        self._resolve()
+        return super().get_metavar(param)
+
+    def convert(self, value, param, ctx):
+        self._resolve()
+        return super().convert(value, param, ctx)
+
+
+def legacy_rules_options(fn):
     fn = click.option(
         "-r",
         "--rules",
         multiple=True,
-        type=click.Choice(ALL_RULES, case_sensitive=False),
+        type=_LazyRulesChoice(),
     )(fn)
     fn = click.option(
         "-x",
         "--exclude-rules",
         multiple=True,
-        type=click.Choice(ALL_RULES, case_sensitive=False),
+        type=_LazyRulesChoice(),
     )(fn)
     return fn
 
@@ -147,7 +180,8 @@ def _get_rule_param(
 
 
 def _verify(
-    path, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem
+    path, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem,
+    verbose=False,
 ):
     """Verify a requirements.txt file
 
@@ -171,6 +205,7 @@ def _verify(
         rule_names=rule_docs,
         scan_results=results,
         ecosystem=ecosystem,
+        verbose=verbose,
     )
 
     sys.stdout.write(stdout)
@@ -190,6 +225,7 @@ def _scan(
     output_format,
     exit_non_zero_on_finding,
     ecosystem: ECOSYSTEM,
+    verbose=False,
 ):
     """Scan a package
 
@@ -223,7 +259,7 @@ def _scan(
         sys.exit(1)
 
     reporter = ReporterFactory.create_reporter(ReporterType.from_str(output_format))
-    stdout, stderr = reporter.render_scan(result)
+    stdout, stderr = reporter.render_scan(result, ecosystem=ecosystem, verbose=verbose)
     sys.stdout.write(stdout)
     sys.stderr.write(stderr)
 
@@ -260,18 +296,18 @@ class CliEcosystem(click.Group):
         self.ecosystem = ecosystem
 
         def rule_options(fn):
-            rules = _get_all_rules(self.ecosystem)
+            lazy_choice = _LazyRulesChoice(ecosystems=[self.ecosystem])
             fn = click.option(
                 "-r",
                 "--rules",
                 multiple=True,
-                type=click.Choice(rules, case_sensitive=False),
+                type=lazy_choice,
             )(fn)
             fn = click.option(
                 "-x",
                 "--exclude-rules",
                 multiple=True,
-                type=click.Choice(rules, case_sensitive=False),
+                type=lazy_choice,
             )(fn)
             return fn
 
@@ -286,6 +322,7 @@ class CliEcosystem(click.Group):
             exclude_rules,
             output_format,
             exit_non_zero_on_finding,
+            verbose,
         ):
             return _scan(
                 target,
@@ -295,6 +332,7 @@ class CliEcosystem(click.Group):
                 output_format,
                 exit_non_zero_on_finding,
                 self.ecosystem,
+                verbose=verbose,
             )
 
         @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
@@ -302,7 +340,8 @@ class CliEcosystem(click.Group):
         @verify_options
         @rule_options
         def verify_ecosystem(
-            target, rules, exclude_rules, output_format, exit_non_zero_on_finding
+            target, rules, exclude_rules, output_format, exit_non_zero_on_finding,
+            verbose,
         ):
             return _verify(
                 target,
@@ -311,6 +350,7 @@ class CliEcosystem(click.Group):
                 output_format,
                 exit_non_zero_on_finding,
                 self.ecosystem,
+                verbose=verbose,
             )
 
         @click.command(
@@ -333,14 +373,15 @@ for e in ECOSYSTEM:
 @common_options
 @verify_options
 @legacy_rules_options
-def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding):
-    return verify(
+def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding, verbose):
+    return _verify(
         target,
         rules,
         exclude_rules,
         output_format,
         exit_non_zero_on_finding,
         ECOSYSTEM.PYPI,
+        verbose=verbose,
     )
 
 
@@ -349,7 +390,8 @@ def verify(target, rules, exclude_rules, output_format, exit_non_zero_on_finding
 @scan_options
 @legacy_rules_options
 def scan(
-    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding
+    target, version, rules, exclude_rules, output_format, exit_non_zero_on_finding,
+    verbose,
 ):
     return _scan(
         target,
@@ -359,6 +401,7 @@ def scan(
         output_format,
         exit_non_zero_on_finding,
         ECOSYSTEM.PYPI,
+        verbose=verbose,
     )
 
 
