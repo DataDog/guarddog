@@ -13,7 +13,7 @@ authors = ["Ellen Wang", "Christophe Tafani-Dereeper"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/DataDog/guarddog"
-version = "3.0.0"
+version = "3.0.1"
 
 [tool.poetry.scripts]
 guarddog = "guarddog.cli:cli"
@@ -38,6 +38,7 @@ yara-python = "^4.5.4"
 nono-py = ">=0.10.1"
 packaging = ">=21.0"
 boto3 = "^1.34"
+typing-extensions = "^4.15.0"
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.13.5"
