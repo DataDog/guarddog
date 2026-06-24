@@ -261,7 +261,9 @@ class HumanReadableReporter(BaseReporter):
                 continue
 
             lines.append("")
-            lines.append(colored(f"── {stage_name} ──", None, attrs=["bold"]))
+            lines.append(
+                colored(f"── {stage_name.value} ──", None, attrs=["bold"])
+            )
             lines.append("")
 
             for tactic in stage_tactics:
