@@ -380,6 +380,67 @@ class TestCli(unittest.TestCase):
                         cm.output,
                     )
 
+    def test_fails_when_sandbox_unavailable_by_default(self):
+        """With no sandbox flag, an unavailable sandbox must abort the scan."""
+        with mock.patch("guarddog.cli.sandbox_available", return_value=False):
+            with mock.patch("os.path.isdir", return_value=True):
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_local", return_value={}
+                ) as scan_local:
+                    with self.assertRaises(SystemExit):
+                        guarddog.cli._scan(
+                            "/tmp/foo",
+                            None,
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.PYPI,
+                            sandbox=None,
+                        )
+                    scan_local.assert_not_called()
+
+    def test_fails_when_sandbox_forced_but_unavailable(self):
+        """--sandbox with no available sandbox must abort the scan."""
+        with mock.patch("guarddog.cli.sandbox_available", return_value=False):
+            with mock.patch("os.path.isdir", return_value=True):
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_local", return_value={}
+                ) as scan_local:
+                    with self.assertRaises(SystemExit):
+                        guarddog.cli._scan(
+                            "/tmp/foo",
+                            None,
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.PYPI,
+                            sandbox=True,
+                        )
+                    scan_local.assert_not_called()
+
+    def test_no_sandbox_flag_scans_when_sandbox_unavailable(self):
+        """--no-sandbox must let the scan proceed even without a sandbox."""
+        with mock.patch("guarddog.cli.sandbox_available", return_value=False):
+            with mock.patch("guarddog.cli.apply_sandbox") as apply_sandbox:
+                with mock.patch("os.path.isdir", return_value=True):
+                    with mock.patch.object(
+                        scanner.PackageScanner, "scan_local", return_value={}
+                    ) as scan_local:
+                        guarddog.cli._scan(
+                            "/tmp/foo",
+                            None,
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.PYPI,
+                            sandbox=False,
+                        )
+                        scan_local.assert_called_once()
+                        apply_sandbox.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
