@@ -1,6 +1,7 @@
 import binascii
 import os
 import struct
+import zipfile
 
 import pytest
 
@@ -12,12 +13,21 @@ PLAIN_TARGZ = os.path.join(FIXTURES, "plain.tar.gz")
 ZIP_PASSWORD = b"hunter2"
 
 
-def _build_zip(members: dict[str, bytes], cd_size: int | None = None) -> bytes:
+def _build_zip(
+    members: dict[str, bytes],
+    cd_size: int | None = None,
+    data_descriptor: bool = False,
+) -> bytes:
     """
     Build a stored (uncompressed) ZIP by hand so the End-Of-Central-Directory
     size-of-central-directory field can be overridden. With ``cd_size=0`` the
     archive reproduces the parser-differential from issue #780: zipfile reads it
     as empty while the local file headers still carry every member.
+
+    When ``data_descriptor`` is set, each local file header sets general-purpose
+    bit 3 and zeroes its inline sizes/crc, deferring them to a trailing data
+    descriptor (PK\\x07\\x08). The local-header walk cannot follow past such an
+    entry, which exercises the "count before bailing out" path of the guard.
     """
     body = bytearray()
     central = bytearray()
@@ -26,6 +36,13 @@ def _build_zip(members: dict[str, bytes], cd_size: int | None = None) -> bytes:
         raw = name.encode()
         crc = binascii.crc32(data) & 0xFFFFFFFF
         offsets.append(len(body))
+        if data_descriptor:
+            body += b"PK\x03\x04" + struct.pack(
+                "<HHHHHIIIHH", 20, 0x08, 0, 0, 0x21, 0, 0, 0, len(raw), 0
+            )
+            body += raw + data
+            body += b"PK\x07\x08" + struct.pack("<III", crc, len(data), len(data))
+            continue
         body += b"PK\x03\x04" + struct.pack(
             "<HHHHHIIIHH", 20, 0, 0, 0, 0x21, crc, len(data), len(data), len(raw), 0
         )
@@ -109,9 +126,23 @@ def test_cd_size_zero_eocd_differential_rejected(tmp_path):
     archive = tmp_path / "crafted-1.0-py3-none-any.whl"
     archive.write_bytes(_build_zip(_WHL_MEMBERS, cd_size=0))
 
-    import zipfile
+    with zipfile.ZipFile(str(archive)) as zf:
+        assert zf.namelist() == []
 
-    assert zipfile.ZipFile(str(archive)).namelist() == []
+    with pytest.raises(ValueError, match="parser anomaly"):
+        safe_extract(str(archive), str(tmp_path / "out"))
+
+
+def test_cd_size_zero_with_data_descriptor_rejected(tmp_path):
+    # Same EOCD differential as above, but the first local header uses a data
+    # descriptor (general-purpose bit 3, sizes deferred to a trailing record).
+    # The walk cannot follow past such an entry, yet it must still count it so the
+    # "empty central directory but non-empty payload" anomaly is rejected (#780).
+    archive = tmp_path / "crafted-dd-1.0-py3-none-any.whl"
+    archive.write_bytes(_build_zip(_WHL_MEMBERS, cd_size=0, data_descriptor=True))
+
+    with zipfile.ZipFile(str(archive)) as zf:
+        assert zf.namelist() == []
 
     with pytest.raises(ValueError, match="parser anomaly"):
         safe_extract(str(archive), str(tmp_path / "out"))

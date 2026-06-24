@@ -51,9 +51,12 @@ def _count_local_file_headers(path: str) -> int:
     Each header is parsed for its compressed size so we can seek over the data
     rather than scanning for the next signature (which would false-positive on
     compressed bytes). Returns the number of headers walked. The walk stops
-    conservatively (undercounting) when a member cannot be followed cheaply: a
-    data descriptor with no inline sizes (general-purpose bit 3) or a ZIP64 size
-    marker. Undercounting is safe here; it only avoids false positives.
+    conservatively (undercounting later members) when a member cannot be followed
+    cheaply: a data descriptor with no inline sizes (general-purpose bit 3) or a
+    ZIP64 size marker. The member at which the walk stops is still counted -- its
+    PK\x03\x04 signature positively identifies a real member -- so an archive with
+    an empty central directory but a non-empty payload is never undercounted to 0.
+    Undercounting later members is safe here; it only avoids false positives.
     """
     count = 0
     with open(path, "rb") as f:
@@ -61,6 +64,9 @@ def _count_local_file_headers(path: str) -> int:
             header = f.read(30)
             if len(header) < 30 or header[:4] != _ZIP_LOCAL_FILE_HEADER:
                 break
+            # A valid signature means we have positively found a member; count it
+            # before deciding whether the next one can be followed.
+            count += 1
             flags = struct.unpack("<H", header[6:8])[0]
             compressed_size = struct.unpack("<I", header[18:22])[0]
             name_len = struct.unpack("<H", header[26:28])[0]
@@ -68,7 +74,6 @@ def _count_local_file_headers(path: str) -> int:
             if (flags & 0x08 and compressed_size == 0) or compressed_size == 0xFFFFFFFF:
                 break
             f.seek(name_len + extra_len + compressed_size, os.SEEK_CUR)
-            count += 1
     return count
 
 
