@@ -161,16 +161,13 @@ guarddog --log-level debug npm scan express
 
 When scanning packages, GuardDog runs source code analysis inside a **kernel-level sandbox** (Linux via Landlock, macOS via Seatbelt, using [nono](https://github.com/always-further/nono-py)). The sandbox blocks all network access and restricts filesystem operations to only the paths needed for analysis. This protects against malicious packages that attempt to execute code during archive extraction or scanning.
 
-By default, the sandbox is used if available, with a warning if it's not. You can also force it on (hard-fail if unavailable) or off:
+By default, the sandbox is required: if it's not available on the platform, the scan fails instead of running unprotected. To scan without it, you must explicitly pass `--no-sandbox`:
 
 ```sh
-# Default: auto-detect, warn if unavailable
+# Default: require the sandbox, exit with an error if it's unavailable
 guarddog pypi scan requests
 
-# Force sandbox on (exit with error if unavailable)
-guarddog pypi scan requests --sandbox
-
-# Explicitly disable the sandbox (not recommended)
+# Explicitly disable the sandbox
 guarddog pypi scan requests --no-sandbox
 ```
 

@@ -72,7 +72,8 @@ def scan_options(fn):
     fn = click.option(
         "--sandbox/--no-sandbox",
         default=None,
-        help="Enable/disable kernel-level sandbox (default: auto-detect)",
+        help="Enable/disable kernel-level sandbox (default: required; "
+        "scan fails if the sandbox is unavailable unless --no-sandbox is passed)",
     )(fn)
     fn = click.option(
         "--metadata",
@@ -203,25 +204,20 @@ def _scan(
         identifier (str): name or path to the package
         version (str): version of the package (ex. 1.0.0), defaults to most recent
         rules (list[str]): specific rules to run, defaults to all
-        sandbox (bool): None=auto, True=force (fail if unavailable), False=off
+        sandbox (bool): None/True=require sandbox (fail if unavailable),
+            False=disable sandbox (only via explicit --no-sandbox)
     """
 
-    if sandbox is None:
-        sandbox = sandbox_available()
-        if not sandbox:
-            log.warning(
-                "Sandbox not available on this platform. "
-                "Scanning without kernel-level sandbox protection."
-            )
-    elif sandbox:
-        if not sandbox_available():
-            log.error(
-                "Sandbox not supported on this platform. "
-                "Use --no-sandbox to skip (not recommended)."
-            )
-            sys.exit(1)
-    else:
+    if sandbox is False:
         log.warning("Scanning without kernel-level sandbox protection.")
+    elif not sandbox_available():
+        log.error(
+            "Kernel-level sandbox is not available on this platform. "
+            "Use --no-sandbox to scan without it."
+        )
+        sys.exit(1)
+    else:
+        sandbox = True
 
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
     scanner = get_package_scanner(ecosystem)
