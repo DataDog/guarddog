@@ -2,6 +2,7 @@ import logging
 import os
 import pathlib
 import stat
+import struct
 import zipfile
 
 import tarsafe  # type: ignore
@@ -37,6 +38,64 @@ def is_supported_archive(path: str) -> bool:
         return any(path.endswith(ext) for ext in [".zip", ".whl", ".egg"])
 
     return is_tar_archive(path) or is_zip_archive(path)
+
+
+_ZIP_LOCAL_FILE_HEADER = b"PK\x03\x04"
+
+
+def _count_local_file_headers(path: str) -> int:
+    """
+    Count members by walking the ZIP local file headers, independent of the
+    End-Of-Central-Directory record and central directory that zipfile trusts.
+
+    Each header is parsed for its compressed size so we can seek over the data
+    rather than scanning for the next signature (which would false-positive on
+    compressed bytes). Returns the number of headers walked. The walk stops
+    conservatively (undercounting later members) when a member cannot be followed
+    cheaply: a data descriptor with no inline sizes (general-purpose bit 3) or a
+    ZIP64 size marker. The member at which the walk stops is still counted -- its
+    PK\x03\x04 signature positively identifies a real member -- so an archive with
+    an empty central directory but a non-empty payload is never undercounted to 0.
+    Undercounting later members is safe here; it only avoids false positives.
+    """
+    count = 0
+    with open(path, "rb") as f:
+        while True:
+            header = f.read(30)
+            if len(header) < 30 or header[:4] != _ZIP_LOCAL_FILE_HEADER:
+                break
+            # A valid signature means we have positively found a member; count it
+            # before deciding whether the next one can be followed.
+            count += 1
+            flags = struct.unpack("<H", header[6:8])[0]
+            compressed_size = struct.unpack("<I", header[18:22])[0]
+            name_len = struct.unpack("<H", header[26:28])[0]
+            extra_len = struct.unpack("<H", header[28:30])[0]
+            if (flags & 0x08 and compressed_size == 0) or compressed_size == 0xFFFFFFFF:
+                break
+            f.seek(name_len + extra_len + compressed_size, os.SEEK_CUR)
+    return count
+
+
+def _assert_zip_fully_enumerated(source_archive: str, enumerated: int) -> None:
+    """
+    Guard against ZIP parser-differential evasion (e.g. an End-Of-Central-Directory
+    record with size-of-central-directory set to 0, which makes zipfile read an
+    empty archive while installers still unpack the payload from the local file
+    headers). Raises if the local file headers expose more members than zipfile
+    enumerated from the central directory.
+
+    See https://github.com/DataDog/guarddog/issues/780 and the ZIP
+    parser-differential class described in USENIX Security 2025, "My ZIP isn't
+    your ZIP".
+    """
+    walked = _count_local_file_headers(source_archive)
+    if walked > enumerated:
+        raise ValueError(
+            f"archive parser anomaly: {walked} ZIP local file headers but zipfile "
+            f"enumerates {enumerated} members from the central directory "
+            f"(possible scan evasion via EOCD size/offset differential)"
+        )
 
 
 def safe_extract(
@@ -181,8 +240,15 @@ def safe_extract(
 
     elif zipfile.is_zipfile(source_archive):
         with zipfile.ZipFile(source_archive, "r") as zip_file:
+            members = zip_file.infolist()
+
+            # Reject archives where the central directory zipfile reads hides
+            # members that are still present as local file headers (and unpacked
+            # by installers). Otherwise such an archive scans as if it were empty.
+            _assert_zip_fully_enumerated(source_archive, len(members))
+
             # Check uncompressed size for zip archives
-            files = [info for info in zip_file.infolist() if not info.is_dir()]
+            files = [info for info in members if not info.is_dir()]
             file_count = len(files)
             total_size = sum(info.file_size for info in files)
 
