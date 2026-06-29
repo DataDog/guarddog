@@ -227,7 +227,10 @@ class HumanReadableReporter(BaseReporter):
         ]
         if desc:
             block.append("  " + colored(desc, sev_color))
-        block.append("  " + colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey"))
+        # Metadata findings carry no file location; only show the line when there is
+        # one so it never renders as a bare "in ".
+        if loc:
+            block.append("  " + colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey"))
 
         code = risk.get("threat_code", "")
         if code:
