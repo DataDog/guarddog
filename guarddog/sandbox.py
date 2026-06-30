@@ -139,6 +139,16 @@ def _get_common_read_paths() -> list[str]:
 
     candidates = [sys.prefix, sys.base_prefix, "/usr", "/lib"]
 
+    # SSL certificate directories: pygit2 initializes OpenSSL at import time and
+    # reads the system CA bundle. On Linux (Landlock), only explicitly listed paths
+    # are readable — unlike macOS (Seatbelt) which includes system paths by default.
+    import ssl
+
+    verify_paths = ssl.get_default_verify_paths()
+    for cert_path in (verify_paths.cafile, verify_paths.capath):
+        if cert_path:
+            candidates.append(os.path.dirname(cert_path) if os.path.isfile(cert_path) else cert_path)
+
     # guarddog package dir: needed for YARA rule files, which may
     # live outside sys.prefix when running from source (e.g. uv run)
     import guarddog
