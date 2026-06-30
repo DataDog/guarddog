@@ -147,7 +147,9 @@ def _get_common_read_paths() -> list[str]:
     verify_paths = ssl.get_default_verify_paths()
     for cert_path in (verify_paths.cafile, verify_paths.capath):
         if cert_path:
-            candidates.append(os.path.dirname(cert_path) if os.path.isfile(cert_path) else cert_path)
+            candidates.append(
+                os.path.dirname(cert_path) if os.path.isfile(cert_path) else cert_path
+            )
 
     # guarddog package dir: needed for YARA rule files, which may
     # live outside sys.prefix when running from source (e.g. uv run)
