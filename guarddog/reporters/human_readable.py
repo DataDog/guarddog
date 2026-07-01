@@ -306,6 +306,17 @@ class HumanReadableReporter(BaseReporter):
         ]
 
     @staticmethod
+    def _format_pypi_inspector_url(results: dict) -> List[str]:
+        inspector_url = results.get("pypi_inspector_url")
+        if not inspector_url or results.get("issues", 0) < 1:
+            return []
+
+        return [
+            "",
+            colored("Package files:", "dark_grey") + f" {_sanitize(inspector_url)}",
+        ]
+
+    @staticmethod
     def _format_header(identifier: str, num_risks: int) -> List[str]:
         bold = colored(_sanitize(identifier), None, attrs=["bold"])
         if num_risks == 0:
@@ -337,6 +348,7 @@ class HumanReadableReporter(BaseReporter):
         lines += HumanReadableReporter._format_header(identifier, len(risks))
         if risks:
             lines += HumanReadableReporter._format_findings(risks, path_prefix, ceiling)
+        lines += HumanReadableReporter._format_pypi_inspector_url(results)
         if risk_score:
             lines += HumanReadableReporter._format_summary(risk_score, len(risks))
 
