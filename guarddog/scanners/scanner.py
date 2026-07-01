@@ -217,6 +217,9 @@ class PackageScanner:
     ) -> typing.Tuple[dict, str]:
         raise NotImplementedError("download_and_get_package_info is not implemented")
 
+    def get_package_version(self, package_info: dict, requested_version=None):
+        return requested_version
+
     def _scan_remote(
         self, name, base_dir, version=None, rules=None, write_package_info=False
     ):
@@ -233,6 +236,9 @@ class PackageScanner:
             return {"issues": 0, "errors": {"download-package": str(e)}}
 
         results = self.analyzer.analyze(file_path, package_info, rules, name, version)
+        scanned_version = self.get_package_version(package_info, version)
+        if scanned_version is not None:
+            results["package_version"] = scanned_version
         if write_package_info:
             package_name = name.replace("/", "-")
             suffix = (

@@ -10,7 +10,7 @@ import shutil
 import sys
 import tempfile
 from typing import Optional
-from urllib.parse import urlparse, unquote
+from urllib.parse import quote, urlparse, unquote
 
 import click
 import requests
@@ -358,6 +358,7 @@ def _scan(
                 )
             else:
                 result |= scanner.scan_remote(identifier, version, rule_param)
+            _add_pypi_inspector_url(result, identifier, ecosystem)
 
     except Exception as e:
         log.error(f"Error occurred while scanning target {identifier}: '{e}'\n")
@@ -370,6 +371,21 @@ def _scan(
 
     if exit_non_zero_on_finding:
         exit_with_status_code([result])
+
+
+def _add_pypi_inspector_url(result: dict, identifier: str, ecosystem: ECOSYSTEM):
+    if ecosystem != ECOSYSTEM.PYPI or result.get("issues", 0) < 1:
+        return
+
+    package_version = result.get("package_version")
+    if package_version is None:
+        return
+
+    package = quote(identifier, safe="")
+    version = quote(str(package_version), safe="")
+    result["pypi_inspector_url"] = (
+        f"https://inspector.pypi.io/project/{package}/{version}/"
+    )
 
 
 def _scan_remote_sandboxed(scanner, name, version, rules):
@@ -443,7 +459,7 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
             }
             for risk in risk_objects
         ]
-        return {
+        results = {
             "issues": metadata_results["issues"] + sourcecode_results["issues"],
             "errors": metadata_results["errors"] | sourcecode_results["errors"],
             "results": metadata_results["results"] | sourcecode_results["results"],
@@ -451,6 +467,10 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
             "risk_score": risk_score,
             "risks": formatted_risks,
         }
+        scanned_version = scanner.get_package_version(package_info, version)
+        if scanned_version is not None:
+            results["package_version"] = scanned_version
+        return results
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
