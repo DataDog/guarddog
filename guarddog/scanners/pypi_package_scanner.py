@@ -18,6 +18,11 @@ class PypiPackageScanner(PackageScanner):
         extract_dir = self.download_package(package_name, directory, version)
         return get_package_info(package_name), extract_dir
 
+    def get_package_version(self, package_info: dict, requested_version=None):
+        if requested_version is not None:
+            return requested_version
+        return package_info.get("info", {}).get("version")
+
     def download_package(self, package_name, directory, version=None) -> str:
         """Downloads the PyPI distribution for a given package and version
 

@@ -60,7 +60,9 @@ def test_print_scan_results_escapes_malicious_filename_in_location():
         "issues": 1,
         "errors": {},
         "results": {},
-        "risks": [_risk(threat_location="evil\x1b[2J.py:3", file_path="evil\x1b[2J.py")],
+        "risks": [
+            _risk(threat_location="evil\x1b[2J.py:3", file_path="evil\x1b[2J.py")
+        ],
     }
     out = HumanReadableReporter.print_scan_results("pkg", results)
     assert not _has_raw_escape(out)
@@ -165,10 +167,38 @@ def test_print_scan_results_benign_input_is_preserved():
     assert "rule-name" in plain
 
 
+def test_print_scan_results_shows_pypi_inspector_url_for_matching_remote_scan():
+    results = {
+        "issues": 1,
+        "errors": {},
+        "results": {},
+        "risks": [_risk()],
+        "pypi_inspector_url": "https://inspector.pypi.io/project/requests/2.28.1/",
+    }
+    out = HumanReadableReporter.print_scan_results("requests", results)
+    plain = _strip_color(out)
+    assert "Package files:" in plain
+    assert "https://inspector.pypi.io/project/requests/2.28.1/" in plain
+
+
+def test_print_scan_results_hides_pypi_inspector_url_without_matches():
+    results = {
+        "issues": 0,
+        "errors": {},
+        "results": {},
+        "risks": [],
+        "pypi_inspector_url": "https://inspector.pypi.io/project/requests/2.28.1/",
+    }
+    out = HumanReadableReporter.print_scan_results("requests", results)
+    assert "inspector.pypi.io" not in _strip_color(out)
+
+
 def test_strip_prefix():
     strip = HumanReadableReporter._strip_prefix
     # Strips a common ancestor; leaves non-descendants and edge cases untouched.
-    assert strip("package/dist/node/axios.cjs:42", "package/dist") == "node/axios.cjs:42"
+    assert (
+        strip("package/dist/node/axios.cjs:42", "package/dist") == "node/axios.cjs:42"
+    )
     assert strip("package/dist/axios.js:7", "package/dist/") == "axios.js:7"
     assert strip("other/file.js:1", "package/dist") == "other/file.js:1"
     assert strip("package/dist", "package/dist") == "package/dist"
@@ -180,4 +210,7 @@ def test_strip_prefix():
         raise PermissionError(1, "Operation not permitted")
 
     with mock.patch("os.getcwd", blocked):
-        assert strip("package/dist/node/axios.cjs:42", "package/dist") == "node/axios.cjs:42"
+        assert (
+            strip("package/dist/node/axios.cjs:42", "package/dist")
+            == "node/axios.cjs:42"
+        )

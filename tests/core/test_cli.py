@@ -52,6 +52,31 @@ class TestCli(unittest.TestCase):
         rules = guarddog.cli._get_rule_param((), (), ECOSYSTEM.PYPI)
         assert rules is None
 
+    def test_add_pypi_inspector_url_for_pypi_scan_with_findings(self):
+        results = {"issues": 1, "package_version": "2.28.1"}
+        guarddog.cli._add_pypi_inspector_url(results, "requests", ECOSYSTEM.PYPI)
+        assert (
+            results["pypi_inspector_url"]
+            == "https://inspector.pypi.io/project/requests/2.28.1/"
+        )
+
+    def test_add_pypi_inspector_url_escapes_package_and_version(self):
+        results = {"issues": 1, "package_version": "1.0.0+local"}
+        guarddog.cli._add_pypi_inspector_url(results, "my package", ECOSYSTEM.PYPI)
+        assert (
+            results["pypi_inspector_url"]
+            == "https://inspector.pypi.io/project/my%20package/1.0.0%2Blocal/"
+        )
+
+    def test_add_pypi_inspector_url_skips_non_matching_scans(self):
+        results = {"issues": 0, "package_version": "2.28.1"}
+        guarddog.cli._add_pypi_inspector_url(results, "requests", ECOSYSTEM.PYPI)
+        assert "pypi_inspector_url" not in results
+
+        results = {"issues": 1, "package_version": "1.0.0"}
+        guarddog.cli._add_pypi_inspector_url(results, "lodash", ECOSYSTEM.NPM)
+        assert "pypi_inspector_url" not in results
+
     def _test_local_directory_template(self, directory: str):
         # `directory` is a directory
         with mock.patch("os.path.isdir") as isdir:
