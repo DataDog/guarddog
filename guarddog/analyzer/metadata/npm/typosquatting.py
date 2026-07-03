@@ -9,14 +9,14 @@ from guarddog.analyzer.metadata.typosquatting import TyposquatDetector
 from guarddog.utils.config import TOP_PACKAGES_CACHE_LOCATION
 
 _NPMS_URL = "https://api.npms.io/v2/search?q=not:unstable&size=250&from={offset}"
-_TOP_N = 8000
+_TOP_N = 10000
 _PAGE_SIZE = 250
 _CACHE_FILE = "top_npm_packages.json"
 _REFRESH_DAYS = 30
 
 
 class NPMTyposquatDetector(TyposquatDetector):
-    """Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 8000 packages.
+    """Detector for typosquatting attacks. Detects if a package name is a typosquat of one of the top 10000 packages.
     Checks for distance one Levenshtein, one-off character swaps, permutations
     around hyphens, and substrings.
 
