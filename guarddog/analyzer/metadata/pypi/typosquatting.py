@@ -26,7 +26,7 @@ class PypiTyposquatDetector(TyposquatDetector):
     around hyphens, and substrings.
 
     Attributes:
-        popular_packages (list): list of top 15000 downloaded packages from PyPI
+        popular_packages (list): list of top 10k downloaded packages from PyPI
     """
 
     def _get_top_packages(self) -> set:

@@ -21,7 +21,7 @@ class NPMTyposquatDetector(TyposquatDetector):
     around hyphens, and substrings.
 
     Attributes:
-        popular_packages (set): set of top 8000 most popular packages from npm
+        popular_packages (set): set of top 10k most popular packages from npm
     """
 
     def _get_top_packages(self) -> set:
