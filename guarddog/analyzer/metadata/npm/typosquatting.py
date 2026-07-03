@@ -38,8 +38,12 @@ class NPMTyposquatDetector(TyposquatDetector):
         packages = self._fetch_from_npms()
         if packages:
             with open(cache_path, "w+") as f:
-                json.dump({"downloaded_timestamp": int(time.time()), "packages": packages}, f,
-                          ensure_ascii=False, indent=4)
+                json.dump(
+                    {"downloaded_timestamp": int(time.time()), "packages": packages},
+                    f,
+                    ensure_ascii=False,
+                    indent=4,
+                )
             return set(packages)
 
         # Fall back to stale cache rather than returning empty
