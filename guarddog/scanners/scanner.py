@@ -220,6 +220,13 @@ class PackageScanner:
     def get_package_version(self, package_info: dict, requested_version=None):
         return requested_version
 
+    def get_package_dist_path(self, package_info: dict, requested_version=None):
+        """Return the PyPI-style `/packages/...` path of the scanned distribution.
+
+        Used to build PyPI Inspector deep links. Only PyPI packages have one.
+        """
+        return None
+
     def _scan_remote(
         self, name, base_dir, version=None, rules=None, write_package_info=False
     ):
@@ -239,6 +246,9 @@ class PackageScanner:
         scanned_version = self.get_package_version(package_info, version)
         if scanned_version is not None:
             results["package_version"] = scanned_version
+        dist_path = self.get_package_dist_path(package_info, version)
+        if dist_path is not None:
+            results["pypi_dist_path"] = dist_path
         if write_package_info:
             package_name = name.replace("/", "-")
             suffix = (

@@ -12,6 +12,15 @@ def _strip_color(text: str) -> str:
     return _ANSI_SEQ_RE.sub("", text)
 
 
+# OSC 8 hyperlink open (`\x1b]8;;URL\x1b\\`) and close (`\x1b]8;;\x1b\\`) wrappers.
+_OSC8_RE = re.compile(r"\x1b\]8;;[^\x1b\x07]*(?:\x1b\\|\x07)")
+
+
+def _visible_text(text: str) -> str:
+    """Strip OSC 8 hyperlink wrappers and SGR colors, leaving what a user reads."""
+    return _strip_color(_OSC8_RE.sub("", text))
+
+
 def _has_raw_escape(text: str, *, allow_color: bool = True) -> bool:
     """True if `text` still contains a raw ESC byte after optionally removing
     termcolor's own SGR sequences. The reporter is allowed to emit color codes
@@ -168,17 +177,21 @@ def test_print_scan_results_benign_input_is_preserved():
 
 
 def test_print_scan_results_shows_pypi_inspector_url_for_matching_remote_scan():
+    project_url = "https://inspector.pypi.io/project/requests/2.28.1/"
     results = {
         "issues": 1,
         "errors": {},
         "results": {},
         "risks": [_risk()],
-        "pypi_inspector_url": "https://inspector.pypi.io/project/requests/2.28.1/",
+        "pypi_inspector_url": project_url,
     }
     out = HumanReadableReporter.print_scan_results("requests", results)
-    plain = _strip_color(out)
-    assert "Package files:" in plain
-    assert "https://inspector.pypi.io/project/requests/2.28.1/" in plain
+    # The URL is the hyperlink target (present in the raw stream) but the visible
+    # text is a short label, not the full URL.
+    assert f"\x1b]8;;{project_url}\x1b\\" in out
+    visible = _visible_text(out)
+    assert "Package files: view on PyPI Inspector" in visible
+    assert project_url not in visible
 
 
 def test_print_scan_results_hides_pypi_inspector_url_without_matches():
@@ -191,6 +204,71 @@ def test_print_scan_results_hides_pypi_inspector_url_without_matches():
     }
     out = HumanReadableReporter.print_scan_results("requests", results)
     assert "inspector.pypi.io" not in _strip_color(out)
+
+
+def test_print_scan_results_shows_per_finding_inspector_deep_link():
+    results = {
+        "issues": 1,
+        "errors": {},
+        "results": {},
+        "risks": [
+            _risk(
+                threat_location="aws-dd-forwarder-1.0/lambda_function.py:31",
+                file_path="aws-dd-forwarder-1.0/lambda_function.py",
+            )
+        ],
+        "pypi_inspector_url": "https://inspector.pypi.io/project/aws-dd-forwarder/1.0/",
+        "pypi_dist_path": "/packages/f8/57/87be/aws-dd-forwarder-1.0.tar.gz",
+    }
+    out = HumanReadableReporter.print_scan_results("aws-dd-forwarder", results)
+    deep_url = (
+        "https://inspector.pypi.io/project/aws-dd-forwarder/1.0/packages/f8/57/87be/"
+        "aws-dd-forwarder-1.0.tar.gz/aws-dd-forwarder-1.0/lambda_function.py#line.31"
+    )
+    # The deep link is the finding location's hyperlink target; the visible text
+    # stays the location, not the raw URL.
+    assert f"\x1b]8;;{deep_url}\x1b\\" in out
+    visible = _visible_text(out)
+    assert "at aws-dd-forwarder-1.0/lambda_function.py:31" in visible
+    assert deep_url not in visible
+    # The project-level link is still shown alongside the deep links.
+    assert "Package files:" in visible
+
+
+def test_print_scan_results_no_deep_link_without_dist_path():
+    results = {
+        "issues": 1,
+        "errors": {},
+        "results": {},
+        "risks": [_risk(threat_location="pkg/mod.py:3", file_path="pkg/mod.py")],
+        "pypi_inspector_url": "https://inspector.pypi.io/project/pkg/1.0/",
+    }
+    out = HumanReadableReporter.print_scan_results("pkg", results)
+    assert "#line." not in _strip_color(out)
+
+
+def test_pypi_finding_inspector_url_encodes_path_and_requires_line():
+    base = "https://inspector.pypi.io/project/pkg/1.0/packages/aa/bb/cc/pkg-1.0.tar.gz"
+    url = HumanReadableReporter._pypi_finding_inspector_url(
+        base, "pkg-1.0/sub dir/mod.py:12"
+    )
+    assert url == base + "/pkg-1.0/sub%20dir/mod.py#line.12"
+
+    # Metadata findings have no line and get no deep link.
+    assert HumanReadableReporter._pypi_finding_inspector_url(base, "") is None
+    assert HumanReadableReporter._pypi_finding_inspector_url(base, "mod.py") is None
+
+
+def test_hyperlink_wraps_label_in_osc8_sequence():
+    link = HumanReadableReporter._hyperlink("https://example.com/x", "click me")
+    assert link == "\x1b]8;;https://example.com/x\x1b\\click me\x1b]8;;\x1b\\"
+
+
+def test_hyperlink_falls_back_to_plain_label_on_unsafe_url():
+    # A URL carrying an ESC or BEL could terminate the escape sequence early, so
+    # such urls are refused and only the bare label is returned.
+    assert HumanReadableReporter._hyperlink("https://x/\x1b\\evil", "label") == "label"
+    assert HumanReadableReporter._hyperlink("https://x/\x07evil", "label") == "label"
 
 
 def test_strip_prefix():

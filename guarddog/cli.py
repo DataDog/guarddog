@@ -470,6 +470,9 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
         scanned_version = scanner.get_package_version(package_info, version)
         if scanned_version is not None:
             results["package_version"] = scanned_version
+        dist_path = scanner.get_package_dist_path(package_info, version)
+        if dist_path is not None:
+            results["pypi_dist_path"] = dist_path
         return results
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
