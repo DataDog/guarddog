@@ -1,6 +1,6 @@
 import os
 import typing
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
@@ -40,6 +40,11 @@ class PypiPackageScanner(PackageScanner):
         if distribution is None:
             return None
         return urlparse(distribution["url"]).path
+
+    def get_package_inspector_url(self, name, version):
+        package = quote(name, safe="")
+        version = quote(str(version), safe="")
+        return f"https://inspector.pypi.io/project/{package}/{version}/"
 
     def download_package(self, package_name, directory, version=None) -> str:
         """Downloads the PyPI distribution for a given package and version
