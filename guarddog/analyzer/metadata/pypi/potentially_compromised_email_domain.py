@@ -8,12 +8,26 @@ from typing import Optional
 
 from dateutil import parser
 from packaging import version
+from packaging.version import InvalidVersion
 
 from guarddog.analyzer.metadata.potentially_compromised_email_domain import (
     PotentiallyCompromisedEmailDomainDetector,
 )
 
 from .utils import get_email_addresses
+
+
+def _safe_version_key(v: str):
+    """Sort key that tolerates legacy version strings (e.g. ``2004d``).
+
+    ``packaging`` 22.0 removed ``LegacyVersion``, so ``version.parse`` raises
+    ``InvalidVersion`` on non-PEP-440 strings.  Return a minimum sentinel so
+    legacy versions sort as oldest rather than crashing the whole rule (#389).
+    """
+    try:
+        return version.parse(v)
+    except InvalidVersion:
+        return version.parse("0")
 
 
 class PypiPotentiallyCompromisedEmailDomainDetector(
@@ -36,9 +50,7 @@ class PypiPotentiallyCompromisedEmailDomainDetector(
             datetime: creation date of the most recent in releases
         """
         releases = package_info["releases"]
-        sorted_versions = sorted(
-            releases.keys(), key=lambda r: version.parse(r), reverse=True
-        )
+        sorted_versions = sorted(releases.keys(), key=_safe_version_key, reverse=True)
         earlier_versions = (
             sorted_versions[:-1] if len(sorted_versions) > 1 else sorted_versions
         )

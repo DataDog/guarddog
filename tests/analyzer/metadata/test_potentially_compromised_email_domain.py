@@ -20,7 +20,6 @@ from tests.analyzer.metadata.resources.sample_project_info import (
 
 from tests.analyzer.metadata.utils import MockWhoIs
 
-
 with open(
     os.path.join(pathlib.Path(__file__).parent.resolve(), "resources", "npm_data.json"),
     "r",
@@ -104,6 +103,40 @@ class TestCompromisedEmail:
                     "upload_time_iso_8601": "2023-03-06T00:41:25.953817Z",
                 }
             ]
+        }
+        try:
+            pypi_detector.detect(current_info)
+            pass  # we expect no exception to be thrown
+        except Exception as e:
+            pytest.fail(f"Unexpected exception thrown: {e}")
+
+    def test_legacy_version_string(self):
+        """
+        Regression test for https://github.com/DataDog/guarddog/issues/389
+
+        packaging >= 22.0 raises InvalidVersion on non-PEP-440 strings
+        (e.g. pytz's "2004d"), which used to crash the whole rule.
+        """
+
+        def mock_whois(domain):
+            return MockWhoIs(datetime(1990, 1, 31))
+
+        MonkeyPatch().setattr("whois.whois", mock_whois)
+
+        current_info = deepcopy(PYPI_PACKAGE_INFO)
+        current_info["releases"] = {
+            "2004d": [
+                {
+                    "upload_time": "2004-04-01T00:41:25",
+                    "upload_time_iso_8601": "2004-04-01T00:41:25.953817Z",
+                }
+            ],
+            "2023.3": [
+                {
+                    "upload_time": "2023-03-06T00:41:25",
+                    "upload_time_iso_8601": "2023-03-06T00:41:25.953817Z",
+                }
+            ],
         }
         try:
             pypi_detector.detect(current_info)
