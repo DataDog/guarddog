@@ -291,6 +291,12 @@ GuardDog's behavior can be customized using environment variables:
 | `GUARDDOG_TOP_PACKAGES_CACHE_LOCATION` | Location of the top packages cache directory | `guarddog/analyzer/metadata/resources` |
 | `GUARDDOG_YARA_EXT_EXCLUDE` | Comma-separated list of file extensions to exclude from YARA scanning | `ini,md,rst,txt,lock,json,yaml,yml,toml,xml,html,csv,sql,pdf,doc,docx,ppt,pptx,xls,xlsx,odt,changelog,readme,makefile,dockerfile,pkg-info,d.ts` |
 
+#### Metadata Rule Configuration
+
+| Environment Variable | Description | Default Value |
+|---------------------|-------------|---------------|
+| `GUARDDOG_NEW_DEPENDENCY_RISK_THRESHOLD` | Minimum risk score for a newly introduced dependency to flag the parent package in the `risky_new_dependency` rule | `5.0` |
+
 #### Archive Extraction Security Limits
 
 GuardDog implements multiple security checks when extracting package archives to protect against compression bombs and file descriptor exhaustion attacks:
