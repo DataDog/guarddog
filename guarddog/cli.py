@@ -443,7 +443,7 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
             }
             for risk in risk_objects
         ]
-        return {
+        results = {
             "issues": metadata_results["issues"] + sourcecode_results["issues"],
             "errors": metadata_results["errors"] | sourcecode_results["errors"],
             "results": metadata_results["results"] | sourcecode_results["results"],
@@ -451,6 +451,8 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
             "risk_score": risk_score,
             "risks": formatted_risks,
         }
+        scanner._annotate_remote_results(results, package_info, name, version)
+        return results
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
