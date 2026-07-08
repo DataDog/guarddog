@@ -1,5 +1,6 @@
 import os
 import typing
+from urllib.parse import quote, urlparse
 
 from guarddog.analyzer.analyzer import Analyzer
 from guarddog.ecosystems import ECOSYSTEM
@@ -17,6 +18,33 @@ class PypiPackageScanner(PackageScanner):
     ) -> typing.Tuple[dict, str]:
         extract_dir = self.download_package(package_name, directory, version)
         return get_package_info(package_name), extract_dir
+
+    def get_package_version(self, package_info: dict, requested_version=None):
+        if requested_version is not None:
+            return requested_version
+        return package_info.get("info", {}).get("version")
+
+    @staticmethod
+    def _select_distribution(package_info: dict, version) -> typing.Optional[dict]:
+        """Return the release file GuardDog scans for a version (first supported archive)."""
+        releases = package_info.get("releases", {})
+        if version is None:
+            version = package_info.get("info", {}).get("version")
+        for file in releases.get(version, []):
+            if is_supported_archive(file["filename"]):
+                return file
+        return None
+
+    def get_package_dist_path(self, package_info: dict, requested_version=None):
+        distribution = self._select_distribution(package_info, requested_version)
+        if distribution is None:
+            return None
+        return urlparse(distribution["url"]).path
+
+    def get_package_inspector_url(self, name, version):
+        package = quote(name, safe="")
+        version = quote(str(version), safe="")
+        return f"https://inspector.pypi.io/project/{package}/{version}/"
 
     def download_package(self, package_name, directory, version=None) -> str:
         """Downloads the PyPI distribution for a given package and version
@@ -46,19 +74,14 @@ class PypiPackageScanner(PackageScanner):
                 f"Version {version} for package {package_name} doesn't exist."
             )
 
-        files = releases[version]
-        url, file_extension = None, None
-
-        for file in files:
-            if is_supported_archive(file["filename"]):
-                url = file["url"]
-                _, file_extension = os.path.splitext(file["filename"])
-                break
-
-        if not (url and file_extension):
+        distribution = self._select_distribution(data, version)
+        if distribution is None:
             raise Exception(
                 f"Compressed file for {package_name} does not exist on PyPI."
             )
+
+        url = distribution["url"]
+        _, file_extension = os.path.splitext(distribution["filename"])
 
         # Path to compressed package
         zippath = os.path.join(directory, package_name + file_extension)

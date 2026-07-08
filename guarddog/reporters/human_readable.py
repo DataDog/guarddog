@@ -1,6 +1,7 @@
 import os
 import re
 from enum import Enum
+from urllib.parse import quote
 
 from termcolor import colored
 from guarddog.reporters import BaseReporter
@@ -201,7 +202,10 @@ class HumanReadableReporter(BaseReporter):
 
     @staticmethod
     def _format_one_risk(
-        risk: dict, path_prefix: Optional[str], ceiling: str | None
+        risk: dict,
+        path_prefix: Optional[str],
+        ceiling: str | None,
+        deep_base: Optional[str] = None,
     ) -> List[str]:
         """Render a single risk as a railed block: rule, desc, location, code.
 
@@ -227,7 +231,18 @@ class HumanReadableReporter(BaseReporter):
         ]
         if desc:
             block.append("  " + colored(desc, sev_color))
-        block.append("  " + colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey"))
+        # Metadata findings carry no file location; only show the line when there is
+        # one so it never renders as a bare "in ".
+        if loc:
+            inspector_url = (
+                HumanReadableReporter._pypi_finding_inspector_url(deep_base, loc_raw)
+                if deep_base and loc_raw
+                else None
+            )
+            loc_line = colored(f"{loc_kw} {_sanitize(loc)}", "dark_grey")
+            if inspector_url:
+                loc_line = HumanReadableReporter._hyperlink(inspector_url, loc_line)
+            block.append("  " + loc_line)
 
         code = risk.get("threat_code", "")
         if code:
@@ -244,7 +259,10 @@ class HumanReadableReporter(BaseReporter):
 
     @staticmethod
     def _format_findings(
-        risks: list, path_prefix: Optional[str], ceiling: str | None
+        risks: list,
+        path_prefix: Optional[str],
+        ceiling: str | None,
+        deep_base: Optional[str] = None,
     ) -> List[str]:
         """Per-tactic findings list, colored by rule severity clamped to the band."""
         lines: List[str] = []
@@ -278,7 +296,7 @@ class HumanReadableReporter(BaseReporter):
 
                 for risk in tactic_risks:
                     lines += HumanReadableReporter._format_one_risk(
-                        risk, path_prefix, ceiling
+                        risk, path_prefix, ceiling, deep_base
                     )
 
                 lines.append("")
@@ -303,6 +321,62 @@ class HumanReadableReporter(BaseReporter):
             colored("─" * 40, "dark_grey"),
             f"Assessment:  {assessment}",
             colored(stats, "dark_grey"),
+        ]
+
+    @staticmethod
+    def _hyperlink(url: str, label: str) -> str:
+        """Wrap `label` in an OSC 8 terminal hyperlink pointing to `url`.
+
+        Terminals that support OSC 8 render `label` as a clickable link; the rest
+        ignore the escape wrapper and show `label` unchanged. `url` must be free of
+        terminal control bytes, otherwise a crafted value could break out of the
+        escape sequence, so we fall back to the bare label when it isn't.
+        """
+        if _TERMINAL_CONTROL_RE.search(url):
+            return label
+        return f"\x1b]8;;{url}\x1b\\{label}\x1b]8;;\x1b\\"
+
+    @staticmethod
+    def _pypi_deep_link_base(results: dict) -> Optional[str]:
+        """Base for per-finding PyPI Inspector links, or None when unavailable.
+
+        Combines the project URL (already carries the escaped package/version) with
+        the scanned distribution's `/packages/...` path, giving a prefix that only
+        needs the in-archive file path and `#line.N` appended.
+        """
+        inspector_url = results.get("pypi_inspector_url")
+        dist_path = results.get("pypi_dist_path")
+        if not inspector_url or not dist_path or results.get("issues", 0) < 1:
+            return None
+        return inspector_url.rstrip("/") + dist_path
+
+    @staticmethod
+    def _pypi_finding_inspector_url(
+        deep_base: str, threat_location: str
+    ) -> Optional[str]:
+        """Deep link to a finding's file and line on PyPI Inspector.
+
+        `threat_location` is `<relpath-in-archive>:<line>`, relative to the extract
+        root, which is exactly the path Inspector expects after the distribution
+        filename.
+        """
+        file_part, _, line = threat_location.rpartition(":")
+        if not file_part or not line.isdigit():
+            return None
+        return f"{deep_base}/{quote(file_part, safe='/')}#line.{line}"
+
+    @staticmethod
+    def _format_pypi_inspector_url(results: dict) -> List[str]:
+        inspector_url = results.get("pypi_inspector_url")
+        if not inspector_url or results.get("issues", 0) < 1:
+            return []
+
+        link = HumanReadableReporter._hyperlink(
+            inspector_url, colored("view on PyPI Inspector", "dark_grey")
+        )
+        return [
+            "",
+            colored("Package files:", "dark_grey") + f" {link}",
         ]
 
     @staticmethod
@@ -333,10 +407,15 @@ class HumanReadableReporter(BaseReporter):
         )
         ceiling = HumanReadableReporter._BAND_CEILING.get(label)
 
+        deep_base = HumanReadableReporter._pypi_deep_link_base(results)
+
         lines: List[str] = []
         lines += HumanReadableReporter._format_header(identifier, len(risks))
         if risks:
-            lines += HumanReadableReporter._format_findings(risks, path_prefix, ceiling)
+            lines += HumanReadableReporter._format_findings(
+                risks, path_prefix, ceiling, deep_base
+            )
+        lines += HumanReadableReporter._format_pypi_inspector_url(results)
         if risk_score:
             lines += HumanReadableReporter._format_summary(risk_score, len(risks))
 
