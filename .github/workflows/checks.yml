@@ -23,6 +23,15 @@ jobs:
         with:
           python-version: "3.10"
           cache: 'pip'
+      - name: Set up SCFW_HOME
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.scfw
+          key: scfw-${{ runner.os }}-3.10-${{ hashFiles('.github/workflows/checks.yml') }}
+      - name: Set up Supply Chain Firewall
+        uses: DataDog/supply-chain-firewall-action@2f166ae1d2c34ed717d7b08427c7acb57804f3f5 # v1.0.0
+        with:
+          scfw-home: ~/.scfw
       - name: Cache Poetry installation
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
@@ -56,6 +65,15 @@ jobs:
       with:
         python-version: "3.10"
         cache: 'pip'
+    - name: Set up SCFW_HOME
+      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      with:
+        path: ~/.scfw
+        key: scfw-${{ runner.os }}-3.10-${{ hashFiles('.github/workflows/checks.yml') }}
+    - name: Set up Supply Chain Firewall
+      uses: DataDog/supply-chain-firewall-action@2f166ae1d2c34ed717d7b08427c7acb57804f3f5 # v1.0.0
+      with:
+        scfw-home: ~/.scfw
     - name: Cache Poetry installation
       uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
@@ -101,6 +119,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+      - name: Set up SCFW_HOME
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ~/.scfw
+          key: scfw-${{ runner.os }}-3.10-${{ hashFiles('.github/workflows/checks.yml') }}
+      - name: Set up Supply Chain Firewall
+        uses: DataDog/supply-chain-firewall-action@2f166ae1d2c34ed717d7b08427c7acb57804f3f5 # v1.0.0
+        with:
+          scfw-home: ~/.scfw
       - name: Cache Poetry installation
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
