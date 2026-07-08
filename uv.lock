@@ -2,6 +2,10 @@ version = 1
 revision = 3
 requires-python = ">=3.10"
 
+[options]
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer-span = "P2D"
+
 [[package]]
 name = "boto3"
 version = "1.43.31"
@@ -258,12 +262,11 @@ wheels = [
 
 [[package]]
 name = "disposable-email-domains"
-version = "0.0.169"
+version = "0.0.208"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/38/63/ebe9802d62ddf9a3ac982705d8dcfbc374c311a9b87ea94d612492aa7928/disposable_email_domains-0.0.169.tar.gz", hash = "sha256:e051ef00c6449ba7fd5d52c9a494ff12b0578c14218e57a4a5d0b9268ca1a7d3", size = 64418, upload-time = "2026-03-13T02:51:48.757Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/58/9a11d6557b12e225c268e21c7d011e512f05375cad4aaf0ddf2f8ade81bc/disposable_email_domains-0.0.208.tar.gz", hash = "sha256:a291702b87fac09ffe77f5ced8e88feae05f863f2652ca95000c0ccbc6add28a", size = 92154, upload-time = "2026-06-22T05:27:29.743Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/30/f4a010edec9492b2584dd41245438fb4fbda32441beb76be57460e73c3b3/disposable_email_domains-0.0.169-py2.py3-none-any.whl", hash = "sha256:a6f4dc54a6939ab685025e05a628eba68ef003245dfd82bbd2b788e8e25caa18", size = 32904, upload-time = "2026-03-13T02:51:47.296Z" },
-    { url = "https://files.pythonhosted.org/packages/7e/e4/689f2310249766a09e69ef812f000a1b8a8b548ea34eceb317434b5e51e7/disposable_email_domains-0.0.169-py3-none-any.whl", hash = "sha256:19b3596f24b368339ea96e22ae0002798a847ce04a2221ee638e721bc7ffbf0e", size = 32848, upload-time = "2026-04-14T16:54:58.19Z" },
+    { url = "https://files.pythonhosted.org/packages/19/17/7762055328aec11cf2272596e4f7b924d48af498f423a17fcc5f9de13e1d/disposable_email_domains-0.0.208-py3-none-any.whl", hash = "sha256:dd21b9f1c8ac0176cb78c7078c8bf0eccd3e417e3e7781a59994c4635bd1cf83", size = 47496, upload-time = "2026-06-22T05:27:28.423Z" },
 ]
 
 [[package]]
@@ -285,6 +288,7 @@ dependencies = [
     { name = "semantic-version" },
     { name = "tarsafe" },
     { name = "termcolor" },
+    { name = "typing-extensions" },
     { name = "urllib3" },
     { name = "yara-python" },
 ]
@@ -294,7 +298,7 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.34,<2.0" },
     { name = "click", specifier = ">=8.4.1,<9.0.0" },
     { name = "configparser", specifier = ">=5.3,<8.0" },
-    { name = "disposable-email-domains", specifier = ">=0.0.103,<0.0.170" },
+    { name = "disposable-email-domains", specifier = ">=0.0.208,<0.0.209" },
     { name = "nono-py", specifier = ">=0.10.1" },
     { name = "packaging", specifier = ">=21.0" },
     { name = "prettytable", specifier = ">=3.17.0,<4.0.0" },
@@ -306,6 +310,7 @@ requires-dist = [
     { name = "semantic-version", specifier = ">=2.10.0,<3.0.0" },
     { name = "tarsafe", specifier = ">=0.0.5,<0.0.6" },
     { name = "termcolor", specifier = ">=3.3.0,<4.0.0" },
+    { name = "typing-extensions", specifier = ">=4.15.0,<5.0.0" },
     { name = "urllib3", specifier = ">=2.7.0,<3.0.0" },
     { name = "yara-python", specifier = ">=4.5.4,<5.0.0" },
 ]
@@ -582,6 +587,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/46/79/cf31d7a93a8fdc6aa0fbb665be84426a8c5a557d9240b6239e9e11e35fc5/termcolor-3.3.0.tar.gz", hash = "sha256:348871ca648ec6a9a983a13ab626c0acce02f515b9e1983332b17af7979521c5", size = 14434, upload-time = "2025-12-29T12:55:21.882Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/33/d1/8bb87d21e9aeb323cc03034f5eaf2c8f69841e40e4853c2627edf8111ed3/termcolor-3.3.0-py3-none-any.whl", hash = "sha256:cf642efadaf0a8ebbbf4bc7a31cec2f9b5f21a9f726f4ccbb08192c9c26f43a5", size = 7734, upload-time = "2025-12-29T12:55:20.718Z" },
+]
+
+[[package]]
+name = "typing-extensions"
+version = "4.16.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/cc/6253133b5bb138fc3306cebfbda2c520f545d36b5be2c7255cc528bb45d6/typing_extensions-4.16.0.tar.gz", hash = "sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5", size = 113555, upload-time = "2026-07-02T08:40:05.92Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl", hash = "sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8", size = 45571, upload-time = "2026-07-02T08:40:04.659Z" },
 ]
 
 [[package]]
