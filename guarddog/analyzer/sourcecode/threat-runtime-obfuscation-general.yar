@@ -22,8 +22,11 @@ rule threat_runtime_obfuscation_general
         $js_jsfuck = /\[\s*!\s*!\s*\[\s*\]\s*\]/ nocase
         // JavaScript - packer pattern
         $js_packer = /\beval\s*\(\s*\bfunction\s*\([a-z],\s*[a-z],\s*[a-z],\s*[a-z]/ nocase
-        // JavaScript - very long fromCharCode (40+ chars indicates obfuscation, not unicode)
-        $js_fromcharcode = /\bString\s*\.\s*fromCharCode\s*\([^)]{40,}\)/ nocase
+        // JavaScript - fromCharCode over a long list of numeric literals (10+
+        // char codes indicates obfuscation). Requiring numeric arguments avoids
+        // false positives on legitimate long expressions such as
+        // String.fromCharCode(...someCall(args)) spread over multiple lines.
+        $js_fromcharcode = /\bString\s*\.\s*fromCharCode\s*\(\s*(0x[0-9a-fA-F]+|[0-9]+)(\s*,\s*(0x[0-9a-fA-F]+|[0-9]+)){9,}/ nocase
 
     condition:
         any of them
