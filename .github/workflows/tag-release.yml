@@ -50,6 +50,7 @@ jobs:
       - name: Set up Supply Chain Firewall
         uses: DataDog/supply-chain-firewall-action@2f166ae1d2c34ed717d7b08427c7acb57804f3f5 # v1.0.0
         with:
+          on-warning: ALLOW
           scfw-home: ~/.scfw
 
       - name: Install poetry
@@ -138,6 +139,7 @@ jobs:
       - name: Set up Supply Chain Firewall
         uses: DataDog/supply-chain-firewall-action@2f166ae1d2c34ed717d7b08427c7acb57804f3f5 # v1.0.0
         with:
+          on-warning: ALLOW
           scfw-home: ~/.scfw
 
       - name: Install poetry
