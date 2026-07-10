@@ -36,6 +36,18 @@ jobs:
           python-version: "3.10"
           cache: 'pip'
 
+      - name: Set up SCFW_HOME
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.scfw
+          key: scfw-${{ runner.os }}-3.10-${{ hashFiles('.github/workflows/guarddog.yml') }}
+
+      - name: Set up Supply Chain Firewall
+        uses: DataDog/supply-chain-firewall-action@2f166ae1d2c34ed717d7b08427c7acb57804f3f5 # v1.0.0
+        with:
+          on-warning: ALLOW
+          scfw-home: ~/.scfw
+
       - name: Prepare requirements file
         run: |
           if [ -f "requirements.txt" ]; then
