@@ -6,8 +6,7 @@ from guarddog.scanners.npm_project_scanner import NPMRequirementsScanner
 
 def test_npm_requirements_scanner():
     scanner = NPMRequirementsScanner()
-    result = scanner.parse_requirements(
-        """
+    result = scanner.parse_requirements("""
     {
         "dependencies": {
             "non-existing": "*",
@@ -15,8 +14,7 @@ def test_npm_requirements_scanner():
             "cors": "*"
         }
     }
-    """
-    )
+    """)
     assert "non-existing" not in result  # ignoring non existing packages
     assert "express" in result
     lookup = next(filter(lambda r: r.name == "cors", result), None)
@@ -39,16 +37,14 @@ def test_npm_find_requirements():
 
 def test_npm_requirements_scanner_github():
     scanner = NPMRequirementsScanner()
-    result = scanner.parse_requirements(
-        """
+    result = scanner.parse_requirements("""
     {
         "dependencies": {
             "express": "expressjs/express",
             "cors": "https://github.com/expressjs/cors.git"
         }
     }
-    """
-    )
+    """)
     lookup = next(filter(lambda r: r.name == "express", result), None)
     assert lookup is not None
     assert "expressjs/express" in lookup.versions
@@ -88,3 +84,14 @@ def test_npm_requirements_scanner_scoped_alias():
     lookup = next(filter(lambda r: r.name == "@types/node", result), None)
     assert lookup is not None
     assert len(lookup.versions) > 0
+
+
+# Tests for https://github.com/DataDog/guarddog/issues/781
+def test_npm_requirements_scanner_rejects_non_package_json():
+    import pytest
+
+    scanner = NPMRequirementsScanner()
+    with pytest.raises(ValueError, match="does not look like a package.json"):
+        scanner.parse_requirements("this is not json")
+    with pytest.raises(ValueError, match="does not look like a package.json"):
+        scanner.parse_requirements("[1, 2, 3]")

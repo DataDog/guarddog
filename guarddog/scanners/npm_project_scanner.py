@@ -45,7 +45,17 @@ class NPMRequirementsScanner(ProjectScanner):
                 ...
             }
         """
-        package = json.loads(raw_requirements)
+        try:
+            package = json.loads(raw_requirements)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"the file is not valid JSON, so it does not look like a package.json ({e})"
+            ) from e
+        if not isinstance(package, dict):
+            raise ValueError(
+                "the file contains JSON but not a JSON object, so it does not "
+                "look like a package.json"
+            )
         dependencies_attr = package["dependencies"] if "dependencies" in package else {}
         dev_dependencies_attr = (
             package["devDependencies"] if "devDependencies" in package else {}

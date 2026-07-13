@@ -165,7 +165,11 @@ def _verify(
         log.error(f"Command verify is not supported for ecosystem {ecosystem}")
         exit(1)
 
-    dependencies, results = scanner.scan_local(path=path, rules=rule_param)
+    try:
+        dependencies, results = scanner.scan_local(path=path, rules=rule_param)
+    except Exception:
+        # scan_local already logged the error; fail cleanly without a traceback
+        exit(1)
 
     rule_docs = list(rule_param or _get_all_rules(ecosystem=ecosystem))
 
