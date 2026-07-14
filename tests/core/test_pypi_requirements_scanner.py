@@ -163,6 +163,80 @@ def test_parse_poetry_lockfile():
     assert "2.2.2" in flask.versions
 
 
+def test_parse_pyproject_poetry_private_source_skipped():
+    scanner = PypiRequirementsScanner()
+    result = scanner.parse_requirements(
+        "\n".join(
+            [
+                "[tool.poetry.dependencies]",
+                'flask = "2.2.2"',
+                'internal-tool = { version = "1.2.3", source = "internal" }',
+            ]
+        )
+    )
+    # a dependency pinned to a named private source must not be resolved
+    # against public PyPI
+    assert "internal-tool" not in result
+    assert next(filter(lambda r: r.name == "flask", result), None) is not None
+
+
+def test_parse_lockfile_skips_non_pypi_sources():
+    scanner = PypiRequirementsScanner()
+    result = scanner.parse_requirements(
+        "\n".join(
+            [
+                "[[package]]",
+                'name = "flask"',
+                'version = "2.2.2"',
+                "",
+                "[[package]]",
+                'name = "internal-tool"',
+                'version = "1.0.0"',
+                "",
+                "[package.source]",
+                'type = "legacy"',
+                'url = "https://pypi.internal.example.com/simple"',
+                'reference = "internal"',
+                "",
+                "[[package]]",
+                'name = "git-tool"',
+                'version = "0.5.0"',
+                "",
+                "[package.source]",
+                'type = "git"',
+                'url = "https://example.com/repo.git"',
+                'reference = "main"',
+            ]
+        )
+    )
+    assert "internal-tool" not in result
+    assert "git-tool" not in result
+    assert next(filter(lambda r: r.name == "flask", result), None) is not None
+
+
+def test_parse_uv_lockfile_keeps_pypi_registry_entries():
+    scanner = PypiRequirementsScanner()
+    result = scanner.parse_requirements(
+        "\n".join(
+            [
+                "[[package]]",
+                'name = "flask"',
+                'version = "2.2.2"',
+                'source = { registry = "https://pypi.org/simple" }',
+                "",
+                "[[package]]",
+                'name = "internal-tool"',
+                'version = "1.0.0"',
+                'source = { registry = "https://pypi.internal.example.com/simple" }',
+            ]
+        )
+    )
+    assert "internal-tool" not in result
+    flask = next(filter(lambda r: r.name == "flask", result), None)
+    assert flask
+    assert "2.2.2" in flask.versions
+
+
 def test_parse_requirements_garbage_input_returns_empty():
     # a package.json fed to the pypi scanner must not crash and yields nothing
     scanner = PypiRequirementsScanner()

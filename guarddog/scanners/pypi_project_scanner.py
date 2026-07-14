@@ -132,7 +132,10 @@ class PypiRequirementsScanner(ProjectScanner):
             requirement_lines = [
                 f"{p['name']}=={p['version']}"
                 for p in data["package"]
-                if isinstance(p, dict) and "name" in p and "version" in p
+                if isinstance(p, dict)
+                and "name" in p
+                and "version" in p
+                and self._is_pypi_lockfile_entry(p)
             ]
         if requirement_lines is None:
             return None
@@ -152,6 +155,25 @@ class PypiRequirementsScanner(ProjectScanner):
             )
 
         return self._resolve_requirement_lines(requirement_lines, find_location)
+
+    @staticmethod
+    def _is_pypi_lockfile_entry(package: dict) -> bool:
+        """
+        True when a lockfile [[package]] entry is sourced from public PyPI.
+        Packages from git, paths, or private registries must not be resolved
+        against PyPI: an unrelated public package could share the name.
+        """
+        source = package.get("source")
+        if source is None:
+            # poetry.lock omits the source table for PyPI packages
+            return True
+        if isinstance(source, dict):
+            # uv.lock records PyPI as source = { registry = "https://pypi.org/simple" }
+            registry = source.get("registry", "")
+            return isinstance(registry, str) and registry.startswith(
+                ("https://pypi.org", "http://pypi.org")
+            )
+        return False
 
     def _pyproject_requirement_lines(self, data: dict) -> list[str]:
         """
@@ -204,10 +226,13 @@ class PypiRequirementsScanner(ProjectScanner):
             constraint = self._poetry_constraint_to_pep440(spec)
             return [f"{name}{constraint}"]
         if isinstance(spec, dict):
-            if any(key in spec for key in ("git", "path", "url")):
+            if any(key in spec for key in ("git", "path", "url", "source")):
+                # source = "..." selects a named (usually private) registry;
+                # resolving such names against public PyPI could scan an
+                # unrelated package that happens to share the name.
                 log.debug(
-                    f"Skipping {name}: git/path/url dependencies cannot be "
-                    "verified against PyPI"
+                    f"Skipping {name}: git/path/url/private-source dependencies "
+                    "cannot be verified against PyPI"
                 )
                 return []
             version = spec.get("version")
