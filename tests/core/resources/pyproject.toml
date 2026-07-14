@@ -1,0 +1,7 @@
+[project]
+name = "sample-project"
+version = "0.1.0"
+dependencies = ["flask==2.2.2"]
+
+[project.optional-dependencies]
+dev = ["requests"]

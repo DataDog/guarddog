@@ -1,0 +1,13 @@
+# This file is a test fixture mimicking a Poetry lockfile.
+
+[[package]]
+name = "flask"
+version = "2.2.2"
+description = "A simple framework for building complex web applications."
+optional = false
+python-versions = ">=3.7"
+
+[metadata]
+lock-version = "2.0"
+python-versions = ">=3.10"
+content-hash = "0000000000000000000000000000000000000000000000000000000000000000"
