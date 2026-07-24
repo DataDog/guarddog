@@ -328,11 +328,11 @@ wheels = [
 
 [[package]]
 name = "disposable-email-domains"
-version = "0.0.214"
+version = "0.0.225"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/09/56/afd39187878a8b67bbd382791c6a80c2f67684c021b71b2f3bb3221dd431/disposable_email_domains-0.0.214.tar.gz", hash = "sha256:ff2508583769b71c27bd9d529fdbd4e7cd45d4df8aa15da0dea9357848d81f8d", size = 96247, upload-time = "2026-07-06T10:58:43.29Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/96/b85bdc536e311b002c73c5f94be5dbb33d6350d3dfbecca7d1f54b42f207/disposable_email_domains-0.0.225.tar.gz", hash = "sha256:e9b51d99f48b097254b54cdd2546ee2bbd715e60db85bb3207e280fc148ec68b", size = 97897, upload-time = "2026-07-17T12:00:46.274Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/e0/78eefe66ea5ab7d644804300af47f6ea9b9bd99321c77a0a3397894f8310/disposable_email_domains-0.0.214-py3-none-any.whl", hash = "sha256:7f2aab40bf95ba56f6c660d76b5489323fc124e624131e7817d7cbbbc190bd36", size = 49565, upload-time = "2026-07-06T10:58:41.723Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/cc/a1f115b45041d5067a7b037834f8b5df155b4cc16c80e5e0feaa7040d285/disposable_email_domains-0.0.225-py3-none-any.whl", hash = "sha256:6e2f5dee82f2c8d122e787848c106cf3ace05b9b19ee4e0a2860eb1b3de67583", size = 50365, upload-time = "2026-07-17T12:00:44.976Z" },
 ]
 
 [[package]]
@@ -364,7 +364,7 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.43,<2.0" },
     { name = "click", specifier = ">=8.4.1,<9.0.0" },
     { name = "configparser", specifier = ">=5.3,<8.0" },
-    { name = "disposable-email-domains", specifier = ">=0.0.214,<0.0.215" },
+    { name = "disposable-email-domains", specifier = ">=0.0.225,<0.0.226" },
     { name = "nono-py", specifier = ">=0.11.0" },
     { name = "packaging", specifier = ">=26.2" },
     { name = "prettytable", specifier = ">=3.17.0,<4.0.0" },
