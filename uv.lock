@@ -366,7 +366,7 @@ requires-dist = [
     { name = "configparser", specifier = ">=5.3,<8.0" },
     { name = "disposable-email-domains", specifier = ">=0.0.214,<0.0.215" },
     { name = "nono-py", specifier = ">=0.11.0" },
-    { name = "packaging", specifier = ">=21.0" },
+    { name = "packaging", specifier = ">=26.2" },
     { name = "prettytable", specifier = ">=3.17.0,<4.0.0" },
     { name = "pygit2", specifier = ">=1.11,<1.19" },
     { name = "python-dateutil", specifier = ">=2.9.0,<3.0.0" },
