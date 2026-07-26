@@ -8,7 +8,7 @@
   <img src="https://github.com/DataDog/guarddog/blob/v3/docs/images/logo.png?raw=true" alt="GuardDog" width="300" />
 </p>
 
-GuardDog is a CLI tool that identifies malicious PyPI and npm packages, Go modules, GitHub actions, or VSCode extensions. It runs static analysis on package source code (through YARA rules) and analyzes package metadata to detect supply chain attacks.
+GuardDog is a CLI tool that identifies malicious PyPI and npm packages, Go modules, Rust crates, RubyGems, GitHub actions, or VSCode extensions. It runs static analysis on package source code (through YARA rules) and analyzes package metadata to detect supply chain attacks.
 
 **What makes GuardDog different:** Instead of just listing suspicious patterns, GuardDog correlates findings to identify actual **risks** based on attack chains. A package needs both the **capability** to perform an action (e.g., network access) and a **threat indicator** (e.g., suspicious domain) in the same file to be flagged as high risk.
 
@@ -17,6 +17,7 @@ It downloads and scans code from:
 * NPM: Packages hosted in [npmjs.org](https://www.npmjs.com/)
 * PyPI: Source files (tar.gz) packages hosted in [PyPI.org](https://pypi.org/)
 * Go: GoLang source files of repositories hosted in [GitHub.com](https://github.com)
+* Rust: Crates hosted on [crates.io](https://crates.io/)
 * RubyGems: Gem packages hosted in [rubygems.org](https://rubygems.org/)
 * GitHub Actions: Javascript source files of repositories hosted in [GitHub.com](https://github.com)
 * VSCode Extensions: Extensions (.vsix) packages hosted in [marketplace.visualstudio.com](https://marketplace.visualstudio.com/)
@@ -126,12 +127,17 @@ guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
 # Output JSON to standard output - works for every command
 guarddog pypi scan requests --output-format=json
 
-# All the commands also work on npm, go, rubygems
+# All the commands also work on npm, go, crates, rubygems
 guarddog npm scan express
 
 guarddog go scan github.com/DataDog/dd-trace-go
 
 guarddog go verify /tmp/repo/go.mod
+
+# Scan Rust crates
+guarddog crates scan serde
+
+guarddog crates verify /tmp/repo/Cargo.lock
 
 # Scan RubyGems packages
 guarddog rubygems scan rails

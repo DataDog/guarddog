@@ -9,7 +9,7 @@ rule capability_process_spawn
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,extconf.rb,*/extconf.rb,Rakefile,*/Rakefile"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,*.rs,extconf.rb,*/extconf.rb,Rakefile,*/Rakefile"
     strings:
         // Python - subprocess
         $py_subprocess_call = /subprocess\.(call|run|check_call|check_output|Popen)/ nocase
@@ -30,6 +30,9 @@ rule capability_process_spawn
         $go_exec_command = "exec.Command(" nocase
         $go_exec_commandcontext = "exec.CommandContext(" nocase
         $go_os_startprocess = "os.StartProcess(" nocase
+
+        // Rust - std::process::Command
+        $rs_command_new = /\bCommand\s*::\s*new\s*\(/
 
         // Ruby - Kernel methods for command execution
         $rb_system = /\bsystem\s*\(/ nocase

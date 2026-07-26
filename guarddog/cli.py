@@ -109,7 +109,7 @@ def cli(log_level):
     """
     GuardDog cli tool to detect malware in package ecosystems
 
-    Supports PyPI, npm and Go modules.
+    Supports PyPI, npm, Go modules, Rust crates, and RubyGems.
 
     Example: guarddog pypi scan semantic-version
 

@@ -15,6 +15,8 @@ def get_metadata_detectors(ecosystem: ECOSYSTEM) -> dict[str, Detector]:
             return NPM_METADATA_RULES
         case ECOSYSTEM.GO:
             return GO_METADATA_RULES
+        case ECOSYSTEM.CRATES:
+            return {}
         case ECOSYSTEM.GITHUB_ACTION:
             return GITHUB_ACTION_METADATA_RULES
         case ECOSYSTEM.EXTENSION:

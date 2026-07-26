@@ -9,7 +9,7 @@ rule capability_network_outbound
         sophistication = "low"
 
         max_hits = 1
-        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,*.rs"
     strings:
         // Python - HTTP
         $py_requests = /requests\.(get|post|put|delete|head|patch)/
@@ -41,6 +41,12 @@ rule capability_network_outbound
 
         // Go - DNS
         $go_lookup = /net\.(LookupHost|LookupIP|LookupAddr|LookupCNAME|LookupMX|LookupNS|LookupTXT)\s*\(/
+
+        // Rust - HTTP and sockets
+        $rs_reqwest_get = /\breqwest\s*::\s*(blocking\s*::\s*)?get\s*\(/
+        $rs_reqwest_client = /\breqwest\s*::\s*(blocking\s*::\s*)?Client\s*::\s*new\s*\(/
+        $rs_tcp_connect = /\bTcpStream\s*::\s*connect\s*\(/
+        $rs_udp_connect = /\bUdpSocket\s*::\s*connect\s*\(/
 
         // Ruby - HTTP libraries (Net::HTTP)
         $rb_net_http_get = /\bNet\s*::\s*HTTP\s*\.\s*get\s*\(/ nocase

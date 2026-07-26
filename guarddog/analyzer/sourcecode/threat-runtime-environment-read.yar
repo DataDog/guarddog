@@ -10,7 +10,7 @@ rule threat_runtime_environment_read
         sophistication = "low"
 
         max_hits = 3
-        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
+        path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,*.rs"
     strings:
         // JavaScript/Node.js - credential-related env vars (process.env is runtime global)
         $js_env_api_key = /process\.env\.[A-Z_]*API[_]?KEY[A-Z_]*/ nocase
@@ -33,6 +33,9 @@ rule threat_runtime_environment_read
 
         // Go - credential-specific env var access
         $go_getenv_key = /os\.Getenv\s*\(\s*['"][A-Z_]*(KEY|SECRET|TOKEN|PASSWORD|AUTH)/ nocase
+
+        // Rust - credential-specific env var access
+        $rs_env_key = /\b(std\s*::\s*)?env\s*::\s*(var|var_os)\s*\(\s*"[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD|AUTH)/ nocase
 
         // Ruby - ENV serialization (exfiltration risk)
         $rb_env_to_h_json = /\bENV\s*\.\s*to_h\s*\.\s*to_json/ nocase

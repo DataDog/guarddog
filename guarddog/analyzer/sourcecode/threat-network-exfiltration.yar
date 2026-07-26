@@ -10,7 +10,7 @@ rule threat_network_exfiltration
         sophistication = "medium"
 
         max_hits = 5
-        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec"
+        path_include = "*.py,*.pyx,*.pyi,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.gemspec,*.rs"
     strings:
         // Webhook/tunneling services
         $webhook1 = "webhook.site" nocase
