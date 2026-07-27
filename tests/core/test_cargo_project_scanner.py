@@ -1,5 +1,3 @@
-import os
-
 from click.testing import CliRunner
 
 from guarddog.analyzer.analyzer import Analyzer
