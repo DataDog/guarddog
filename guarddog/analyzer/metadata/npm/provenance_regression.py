@@ -53,7 +53,7 @@ class NPMProvenanceRegressionDetector(Detector):
             description="Identify a version that lost npm provenance attestations that "
             "earlier versions had. A version dropping provenance after prior versions "
             "carried it can indicate a publish made outside the normal CI-attested flow.",
-            identifies="threat.npm.provenance-regression",
+            identifies="threat.metadata.provenance-regression",
             severity="medium",
             mitre_tactics="initial-access",
             specificity="medium",
