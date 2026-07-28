@@ -18,16 +18,14 @@ regression against it.
 """
 
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from semantic_version import Version  # type: ignore
 
 from guarddog.analyzer.metadata.detector import Detector
+from guarddog.utils.npm import published_versions_before
 
 log = logging.getLogger("guarddog")
-
-# Keys in the registry `time` object that are not version publish timestamps.
-_NON_VERSION_TIME_KEYS = {"created", "modified"}
 
 
 def _parse_semver(version: str) -> Optional[Version]:
@@ -115,29 +113,12 @@ class NPMProvenanceRegressionDetector(Detector):
     ) -> Optional[str]:
         """Walk earlier versions newest-first and return the first with attestations.
 
-        Publish times come from the registry `time` map; ISO 8601 timestamps sort
-        lexicographically. The walk does not stop at the immediately preceding
-        version: a compromise may push several unsigned releases in a row, so the
-        search continues back until a version with attestations is found or the
-        history is exhausted.
+        The walk does not stop at the immediately preceding version: a compromise may
+        push several unsigned releases in a row, so the search continues back until a
+        version with attestations is found or the history is exhausted.
         """
         versions = package_info.get("versions", {})
-        published = {
-            v: t
-            for v, t in package_info.get("time", {}).items()
-            if v not in _NON_VERSION_TIME_KEYS and v in versions
-        }
-        current_time = published.get(current_version)
-        if current_time is None:
-            return None
-
-        earlier: List[tuple] = [
-            (t, v) for v, t in published.items() if t < current_time
-        ]
-        # Newest-first by publish time. The version-string tie-break only matters if
-        # two versions share an identical timestamp, which does not happen in practice;
-        # it never changes whether a package is flagged, only which version is named.
-        for _, earlier_version in sorted(earlier, reverse=True):
+        for earlier_version in published_versions_before(package_info, current_version):
             if not self._precedes_in_release_order(earlier_version, current_version):
                 continue
             if self._has_attestations(versions.get(earlier_version, {})):
