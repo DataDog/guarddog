@@ -68,9 +68,7 @@ class NPMProvenanceRegressionDetector(Detector):
             )
             return False, None
 
-        last_attested = self._most_recent_attested_before(
-            package_info, current_version
-        )
+        last_attested = self._most_recent_attested_before(package_info, current_version)
         if last_attested is None:
             log.debug(
                 f"[{self.name}] '{package_name}@{current_version}' lacks attestations "
