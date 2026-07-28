@@ -9,10 +9,18 @@ malicious versions were pushed with stolen credentials.
 
 A package that never adopted provenance is not flagged. Absence alone is common
 and legitimate; only a regression (had it, then lost it) counts.
+
+Evidence of prior provenance must come from a version that precedes the scanned one
+in semver order, not merely in publish time. Projects routinely publish a modernized
+release line from an attested CI workflow while still cutting maintenance releases of
+an older line the old way, so a later-published patch of an older line is not a
+regression against it.
 """
 
 import logging
 from typing import List, Optional
+
+from semantic_version import Version  # type: ignore
 
 from guarddog.analyzer.metadata.detector import Detector
 
@@ -22,6 +30,13 @@ log = logging.getLogger("guarddog")
 _NON_VERSION_TIME_KEYS = {"created", "modified"}
 
 
+def _parse_semver(version: str) -> Optional[Version]:
+    try:
+        return Version(version)
+    except ValueError:
+        return None
+
+
 class NPMProvenanceRegressionDetector(Detector):
     """Detects a version that dropped npm provenance attestations earlier versions had.
 
@@ -29,7 +44,10 @@ class NPMProvenanceRegressionDetector(Detector):
     no regression. If absent, the package's publish history (ordered by the registry
     `time` map) is walked backward. Finding an earlier version that did carry
     attestations flags the package; running out of earlier versions without finding
-    one means the package never used provenance, which is not a regression."""
+    one means the package never used provenance, which is not a regression.
+
+    Only versions that also precede the scanned one in semver order count as evidence,
+    and prereleases only count when the scanned version is itself a prerelease."""
 
     def __init__(self):
         super().__init__(
@@ -120,6 +138,31 @@ class NPMProvenanceRegressionDetector(Detector):
         # two versions share an identical timestamp, which does not happen in practice;
         # it never changes whether a package is flagged, only which version is named.
         for _, earlier_version in sorted(earlier, reverse=True):
+            if not self._precedes_in_release_order(earlier_version, current_version):
+                continue
             if self._has_attestations(versions.get(earlier_version, {})):
                 return earlier_version
         return None
+
+    @staticmethod
+    def _precedes_in_release_order(candidate: str, current_version: str) -> bool:
+        """Whether `candidate` can be evidence of provenance the current version lost.
+
+        A version published earlier in time still belongs to a later release line when
+        it is semver-greater, e.g. an attested `8.0.0-alpha` published before an
+        unattested `7.8.2` maintenance patch. Such a version is not something the
+        current one regressed from.
+
+        Prereleases only count as evidence for another prerelease: a project commonly
+        pipes its `next` line through attested CI before its stable line, and a stable
+        release that lacks what only an alpha had has not lost anything.
+        """
+        current_semver = _parse_semver(current_version)
+        candidate_semver = _parse_semver(candidate)
+        if current_semver is None or candidate_semver is None:
+            # npm requires valid semver, so this is unreachable in practice; fall back
+            # to publish order rather than silently dropping the version from the walk.
+            return True
+        if candidate_semver.prerelease and not current_semver.prerelease:
+            return False
+        return candidate_semver < current_semver

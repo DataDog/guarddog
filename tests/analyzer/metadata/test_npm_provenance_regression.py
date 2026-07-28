@@ -123,6 +123,80 @@ class TestProvenanceRegression:
         assert matched is False
         assert message is None
 
+    def test_attested_prerelease_of_later_line_not_a_regression(self):
+        # The rxjs shape: the 8.x `next` line publishes from attested CI, while the
+        # stable 7.x line keeps its old unattested release flow. 7.8.2 is published
+        # after the alphas in wall-clock time but does not descend from them.
+        info = make_info(
+            versions_attested={
+                "7.8.1": False,
+                "8.0.0-alpha.13": True,
+                "8.0.0-alpha.14": True,
+                "7.8.2": False,
+            },
+            times={
+                "created": "2023-01-01T00:00:00.000Z",
+                "7.8.1": "2023-01-01T00:00:00.000Z",
+                "8.0.0-alpha.13": "2023-12-20T19:08:38.140Z",
+                "8.0.0-alpha.14": "2024-01-12T22:23:48.154Z",
+                "7.8.2": "2025-02-22T03:00:42.711Z",
+                "modified": "2025-02-22T03:00:42.711Z",
+            },
+            latest="7.8.2",
+        )
+        matched, message = self.detector.detect(info)
+        assert matched is False
+        assert message is None
+
+    def test_maintenance_patch_after_attested_major_not_a_regression(self):
+        # 2.0.0 publishes with provenance, then a 1.x backport is cut without it.
+        info = make_info(
+            versions_attested={"1.9.0": False, "2.0.0": True, "1.9.1": False},
+            times={
+                "created": "2024-01-01T00:00:00.000Z",
+                "1.9.0": "2024-01-01T00:00:00.000Z",
+                "2.0.0": "2024-06-01T00:00:00.000Z",
+                "1.9.1": "2024-07-01T00:00:00.000Z",
+                "modified": "2024-07-01T00:00:00.000Z",
+            },
+            latest="2.0.0",
+        )
+        matched, message = self.detector.detect(info, version="1.9.1")
+        assert matched is False
+        assert message is None
+
+    def test_major_bump_dropping_attestations_is_flagged(self):
+        info = make_info(
+            versions_attested={"1.9.0": True, "2.0.0": False},
+            times={
+                "created": "2024-01-01T00:00:00.000Z",
+                "1.9.0": "2024-01-01T00:00:00.000Z",
+                "2.0.0": "2024-06-01T00:00:00.000Z",
+                "modified": "2024-06-01T00:00:00.000Z",
+            },
+            latest="2.0.0",
+        )
+        matched, message = self.detector.detect(info)
+        assert matched is True
+        assert message is not None
+        assert "1.9.0" in message
+
+    def test_prerelease_regression_against_earlier_prerelease_is_flagged(self):
+        info = make_info(
+            versions_attested={"8.0.0-alpha.13": True, "8.0.0-alpha.14": False},
+            times={
+                "created": "2023-12-20T19:08:38.140Z",
+                "8.0.0-alpha.13": "2023-12-20T19:08:38.140Z",
+                "8.0.0-alpha.14": "2024-01-12T22:23:48.154Z",
+                "modified": "2024-01-12T22:23:48.154Z",
+            },
+            latest="8.0.0-alpha.14",
+        )
+        matched, message = self.detector.detect(info)
+        assert matched is True
+        assert message is not None
+        assert "8.0.0-alpha.13" in message
+
     def test_explicit_version_argument_respected(self):
         # Scanning the earlier 1.1.0 (which itself dropped attestations after 1.0.0)
         # flags against 1.0.0 even though a later attested 1.2.0 exists.
