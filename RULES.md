@@ -30,7 +30,7 @@ Rules are categorized by their `identifies` field which determines how they part
 
 | **Rule** | **Identifies** | **Description** | **Severity** | **PyPI** | **npm** | **go** | **GitHub Action** | **Extension** | **RubyGems** |
 |:---------|:---------------|:----------------|:------------:|:---:|:---:|:---:|:---:|:---:|:---:|
-| threat-filesystem-read | `threat.filesystem.read` | Detects access to sensitive files (credentials, configs, keys) | high | :white_check_mark: | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
+| threat-filesystem-read | `threat.filesystem.read` | Detects access to sensitive files (credentials, configs, keys) | high | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | threat-runtime-obfuscation-chr | `threat.runtime.obfuscation` | Detects chr-based code obfuscation: exec/eval of chr() sequences | high | :white_check_mark: | | | | | |
 | threat-runtime-obfuscation-dynamic-eval | `threat.runtime.obfuscation.dynamic-eval` | Detects JavaScript payloads executed through eval/Function over a self-decoding wrapper or character-code/base64 decoded data | high | | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
 | threat-npm-preinstall-script | `threat.process.hooks` | Detects npm preinstall scripts, which are almost exclusively used for malware delivery | high | | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
@@ -53,7 +53,7 @@ Rules are categorized by their `identifies` field which determines how they part
 | threat-process-hooks | `threat.process.hooks` | Detects LOLBAS usage in install hooks (execution and network tools) | medium | :white_check_mark: | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
 | threat-runtime-obfuscation | `threat.runtime.obfuscation` | Detects heavy obfuscation techniques commonly used by malware | low | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | |
 | threat-npm-http-dependency | `threat.npm.http.dependency` | Detects HTTP/HTTPS URL dependencies in package.json (dependency confusion, untrusted sources) | high | | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
-| threat-network-outbound-shady-links | `threat.network.outbound.shady_links` | Detects URLs to URL shorteners, file sharing, and suspicious services | medium | :white_check_mark: | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
+| threat-network-outbound-shady-links | `threat.network.outbound.shady_links` | Detects URLs to URL shorteners, file sharing, and suspicious services | medium | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | threat-runtime-obfuscation-unicode | `threat.runtime.obfuscation.unicode` | Detects unicode homoglyphs and uncommon characters used for obfuscation | medium | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | |
 | threat-process-sysinfo | `threat.process.spawn.sysinfo` | Detects LOLBAS usage in process spawning | medium | :white_check_mark: | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
 | threat-runtime-obfuscation-log-suppress | `threat.runtime.obfuscation` | Detects log/console suppression combined with obfuscated code, a common malware evasion pattern | medium | | :white_check_mark: | | :white_check_mark: | :white_check_mark: | |
@@ -87,5 +87,6 @@ Rules are categorized by their `identifies` field which determines how they part
 | metadata_mismatch | `threat.metadata.manifest-mismatch` | Identify packages with mismatches between registry metadata and the actual package manifest | medium | execution | :white_check_mark: | :white_check_mark: | | | | |
 | direct_url_dependency | `threat.metadata.direct-url-dep` | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. | medium | initial-access | | :white_check_mark: | | | | |
 | risky_new_dependency | `threat.npm.risky-new-dependency` | Identify newly added dependencies that are themselves risky. A dependency introduced in this version but absent from the previous one is scanned as a package; it is flagged when its risk score is high. | high | initial-access | | :white_check_mark: | | | | |
+| provenance_regression | `threat.npm.provenance-regression` | Identify a version that lost npm provenance attestations that earlier versions had. A version dropping provenance after prior versions carried it can indicate a publish made outside the normal CI-attested flow. | medium | initial-access | | :white_check_mark: | | | | |
 
 <!-- END_RULE_LIST -->
