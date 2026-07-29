@@ -14,6 +14,33 @@ MANIFEST_FIELDS_CHECKLIST = {
 }
 
 
+def _load_package_manifest(path: str, package_name: Optional[str]) -> Dict[str, Any]:
+    """Load package.json from a supported npm tarball root.
+
+    npm normally stores package contents under ``package/``. DefinitelyTyped
+    packages instead use the unscoped package name (for example,
+    ``@types/express`` extracts to ``express/``).
+    """
+    root = Path(path)
+    candidates = [root / "package" / "package.json"]
+    if package_name:
+        unscoped_name = package_name.rsplit("/", 1)[-1]
+        named_manifest = root / unscoped_name / "package.json"
+        if named_manifest not in candidates:
+            candidates.append(named_manifest)
+
+    for package_json in candidates:
+        try:
+            return json.loads(package_json.read_text())
+        except FileNotFoundError:
+            continue
+
+    expected_paths = ", ".join(str(candidate) for candidate in candidates)
+    raise FileNotFoundError(
+        f"package.json was not found at an expected npm archive root: {expected_paths}"
+    )
+
+
 class NPMMetadataMismatchDetector(MetadataMismatchDetector):
     """Compares npm registry metadata against the package.json inside the tarball.
 
@@ -35,8 +62,8 @@ class NPMMetadataMismatchDetector(MetadataMismatchDetector):
         # Load package.json manifest
         if path is None:
             raise ValueError("path is needed to run heuristic " + self.get_name())
-        package_json = Path(path) / "package" / "package.json"
-        package_manifest: Dict[str, Any] = json.loads(package_json.read_text())
+        package_name = name or package_info.get("name")
+        package_manifest = _load_package_manifest(path, package_name)
 
         # Get NPM manifest for version
         version_info = package_info["versions"][version]
