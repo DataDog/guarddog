@@ -13,6 +13,33 @@ NPM_ALIAS_PATTERN = re.compile(
     r"^npm:(?P<package>@[^/@\s]+/[^@\s]+|[^@\s]+)(?:@(?P<selector>.+))?$"
 )
 
+# Keys in the registry `time` object that are not version publish timestamps.
+NON_VERSION_TIME_KEYS = {"created", "modified"}
+
+
+def published_versions_before(package_info: dict, version: str) -> list[str]:
+    """Versions of a package published before `version`, most recent publish first.
+
+    Publish times come from the registry `time` map, whose ISO 8601 timestamps sort
+    lexicographically. Entries with no matching record under `versions` are dropped so
+    unpublished versions don't appear as history. The result is empty when `version`
+    itself has no publish timestamp, since then nothing can be ordered against it.
+    """
+    versions = package_info.get("versions", {})
+    published = {
+        v: t
+        for v, t in package_info.get("time", {}).items()
+        if v not in NON_VERSION_TIME_KEYS and v in versions
+    }
+    current_time = published.get(version)
+    if current_time is None:
+        return []
+
+    # The version-string tie-break only matters when two versions share an identical
+    # timestamp, which does not happen in practice.
+    earlier = [(t, v) for v, t in published.items() if t < current_time]
+    return [v for _, v in sorted(earlier, reverse=True)]
+
 
 def resolve_npm_alias(package_name: str, selector: str) -> tuple[str, str]:
     """Normalize an npm alias so scanning targets the real package.

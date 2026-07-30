@@ -14,6 +14,9 @@ from guarddog.analyzer.metadata.npm.deceptive_author import NPMDeceptiveAuthor
 from guarddog.analyzer.metadata.npm.risky_new_dependency import (
     NPMRiskyNewDependencyDetector,
 )
+from guarddog.analyzer.metadata.npm.provenance_regression import (
+    NPMProvenanceRegressionDetector,
+)
 
 NPM_METADATA_RULES = {}
 
@@ -26,6 +29,7 @@ classes = [
     NPMBundledBinary,
     NPMDeceptiveAuthor,
     NPMRiskyNewDependencyDetector,
+    NPMProvenanceRegressionDetector,
 ]
 
 for detectorClass in classes:
