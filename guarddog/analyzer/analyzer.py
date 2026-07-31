@@ -135,16 +135,66 @@ class Analyzer:
 
             elif language == LANGUAGE.PYTHON:
                 # For Python, check if we're inside """ or '''
-                for quote in ['"""', "'''"]:
-                    # Count occurrences - if odd, we're inside a docstring
-                    count = window.count(quote)
-                    if count % 2 == 1:
-                        return True
+                return Analyzer._ends_inside_python_triple_quote(window)
 
         except Exception:
             pass
 
         return False
+
+    @staticmethod
+    def _ends_inside_python_triple_quote(window: str) -> bool:
+        """
+        Return True if the end of `window` falls inside an unterminated Python
+        triple-quoted string.
+
+        A single forward pass is used rather than counting `\"\"\"`/`'''`
+        occurrences: a triple quote appearing as an ordinary string *value*
+        (``banner = '\"\"\"'``) or inside a `#` comment must not flip the state,
+        which parity counting got wrong and which caused real YARA matches to be
+        discarded as "inside a docstring".
+        """
+        i = 0
+        n = len(window)
+        delimiter: Optional[str] = None  # currently open quote, if any
+        while i < n:
+            char = window[i]
+            if delimiter is None:
+                if char == "#":
+                    # Skip to end of line comment
+                    newline = window.find("\n", i)
+                    if newline == -1:
+                        return False
+                    i = newline + 1
+                    continue
+                if char in "\"'":
+                    if window.startswith(char * 3, i):
+                        delimiter = char * 3
+                        i += 3
+                    else:
+                        delimiter = char
+                        i += 1
+                    continue
+                i += 1
+                continue
+
+            # Inside a string literal
+            if char == "\\":
+                i += 2
+                continue
+            if len(delimiter) == 1:
+                if char == delimiter or char == "\n":
+                    # Single-quoted strings cannot span lines
+                    delimiter = None
+                i += 1
+                continue
+            if window.startswith(delimiter, i):
+                delimiter = None
+                i += 3
+                continue
+            i += 1
+
+        return delimiter is not None and len(delimiter) == 3
 
     @staticmethod
     def is_match_in_comment(
