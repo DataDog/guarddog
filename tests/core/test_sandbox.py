@@ -63,6 +63,13 @@ class TestApplySandbox:
         paths = _get_common_read_paths()
         assert any(p == os.path.realpath(sys.prefix) for p in paths)
 
+    def test_common_read_paths_includes_cwd(self):
+        """os.getcwd() must be readable: tarsafe calls it during extraction
+        to bound path-traversal checks, and the sandbox otherwise denies it
+        with a PermissionError that tarfile misreports as corrupt data."""
+        paths = _get_common_read_paths()
+        assert os.path.realpath(os.getcwd()) in paths
+
 
 class TestPathVariants:
     def test_plain_path_returns_single_entry(self):
