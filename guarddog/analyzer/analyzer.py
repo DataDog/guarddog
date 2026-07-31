@@ -438,11 +438,14 @@ class Analyzer:
                 hits_found = 0
                 should_stop = False
 
-                for root, _, files in os.walk(path):
+                for root, dirs, files in os.walk(path):
                     if should_stop:
                         break
 
-                    for f in files:
+                    # Sort for deterministic max_hits results across machines (#828)
+                    dirs.sort()
+
+                    for f in sorted(files):
                         if should_stop:
                             break
 
