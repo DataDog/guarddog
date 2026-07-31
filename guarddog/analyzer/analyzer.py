@@ -389,6 +389,9 @@ class Analyzer:
             # filtering the full ruleset witht the user's input
             all_rules = self.yara_ruleset & rules
 
+        # Sort for deterministic result/rule ordering across machines (#828)
+        all_rules = sorted(all_rules)
+
         results = {rule: {} for rule in all_rules}  # type: dict
         errors: Dict[str, str] = {}
         issues = 0
