@@ -63,12 +63,12 @@ class TestApplySandbox:
         paths = _get_common_read_paths()
         assert any(p == os.path.realpath(sys.prefix) for p in paths)
 
-    def test_common_read_paths_includes_cwd(self):
-        """os.getcwd() must be readable: tarsafe calls it during extraction
-        to bound path-traversal checks, and the sandbox otherwise denies it
-        with a PermissionError that tarfile misreports as corrupt data."""
+    @patch("guarddog.sandbox.os.getcwd", side_effect=FileNotFoundError)
+    def test_common_read_paths_does_not_require_cwd(self, mock_getcwd):
+        """Building the common allowlist does not depend on the current directory."""
         paths = _get_common_read_paths()
-        assert os.path.realpath(os.getcwd()) in paths
+        assert paths
+        mock_getcwd.assert_not_called()
 
 
 class TestPathVariants:

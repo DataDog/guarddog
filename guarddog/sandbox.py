@@ -139,13 +139,6 @@ def _get_common_read_paths() -> list[str]:
 
     candidates = [sys.prefix, sys.base_prefix, "/usr", "/lib"]
 
-    # Current working directory: sandboxed scanning runs from wherever the
-    # user's shell happens to be, and tarsafe calls os.getcwd() during
-    # extraction to bound path-traversal checks. Without READ access here
-    # that call fails with PermissionError, which tarfile misreports as
-    # "not a gzip file".
-    candidates.append(os.getcwd())
-
     # SSL certificate directories: pygit2 initializes OpenSSL at import time and
     # reads the system CA bundle. On Linux (Landlock), only explicitly listed paths
     # are readable — unlike macOS (Seatbelt) which includes system paths by default.
