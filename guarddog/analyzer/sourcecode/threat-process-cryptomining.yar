@@ -9,7 +9,7 @@ rule threat_process_cryptomining
         specificity = "high"
         sophistication = "medium"
         max_hits = 3
-        path_include = "*.py,*.pyx,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.sh"
+        path_include = "*.py,*.pyx,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs,*.go,*.rb,*.sh,*.rs"
 
     strings:
         // Mining software

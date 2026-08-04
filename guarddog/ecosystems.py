@@ -5,6 +5,7 @@ class ECOSYSTEM(Enum):
     PYPI = "pypi"
     NPM = "npm"
     GO = "go"
+    CRATES = "crates"
     GITHUB_ACTION = "github-action"
     EXTENSION = "extension"
     RUBYGEMS = "rubygems"
@@ -17,6 +18,7 @@ class LANGUAGE(Enum):
     JAVASCRIPT = "javascript"
     TYPESCRIPT = "typescript"
     GO = "go"
+    RUST = "rust"
     RUBY = "ruby"
 
 
@@ -28,6 +30,8 @@ def get_friendly_name(ecosystem: ECOSYSTEM) -> str:
             return "npm"
         case ECOSYSTEM.GO:
             return "go"
+        case ECOSYSTEM.CRATES:
+            return "crates.io"
         case ECOSYSTEM.GITHUB_ACTION:
             return "GitHub Action"
         case ECOSYSTEM.EXTENSION:

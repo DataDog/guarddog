@@ -7,6 +7,8 @@ from .pypi_package_scanner import PypiPackageScanner
 from .pypi_project_scanner import PypiRequirementsScanner
 from .go_package_scanner import GoModuleScanner
 from .go_project_scanner import GoDependenciesScanner
+from .crates_package_scanner import CratesPackageScanner
+from .cargo_project_scanner import CargoLockScanner
 from .github_action_scanner import GithubActionScanner
 from .extension_scanner import ExtensionScanner
 from .rubygems_package_scanner import RubyGemsPackageScanner
@@ -34,6 +36,8 @@ def get_package_scanner(ecosystem: ECOSYSTEM) -> Optional[PackageScanner]:
             return NPMPackageScanner()
         case ECOSYSTEM.GO:
             return GoModuleScanner()
+        case ECOSYSTEM.CRATES:
+            return CratesPackageScanner()
         case ECOSYSTEM.GITHUB_ACTION:
             return GithubActionScanner()
         case ECOSYSTEM.EXTENSION:
@@ -62,6 +66,8 @@ def get_project_scanner(ecosystem: ECOSYSTEM) -> Optional[ProjectScanner]:
             return NPMRequirementsScanner()
         case ECOSYSTEM.GO:
             return GoDependenciesScanner()
+        case ECOSYSTEM.CRATES:
+            return CargoLockScanner()
         case ECOSYSTEM.GITHUB_ACTION:
             return GitHubActionDependencyScanner()
         case ECOSYSTEM.EXTENSION:

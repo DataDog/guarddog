@@ -81,6 +81,7 @@ class Analyzer:
             ".ts": LANGUAGE.TYPESCRIPT,
             ".tsx": LANGUAGE.TYPESCRIPT,
             ".go": LANGUAGE.GO,
+            ".rs": LANGUAGE.RUST,
             ".rb": LANGUAGE.RUBY,
         }
         return language_map.get(ext)
@@ -123,7 +124,12 @@ class Analyzer:
                     "utf-8", errors="ignore"
                 )
 
-            if language in [LANGUAGE.JAVASCRIPT, LANGUAGE.TYPESCRIPT, LANGUAGE.GO]:
+            if language in [
+                LANGUAGE.JAVASCRIPT,
+                LANGUAGE.TYPESCRIPT,
+                LANGUAGE.GO,
+                LANGUAGE.RUST,
+            ]:
                 # Search backwards for first /* or */
                 last_open = window.rfind("/*")
                 last_close = window.rfind("*/")
@@ -194,6 +200,7 @@ class Analyzer:
                 LANGUAGE.JAVASCRIPT,
                 LANGUAGE.TYPESCRIPT,
                 LANGUAGE.GO,
+                LANGUAGE.RUST,
             ] and line_stripped.startswith("//"):
                 return True
 
