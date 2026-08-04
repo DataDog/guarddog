@@ -11,6 +11,31 @@ import guarddog.scanners.scanner as scanner
 
 class TestCli(unittest.TestCase):
 
+    def test_archive_sandbox_changes_to_temp_root_before_lockdown(self):
+        """Archive extraction starts from the allowed temporary root."""
+        order = []
+
+        with mock.patch(
+            "guarddog.cli.os.chdir",
+            side_effect=lambda path: order.append(("chdir", path)),
+        ):
+            with mock.patch(
+                "guarddog.cli.apply_sandbox",
+                side_effect=lambda **kwargs: order.append(("sandbox", kwargs)),
+            ):
+                guarddog.cli._apply_archive_sandbox("/tmp/guarddog-scan", "/tmp")
+
+        self.assertEqual(
+            order,
+            [
+                ("chdir", "/tmp"),
+                (
+                    "sandbox",
+                    {"scan_paths": [], "writable_paths": ["/tmp/guarddog-scan"]},
+                ),
+            ],
+        )
+
     def test_local_directory(self):
         """
         Test that the CLI identifies local directories correctly
