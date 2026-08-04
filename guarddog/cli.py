@@ -186,6 +186,15 @@ def _verify(
     return return_value  # this is mostly for testing
 
 
+def _apply_archive_sandbox(tempdir: str, tmp_root: str) -> None:
+    """Apply the sandbox from the temporary root used for archive work."""
+    # tarsafe reads the current directory during extraction. Move to the
+    # persistent temp root, which the sandbox already allows, before locking
+    # down the process.
+    os.chdir(tmp_root)
+    apply_sandbox(scan_paths=[], writable_paths=[tempdir])
+
+
 def _scan(
     identifier,
     version,
@@ -275,7 +284,7 @@ def _scan(
                 sandboxed_archive = os.path.join(tempdir, os.path.basename(identifier))
                 shutil.copyfile(identifier, sandboxed_archive)
                 if sandbox:
-                    apply_sandbox(scan_paths=[], writable_paths=[tempdir])
+                    _apply_archive_sandbox(tempdir, tmp_root)
                 extract_dir = os.path.join(tempdir, "_extracted")
                 os.makedirs(extract_dir, exist_ok=True)
                 safe_extract(
@@ -306,7 +315,7 @@ def _scan(
                 with open(archive_path, "wb") as f:
                     f.write(response.raw.read())
                 if sandbox:
-                    apply_sandbox(scan_paths=[], writable_paths=[tempdir])
+                    _apply_archive_sandbox(tempdir, tmp_root)
                 extract_dir = os.path.join(tempdir, "_extracted")
                 os.makedirs(extract_dir, exist_ok=True)
                 safe_extract(archive_path, extract_dir, zip_password=zip_password_bytes)
@@ -337,7 +346,10 @@ def _scan(
                 # http/https branch).
                 kind, local_path = download_from_s3(identifier, download_root)
                 if sandbox:
-                    apply_sandbox(scan_paths=[], writable_paths=[tempdir])
+                    if kind == "archive":
+                        _apply_archive_sandbox(tempdir, tmp_root)
+                    else:
+                        apply_sandbox(scan_paths=[], writable_paths=[tempdir])
                 if kind == "archive":
                     extract_dir = os.path.join(tempdir, "_extracted")
                     os.makedirs(extract_dir, exist_ok=True)
