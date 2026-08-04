@@ -17,7 +17,11 @@ from typing import List, Optional
 from guarddog.analyzer.metadata.detector import Detector
 from guarddog.analyzer.risk_engine import RiskLabel
 from guarddog.utils.config import NEW_DEPENDENCY_RISK_THRESHOLD
-from guarddog.utils.npm import highest_matching_version, resolve_npm_alias
+from guarddog.utils.npm import (
+    highest_matching_version,
+    published_versions_before,
+    resolve_npm_alias,
+)
 
 log = logging.getLogger("guarddog")
 
@@ -34,9 +38,6 @@ class DependencyRisk:
 
 # Upper bound on a single sub-dependency scan so one slow scan can't hang the parent.
 SUBSCAN_TIMEOUT_SECONDS = 300
-
-# Keys in the registry `time` object that are not version publish timestamps.
-_NON_VERSION_TIME_KEYS = {"created", "modified"}
 
 # Risk labels phrased to match GuardDog's overall assessment wording.
 _LABEL_PHRASE = {
@@ -147,25 +148,9 @@ class NPMRiskyNewDependencyDetector(Detector):
     def _previous_published_version(
         self, package_info, current_version: str
     ) -> Optional[str]:
-        """Return the version published immediately before `current_version`.
-
-        Publish times come from the registry `time` map; ISO 8601 timestamps sort
-        lexicographically, so the previous version is the one with the greatest
-        timestamp strictly before the current version's.
-        """
-        published = {
-            v: t
-            for v, t in package_info.get("time", {}).items()
-            if v not in _NON_VERSION_TIME_KEYS and v in package_info.get("versions", {})
-        }
-        current_time = published.get(current_version)
-        if current_time is None:
-            return None
-
-        earlier = [(t, v) for v, t in published.items() if t < current_time]
-        if not earlier:
-            return None
-        return max(earlier)[1]
+        """Return the version published immediately before `current_version`."""
+        earlier = published_versions_before(package_info, current_version)
+        return earlier[0] if earlier else None
 
     @staticmethod
     def _installed_dependencies(version_info: dict) -> dict:

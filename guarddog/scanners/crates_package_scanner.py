@@ -46,10 +46,11 @@ class CratesPackageScanner(PackageScanner):
                 f"Download path for crate {package_name} {resolved_version} not found"
             )
 
-        archive_path = os.path.join(
-            directory, f"{package_name}-{resolved_version}.crate"
-        )
-        extract_path = os.path.join(directory, f"{package_name}-{resolved_version}")
+        path_name = quote(package_name, safe="")
+        path_version = quote(str(resolved_version), safe="")
+        path_stem = f"{path_name}-{path_version}"
+        archive_path = os.path.join(directory, f"{path_stem}.crate")
+        extract_path = os.path.join(directory, path_stem)
         download_url = urljoin(CRATES_IO_URL, download_path)
         self.download_compressed(download_url, archive_path, extract_path)
 

@@ -87,5 +87,6 @@ Rules are categorized by their `identifies` field which determines how they part
 | metadata_mismatch | `threat.metadata.manifest-mismatch` | Identify packages with mismatches between registry metadata and the actual package manifest | medium | execution | :white_check_mark: | :white_check_mark: | | | | | |
 | direct_url_dependency | `threat.metadata.direct-url-dep` | Identify packages with direct URL dependencies. Dependencies fetched this way are not immutable and can be used to inject untrusted code or reduce the likelihood of a reproducible install. | medium | initial-access | | :white_check_mark: | | | | | |
 | risky_new_dependency | `threat.npm.risky-new-dependency` | Identify newly added dependencies that are themselves risky. A dependency introduced in this version but absent from the previous one is scanned as a package; it is flagged when its risk score is high. | high | initial-access | | :white_check_mark: | | | | | |
+| provenance_regression | `threat.metadata.provenance-regression` | Identify a version that lost npm provenance attestations that earlier versions had. A version dropping provenance after prior versions carried it can indicate a publish made outside the normal CI-attested flow. | medium | initial-access | | :white_check_mark: | | | | | |
 
 <!-- END_RULE_LIST -->

@@ -1,4 +1,5 @@
 from copy import deepcopy
+import json
 
 import pytest
 
@@ -86,9 +87,7 @@ class TestNPMMetadataMismatch:
         )
         assert result == modification[3]
 
-    def test_git_url_trailing_dot_git_no_false_positive(
-        self, mocker, npm_package_info
-    ):
+    def test_git_url_trailing_dot_git_no_false_positive(self, mocker, npm_package_info):
         """Git URLs differing only by trailing .git should not trigger a mismatch.
 
         Regression test for https://github.com/DataDog/guarddog/issues/634
@@ -110,6 +109,27 @@ class TestNPMMetadataMismatch:
 
         result, _ = self.mismatch_detector.detect(npm_version_metadata, path="./")
         assert result is False
+
+    def test_definitelytyped_package_root(self, tmp_path, npm_package_info):
+        """DefinitelyTyped tarballs use the unscoped name as their root."""
+        package_info = deepcopy(npm_package_info)
+        package_info["name"] = "@types/express"
+        package_info["versions"][self.target_version]["name"] = "@types/express"
+        package_manifest = deepcopy(package_info["versions"][self.target_version])
+
+        package_root = tmp_path / "express"
+        package_root.mkdir()
+        (package_root / "package.json").write_text(json.dumps(package_manifest))
+
+        result, description = self.mismatch_detector.detect(
+            package_info,
+            path=str(tmp_path),
+            name="@types/express",
+            version=self.target_version,
+        )
+
+        assert result is False
+        assert description == "No differences found"
 
 
 class TestNormalizeGitUrl:
@@ -140,7 +160,10 @@ class TestNormalizeGitUrl:
     def test_non_git_url_unchanged(self):
         assert _normalize_git_url("1.2.3") == "1.2.3"
         assert _normalize_git_url("^2.0.0") == "^2.0.0"
-        assert _normalize_git_url("https://example.com/pkg.git") == "https://example.com/pkg.git"
+        assert (
+            _normalize_git_url("https://example.com/pkg.git")
+            == "https://example.com/pkg.git"
+        )
 
     def test_none_passthrough(self):
         assert _normalize_git_url(None) is None
