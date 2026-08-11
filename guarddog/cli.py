@@ -563,9 +563,24 @@ class CliEcosystem(click.Group):
             ):
                 # --include-dev-dependencies is npm-only. When passed it overrides
                 # the GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES env var (default: false)
-                # so that devDependencies are scanned too.
+                # so that devDependencies are scanned too. The override is scoped
+                # to this invocation: the prior value is restored afterwards so a
+                # flag in one call does not leak into subsequent ones (CliRunner,
+                # embedded use of the cli object, ...).
                 if kwargs.get("include_dev_dependencies"):
+                    prior = npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES
                     npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = True
+                    try:
+                        return _verify(
+                            target,
+                            rules,
+                            exclude_rules,
+                            output_format,
+                            exit_non_zero_on_finding,
+                            self.ecosystem,
+                        )
+                    finally:
+                        npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = prior
                 return _verify(
                     target,
                     rules,

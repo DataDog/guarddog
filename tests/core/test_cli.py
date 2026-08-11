@@ -467,23 +467,36 @@ class TestCli(unittest.TestCase):
                         apply_sandbox.assert_not_called()
 
     def test_npm_verify_include_dev_dependencies_flag_overrides_config(self):
-        """`npm verify --include-dev-dependencies` sets the scanner config to True."""
+        """`npm verify --include-dev-dependencies` sets the scanner config to True
+        for that invocation only, then restores the prior value."""
         import guarddog.scanners.npm_project_scanner as npm_project_scanner
         from click.testing import CliRunner
 
         runner = CliRunner()
         original = npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES
         npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = False
+        seen = {}
+
+        def _verify_spy(*args, **kwargs):
+            seen["during"] = npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES
+            return None
+
         try:
-            with mock.patch("guarddog.cli._verify", return_value=None) as verify_fn:
+            with mock.patch(
+                "guarddog.cli._verify", side_effect=_verify_spy
+            ) as verify_fn:
                 result = runner.invoke(
                     guarddog.cli.cli,
                     ["npm", "verify", "--include-dev-dependencies", "/tmp/foo"],
                 )
             self.assertEqual(result.exit_code, 0, result.output)
             self.assertTrue(
+                seen.get("during"),
+                "flag must override the env-var default to True during _verify",
+            )
+            self.assertFalse(
                 npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES,
-                "flag must override the env-var default to True",
+                "override must be restored after the invocation",
             )
             verify_fn.assert_called_once()
         finally:
@@ -499,9 +512,7 @@ class TestCli(unittest.TestCase):
         npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = False
         try:
             with mock.patch("guarddog.cli._verify", return_value=None):
-                result = runner.invoke(
-                    guarddog.cli.cli, ["npm", "verify", "/tmp/foo"]
-                )
+                result = runner.invoke(guarddog.cli.cli, ["npm", "verify", "/tmp/foo"])
             self.assertEqual(result.exit_code, 0, result.output)
             self.assertFalse(
                 npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES,
