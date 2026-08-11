@@ -151,12 +151,19 @@ def _get_rule_param(
 
 
 def _verify(
-    path, rules, exclude_rules, output_format, exit_non_zero_on_finding, ecosystem
+    path,
+    rules,
+    exclude_rules,
+    output_format,
+    exit_non_zero_on_finding,
+    ecosystem,
+    exclude_dev: bool = False,
 ):
     """Verify a requirements.txt file
 
     Args:
         path (str): path to requirements.txt file
+        exclude_dev (bool): skip devDependencies (npm only)
     """
     return_value = None
     rule_param = _get_rule_param(rules, exclude_rules, ecosystem)
@@ -165,7 +172,10 @@ def _verify(
         log.error(f"Command verify is not supported for ecosystem {ecosystem}")
         exit(1)
 
-    dependencies, results = scanner.scan_local(path=path, rules=rule_param)
+    scan_kwargs = {"path": path, "rules": rule_param}
+    if exclude_dev:
+        scan_kwargs["exclude_dev"] = True
+    dependencies, results = scanner.scan_local(**scan_kwargs)
 
     rule_docs = list(rule_param or _get_all_rules(ecosystem=ecosystem))
 
@@ -545,21 +555,43 @@ class CliEcosystem(click.Group):
                 zip_password=zip_password,
             )
 
-        @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
-        @common_options
-        @verify_options
-        @rule_options
-        def verify_ecosystem(
-            target, rules, exclude_rules, output_format, exit_non_zero_on_finding
-        ):
-            return _verify(
-                target,
-                rules,
-                exclude_rules,
-                output_format,
-                exit_non_zero_on_finding,
-                self.ecosystem,
-            )
+        def _build_verify_command():
+            @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
+            @common_options
+            @verify_options
+            @rule_options
+            def verify_ecosystem(
+                target, rules, exclude_rules, output_format, exit_non_zero_on_finding,
+                **kwargs,
+            ):
+                return _verify(
+                    target,
+                    rules,
+                    exclude_rules,
+                    output_format,
+                    exit_non_zero_on_finding,
+                    self.ecosystem,
+                    exclude_dev=kwargs.get("exclude_dev", False),
+                )
+
+            # --exclude-dev is npm-specific: devDependencies have no equivalent
+            # in other ecosystems (PyPI, Go modules, RubyGems, Rust crates).
+            if self.ecosystem == ECOSYSTEM.NPM:
+                verify_ecosystem = click.option(
+                    "--exclude-dev",
+                    is_flag=True,
+                    default=False,
+                    help=(
+                        "Exclude devDependencies from the scan. "
+                        "Only production dependencies (under the 'dependencies' key) "
+                        "are scanned. Useful when auditing a package for supply-chain "
+                        "risk in production deployments."
+                    ),
+                )(verify_ecosystem)
+
+            return verify_ecosystem
+
+        verify_ecosystem = _build_verify_command()
 
         @click.command(
             "list-rules", help=f"List available rules for {self.ecosystem.name}"

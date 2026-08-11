@@ -2,10 +2,17 @@ import json
 import logging
 import os
 import re
-from typing import List
+import typing
+from typing import List, Tuple
 
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
-from guarddog.scanners.scanner import Dependency, DependencyVersion, ProjectScanner
+from guarddog.scanners.scanner import (
+    Dependency,
+    DependencyFile,
+    DependencyVersion,
+    ProjectScanner,
+    noop,
+)
 from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
 from guarddog.utils.npm import (
     find_all_versions,
@@ -27,13 +34,18 @@ class NPMRequirementsScanner(ProjectScanner):
     def __init__(self) -> None:
         super().__init__(NPMPackageScanner())
 
-    def parse_requirements(self, raw_requirements: str) -> List[Dependency]:
+    def parse_requirements(
+        self, raw_requirements: str, exclude_dev: bool = False
+    ) -> List[Dependency]:
         """
         Parses requirements.txt specification and finds all valid
         versions of each dependency
 
         Args:
             raw_requirements (str): contents of package file
+            exclude_dev (bool): when True, devDependencies are skipped and
+                only production dependencies are scanned. Defaults to False
+                (scan all dependencies).
 
         Returns:
             dict: mapping of dependencies to valid versions
@@ -48,7 +60,8 @@ class NPMRequirementsScanner(ProjectScanner):
         package = json.loads(raw_requirements)
         dependencies_attr = package["dependencies"] if "dependencies" in package else {}
         dev_dependencies_attr = (
-            package["devDependencies"] if "devDependencies" in package else {}
+            {} if exclude_dev
+            else package.get("devDependencies", {})
         )
         raw_requirement_lines = raw_requirements.splitlines()
 
@@ -116,6 +129,55 @@ class NPMRequirementsScanner(ProjectScanner):
             dep.versions.update(dep_versions)
 
         return dependencies
+
+    def scan_local(
+        self,
+        path: str,
+        rules=None,
+        callback: typing.Callable[[dict], None] = noop,
+        exclude_dev: bool = False,
+    ) -> Tuple[List[DependencyFile], list[dict]]:
+        """
+        Scans a local package.json file or directory, with optional
+        exclusion of devDependencies.
+
+        Args:
+            path (str): path to package.json or directory to search
+            rules: list of rules to apply
+            callback: callback to call for each result
+            exclude_dev (bool): when True, devDependencies are skipped.
+                Only production dependencies under the "dependencies" key
+                are scanned. Defaults to False.
+
+        Returns:
+            Tuple of (dependency files, scan results)
+        """
+        requirement_paths = []
+
+        if os.path.isfile(path):
+            requirement_paths.append(path)
+        elif os.path.isdir(path):
+            requirement_paths.extend(self.find_requirements(path))
+        else:
+            raise ValueError(f"unable to find file or directory {path}")
+
+        dep_files: List[DependencyFile] = []
+
+        for req in requirement_paths:
+            with open(req, "r") as f:
+                dep_files.append(
+                    DependencyFile(
+                        file_path=req,
+                        dependencies=self.parse_requirements(
+                            f.read(), exclude_dev=exclude_dev
+                        ),
+                    )
+                )
+
+        deps_to_scan = [d for d_file in dep_files for d in d_file.dependencies]
+        results = self.scan_dependencies(deps_to_scan, rules, callback)
+
+        return dep_files, results
 
     def find_requirements(self, directory: str) -> list[str]:
         requirement_files = []

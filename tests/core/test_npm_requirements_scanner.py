@@ -74,6 +74,65 @@ def test_npm_requirements_scanner_alias():
     assert len(lookup.versions) > 0
 
 
+def test_npm_requirements_scanner_exclude_dev_omits_dev_deps():
+    """When exclude_dev=True, devDependencies must not appear in the output."""
+    scanner = NPMRequirementsScanner()
+    result = scanner.parse_requirements(
+        """
+    {
+        "dependencies": {
+            "express": "4.x"
+        },
+        "devDependencies": {
+            "jest": "^29.0.0",
+            "typescript": "^5.0.0"
+        }
+    }
+    """,
+        exclude_dev=True,
+    )
+    names = [d.name for d in result]
+    assert "express" in names, "production dependency must be included"
+    assert "jest" not in names, "jest is a devDependency and must be excluded"
+    assert "typescript" not in names, "typescript is a devDependency and must be excluded"
+
+
+def test_npm_requirements_scanner_include_dev_by_default():
+    """Default behavior (exclude_dev=False) must include devDependencies."""
+    scanner = NPMRequirementsScanner()
+    result = scanner.parse_requirements(
+        """
+    {
+        "dependencies": {
+            "cors": "*"
+        },
+        "devDependencies": {
+            "jest": "^29.0.0"
+        }
+    }
+    """
+    )
+    names = [d.name for d in result]
+    assert "cors" in names
+    assert "jest" in names, "devDependency must be present when exclude_dev is not set"
+
+
+def test_npm_requirements_scanner_exclude_dev_no_prod_deps():
+    """exclude_dev=True with only devDependencies and no dependencies key returns no deps."""
+    scanner = NPMRequirementsScanner()
+    result = scanner.parse_requirements(
+        """
+    {
+        "devDependencies": {
+            "jest": "^29.0.0"
+        }
+    }
+    """,
+        exclude_dev=True,
+    )
+    assert result == [], "no production dependencies → empty list"
+
+
 def test_npm_requirements_scanner_scoped_alias():
     scanner = NPMRequirementsScanner()
     result = scanner.parse_requirements("""
