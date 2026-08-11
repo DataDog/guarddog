@@ -24,8 +24,7 @@ This flag specifies if npm devDependencies should be included in project scans
 - False [default]: Only dependencies are analyzed
 """
 NPM_INCLUDE_DEV_DEPENDENCIES: bool = (
-    os.environ.get("GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES", "false").lower()
-    == "true"
+    os.environ.get("GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES", "false").lower() == "true"
 )
 
 """

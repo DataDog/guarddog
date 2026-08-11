@@ -63,7 +63,9 @@ class NPMRequirementsScanner(ProjectScanner):
 
         for dependency_group in dependency_groups:
             for package, selector in dependency_group:
-                resolved_package, resolved_selector = resolve_npm_alias(package, selector)
+                resolved_package, resolved_selector = resolve_npm_alias(
+                    package, selector
+                )
                 if resolved_package not in merged:
                     merged[resolved_package] = set()
                 merged[resolved_package].add(resolved_selector)
