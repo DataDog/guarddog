@@ -36,7 +36,7 @@ termcolor = "^3.3.0"
 urllib3 = "^2.7.0"
 yara-python = "^4.5.4"
 nono-py = ">=0.15.0"
-packaging = ">=26.2"
+packaging = ">=26.3"
 boto3 = "^1.43"
 typing-extensions = "^4.16.0"
 
