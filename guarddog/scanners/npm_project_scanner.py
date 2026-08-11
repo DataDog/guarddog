@@ -60,8 +60,7 @@ class NPMRequirementsScanner(ProjectScanner):
         package = json.loads(raw_requirements)
         dependencies_attr = package["dependencies"] if "dependencies" in package else {}
         dev_dependencies_attr = (
-            {} if exclude_dev
-            else package.get("devDependencies", {})
+            {} if exclude_dev else package.get("devDependencies", {})
         )
         raw_requirement_lines = raw_requirements.splitlines()
 

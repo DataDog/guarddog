@@ -556,12 +556,18 @@ class CliEcosystem(click.Group):
             )
 
         def _build_verify_command():
-            @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
+            @click.command(
+                "verify", help=f"Verify a given {self.ecosystem.name} package"
+            )
             @common_options
             @verify_options
             @rule_options
             def verify_ecosystem(
-                target, rules, exclude_rules, output_format, exit_non_zero_on_finding,
+                target,
+                rules,
+                exclude_rules,
+                output_format,
+                exit_non_zero_on_finding,
                 **kwargs,
             ):
                 return _verify(
