@@ -22,6 +22,7 @@ from guarddog.ecosystems import ECOSYSTEM
 from guarddog.reporters.reporter_factory import ReporterFactory, ReporterType
 
 from guarddog.scanners import get_package_scanner, get_project_scanner
+import guarddog.scanners.npm_project_scanner as npm_project_scanner
 from guarddog.scanners.scanner import github_blob_to_raw_url
 from guarddog.utils.archives import safe_extract
 from guarddog.sandbox import (
@@ -545,21 +546,51 @@ class CliEcosystem(click.Group):
                 zip_password=zip_password,
             )
 
-        @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
-        @common_options
-        @verify_options
-        @rule_options
-        def verify_ecosystem(
-            target, rules, exclude_rules, output_format, exit_non_zero_on_finding
-        ):
-            return _verify(
+        def _build_verify_command():
+            @click.command("verify", help=f"Verify a given {self.ecosystem.name} package")
+            @common_options
+            @verify_options
+            @rule_options
+            def verify_ecosystem(
                 target,
                 rules,
                 exclude_rules,
                 output_format,
                 exit_non_zero_on_finding,
-                self.ecosystem,
-            )
+                **kwargs,
+            ):
+                # --include-dev-dependencies is npm-only. When passed it overrides
+                # the GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES env var (default: false)
+                # so that devDependencies are scanned too.
+                if kwargs.get("include_dev_dependencies"):
+                    npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = True
+                return _verify(
+                    target,
+                    rules,
+                    exclude_rules,
+                    output_format,
+                    exit_non_zero_on_finding,
+                    self.ecosystem,
+                )
+
+            # --include-dev-dependencies is npm-only: devDependencies have no
+            # equivalent in other ecosystems (PyPI, Go, RubyGems, Rust, ...).
+            if self.ecosystem == ECOSYSTEM.NPM:
+                verify_ecosystem = click.option(
+                    "--include-dev-dependencies",
+                    is_flag=True,
+                    default=False,
+                    help=(
+                        "Include devDependencies in the scan (npm only). By "
+                        "default only production dependencies under the "
+                        "'dependencies' key are scanned; this can also be "
+                        "enabled via GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES=true."
+                    ),
+                )(verify_ecosystem)
+
+            return verify_ecosystem
+
+        verify_ecosystem = _build_verify_command()
 
         @click.command(
             "list-rules", help=f"List available rules for {self.ecosystem.name}"
