@@ -6,7 +6,10 @@ from typing import List
 
 from guarddog.scanners.npm_package_scanner import NPMPackageScanner
 from guarddog.scanners.scanner import Dependency, DependencyVersion, ProjectScanner
-from guarddog.utils.config import VERIFY_EXHAUSTIVE_DEPENDENCIES
+from guarddog.utils.config import (
+    NPM_INCLUDE_DEV_DEPENDENCIES,
+    VERIFY_EXHAUSTIVE_DEPENDENCIES,
+)
 from guarddog.utils.npm import (
     find_all_versions,
     get_matched_versions,
@@ -54,17 +57,22 @@ class NPMRequirementsScanner(ProjectScanner):
 
         merged = {}  # type: dict[str, set[str]]
         merged_original_names = {}  # type: dict[str, set[str]]
-        for package, selector in list(dependencies_attr.items()) + list(
-            dev_dependencies_attr.items()
-        ):
-            resolved_package, resolved_selector = resolve_npm_alias(package, selector)
-            if resolved_package not in merged:
-                merged[resolved_package] = set()
-            merged[resolved_package].add(resolved_selector)
+        dependency_groups = [dependencies_attr.items()]
+        if NPM_INCLUDE_DEV_DEPENDENCIES:
+            dependency_groups.append(dev_dependencies_attr.items())
 
-            if resolved_package not in merged_original_names:
-                merged_original_names[resolved_package] = set()
-            merged_original_names[resolved_package].add(package)
+        for dependency_group in dependency_groups:
+            for package, selector in dependency_group:
+                resolved_package, resolved_selector = resolve_npm_alias(
+                    package, selector
+                )
+                if resolved_package not in merged:
+                    merged[resolved_package] = set()
+                merged[resolved_package].add(resolved_selector)
+
+                if resolved_package not in merged_original_names:
+                    merged_original_names[resolved_package] = set()
+                merged_original_names[resolved_package].add(package)
 
         dependencies: List[Dependency] = []
         for package, all_selectors in merged.items():
