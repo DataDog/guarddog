@@ -1,3 +1,7 @@
+import contextlib
+import io
+import logging
+import threading
 from datetime import datetime, timezone
 from functools import cache
 from typing import Optional
@@ -5,6 +9,59 @@ from typing import Optional
 import hashlib
 import whois  # type: ignore
 from whois.exceptions import PywhoisError  # type: ignore[import-untyped]
+
+_log = logging.getLogger("guarddog")
+
+# Guards sys.stdout redirection used inside _suppress_whois_stdout.
+#
+# GuardDog scans packages with ThreadPoolExecutor (see scanner.py).  Without
+# this lock two threads could race on sys.stdout:
+#
+#   Thread A: original = sys.stdout  (real terminal)
+#   Thread A: sys.stdout = bufA
+#   Thread B: original = sys.stdout  (Thread A's bufA, NOT the terminal!)
+#   Thread B: sys.stdout = bufB
+#   Thread A: sys.stdout = original  (terminal restored correctly)
+#   Thread B: sys.stdout = original  (restores to bufA, terminal is now lost)
+#
+# The result is that everything Thread B writes after its whois call vanishes
+# silently into bufA.  Acquiring this lock before touching sys.stdout ensures
+# only one thread holds the redirection at a time.
+_stdout_redirect_lock = threading.Lock()
+
+
+@contextlib.contextmanager
+def _suppress_whois_stdout():
+    """
+    Context manager that silences stdout while the python-whois library runs.
+
+    The python-whois library emits socket timeout messages (e.g.
+    "Error trying to connect to socket: closing socket - timed out") directly
+    via print(), bypassing Python's logging system entirely.  Those messages
+    have no functional impact on scan results and only confuse users.  We
+    redirect stdout to a StringIO buffer during the whois call and, if DEBUG
+    logging is active, we forward the captured text so it remains visible for
+    troubleshooting.
+
+    Thread safety: sys.stdout is a process-wide resource.  _stdout_redirect_lock
+    serializes the snapshot/redirect/restore sequence so that concurrent whois
+    calls from different ThreadPoolExecutor workers cannot corrupt each other's
+    stdout reference.
+    """
+    import sys
+
+    captured = io.StringIO()
+    with _stdout_redirect_lock:
+        original_stdout = sys.stdout
+        sys.stdout = captured
+        try:
+            yield
+        finally:
+            sys.stdout = original_stdout
+            output = captured.getvalue()
+            if output and _log.isEnabledFor(logging.DEBUG):
+                _log.debug("[whois] %s", output.strip())
+
 
 NPM_MAINTAINER_EMAIL_WARNING = (
     "note that NPM's API may not provide accurate information regarding the maintainer's email, "
@@ -26,8 +83,13 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
         bool:     if the domain is currently registered
     """
 
+    # The python-whois library prints socket timeout messages directly to stdout
+    # via print(), bypassing Python's logging system.  Those messages have no
+    # functional impact on scan results.  We capture stdout during the call and
+    # only forward the text to the debug logger so it stays hidden in normal mode.
     try:
-        domain_information = whois.whois(domain)
+        with _suppress_whois_stdout():
+            domain_information = whois.whois(domain)
     except PywhoisError as e:
         # The domain doesn't exist at all, if that's the case we consider it vulnerable
         # since someone could register it
