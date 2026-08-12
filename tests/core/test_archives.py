@@ -17,6 +17,7 @@ def _build_zip(
     members: dict[str, bytes],
     cd_size: int | None = None,
     data_descriptor: bool = False,
+    extra_body: bytes = b"",
 ) -> bytes:
     """
     Build a stored (uncompressed) ZIP by hand so the End-Of-Central-Directory
@@ -28,6 +29,10 @@ def _build_zip(
     bit 3 and zeroes its inline sizes/crc, deferring them to a trailing data
     descriptor (PK\\x07\\x08). The local-header walk cannot follow past such an
     entry, which exercises the "count before bailing out" path of the guard.
+
+    ``extra_body`` is appended after the real members and before the central
+    directory: bytes present as a local file header but never described by
+    any central directory record.
     """
     body = bytearray()
     central = bytearray()
@@ -47,6 +52,7 @@ def _build_zip(
             "<HHHHHIIIHH", 20, 0, 0, 0, 0x21, crc, len(data), len(data), len(raw), 0
         )
         body += raw + data
+    body += extra_body
     real_cd_size = 0
     for (name, data), offset in zip(members.items(), offsets):
         raw = name.encode()
@@ -128,6 +134,60 @@ def test_cd_size_zero_eocd_differential_rejected(tmp_path):
 
     with zipfile.ZipFile(str(archive)) as zf:
         assert zf.namelist() == []
+
+    with pytest.raises(ValueError, match="parser anomaly"):
+        safe_extract(str(archive), str(tmp_path / "out"))
+
+
+def test_data_descriptor_decoy_hides_extra_member_rejected(tmp_path):
+    # One legitimate member uses a data descriptor and matches the central
+    # directory (walked == enumerated == 1), but a second, real local file
+    # header follows it that the central directory never mentions. The walker
+    # must use the central directory's known size to keep going past the
+    # data-descriptor entry and catch the hidden member instead of stopping.
+    hidden_name = b"pkg/evil.py"
+    hidden_data = b"import os\n"
+    hidden_header = b"PK\x03\x04" + struct.pack(
+        "<HHHHHIIIHH",
+        20,
+        0,
+        0,
+        0,
+        0x21,
+        binascii.crc32(hidden_data) & 0xFFFFFFFF,
+        len(hidden_data),
+        len(hidden_data),
+        len(hidden_name),
+        0,
+    )
+    archive = tmp_path / "crafted-dd-hidden-1.0-py3-none-any.whl"
+    archive.write_bytes(
+        _build_zip(
+            {"pkg/__init__.py": _WHL_MEMBERS["pkg/__init__.py"]},
+            data_descriptor=True,
+            extra_body=hidden_header + hidden_name + hidden_data,
+        )
+    )
+
+    with zipfile.ZipFile(str(archive)) as zf:
+        assert zf.namelist() == ["pkg/__init__.py"]
+
+    with pytest.raises(ValueError, match="parser anomaly"):
+        safe_extract(str(archive), str(tmp_path / "out"))
+
+
+def test_duplicate_eocd_rejected(tmp_path):
+    # An extra EOCD-shaped signature ahead of the real one (still correctly
+    # parsed by zipfile, since the real central directory offset accounts for
+    # it) is exactly the kind of ambiguity a second EOCD record introduces:
+    # some parsers could latch onto the wrong one.
+    archive = tmp_path / "crafted-dup-eocd-1.0-py3-none-any.whl"
+    archive.write_bytes(
+        _build_zip(_WHL_MEMBERS, extra_body=b"PK\x05\x06" + b"\x00" * 18)
+    )
+
+    with zipfile.ZipFile(str(archive)) as zf:
+        assert zf.namelist() == list(_WHL_MEMBERS)
 
     with pytest.raises(ValueError, match="parser anomaly"):
         safe_extract(str(archive), str(tmp_path / "out"))
