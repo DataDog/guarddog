@@ -1,6 +1,7 @@
 import os
 import pathlib
 
+import guarddog.scanners.npm_project_scanner as npm_project_scanner
 from guarddog.scanners.npm_project_scanner import NPMRequirementsScanner
 
 
@@ -88,3 +89,45 @@ def test_npm_requirements_scanner_scoped_alias():
     lookup = next(filter(lambda r: r.name == "@types/node", result), None)
     assert lookup is not None
     assert len(lookup.versions) > 0
+
+
+def test_npm_requirements_scanner_excludes_dev_dependencies_by_default(monkeypatch):
+    monkeypatch.setattr(
+        npm_project_scanner, "NPM_INCLUDE_DEV_DEPENDENCIES", False
+    )
+    scanner = NPMRequirementsScanner()
+    result = scanner.parse_requirements("""
+    {
+        "dependencies": {
+            "express": "4.x"
+        },
+        "devDependencies": {
+            "joi": "17.6"
+        }
+    }
+    """)
+
+    dependency_names = {dependency.name for dependency in result}
+    assert "express" in dependency_names
+    assert "joi" not in dependency_names
+
+
+def test_npm_requirements_scanner_includes_dev_dependencies_when_enabled(monkeypatch):
+    monkeypatch.setattr(
+        npm_project_scanner, "NPM_INCLUDE_DEV_DEPENDENCIES", True
+    )
+    scanner = NPMRequirementsScanner()
+    result = scanner.parse_requirements("""
+    {
+        "dependencies": {
+            "express": "4.x"
+        },
+        "devDependencies": {
+            "joi": "17.6"
+        }
+    }
+    """)
+
+    dependency_names = {dependency.name for dependency in result}
+    assert "express" in dependency_names
+    assert "joi" in dependency_names

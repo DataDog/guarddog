@@ -19,6 +19,15 @@ VERIFY_EXHAUSTIVE_DEPENDENCIES: bool = (
 )
 
 """
+This flag specifies if npm devDependencies should be included in project scans
+- True: dependencies and devDependencies are analyzed
+- False [default]: Only dependencies are analyzed
+"""
+NPM_INCLUDE_DEV_DEPENDENCIES: bool = (
+    os.environ.get("GUARDDOG_NPM_INCLUDE_DEV_DEPENDENCIES", "false").lower() == "true"
+)
+
+"""
 Risk score (0-10) at or above which a newly added npm dependency is flagged by the
 risky_new_dependency rule. The default of 5.0 (GuardDog's `suspicious` band) is
 viable because the sub-scan runs source-code rules only: across 3000 popular npm

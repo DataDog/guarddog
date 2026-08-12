@@ -466,6 +466,73 @@ class TestCli(unittest.TestCase):
                         scan_local.assert_called_once()
                         apply_sandbox.assert_not_called()
 
+    def test_npm_verify_include_dev_dependencies_flag_overrides_config(self):
+        """`npm verify --include-dev-dependencies` sets the scanner config to True
+        for that invocation only, then restores the prior value."""
+        import guarddog.scanners.npm_project_scanner as npm_project_scanner
+        from click.testing import CliRunner
+
+        runner = CliRunner()
+        original = npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES
+        npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = False
+        seen = {}
+
+        def _verify_spy(*args, **kwargs):
+            seen["during"] = npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES
+            return None
+
+        try:
+            with mock.patch(
+                "guarddog.cli._verify", side_effect=_verify_spy
+            ) as verify_fn:
+                result = runner.invoke(
+                    guarddog.cli.cli,
+                    ["npm", "verify", "--include-dev-dependencies", "/tmp/foo"],
+                )
+            self.assertEqual(result.exit_code, 0, result.output)
+            self.assertTrue(
+                seen.get("during"),
+                "flag must override the env-var default to True during _verify",
+            )
+            self.assertFalse(
+                npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES,
+                "override must be restored after the invocation",
+            )
+            verify_fn.assert_called_once()
+        finally:
+            npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = original
+
+    def test_npm_verify_without_flag_leaves_config_at_env_default(self):
+        """Without the flag, the scanner config is left untouched (env default)."""
+        import guarddog.scanners.npm_project_scanner as npm_project_scanner
+        from click.testing import CliRunner
+
+        runner = CliRunner()
+        original = npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES
+        npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = False
+        try:
+            with mock.patch("guarddog.cli._verify", return_value=None):
+                result = runner.invoke(guarddog.cli.cli, ["npm", "verify", "/tmp/foo"])
+            self.assertEqual(result.exit_code, 0, result.output)
+            self.assertFalse(
+                npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES,
+                "without the flag the config must stay at its env default",
+            )
+        finally:
+            npm_project_scanner.NPM_INCLUDE_DEV_DEPENDENCIES = original
+
+    def test_pypi_verify_has_no_include_dev_dependencies_flag(self):
+        """--include-dev-dependencies must only be attached to the npm verify command."""
+        from click.testing import CliRunner
+
+        runner = CliRunner()
+        result = runner.invoke(
+            guarddog.cli.cli,
+            ["pypi", "verify", "--include-dev-dependencies", "/tmp/foo"],
+        )
+        self.assertNotEqual(result.exit_code, 0, "unknown option should be rejected")
+        self.assertIn("--include-dev-dependencies", result.output)
+
 
 if __name__ == "__main__":
     unittest.main()
