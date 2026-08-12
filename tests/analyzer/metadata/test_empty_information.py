@@ -51,3 +51,21 @@ class TestEmptyInformation:
                 readme.write("# Hello World")
             matches, _ = self.npm_detector.detect({}, dir)
             assert not matches
+
+    def test_empty_npm_with_non_package_top_level_dir(self):
+        """Regression test for https://github.com/DataDog/guarddog/issues/847."""
+        with tempfile.TemporaryDirectory() as dir:
+            full_path = os.path.join(dir, "node")
+            os.mkdir(full_path)
+            matches, _ = self.npm_detector.detect({}, dir)
+            assert matches
+
+    def test_non_empty_npm_with_non_package_top_level_dir(self):
+        """Regression test for https://github.com/DataDog/guarddog/issues/847."""
+        with tempfile.TemporaryDirectory() as dir:
+            full_path = os.path.join(dir, "node")
+            os.mkdir(full_path)
+            with open(os.path.join(full_path, "README.md"), "w") as readme:
+                readme.write("# Hello World")
+            matches, _ = self.npm_detector.detect({}, dir)
+            assert not matches

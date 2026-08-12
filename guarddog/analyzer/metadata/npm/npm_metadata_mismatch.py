@@ -4,6 +4,7 @@ import json
 import re
 
 from guarddog.analyzer.metadata.detector import Detector
+from guarddog.analyzer.metadata.npm.utils import get_package_directory
 
 # List of fields where mismatch between package.json and NPM can carry malicious information.
 MANIFEST_FIELDS_CHECKLIST = {
@@ -36,7 +37,7 @@ class NPMMetadataMismatch(Detector):
         # Load package.json manifest
         if path is None:
             raise ValueError("path is needed to run heuristic " + self.get_name())
-        package_json = Path(path) / "package" / "package.json"
+        package_json = Path(get_package_directory(path)) / "package.json"
         package_manifest: Dict[str, Any] = json.loads(package_json.read_text())
 
         # Get NPM manifest for version

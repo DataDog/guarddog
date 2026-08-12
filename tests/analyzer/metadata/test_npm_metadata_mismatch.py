@@ -1,4 +1,7 @@
 from copy import deepcopy
+import json
+import os
+import tempfile
 
 import pytest
 
@@ -163,3 +166,85 @@ class TestDiffAtKeyDictGitUrls:
         result = diff_at_key_dict(version, manifest)
         assert len(result) == 1
         assert result[0][0] == "dep"
+
+
+class TestNPMMetadataMismatchScopedPackage:
+    """Regression tests for https://github.com/DataDog/guarddog/issues/847.
+
+    Some npm packages (e.g. ``@types/node``) pack into a top-level dir not
+    named ``package`` (``@types/node`` uses ``node``); the rule used to hardcode
+    ``package/package.json`` and errored with ENOENT for such packages.
+    """
+
+    mismatch_detector = NPMMetadataMismatch()
+    target_version = "2.1.0"
+
+    def _write_package_json(self, directory: str, manifest: dict) -> str:
+        os.makedirs(directory, exist_ok=True)
+        package_json_path = os.path.join(directory, "package.json")
+        with open(package_json_path, "w") as f:
+            json.dump(manifest, f)
+        return package_json_path
+
+    def test_detect_works_when_tarball_extracts_to_non_package_dir(self, npm_package_info):
+        """A package extracted into ``node/`` must be scanned, not raise ENOENT."""
+        package_manifest = deepcopy(
+            npm_package_info["versions"][self.target_version]
+        )
+        npm_version_metadata = deepcopy(npm_package_info)
+        npm_version_metadata["dist-tags"]["latest"] = self.target_version
+
+        with tempfile.TemporaryDirectory() as tmp:
+            # Mimic @types/node: a single top-level dir named "node".
+            self._write_package_json(
+                os.path.join(tmp, "node"), package_manifest
+            )
+
+            result, message = self.mismatch_detector.detect(
+                npm_version_metadata, path=tmp, version=self.target_version
+            )
+
+        assert result is False
+        assert message == "No differences found"
+
+    def test_detect_flags_mismatch_in_non_package_dir(self, npm_package_info):
+        """A mismatch in a package extracted to ``node/`` must be reported."""
+        package_manifest = deepcopy(
+            npm_package_info["versions"][self.target_version]
+        )
+        npm_version_metadata = deepcopy(npm_package_info)
+        npm_version_metadata["dist-tags"]["latest"] = self.target_version
+        package_manifest["main"] = "index.js"
+        npm_version_metadata["versions"][self.target_version]["main"] = "malicious.js"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_package_json(
+                os.path.join(tmp, "node"), package_manifest
+            )
+
+            result, message = self.mismatch_detector.detect(
+                npm_version_metadata, path=tmp, version=self.target_version
+            )
+
+        assert result is True
+        assert "main" in message
+
+    def test_detect_still_works_for_conventional_package_dir(self, npm_package_info):
+        """Packages packed into the conventional ``package/`` dir keep working."""
+        package_manifest = deepcopy(
+            npm_package_info["versions"][self.target_version]
+        )
+        npm_version_metadata = deepcopy(npm_package_info)
+        npm_version_metadata["dist-tags"]["latest"] = self.target_version
+
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_package_json(
+                os.path.join(tmp, "package"), package_manifest
+            )
+
+            result, message = self.mismatch_detector.detect(
+                npm_version_metadata, path=tmp, version=self.target_version
+            )
+
+        assert result is False
+        assert message == "No differences found"
