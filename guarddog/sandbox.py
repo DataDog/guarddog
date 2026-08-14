@@ -137,7 +137,19 @@ def _get_common_read_paths() -> list[str]:
     """Paths that always need READ access for Python + system libs + guarddog rules."""
     paths: set[str] = set()
 
-    candidates = [sys.prefix, sys.base_prefix, "/usr", "/lib"]
+    # /opt/homebrew and /opt/local cover Apple Silicon Homebrew and MacPorts
+    # respectively: pyenv-built interpreters commonly link against libraries
+    # there (OpenSSL, gettext, readline, ...) that live outside sys.prefix,
+    # which the sandbox would otherwise block at dlopen time. Intel Homebrew's
+    # default prefix (/usr/local) is already covered by "/usr" below.
+    candidates = [
+        sys.prefix,
+        sys.base_prefix,
+        "/usr",
+        "/lib",
+        "/opt/homebrew",
+        "/opt/local",
+    ]
 
     # SSL certificate directories: pygit2 initializes OpenSSL at import time and
     # reads the system CA bundle. On Linux (Landlock), only explicitly listed paths
