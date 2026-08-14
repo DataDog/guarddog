@@ -13,18 +13,13 @@ from whois.exceptions import PywhoisError  # type: ignore[import-untyped]
 _log = logging.getLogger("guarddog")
 
 # Serializes sys.stdout redirection to prevent output loss when multiple
-# threads call whois concurrently via ThreadPoolExecutor.
+# threads suppress stdout concurrently via ThreadPoolExecutor.
 _stdout_redirect_lock = threading.Lock()
 
 
 @contextlib.contextmanager
-def _suppress_whois_stdout():
-    """Suppress stdout during a whois call to hide non-fatal socket timeout messages.
-
-    python-whois emits these via print() rather than Python logging, so they
-    cannot be filtered by log level. Captured output is forwarded to the debug
-    logger when DEBUG logging is enabled.
-    """
+def _suppress_stdout():
+    """Suppress stdout and return the captured output buffer."""
     import sys
 
     captured = io.StringIO()
@@ -32,12 +27,9 @@ def _suppress_whois_stdout():
         original_stdout = sys.stdout
         sys.stdout = captured
         try:
-            yield
+            yield captured
         finally:
             sys.stdout = original_stdout
-            output = captured.getvalue()
-            if output and _log.isEnabledFor(logging.DEBUG):
-                _log.debug("[whois] %s", output.strip())
 
 
 NPM_MAINTAINER_EMAIL_WARNING = (
@@ -60,13 +52,19 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
         bool:     if the domain is currently registered
     """
 
+    captured_stdout = io.StringIO()
     try:
-        with _suppress_whois_stdout():
+        with _suppress_stdout() as stdout:
+            captured_stdout = stdout
             domain_information = whois.whois(domain)
     except PywhoisError as e:
         # The domain doesn't exist at all, if that's the case we consider it vulnerable
         # since someone could register it
         return None, (not str(e).lower().startswith("no match for"))
+    finally:
+        output = captured_stdout.getvalue()
+        if output and _log.isEnabledFor(logging.DEBUG):
+            _log.debug("[whois] %s", output.strip())
 
     if domain_information.creation_date is None:
         # No creation date in whois, so we can't know

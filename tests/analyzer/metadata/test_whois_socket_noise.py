@@ -9,7 +9,7 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 import guarddog.analyzer.metadata.utils as utils_mod
-from guarddog.analyzer.metadata.utils import _suppress_whois_stdout, get_domain_creation_date
+from guarddog.analyzer.metadata.utils import _suppress_stdout, get_domain_creation_date
 from tests.analyzer.metadata.utils import MockWhoIs
 
 
@@ -54,7 +54,7 @@ def test_concurrent_calls_do_not_corrupt_stdout():
     errors = []
 
     def worker(thread_id):
-        with _suppress_whois_stdout():
+        with _suppress_stdout():
             print(f"noisy-whois-thread-{thread_id}")
         if sys.stdout is not real_stdout:
             errors.append(f"thread {thread_id}: sys.stdout corrupted")
@@ -64,3 +64,11 @@ def test_concurrent_calls_do_not_corrupt_stdout():
             fut.result()
 
     assert errors == [], "\n".join(errors)
+
+
+def test_suppression_returns_captured_stdout():
+    """Callers can decide what to do with suppressed stdout."""
+    with _suppress_stdout() as stdout:
+        print("captured output")
+
+    assert stdout.getvalue() == "captured output\n"
