@@ -63,6 +63,13 @@ class TestApplySandbox:
         paths = _get_common_read_paths()
         assert any(p == os.path.realpath(sys.prefix) for p in paths)
 
+    def test_common_read_paths_includes_macos_package_manager_roots(self):
+        paths = _get_common_read_paths()
+        if os.path.isdir("/opt/homebrew"):
+            assert "/opt/homebrew" in paths
+        if os.path.isdir("/opt/local"):
+            assert "/opt/local" in paths
+
     @patch("guarddog.sandbox.os.getcwd", side_effect=FileNotFoundError)
     def test_common_read_paths_does_not_require_cwd(self, mock_getcwd):
         """Building the common allowlist does not depend on the current directory."""
