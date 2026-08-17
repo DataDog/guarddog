@@ -18,11 +18,11 @@ versions, all script-free, are required before the appearance is flagged. A
 brand-new package that ships install scripts from its first release is out of
 scope for a history-based signal (other rules cover new packages).
 
-The overlap with the source-code rule `threat-npm-preinstall-script` is
-intentional and the signals differ: that rule is presence-based (an install
-script exists in the scanned artifact), this detector is history-based (an
-install script appears on a package that never used one). A lifelong
-postinstall trips the presence rule but never this one.
+The overlap with `threat-npm-preinstall-script` is intentional: that
+source-code rule flags any non-empty `preinstall`, while this detector flags
+the historical first appearance of `preinstall`, `install`, or `postinstall`.
+A lifelong `preinstall` trips the existing source rule but never this
+detector.
 """
 
 import logging
@@ -35,7 +35,7 @@ from guarddog.utils.npm import published_versions_before
 
 log = logging.getLogger("guarddog")
 
-# Lifecycle scripts npm runs automatically during `npm install` of a dependency.
+# Install-time lifecycle scripts tracked for historical appearance.
 INSTALL_LIFECYCLE_SCRIPTS = ("preinstall", "install", "postinstall")
 
 # Earlier script-free versions required before an appearance counts as a break
