@@ -1,8 +1,9 @@
 """Install Scripts Appearance Detector
 
-npm runs a package's `preinstall`, `install`, and `postinstall` scripts
-automatically on `npm install`, which makes them the primary execution vector
-for malicious packages. Most established packages never use them: their first
+A package's `preinstall`, `install`, and `postinstall` lifecycle scripts can
+execute arbitrary commands during dependency installation — older npm versions
+run them automatically, while newer npm versions may require approval — which
+makes them a primary execution vector for malicious packages. Most established packages never use them: their first
 appearance on a package with an install-script-free history is a strong drift
 signal, seen in worm-style compromises where a hijacked release adds a
 `preinstall` payload to a package that never ran code at install time.
@@ -16,6 +17,12 @@ The baseline must be established: at least ``MIN_BASELINE_VERSIONS`` earlier
 versions, all script-free, are required before the appearance is flagged. A
 brand-new package that ships install scripts from its first release is out of
 scope for a history-based signal (other rules cover new packages).
+
+The overlap with the source-code rule `threat-npm-preinstall-script` is
+intentional and the signals differ: that rule is presence-based (an install
+script exists in the scanned artifact), this detector is history-based (an
+install script appears on a package that never used one). A lifelong
+postinstall trips the presence rule but never this one.
 """
 
 import logging
@@ -50,10 +57,10 @@ class NPMInstallScriptsAppearDetector(Detector):
     The scanned version's `scripts` field is checked first: if it declares no
     `preinstall`/`install`/`postinstall` entry there is nothing to flag. If it
     does, the package's publish history (ordered by the registry `time` map) is
-    walked: any earlier version that already carried an install-time script
-    means this is not a first appearance, and fewer than MIN_BASELINE_VERSIONS
-    earlier script-free versions means the baseline is too short to call it a
-    break."""
+    walked: any earlier version that already carried an install-time script —
+    prereleases included — means this is not a first appearance, and fewer than
+    MIN_BASELINE_VERSIONS earlier script-free versions means the baseline is
+    too short to call it a break."""
 
     def __init__(self):
         super().__init__(
@@ -61,8 +68,10 @@ class NPMInstallScriptsAppearDetector(Detector):
             description="Identify a version that adds npm install-time lifecycle "
             "scripts (preinstall/install/postinstall) to a package whose earlier "
             "versions never used them. Install scripts appearing on an established "
-            "script-free package are a common malicious-takeover vector, since npm "
-            "runs them automatically on install.",
+            "script-free package are a common malicious-takeover vector: they can "
+            "execute arbitrary commands during dependency installation (older npm "
+            "versions run them automatically; newer npm versions may require "
+            "approval).",
             identifies="threat.metadata.install-scripts-appear",
             severity="medium",
             mitre_tactics="execution",
@@ -123,9 +132,10 @@ class NPMInstallScriptsAppearDetector(Detector):
         return True, (
             f"Version {current_version} adds install-time lifecycle scripts "
             f"({script_list}) to a package whose {baseline} earlier published "
-            f"versions never used them. npm runs these scripts automatically on "
-            f"install, and their first appearance on an established script-free "
-            f"package is a common malicious-takeover vector."
+            f"versions never used them. These scripts can execute arbitrary commands "
+            f"during dependency installation (automatically on older npm versions), "
+            f"and their first appearance on an established script-free package is "
+            f"a common malicious-takeover vector."
         )
 
     @staticmethod
@@ -141,7 +151,8 @@ class NPMInstallScriptsAppearDetector(Detector):
         A version published earlier in time still belongs to a later release line
         when it is semver-greater, e.g. a `8.0.0-alpha` published before a `7.8.2`
         maintenance patch: its script usage is not part of the maintenance line's
-        baseline. Prereleases only inform the baseline of another prerelease.
+        history. Prereleases of the current line DO count: a script introduced in
+        `2.0.0-beta.1` is prior history for `2.0.0`, not a first appearance.
         """
         current_semver = _parse_semver(current_version)
         candidate_semver = _parse_semver(candidate)
@@ -149,6 +160,4 @@ class NPMInstallScriptsAppearDetector(Detector):
             # npm requires valid semver, so this is unreachable in practice; fall
             # back to publish order rather than silently dropping the version.
             return True
-        if candidate_semver.prerelease and not current_semver.prerelease:
-            return False
         return candidate_semver < current_semver

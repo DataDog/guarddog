@@ -140,6 +140,24 @@ class TestInstallScriptsAppear:
         assert matched is True
         assert "7.4.0" in message
 
+    def test_prerelease_introduction_counts_as_history(self):
+        # A script introduced in 2.0.0-beta.1 is prior history for 2.0.0:
+        # the stable release must not be reported as the first appearance.
+        info = make_info(
+            versions_scripts={
+                "1.0.0": None,
+                "1.1.0": None,
+                "1.2.0": None,
+                "2.0.0-beta.1": {"postinstall": "node build.js"},
+                "2.0.0": {"postinstall": "node build.js"},
+            },
+            times=times("1.0.0", "1.1.0", "1.2.0", "2.0.0-beta.1", "2.0.0"),
+            latest="2.0.0",
+        )
+        matched, message = self.detector.detect(info)
+        assert matched is False
+        assert message is None
+
     def test_empty_script_values_are_not_scripts(self):
         info = make_info(
             versions_scripts={
