@@ -1,5 +1,5 @@
-from guarddog.analyzer.metadata.npm.install_scripts_appear import (
-    NPMInstallScriptsAppearDetector,
+from guarddog.analyzer.metadata.npm.new_install_script import (
+    NPMNewInstallScriptDetector,
 )
 
 
@@ -33,8 +33,8 @@ def times(*versions):
     return t
 
 
-class TestInstallScriptsAppear:
-    detector = NPMInstallScriptsAppearDetector()
+class TestNewInstallScript:
+    detector = NPMNewInstallScriptDetector()
 
     def test_no_scripts_on_latest_not_flagged(self):
         info = make_info(

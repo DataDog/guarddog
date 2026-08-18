@@ -1,12 +1,13 @@
-"""Install Scripts Appearance Detector
+"""New Install Script Detector
 
 A package's `preinstall`, `install`, and `postinstall` lifecycle scripts can
 execute arbitrary commands during dependency installation — older npm versions
 run them automatically, while newer npm versions may require approval — which
-makes them a primary execution vector for malicious packages. Most established packages never use them: their first
-appearance on a package with an install-script-free history is a strong drift
-signal, seen in worm-style compromises where a hijacked release adds a
-`preinstall` payload to a package that never ran code at install time.
+makes them a primary execution vector for malicious packages. Most established
+packages never use them: a new install script appearing on a package with an
+install-script-free history is a strong drift signal, seen in worm-style
+compromises where a hijacked release adds a `preinstall` payload to a package
+that never ran code at install time.
 
 A package whose earlier versions already used install scripts is not flagged —
 plenty of legitimate packages (native builds, postinstall messages) carry them
@@ -36,12 +37,13 @@ log = logging.getLogger("guarddog")
 # Install-time lifecycle scripts tracked for historical appearance.
 INSTALL_LIFECYCLE_SCRIPTS = ("preinstall", "install", "postinstall")
 
-# Earlier script-free versions required before an appearance counts as a break
-# from an established baseline rather than a young package finding its shape.
+# Earlier script-free versions required before a new install script counts as
+# a break from an established baseline rather than a young package finding its
+# shape.
 MIN_BASELINE_VERSIONS = 3
 
 
-class NPMInstallScriptsAppearDetector(Detector):
+class NPMNewInstallScriptDetector(Detector):
     """Detects a version that introduces install-time lifecycle scripts on a
     package whose published history never used them.
 
@@ -55,7 +57,7 @@ class NPMInstallScriptsAppearDetector(Detector):
 
     def __init__(self):
         super().__init__(
-            name="install_scripts_appear",
+            name="new_install_script",
             description="Identify a version that adds npm install-time lifecycle "
             "scripts (preinstall/install/postinstall) to a package whose earlier "
             "versions never used them. Install scripts appearing on an established "
@@ -63,7 +65,7 @@ class NPMInstallScriptsAppearDetector(Detector):
             "execute arbitrary commands during dependency installation (older npm "
             "versions run them automatically; newer npm versions may require "
             "approval).",
-            identifies="threat.metadata.install-scripts-appear",
+            identifies="threat.metadata.new-install-script",
             severity="medium",
             mitre_tactics="execution",
             specificity="high",
