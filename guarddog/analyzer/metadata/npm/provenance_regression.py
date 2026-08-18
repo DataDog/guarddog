@@ -110,10 +110,7 @@ class NPMProvenanceRegressionDetector(Detector):
         """
         versions = package_info.get("versions", {})
         for earlier_version in published_versions_before(package_info, current_version):
-            # Prereleases only count as evidence for another prerelease
-            # (`prereleases_inform_stable=False`): a project commonly pipes its
-            # `next` line through attested CI before its stable line, and a stable
-            # release that lacks what only an alpha had has not lost anything.
+            # Prereleases only count as evidence for another prerelease.
             if not precedes_in_release_order(
                 earlier_version, current_version, prereleases_inform_stable=False
             ):

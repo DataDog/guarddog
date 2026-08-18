@@ -54,20 +54,14 @@ def precedes_in_release_order(
 ) -> bool:
     """Whether `candidate` precedes `current_version` in semver release order.
 
-    History-walking detectors use this to decide whether an earlier-published
-    version belongs to the history a scanned version extends: a version published
-    earlier in time still belongs to a later release line when it is
-    semver-greater, e.g. an `8.0.0-alpha` published before a `7.8.2` maintenance
-    patch.
+    A version published earlier can still belong to a later release line
+    (e.g. an 8.0.0-alpha before a 7.8.2 patch) and is not history the scanned
+    version extends.
 
-    With `prereleases_inform_stable=False` a prerelease never precedes a stable
-    version — the policy for evidence-of-loss detectors, where a property only a
-    prerelease had is not something a stable release lost. The default counts
-    prereleases as history — the policy for first-appearance detectors.
-
-    When either version is not valid semver — unreachable in practice, since npm
-    requires valid semver — the caller's publish-order walk is trusted instead
-    (returns True).
+    `prereleases_inform_stable=False` excludes prereleases from a stable
+    version's history (for evidence-of-loss detectors); the default includes
+    them (for first-appearance detectors). Falls back to publish order if
+    either version isn't valid semver.
     """
     current_semver = parse_semver(current_version)
     candidate_semver = parse_semver(candidate)

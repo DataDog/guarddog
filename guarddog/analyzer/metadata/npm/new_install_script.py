@@ -1,29 +1,12 @@
 """New Install Script Detector
 
-A package's `preinstall`, `install`, and `postinstall` lifecycle scripts can
-execute arbitrary commands during dependency installation — older npm versions
-run them automatically, while newer npm versions may require approval — which
-makes them a primary execution vector for malicious packages. Most established
-packages never use them: a new install script appearing on a package with an
-install-script-free history is a strong drift signal, seen in worm-style
-compromises where a hijacked release adds a `preinstall` payload to a package
-that never ran code at install time.
+Flags a version that introduces preinstall/install/postinstall scripts on a
+package whose earlier versions never used them. These scripts run during
+`npm install` and are a common malicious-takeover vector; most established
+packages never use them.
 
-A package whose earlier versions already used install scripts is not flagged —
-plenty of legitimate packages (native builds, postinstall messages) carry them
-for their whole life. Only the transition from an established script-free
-baseline to a script-bearing version counts.
-
-The baseline must be established: at least ``MIN_BASELINE_VERSIONS`` earlier
-versions, all script-free, are required before the appearance is flagged. A
-brand-new package that ships install scripts from its first release is out of
-scope for a history-based signal (other rules cover new packages).
-
-The overlap with `threat-npm-preinstall-script` is intentional: that
-source-code rule flags any non-empty `preinstall`, while this detector flags
-the historical first appearance of `preinstall`, `install`, or `postinstall`.
-A lifelong `preinstall` trips the existing source rule but never this
-detector.
+Overlaps with `threat-npm-preinstall-script` (which flags any preinstall);
+this detector only fires on the historical first appearance.
 """
 
 import logging
@@ -34,26 +17,16 @@ from guarddog.utils.npm import precedes_in_release_order, published_versions_bef
 
 log = logging.getLogger("guarddog")
 
-# Install-time lifecycle scripts tracked for historical appearance.
+# npm scripts that run during package installation.
 INSTALL_LIFECYCLE_SCRIPTS = ("preinstall", "install", "postinstall")
 
-# Earlier script-free versions required before a new install script counts as
-# a break from an established baseline rather than a young package finding its
-# shape.
+# Min script-free versions before an appearance counts as a baseline break.
 MIN_BASELINE_VERSIONS = 3
 
 
 class NPMNewInstallScriptDetector(Detector):
-    """Detects a version that introduces install-time lifecycle scripts on a
-    package whose published history never used them.
-
-    The scanned version's `scripts` field is checked first: if it declares no
-    `preinstall`/`install`/`postinstall` entry there is nothing to flag. If it
-    does, the package's publish history (ordered by the registry `time` map) is
-    walked: any earlier version that already carried an install-time script —
-    prereleases included — means this is not a first appearance, and fewer than
-    MIN_BASELINE_VERSIONS earlier script-free versions means the baseline is
-    too short to call it a break."""
+    """Flags a version that adds install-time lifecycle scripts to a package
+    whose earlier versions never used them."""
 
     def __init__(self):
         super().__init__(
@@ -99,10 +72,8 @@ class NPMNewInstallScriptDetector(Detector):
 
         baseline = 0
         for earlier_version in published_versions_before(package_info, current_version):
-            # Release-line discipline: semver-greater versions (an `8.0.0-alpha`
-            # published before a `7.x` patch) are not this line's history.
-            # Prereleases of the current line DO count — a script introduced in
-            # `2.0.0-beta.1` is prior history for `2.0.0`.
+            # Ignore other release lines (e.g. 8.0.0-alpha before a 7.x patch);
+            # prereleases of the current line count as history.
             if not precedes_in_release_order(earlier_version, current_version):
                 continue
             if self._install_scripts(versions.get(earlier_version, {})):
