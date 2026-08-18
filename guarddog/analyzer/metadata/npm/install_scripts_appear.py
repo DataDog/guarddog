@@ -28,10 +28,8 @@ detector.
 import logging
 from typing import Optional
 
-from semantic_version import Version  # type: ignore
-
 from guarddog.analyzer.metadata.detector import Detector
-from guarddog.utils.npm import published_versions_before
+from guarddog.utils.npm import precedes_in_release_order, published_versions_before
 
 log = logging.getLogger("guarddog")
 
@@ -41,13 +39,6 @@ INSTALL_LIFECYCLE_SCRIPTS = ("preinstall", "install", "postinstall")
 # Earlier script-free versions required before an appearance counts as a break
 # from an established baseline rather than a young package finding its shape.
 MIN_BASELINE_VERSIONS = 3
-
-
-def _parse_semver(version: str) -> Optional[Version]:
-    try:
-        return Version(version)
-    except ValueError:
-        return None
 
 
 class NPMInstallScriptsAppearDetector(Detector):
@@ -106,7 +97,11 @@ class NPMInstallScriptsAppearDetector(Detector):
 
         baseline = 0
         for earlier_version in published_versions_before(package_info, current_version):
-            if not self._precedes_in_release_order(earlier_version, current_version):
+            # Release-line discipline: semver-greater versions (an `8.0.0-alpha`
+            # published before a `7.x` patch) are not this line's history.
+            # Prereleases of the current line DO count — a script introduced in
+            # `2.0.0-beta.1` is prior history for `2.0.0`.
+            if not precedes_in_release_order(earlier_version, current_version):
                 continue
             if self._install_scripts(versions.get(earlier_version, {})):
                 log.debug(
@@ -143,21 +138,3 @@ class NPMInstallScriptsAppearDetector(Detector):
         """The install-time lifecycle script names a version declares."""
         scripts = version_info.get("scripts") or {}
         return {s for s in INSTALL_LIFECYCLE_SCRIPTS if scripts.get(s)}
-
-    @staticmethod
-    def _precedes_in_release_order(candidate: str, current_version: str) -> bool:
-        """Whether `candidate` belongs to the history the current version extends.
-
-        A version published earlier in time still belongs to a later release line
-        when it is semver-greater, e.g. a `8.0.0-alpha` published before a `7.8.2`
-        maintenance patch: its script usage is not part of the maintenance line's
-        history. Prereleases of the current line DO count: a script introduced in
-        `2.0.0-beta.1` is prior history for `2.0.0`, not a first appearance.
-        """
-        current_semver = _parse_semver(current_version)
-        candidate_semver = _parse_semver(candidate)
-        if current_semver is None or candidate_semver is None:
-            # npm requires valid semver, so this is unreachable in practice; fall
-            # back to publish order rather than silently dropping the version.
-            return True
-        return candidate_semver < current_semver
