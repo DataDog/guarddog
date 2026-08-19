@@ -2687,14 +2687,14 @@ files = [
 
 [[package]]
 name = "tarsafe"
-version = "0.0.5"
+version = "0.0.6"
 description = "A safe subclass of the TarFile class for interacting with tar files. Can be used as a direct drop-in replacement for safe usage of extractall()"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "tarsafe-0.0.5-py3-none-any.whl", hash = "sha256:1a6aa8255c181d6070db3b083f6d969602c6306ba3dc7c836a288cc26a5c5bff"},
-    {file = "tarsafe-0.0.5.tar.gz", hash = "sha256:cbdffc260d8a33f0e35ed7b70b2e2f56ad40e77019e5384bbe1cfc1ccccac79a"},
+    {file = "tarsafe-0.0.6-py3-none-any.whl", hash = "sha256:f6724cd2482c574933db91b5edf2fe13bb5accafed686c2874d95ccef01d3f34"},
+    {file = "tarsafe-0.0.6.tar.gz", hash = "sha256:1636ed0a0ae4995862dbc647cf6e4ba49724d045f125f9d952216089a4bd6c79"},
 ]
 
 [[package]]
@@ -2901,4 +2901,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4"
-content-hash = "2784541b612efaf5ba8cc6e1e19225d8f1a2ed37a69b37f6925dc0eada482bc5"
+content-hash = "135e1efded7f569d88893f4fb9678ff768558296fac578c47905f7542a005ffc"
