@@ -45,7 +45,7 @@ coverage = "^7.15.4"
 # Used by the eval clustering tooling (evals/cluster.py) for fuzzy fingerprint matching
 python-tlsh = "^4.5.0"
 flake8 = ">=5.0.4,<8.0.0"
-mypy = "^2.3.0"
+mypy = "^2.3.1"
 pytest = ">=9.1.1"
 pytest-mock = "^3.11.1"
 sarif-tools = ">=2,<4"
