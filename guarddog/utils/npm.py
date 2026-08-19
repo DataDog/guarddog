@@ -41,6 +41,41 @@ def published_versions_before(package_info: dict, version: str) -> list[str]:
     return [v for _, v in sorted(earlier, reverse=True)]
 
 
+def parse_semver(version: str) -> Version | None:
+    """Parse a version string as semver, or None when it is not valid semver."""
+    try:
+        return Version(version)
+    except ValueError:
+        return None
+
+
+def precedes_in_release_order(
+    candidate: str, current_version: str, *, prereleases_inform_stable: bool = True
+) -> bool:
+    """Whether `candidate` precedes `current_version` in semver release order.
+
+    A version published earlier can still belong to a later release line
+    (e.g. an 8.0.0-alpha before a 7.8.2 patch) and is not history the scanned
+    version extends.
+
+    `prereleases_inform_stable=False` excludes prereleases from a stable
+    version's history (for evidence-of-loss detectors); the default includes
+    them (for first-appearance detectors). Falls back to publish order if
+    either version isn't valid semver.
+    """
+    current_semver = parse_semver(current_version)
+    candidate_semver = parse_semver(candidate)
+    if current_semver is None or candidate_semver is None:
+        return True
+    if (
+        not prereleases_inform_stable
+        and candidate_semver.prerelease
+        and not current_semver.prerelease
+    ):
+        return False
+    return candidate_semver < current_semver
+
+
 def resolve_npm_alias(package_name: str, selector: str) -> tuple[str, str]:
     """Normalize an npm alias so scanning targets the real package.
 

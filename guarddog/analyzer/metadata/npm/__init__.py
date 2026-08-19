@@ -17,6 +17,9 @@ from guarddog.analyzer.metadata.npm.risky_new_dependency import (
 from guarddog.analyzer.metadata.npm.provenance_regression import (
     NPMProvenanceRegressionDetector,
 )
+from guarddog.analyzer.metadata.npm.new_install_script import (
+    NPMNewInstallScriptDetector,
+)
 
 NPM_METADATA_RULES = {}
 
@@ -30,6 +33,7 @@ classes = [
     NPMDeceptiveAuthor,
     NPMRiskyNewDependencyDetector,
     NPMProvenanceRegressionDetector,
+    NPMNewInstallScriptDetector,
 ]
 
 for detectorClass in classes:
