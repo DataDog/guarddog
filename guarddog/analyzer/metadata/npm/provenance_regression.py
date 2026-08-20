@@ -20,19 +20,10 @@ regression against it.
 import logging
 from typing import Optional
 
-from semantic_version import Version  # type: ignore
-
 from guarddog.analyzer.metadata.detector import Detector
-from guarddog.utils.npm import published_versions_before
+from guarddog.utils.npm import precedes_in_release_order, published_versions_before
 
 log = logging.getLogger("guarddog")
-
-
-def _parse_semver(version: str) -> Optional[Version]:
-    try:
-        return Version(version)
-    except ValueError:
-        return None
 
 
 class NPMProvenanceRegressionDetector(Detector):
@@ -119,31 +110,11 @@ class NPMProvenanceRegressionDetector(Detector):
         """
         versions = package_info.get("versions", {})
         for earlier_version in published_versions_before(package_info, current_version):
-            if not self._precedes_in_release_order(earlier_version, current_version):
+            # Prereleases only count as evidence for another prerelease.
+            if not precedes_in_release_order(
+                earlier_version, current_version, prereleases_inform_stable=False
+            ):
                 continue
             if self._has_attestations(versions.get(earlier_version, {})):
                 return earlier_version
         return None
-
-    @staticmethod
-    def _precedes_in_release_order(candidate: str, current_version: str) -> bool:
-        """Whether `candidate` can be evidence of provenance the current version lost.
-
-        A version published earlier in time still belongs to a later release line when
-        it is semver-greater, e.g. an attested `8.0.0-alpha` published before an
-        unattested `7.8.2` maintenance patch. Such a version is not something the
-        current one regressed from.
-
-        Prereleases only count as evidence for another prerelease: a project commonly
-        pipes its `next` line through attested CI before its stable line, and a stable
-        release that lacks what only an alpha had has not lost anything.
-        """
-        current_semver = _parse_semver(current_version)
-        candidate_semver = _parse_semver(candidate)
-        if current_semver is None or candidate_semver is None:
-            # npm requires valid semver, so this is unreachable in practice; fall back
-            # to publish order rather than silently dropping the version from the walk.
-            return True
-        if candidate_semver.prerelease and not current_semver.prerelease:
-            return False
-        return candidate_semver < current_semver

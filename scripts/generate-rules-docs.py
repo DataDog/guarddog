@@ -78,6 +78,8 @@ def generate_docs() -> str:
     eco_header, eco_sep = _make_eco_header(eco_names)
 
     # --- Collect source code rules (deduplicated) ---
+    # Iteration order of SOURCECODE_RULES follows the filesystem (os.listdir),
+    # so rows are sorted below for deterministic output across machines.
     capabilities: OrderedDict[str, dict] = OrderedDict()
     threats: OrderedDict[str, dict] = OrderedDict()
 
@@ -105,7 +107,8 @@ def generate_docs() -> str:
     output += (
         f"|:---------|:---------------|:----------------|:------------:|{eco_sep}\n"
     )
-    for rule_id, info in capabilities.items():
+    for rule_id in sorted(capabilities):
+        info = capabilities[rule_id]
         eco_cols = _make_eco_cols(ecosystems, info["ecosystems"])
         output += (
             f"| {rule_id} | `{info['identifies']}` | {info['description']} "
@@ -120,7 +123,8 @@ def generate_docs() -> str:
     output += (
         f"|:---------|:---------------|:----------------|:------------:|{eco_sep}\n"
     )
-    for rule_id, info in threats.items():
+    for rule_id in sorted(threats):
+        info = threats[rule_id]
         eco_cols = _make_eco_cols(ecosystems, info["ecosystems"])
         output += (
             f"| {rule_id} | `{info['identifies']}` | {info['description']} "
@@ -144,7 +148,8 @@ def generate_docs() -> str:
     output += "\n## Threat rules (metadata)\n\n"
     output += f"| **Rule** | **Identifies** | **Description** | **Severity** | **MITRE Tactic** |{eco_header}\n"
     output += f"|:---------|:---------------|:----------------|:------------:|:----------------:|{eco_sep}\n"
-    for rule_name, info in md_rules.items():
+    for rule_name in sorted(md_rules):
+        info = md_rules[rule_name]
         eco_cols = _make_eco_cols(ecosystems, info["ecosystems"])
         output += (
             f"| {rule_name} | `{info['identifies']}` | {info['description']} "
