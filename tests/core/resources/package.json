@@ -7,6 +7,6 @@
     "minivlad": "*"
   },
   "devDependencies": {
-    "joi": "17.6.4"
+    "joi": "17.13.6"
   }
 }
