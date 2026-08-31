@@ -26,7 +26,8 @@ rule threat_runtime_obfuscation_steganography
         $js_jimp = "Jimp.read(" nocase
         $js_getpixel = "getPixelColor(" nocase
         $js_buffer_concat = "Buffer.concat(" nocase
-        $js_eval = "eval(" nocase
+        // bare eval(, not method calls like page.$eval() or obj.eval()
+        $js_eval = /(^|\s|\()eval\s*\(/ nocase
 
         // Image file references in code
         $img_png = /\.(png|jpg|jpeg|gif|bmp)['"]/ nocase
