@@ -25,7 +25,8 @@ rule threat_runtime_obfuscation_base64exec
         $js_atob = /\batob\s*\(/ nocase
         // Buffer.from with explicit base64 encoding (not just any Buffer.from)
         $js_buffer_b64 = /Buffer\s*\.\s*from\s*\([^)]*['"]base64['"]/ nocase
-        $js_eval = /\beval\s*\(/ nocase
+        // bare eval(, not method calls like page.$eval() or obj.eval()
+        $js_eval = /(^|\s|\()eval\s*\(/ nocase
         $js_function = /\bnew\s+Function\s*\(/ nocase
 
         // Go - base64 decode + exec
