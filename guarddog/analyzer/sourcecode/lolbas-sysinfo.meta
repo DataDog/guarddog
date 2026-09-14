@@ -1,14 +1,24 @@
 // Private rule for LOLBAS system information gathering tools detection
 // These patterns are reused across multiple threat and capability rules
+// Patterns require invocation context: flags, paths, or an exec wrapper
 
 rule lolbas_sysinfo
 {
     strings:
-        // Require the sysinfo command to appear as the argument of an exec call,
-        // so dict keys (result['hostname']), XML lookups (findall("hostname"))
-        // and API paths (/workers/whoami) no longer match.
-        $whoami = /\b(popen|system|getoutput|getstatusoutput|check_output|check_call|Popen|run|call|spawn\w*|execl?p?e?|exec_command)\s*\(\s*\[?\s*['"]whoami\b/ nocase
-        $hostname = /\b(popen|system|getoutput|getstatusoutput|check_output|check_call|Popen|run|call|spawn\w*|execl?p?e?|exec_command)\s*\(\s*\[?\s*['"]hostname\b/ nocase
+        // Invoked as an OS command with tool-specific flags (language-agnostic)
+        $whoami_flag = /\bwhoami\s+\/(all|user|groups|priv|fqdn|upn|logonid)\b/ nocase
+        $hostname_flag = /\bhostname\s+(--fqdn|-[AdfiIsy])\b/
+
+        // Invoked via an absolute binary path
+        $whoami_path = /\/(usr\/)?bin\/whoami\b/
+        $hostname_path = /\/(usr\/)?bin\/hostname\b/
+
+        // Passed as the argument of an exec call, which covers the bare
+        // no-argument invocation. The exec context excludes dict keys
+        // (result['hostname']), XML lookups (findall("hostname")) and API
+        // paths (/workers/whoami), which a bare keyword match would flag.
+        $whoami_exec = /\b(popen|system|getoutput|getstatusoutput|check_output|check_call|Popen|run|call|spawn\w*|execl?p?e?|exec_command)\s*\(\s*\[?\s*['"]whoami\b/ nocase
+        $hostname_exec = /\b(popen|system|getoutput|getstatusoutput|check_output|check_call|Popen|run|call|spawn\w*|execl?p?e?|exec_command)\s*\(\s*\[?\s*['"]hostname\b/ nocase
 
     condition:
         any of them
