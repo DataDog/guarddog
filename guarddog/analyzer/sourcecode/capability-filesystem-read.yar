@@ -19,6 +19,11 @@ rule capability_filesystem_read
         // JavaScript/TypeScript
         $js_read = /fs\.(readFile|readFileSync)/
         $js_stream = /fs\.createReadStream/
+        // Same calls reached through a destructured or named import, which
+        // carries no `fs.` prefix at the call site. Keyed on the import so a
+        // local helper that happens to be called readFileSync is not matched.
+        $js_named_require = /\{[^}]{0,200}\b(readFile|readFileSync|createReadStream)\b[^}]{0,200}\}\s*=\s*require\s*\(\s*['"](node:)?fs(\/promises)?['"]/
+        $js_named_import = /import\s*\{[^}]{0,200}\b(readFile|readFileSync|createReadStream)\b[^}]{0,200}\}\s*from\s*['"](node:)?fs(\/promises)?['"]/
 
         // Go
         $go_read = /ioutil\.ReadFile/
