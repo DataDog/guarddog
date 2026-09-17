@@ -23,6 +23,53 @@ from guarddog.ecosystems import ECOSYSTEM, LANGUAGE
 SOURCECODE_RULES_PATH = os.path.join(os.path.dirname(__file__), "sourcecode")
 log = logging.getLogger("guarddog")
 
+# An executable shipped by a package usually carries no extension, because the
+# shell runs it through its shebang. Rules select files by extension, so those
+# files were never scanned even though they are what a consumer runs directly.
+# The interpreter tells us which extension the file would have had.
+SHEBANG_EXTENSIONS = {
+    "node": (".js", ".mjs", ".cjs"),
+    "nodejs": (".js", ".mjs", ".cjs"),
+    "bun": (".js", ".mjs", ".cjs", ".ts"),
+    "deno": (".js", ".ts"),
+    "ts-node": (".ts",),
+    "tsx": (".ts", ".tsx"),
+    "python": (".py",),
+    "python2": (".py",),
+    "python3": (".py",),
+    "ruby": (".rb",),
+    "sh": (".sh",),
+    "bash": (".sh",),
+    "zsh": (".sh",),
+    "dash": (".sh",),
+}
+
+# Enough for any interpreter line, short enough that a large extension-less
+# data file costs one small read rather than a full one.
+SHEBANG_PROBE_BYTES = 128
+
+
+def shebang_extensions(file_path: str) -> tuple:
+    """
+    Extensions implied by a file's shebang, or an empty tuple if it has none.
+
+    `#!/usr/bin/env node` and `#!/usr/bin/node -r ts-node/register` both
+    resolve to the JavaScript extensions.
+    """
+    try:
+        with open(file_path, "rb") as f:
+            head = f.read(SHEBANG_PROBE_BYTES)
+    except OSError:
+        return ()
+    if not head.startswith(b"#!"):
+        return ()
+    line = head.split(b"\n", 1)[0].decode("utf-8", "replace")
+    for token in reversed(line[2:].replace("=", " ").split()):
+        interpreter = os.path.basename(token.strip())
+        if interpreter in SHEBANG_EXTENSIONS:
+            return SHEBANG_EXTENSIONS[interpreter]
+    return ()
+
 
 class Analyzer:
     """
@@ -419,6 +466,9 @@ class Analyzer:
         # Get rule metadata to access max_hits
         yara_rules = {r.id: r for r in get_sourcecode_rules(self.ecosystem, YaraRule)}
 
+        # Every rule walks the tree, so probe each extension-less file once.
+        shebang_cache: Dict[str, tuple] = {}
+
         # Run each rule separately to enable per-rule timing and max_hits optimization
         for rule_name, rule_path in rules_path.items():
             try:
@@ -471,6 +521,19 @@ class Analyzer:
                                 fnmatch(scan_file_target_relpath, pattern)
                                 for pattern in patterns
                             )
+                            if not matches_pattern and not os.path.splitext(f)[1]:
+                                # No extension to match on, so fall back to the
+                                # shebang. This is how a package's `bin` entry
+                                # point reaches the rules.
+                                if scan_file_target_abspath not in shebang_cache:
+                                    shebang_cache[scan_file_target_abspath] = (
+                                        shebang_extensions(scan_file_target_abspath)
+                                    )
+                                matches_pattern = any(
+                                    fnmatch(f + ext, pattern)
+                                    for ext in shebang_cache[scan_file_target_abspath]
+                                    for pattern in patterns
+                                )
                             if not matches_pattern:
                                 continue
                         else:

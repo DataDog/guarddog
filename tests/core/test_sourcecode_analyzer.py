@@ -66,6 +66,65 @@ def test_filesystem_read_path_include_skips_metadata():
         assert source_result["results"].get("threat-filesystem-read")
 
 
+def test_shebang_entrypoint_without_extension_is_scanned():
+    """
+    A package's `bin` entry point carries no extension, since the shell runs it
+    through its shebang, so the extension globs in path_include never selected
+    it even though it is the file a consumer executes directly. The shebang
+    stands in for the extension.
+    """
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.NPM)
+    rules = {"capability-process-spawn"}
+    source = "const cp = require('child_process');\nmodule.exports = (c) => cp.execSync(c);\n"
+
+    with tempfile.TemporaryDirectory() as directory:
+        _write(directory, "index.js", source)
+        assert analyzer.analyze_sourcecode(directory, rules)["results"].get(
+            "capability-process-spawn"
+        )
+
+    with tempfile.TemporaryDirectory() as directory:
+        _write(directory, "package.json", '{"name": "a", "bin": {"a": "./bin/a"}}')
+        _write(directory, "bin/a", "#!/usr/bin/env node\n" + source)
+        assert analyzer.analyze_sourcecode(directory, rules)["results"].get(
+            "capability-process-spawn"
+        )
+
+
+def test_extensionless_file_without_shebang_is_still_skipped():
+    """
+    The fallback is the shebang, not the absence of an extension: a LICENSE or
+    a data blob must not start being handed to every rule.
+    """
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.NPM)
+    rules = {"capability-process-spawn"}
+
+    with tempfile.TemporaryDirectory() as directory:
+        _write(directory, "NOTICE", "const cp = require('child_process');\n")
+        assert not analyzer.analyze_sourcecode(directory, rules)["results"].get(
+            "capability-process-spawn"
+        )
+
+
+def test_shebang_maps_to_its_own_language():
+    """
+    A shell script must not be handed to the Python and JavaScript rules just
+    because it has a shebang.
+    """
+    from guarddog.analyzer.analyzer import shebang_extensions
+
+    with tempfile.TemporaryDirectory() as directory:
+        node = _write(directory, "a", "#!/usr/bin/env node\n")
+        py = _write(directory, "b", "#!/usr/bin/python3 -u\n")
+        sh = _write(directory, "c", "#!/bin/bash\n")
+        plain = _write(directory, "d", "just text\n")
+
+        assert ".js" in shebang_extensions(node)
+        assert shebang_extensions(py) == (".py",)
+        assert shebang_extensions(sh) == (".sh",)
+        assert shebang_extensions(plain) == ()
+
+
 def test_get_snippet_valid_range():
     analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
     path = "/tmp/sample.py"
