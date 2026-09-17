@@ -44,7 +44,7 @@ rule threat_process_memory
         $js_openprocess = "OpenProcess" nocase
 
         // Node.js - debugging/profiling APIs
-        $js_inspector = "require('inspector')" nocase
+        $js_inspector = /require\s*\(\s*['"`](node:)?inspector['"`]\s*\)/ nocase
         $js_heapdump = "require('heapdump')" nocase
         $js_v8_profiler = "require('v8-profiler')" nocase
 

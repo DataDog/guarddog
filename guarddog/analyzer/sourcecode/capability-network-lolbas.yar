@@ -10,7 +10,7 @@ private rule has_process_spawn
 
         // JavaScript
         $js_exec = /\b(exec|execSync|spawn|spawnSync)\b/ nocase
-        $js_require_cp = /require\s*\(\s*['"]child_process['"]\s*\)/ nocase
+        $js_require_cp = /require\s*\(\s*['"`](node:)?child_process['"`]\s*\)/ nocase
 
         // Go - exec
         $go_exec = "exec.Command(" nocase
