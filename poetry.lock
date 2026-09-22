@@ -831,14 +831,14 @@ tests = ["pytest", "pytest-cov", "pytest-xdist"]
 
 [[package]]
 name = "disposable-email-domains"
-version = "0.0.237"
+version = "0.0.263"
 description = "A set of disposable email domains"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "disposable_email_domains-0.0.237-py3-none-any.whl", hash = "sha256:d1bde8c216d117e001da3aa0d3f22dce2bbd7044e44e8dfbebc1aca33e0779a7"},
-    {file = "disposable_email_domains-0.0.237.tar.gz", hash = "sha256:80a055f2b20260510169b9f966a0d06f2a05d73a214b7e15f1545e0fccf87a58"},
+    {file = "disposable_email_domains-0.0.263-py3-none-any.whl", hash = "sha256:eebb4dfc1892aa1d7cc9002f7e63fde0f4cf941da97bbc65a4d7930814054f30"},
+    {file = "disposable_email_domains-0.0.263.tar.gz", hash = "sha256:b763b594c2af65387467981aadb7ad24f212514911962489a4792ab10b70f1b2"},
 ]
 
 [package.extras]
@@ -2908,4 +2908,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4"
-content-hash = "7d024f3348311a47498d038fe3b29f2982c76eef1189a4afdb1f8a08b633fbb1"
+content-hash = "655636a096993f9de6919a3152528e60e2ab3eefa668bc7262d301d364c70e94"
