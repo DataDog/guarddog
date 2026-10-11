@@ -18,10 +18,14 @@ rule threat_filesystem_destruction
         $py_rmtree_home = /rmtree\s*\(\s*['"]~/ nocase
         $py_rmtree_user = /rmtree\s*\(\s*os\.path\.expanduser/ nocase
 
-        // Wiping specific important directories
-        $wipe_home = /rm.*['"]\/home[\/'"]/i nocase
-        $wipe_users = /rm.*['"]\/Users[\/'"]/i nocase
-        $wipe_root = /rm.*['"]\/['"]\s*$/i nocase
+        // Wiping specific important directories. The 'rm' must be a whole
+        // word close to the quoted path: an unbounded 'rm.*' also matched
+        // substrings like 'terminated' in minified bundles followed by a
+        // '/home' string hundreds of bytes away (pdf.js Emscripten runtime,
+        // issue #903).
+        $wipe_home = /\brm\b.{0,40}['"]\/home[\/'"]/ nocase
+        $wipe_users = /\brm\b.{0,40}['"]\/Users[\/'"]/ nocase
+        $wipe_root = /\brm\b.{0,40}['"]\/['"]\s*$/ nocase
 
         // Disk wiping utilities
         $dd_zero = "dd if=/dev/zero" nocase
