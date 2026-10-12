@@ -8,3 +8,6 @@ const combined = Buffer.concat([a, b]);
 async function readCount(page) {
   return page.$eval('#count', (el) => el.textContent);
 }
+
+// Minified method calls and identifiers ending in "eval" are not the builtin.
+const q=a;page.$eval('#a',f);obj.eval(q);myeval(q);

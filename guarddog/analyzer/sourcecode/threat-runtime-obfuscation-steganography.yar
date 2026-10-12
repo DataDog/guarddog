@@ -27,7 +27,7 @@ rule threat_runtime_obfuscation_steganography
         $js_getpixel = "getPixelColor(" nocase
         $js_buffer_concat = "Buffer.concat(" nocase
         // bare eval(, not method calls like page.$eval() or obj.eval()
-        $js_eval = /(^|\s|\()eval\s*\(/ nocase
+        $js_eval = /(^|[^.$\w])eval\s*\(/ nocase
 
         // Image file references in code
         $img_png = /\.(png|jpg|jpeg|gif|bmp)['"]/ nocase

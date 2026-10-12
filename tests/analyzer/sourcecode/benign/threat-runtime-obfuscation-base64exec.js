@@ -7,3 +7,6 @@ const fixture = Buffer.from(rawFixture, 'base64');
 async function readCount(page) {
   return page.$eval('#count', (el) => el.textContent);
 }
+
+// Minified method calls and identifiers ending in "eval" are not the builtin.
+const q=atob(x);page.$eval('#a',f);obj.eval(q);myeval(q);
