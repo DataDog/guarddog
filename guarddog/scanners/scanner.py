@@ -262,10 +262,18 @@ class PackageScanner:
             )
         except Exception as e:
             log.debug("Unable to download package, ignoring: " + str(e))
-            return {"issues": 0, "errors": {"download-package": str(e)}}
+            # A download failure is not a clean scan: no rule ran, so
+            # "issues: 0" carries no signal. Flag the result so reporters and
+            # the CLI exit code can tell an unscanned package from a clean one.
+            return {
+                "issues": 0,
+                "errors": {"download-package": str(e)},
+                "scanned": False,
+            }
 
         results = self.analyzer.analyze(file_path, package_info, rules, name, version)
         self._annotate_remote_results(results, package_info, name, version)
+        results["scanned"] = True
         if write_package_info:
             package_name = name.replace("/", "-")
             suffix = (
