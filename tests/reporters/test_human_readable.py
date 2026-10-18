@@ -292,3 +292,39 @@ def test_strip_prefix():
             strip("package/dist/node/axios.cjs:42", "package/dist")
             == "node/axios.cjs:42"
         )
+
+
+def test_print_scan_results_scan_incomplete_when_download_failed():
+    """A download failure must not render as a clean "No risks found" verdict (#906)."""
+    results = {
+        "issues": 0,
+        "errors": {"download-package": "Received status code: 404 from npm"},
+        "results": {},
+        "risks": [],
+        "scanned": False,
+    }
+    out = HumanReadableReporter.print_scan_results("some-pkg", results)
+    plain = _strip_color(out)
+    assert "Scan incomplete for some-pkg" in plain
+    assert "package could not be downloaded" in plain
+    assert "No risks found" not in plain
+
+
+def test_print_scan_results_no_risks_when_scan_completed():
+    """A completed remote scan with no findings is still a clean verdict."""
+    results = {
+        "issues": 0,
+        "errors": {},
+        "results": {},
+        "risks": [],
+        "scanned": True,
+    }
+    out = HumanReadableReporter.print_scan_results("some-pkg", results)
+    assert "No risks found in some-pkg" in _strip_color(out)
+
+
+def test_print_scan_results_no_risks_when_scanned_flag_absent():
+    """Local scans and older results without the flag keep the clean verdict."""
+    results = {"issues": 0, "errors": {}, "results": {}, "risks": []}
+    out = HumanReadableReporter.print_scan_results("some-pkg", results)
+    assert "No risks found in some-pkg" in _strip_color(out)
