@@ -7,9 +7,16 @@ from guarddog import ecosystems
 from guarddog.analyzer.analyzer import SOURCECODE_RULES_PATH
 from guarddog.analyzer.sourcecode import YaraRule, get_sourcecode_rules
 
-
 SOURCECODE_RULES_TESTS_PATH = os.path.join(os.path.dirname(__file__))
 BENIGN_TESTS_PATH = os.path.join(SOURCECODE_RULES_TESTS_PATH, "benign")
+
+# External variables available to YARA rules (see analyzer.py)
+YARA_EXTERNALS_DECL = {"filename": "", "ecosystem": ""}
+
+
+def match_extras(filename: str) -> dict:
+    """Per-file external variable values used when matching rules in tests."""
+    return {"filename": filename, "ecosystem": "pypi"}
 
 
 # any ecosystem will do, since YARA rules are not ecosystem specific
@@ -28,7 +35,7 @@ def test_source_codde_analyzer_yara_compile(rule_name: str):
         rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
     }
 
-    assert yara.compile(filepaths=test_rule_path)
+    assert yara.compile(filepaths=test_rule_path, externals=dict(YARA_EXTERNALS_DECL))
 
 
 @pytest.mark.parametrize("rule_name", yara_ruleset)
@@ -43,7 +50,9 @@ def test_source_codde_analyzer_yara_exec(rule_name: str):
         rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
     }
 
-    test_scan_rule = yara.compile(filepaths=test_rule_path)
+    test_scan_rule = yara.compile(
+        filepaths=test_rule_path, externals=dict(YARA_EXTERNALS_DECL)
+    )
 
     for root, _, files in os.walk(SOURCECODE_RULES_TESTS_PATH):
         if "benign" in root:
@@ -54,7 +63,9 @@ def test_source_codde_analyzer_yara_exec(rule_name: str):
 
             # testing file against rule
             print(f"Testing YARA rule: {rule_name}")
-            assert test_scan_rule.match(os.path.join(root, f))
+            assert test_scan_rule.match(
+                os.path.join(root, f), externals=match_extras(f)
+            )
 
 
 # Collect rules that have benign test files
@@ -76,13 +87,15 @@ def test_sourcecode_analyzer_yara_no_false_positives(rule_name: str):
     test_rule_path = {
         rule_name: os.path.join(SOURCECODE_RULES_PATH, f"{rule_name}.yar")
     }
-    compiled_rule = yara.compile(filepaths=test_rule_path)
+    compiled_rule = yara.compile(
+        filepaths=test_rule_path, externals=dict(YARA_EXTERNALS_DECL)
+    )
 
     for f in os.listdir(BENIGN_TESTS_PATH):
         if not f.startswith(f"{rule_name}."):
             continue
         benign_file = os.path.join(BENIGN_TESTS_PATH, f)
-        matches = compiled_rule.match(benign_file)
+        matches = compiled_rule.match(benign_file, externals=match_extras(f))
         # Filter to the main rule only (ignore private helper rules)
         main_rule_name = rule_name.replace("-", "_")
         main_matches = [m for m in matches if m.rule == main_rule_name]
