@@ -425,7 +425,10 @@ class Analyzer:
                 log.debug(f"Executing rule {rule_name}.yar")
                 start_time = time.time()
 
-                scan_rule = yara.compile(filepath=rule_path)
+                scan_rule = yara.compile(
+                    filepath=rule_path,
+                    externals={"filename": "", "ecosystem": ""},
+                )
 
                 # Get rule metadata
                 rule_obj = yara_rules.get(rule_name)
@@ -490,7 +493,16 @@ class Analyzer:
                             ):
                                 continue
 
-                        matches = scan_rule.match(scan_file_target_abspath)
+                        # External variables let rules scope themselves by ecosystem
+                        # and file name (e.g. `ecosystem == "pypi"`). Values are
+                        # supplied per file at match time.
+                        matches = scan_rule.match(
+                            scan_file_target_abspath,
+                            externals={
+                                "filename": f,
+                                "ecosystem": self.ecosystem.value,
+                            },
+                        )
 
                         for m in matches:
 
