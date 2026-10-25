@@ -18,6 +18,12 @@ log = logging.getLogger("guarddog")
 # extraction; this guarantees the subprocess can never hang indefinitely.
 EXTRACTION_TIMEOUT_SECONDS = 300
 
+# CPython reads /dev/urandom at startup when getrandom() fails (e.g. a seccomp
+# filter returns ENOSYS/EPERM, or the entropy pool is not ready yet). Landlock
+# denies it unless listed, and the sandboxed child then dies before running any
+# code with "_Py_HashRandomization_Init: failed to get random numbers".
+ENTROPY_SOURCE = "/dev/urandom"
+
 
 def is_available() -> bool:
     """Check if the platform supports sandboxing via nono-py."""
@@ -42,6 +48,7 @@ def apply_sandbox(
 
     for path in _get_common_read_paths():
         caps.allow_path(path, nono.AccessMode.READ)
+    _allow_entropy_source(caps, nono)
 
     for path in scan_paths:
         for variant in _path_variants(path):
@@ -87,6 +94,7 @@ def extract_sandboxed(archive_path: str, target_dir: str) -> None:
 
     for path in _get_common_read_paths():
         caps.allow_path(path, nono.AccessMode.READ)
+    _allow_entropy_source(caps, nono)
 
     # allow_path requires directories; allow the archive's parent dir for READ
     caps.allow_path(os.path.dirname(archive_path), nono.AccessMode.READ)
@@ -111,6 +119,17 @@ def extract_sandboxed(archive_path: str, target_dir: str) -> None:
             else ""
         )
         raise RuntimeError(f"Sandboxed extraction failed: {stderr}")
+
+
+def _allow_entropy_source(caps, nono) -> None:
+    """Grant READ on the kernel entropy device (Linux only).
+
+    It is a character device: allow_path rejects it (not a directory) and
+    os.path.isfile() is False for it, so it needs an explicit allow_file.
+    macOS (Seatbelt) already allows system paths by default.
+    """
+    if sys.platform.startswith("linux") and os.path.exists(ENTROPY_SOURCE):
+        caps.allow_file(ENTROPY_SOURCE, nono.AccessMode.READ)
 
 
 def _path_variants(path: str) -> list[str]:
