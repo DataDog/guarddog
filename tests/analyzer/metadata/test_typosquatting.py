@@ -26,7 +26,7 @@ class TestTyposquatting:
         ("py-jwt", "pyjwt"),
         ("pyjtw", "pyjwt"),
         ("python-mongo", "pymongo"),
-        ("python-mysql", "mysql-python"),
+        ("dateutil-python", "python-dateutil"),
         ("python-openssl", "pyopenssl"),
         ("reqeusts-oauthlib", "requests-oauthlib"),
         ("request-oauthlib", "requests-oauthlib"),
