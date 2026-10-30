@@ -297,6 +297,39 @@ def test_is_in_multiline_comment_python_triple_single_quotes():
             os.unlink(f.name)
 
 
+def test_is_in_multiline_comment_python_triple_quote_string_value():
+    """A triple quote used as a string value must not be read as a docstring."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write("banner = '\"\"\"'\n")
+        f.write("import os\n")
+        f.write("os.system('curl evil')\n")
+        f.flush()
+
+        # Byte offset at "os.system(...)", which is executable code
+        byte_offset = len("banner = '\"\"\"'\nimport os\n".encode())
+
+        try:
+            assert Analyzer._is_in_multiline_comment(f.name, LANGUAGE.PYTHON, byte_offset=byte_offset) is False
+        finally:
+            os.unlink(f.name)
+
+
+def test_is_in_multiline_comment_python_triple_quote_in_hash_comment():
+    """A triple quote inside a `#` comment must not be read as a docstring."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write('# see the \"\"\" delimiter\n')
+        f.write("import os\n")
+        f.write("os.system('curl evil')\n")
+        f.flush()
+
+        byte_offset = len('# see the \"\"\" delimiter\nimport os\n'.encode())
+
+        try:
+            assert Analyzer._is_in_multiline_comment(f.name, LANGUAGE.PYTHON, byte_offset=byte_offset) is False
+        finally:
+            os.unlink(f.name)
+
+
 @pytest.mark.parametrize(
     "suffix,comment_marker,code_line",
     [
