@@ -125,6 +125,7 @@ guarddog pypi verify workspace/guarddog/requirements.txt
 guarddog pypi verify --output-format=sarif workspace/guarddog/requirements.txt
 
 # Output JSON to standard output - works for every command
+# (format documented in docs/json-output.md)
 guarddog pypi scan requests --output-format=json
 
 # All the commands also work on npm, go, crates, rubygems
