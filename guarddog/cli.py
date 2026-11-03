@@ -32,6 +32,11 @@ from guarddog.sandbox import (
 )
 
 EXIT_CODE_ISSUES_FOUND = 1
+# Any error that prevented rules from running (package download failure,
+# rule crash): the scan is incomplete, so its "0 issues" verdict carries no
+# signal. Distinct from EXIT_CODE_ISSUES_FOUND so gates can tell an
+# incomplete scan apart from a completed scan that found something.
+EXIT_CODE_SCAN_ERROR = 2
 
 AVAILABLE_LOG_LEVELS = {logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR}
 AVAILABLE_LOG_LEVELS_NAMES = list(
@@ -181,8 +186,10 @@ def _verify(
     sys.stdout.write(stdout)
     sys.stderr.write(stderr)
 
-    if exit_non_zero_on_finding:
-        exit_with_status_code([result["result"] for result in results])
+    exit_with_status_code(
+        [result["result"] for result in results],
+        exit_non_zero_on_finding=exit_non_zero_on_finding,
+    )
 
     return return_value  # this is mostly for testing
 
@@ -369,6 +376,20 @@ def _scan(
             if zip_password_bytes is not None:
                 log.error("--zip-password is only supported for local archive scans")
                 sys.exit(1)
+            # npm accepts the registry's `name@version` spelling: split it so
+            # `scan pkg@1.2.3` behaves like `scan pkg --version 1.2.3` instead of
+            # looking up a package literally named "pkg@1.2.3". Scoped names
+            # keep their leading @; only a later @ is treated as the version.
+            if ecosystem == ECOSYSTEM.NPM and "@" in identifier[1:]:
+                if version is not None:
+                    log.error(
+                        f"Cannot combine '{identifier}' with --version={version};"
+                        " pass the version only once"
+                    )
+                    sys.exit(1)
+                identifier, _, version = identifier.rpartition("@")
+                log.debug(f"Scanning npm package {identifier} at version {version}")
+                result["package"] = identifier
             if sandbox:
                 result |= _scan_remote_sandboxed(
                     scanner, identifier, version, rule_param
@@ -385,8 +406,7 @@ def _scan(
     sys.stdout.write(stdout)
     sys.stderr.write(stderr)
 
-    if exit_non_zero_on_finding:
-        exit_with_status_code([result])
+    exit_with_status_code([result], exit_non_zero_on_finding=exit_non_zero_on_finding)
 
 
 def _scan_remote_sandboxed(scanner, name, version, rules):
@@ -416,7 +436,13 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
             )
         except Exception as e:
             log.debug("Unable to download package, ignoring: " + str(e))
-            return {"issues": 0, "errors": {"download-package": str(e)}}
+            # A download failure is not a clean scan: no rule ran (see
+            # Scanner._scan_remote, which sets the same flag).
+            return {
+                "issues": 0,
+                "errors": {"download-package": str(e)},
+                "scanned": False,
+            }
         finally:
             scanner._extract_archive = original_extract
 
@@ -467,6 +493,7 @@ def _scan_remote_sandboxed(scanner, name, version, rules):
             "path": file_path,
             "risk_score": risk_score,
             "risks": formatted_risks,
+            "scanned": True,
         }
         scanner._annotate_remote_results(results, package_info, name, version)
         return results
@@ -626,8 +653,19 @@ for e in ECOSYSTEM:
 
 
 # Given the results, exit with the appropriate status code
-def exit_with_status_code(results):
+def exit_with_status_code(results, exit_non_zero_on_finding=True):
+    """Exit with the status code matching the scan outcome.
+
+    A scan whose rules could not run (failed package download, crashed rule)
+    always exits with EXIT_CODE_SCAN_ERROR, independent of
+    --exit-non-zero-on-finding: an incomplete scan is never a clean scan.
+    Findings only exit with EXIT_CODE_ISSUES_FOUND when
+    --exit-non-zero-on-finding was requested.
+    """
     for result in results:
+        errors = result.get("errors", {})
+        if errors:
+            exit(EXIT_CODE_SCAN_ERROR)
         num_issues = result.get("issues", 0)
-        if num_issues > 0:
+        if exit_non_zero_on_finding and num_issues > 0:
             exit(EXIT_CODE_ISSUES_FOUND)

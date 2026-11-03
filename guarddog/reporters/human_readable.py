@@ -380,8 +380,17 @@ class HumanReadableReporter(BaseReporter):
         ]
 
     @staticmethod
-    def _format_header(identifier: str, num_risks: int) -> List[str]:
+    def _format_header(
+        identifier: str, num_risks: int, scan_incomplete: bool = False
+    ) -> List[str]:
         bold = colored(_sanitize(identifier), None, attrs=["bold"])
+        if scan_incomplete:
+            # The package could not be downloaded, so no rule ran:
+            # "No risks found" would be a false clean verdict.
+            return [
+                f"Scan incomplete for {bold}: package could not be downloaded",
+                "",
+            ]
         if num_risks == 0:
             return [f"No risks found in {bold}", ""]
         noun = "risk" if num_risks == 1 else "risks"
@@ -410,7 +419,9 @@ class HumanReadableReporter(BaseReporter):
         deep_base = HumanReadableReporter._pypi_deep_link_base(results)
 
         lines: List[str] = []
-        lines += HumanReadableReporter._format_header(identifier, len(risks))
+        lines += HumanReadableReporter._format_header(
+            identifier, len(risks), scan_incomplete=results.get("scanned") is False
+        )
         if risks:
             lines += HumanReadableReporter._format_findings(
                 risks, path_prefix, ceiling, deep_base

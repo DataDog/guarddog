@@ -83,38 +83,53 @@ class TestCli(unittest.TestCase):
             isdir.return_value = True
             with mock.patch("os.listdir") as listdir:
                 listdir.return_value = []
-                with self.assertLogs("guarddog", level="DEBUG") as cm:
-                    guarddog.cli._scan(
-                        directory,
-                        "0.1.0",
-                        (),
-                        (),
-                        None,
-                        False,
-                        ECOSYSTEM.PYPI,
-                        sandbox=False,
+                # Routing-only leg: mock the scan too. Running the real
+                # analyzer here makes the "." template case YARA-walk the
+                # whole checkout (including any local virtualenv), so the
+                # test time scales with repo size for no asserted benefit.
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_local", return_value={}
+                ) as _:
+                    with self.assertLogs("guarddog", level="DEBUG") as cm:
+                        guarddog.cli._scan(
+                            directory,
+                            "0.1.0",
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.PYPI,
+                            sandbox=False,
+                        )
+                    self.assertIn(
+                        f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
+                        cm.output,
                     )
-                self.assertIn(
-                    f"DEBUG:guarddog:Considering that '{directory}' is a local directory",
-                    cm.output,
-                )
-                self.assertNotIn(
-                    f"DEBUG:guarddog:Considering that '{directory}' is a local archive file",
-                    cm.output,
-                )
-                self.assertNotIn(
-                    f"DEBUG:guarddog:Considering that '{directory}' is a remote target",
-                    cm.output,
-                )
+                    self.assertNotIn(
+                        f"DEBUG:guarddog:Considering that '{directory}' is a local archive file",
+                        cm.output,
+                    )
+                    self.assertNotIn(
+                        f"DEBUG:guarddog:Considering that '{directory}' is a remote target",
+                        cm.output,
+                    )
 
         # `directory` is neither a directory nor a file
         with mock.patch("os.path.isdir") as isdir:
             isdir.return_value = False
             with mock.patch("os.path.isfile") as isfile:
                 isfile.return_value = False
-                with mock.patch.object(
-                    scanner.PackageScanner, "scan_local", return_value={}
-                ) as _:
+                with (
+                    mock.patch.object(
+                        scanner.PackageScanner, "scan_local", return_value={}
+                    ) as _,
+                    # The remote dispatch must not hit the network here: this
+                    # leg only asserts routing, and a live lookup of a
+                    # nonexistent package makes _scan exit non-zero.
+                    mock.patch.object(
+                        scanner.PackageScanner, "scan_remote", return_value={}
+                    ) as _,
+                ):
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(
                             directory,
@@ -378,9 +393,17 @@ class TestCli(unittest.TestCase):
             isdir.return_value = False
             with mock.patch("os.path.isfile") as isfile:
                 isfile.return_value = False
-                with mock.patch.object(
-                    scanner.PackageScanner, "scan_local", return_value={}
-                ) as _:
+                with (
+                    mock.patch.object(
+                        scanner.PackageScanner, "scan_local", return_value={}
+                    ) as _,
+                    # The remote dispatch must not hit the network here: this
+                    # leg only asserts routing, and a live lookup of a
+                    # nonexistent package makes _scan exit non-zero.
+                    mock.patch.object(
+                        scanner.PackageScanner, "scan_remote", return_value={}
+                    ) as _,
+                ):
                     with self.assertLogs("guarddog", level="DEBUG") as cm:
                         guarddog.cli._scan(
                             filename,
@@ -532,6 +555,179 @@ class TestCli(unittest.TestCase):
         )
         self.assertNotEqual(result.exit_code, 0, "unknown option should be rejected")
         self.assertIn("--include-dev-dependencies", result.output)
+
+    def _scan_remote_result(self, result_body, exit_non_zero_on_finding):
+        """Run _scan on a mocked remote target and return the scan_remote mock."""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_remote", return_value=result_body
+                ) as scan_remote:
+                    guarddog.cli._scan(
+                        "some-package",
+                        None,
+                        (),
+                        (),
+                        None,
+                        exit_non_zero_on_finding,
+                        ECOSYSTEM.PYPI,
+                        sandbox=False,
+                    )
+        return scan_remote
+
+    def test_scan_download_failure_exits_two_without_flag(self):
+        """A failed download must exit EXIT_CODE_SCAN_ERROR without the flag."""
+        with self.assertRaises(SystemExit) as cm:
+            self._scan_remote_result(
+                {
+                    "issues": 0,
+                    "errors": {
+                        "download-package": "Received status code: 404 from npm"
+                    },
+                    "scanned": False,
+                },
+                False,
+            )
+        self.assertEqual(cm.exception.code, guarddog.cli.EXIT_CODE_SCAN_ERROR)
+
+    def test_scan_download_failure_exits_two_with_flag(self):
+        """--exit-non-zero-on-finding must not mask a failed download."""
+        with self.assertRaises(SystemExit) as cm:
+            self._scan_remote_result(
+                {
+                    "issues": 0,
+                    "errors": {
+                        "download-package": "Received status code: 404 from npm"
+                    },
+                    "scanned": False,
+                },
+                True,
+            )
+        self.assertEqual(cm.exception.code, guarddog.cli.EXIT_CODE_SCAN_ERROR)
+
+    def test_scan_rule_error_exits_two(self):
+        """A crashed rule makes the scan incomplete even with zero findings."""
+        with self.assertRaises(SystemExit) as cm:
+            self._scan_remote_result(
+                {"issues": 0, "errors": {"some-rule": "failed to run rule: boom"}},
+                False,
+            )
+        self.assertEqual(cm.exception.code, guarddog.cli.EXIT_CODE_SCAN_ERROR)
+
+    def test_scan_findings_exit_one_only_with_flag(self):
+        """Findings keep the historical behavior: exit 1 with the flag, 0 without."""
+        with self.assertRaises(SystemExit) as cm:
+            self._scan_remote_result({"issues": 2, "errors": {}}, True)
+        self.assertEqual(cm.exception.code, guarddog.cli.EXIT_CODE_ISSUES_FOUND)
+        self._scan_remote_result({"issues": 2, "errors": {}}, False)
+
+    def test_scan_clean_result_does_not_exit(self):
+        """A completed clean scan exits 0 even with --exit-non-zero-on-finding."""
+        self._scan_remote_result({"issues": 0, "errors": {}, "scanned": True}, True)
+
+    def _npm_scan_remote(self, identifier, version=None, ecosystem=ECOSYSTEM.NPM):
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_remote", return_value={"issues": 0}
+                ) as scan_remote:
+                    guarddog.cli._scan(
+                        identifier,
+                        version,
+                        (),
+                        (),
+                        None,
+                        False,
+                        ecosystem,
+                        sandbox=False,
+                    )
+        return scan_remote
+
+    def test_npm_scan_accepts_name_at_version(self):
+        """npm name@version is split into name + version."""
+        scan_remote = self._npm_scan_remote("defuddle@2.0.0")
+        scan_remote.assert_called_once_with("defuddle", "2.0.0", None)
+
+    def test_npm_scan_accepts_scoped_name_at_version(self):
+        """Scoped npm name@version keeps the leading @ of the package name."""
+        scan_remote = self._npm_scan_remote("@zxcvbn-ts/core@4.2.0")
+        scan_remote.assert_called_once_with("@zxcvbn-ts/core", "4.2.0", None)
+
+    def test_npm_scan_scoped_name_without_version_unchanged(self):
+        """A scoped npm name alone must not be treated as name@version."""
+        scan_remote = self._npm_scan_remote("@zxcvbn-ts/core")
+        scan_remote.assert_called_once_with("@zxcvbn-ts/core", None, None)
+
+    def test_pypi_scan_does_not_parse_name_at_version(self):
+        """name@version parsing is npm-only; PyPI names keep any @ they have."""
+        scan_remote = self._npm_scan_remote("requests@2.0.0", ecosystem=ECOSYSTEM.PYPI)
+        scan_remote.assert_called_once_with("requests@2.0.0", None, None)
+
+    def test_npm_scan_rejects_name_at_version_with_version_flag(self):
+        """name@version plus --version is ambiguous and must be rejected clearly."""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=False):
+                with mock.patch.object(
+                    scanner.PackageScanner, "scan_remote", return_value={}
+                ) as scan_remote:
+                    with self.assertRaises(SystemExit) as cm:
+                        guarddog.cli._scan(
+                            "defuddle@2.0.0",
+                            "1.0.0",
+                            (),
+                            (),
+                            None,
+                            False,
+                            ECOSYSTEM.NPM,
+                            sandbox=False,
+                        )
+        self.assertEqual(cm.exception.code, 1)
+        scan_remote.assert_not_called()
+
+    def test_verify_download_failure_exits_two(self):
+        """A dependency that could not be downloaded fails verify (#906)."""
+        scan_results = [
+            {
+                "dependency": "some-package",
+                "version": None,
+                "result": {
+                    "issues": 0,
+                    "errors": {
+                        "download-package": "Received status code: 404 from npm"
+                    },
+                    "scanned": False,
+                },
+            }
+        ]
+        project_scanner = mock.Mock()
+        project_scanner.scan_local.return_value = ([], scan_results)
+        with mock.patch(
+            "guarddog.cli.get_project_scanner", return_value=project_scanner
+        ):
+            with self.assertRaises(SystemExit) as cm:
+                guarddog.cli._verify(
+                    "/tmp/requirements.txt", (), (), "json", False, ECOSYSTEM.PYPI
+                )
+        self.assertEqual(cm.exception.code, guarddog.cli.EXIT_CODE_SCAN_ERROR)
+
+    def test_sandboxed_scan_failed_download_marks_result_unscanned(self):
+        """The sandboxed remote path must flag download failures like the plain one."""
+        from guarddog.scanners import NPMPackageScanner
+
+        npm_scanner = NPMPackageScanner()
+        with mock.patch.object(
+            npm_scanner,
+            "download_and_get_package_info",
+            side_effect=Exception("Received status code: 404 from npm"),
+        ):
+            result = guarddog.cli._scan_remote_sandboxed(
+                npm_scanner, "this-package-does-not-exist", None, None
+            )
+        self.assertIs(result["scanned"], False)
+        self.assertEqual(result["issues"], 0)
+        self.assertEqual(
+            result["errors"]["download-package"], "Received status code: 404 from npm"
+        )
 
 
 if __name__ == "__main__":

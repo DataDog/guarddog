@@ -47,6 +47,13 @@ class NPMPackageScanner(PackageScanner):
         # TODO: figure logs and log it when we do that
         version = data["dist-tags"]["latest"] if version is None else version
 
+        if version not in data["versions"]:
+            # Same message as the PyPI scanner, instead of a raw KeyError
+            # whose str() is just the quoted version.
+            raise Exception(
+                f"Version {version} for package {package_name} doesn't exist."
+            )
+
         details = data["versions"][version]
 
         tarball_url = details["dist"]["tarball"]
