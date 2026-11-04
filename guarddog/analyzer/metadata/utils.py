@@ -1,3 +1,7 @@
+import contextlib
+import io
+import logging
+import threading
 from datetime import datetime, timezone
 from functools import cache
 from typing import Optional
@@ -5,6 +9,28 @@ from typing import Optional
 import hashlib
 import whois  # type: ignore
 from whois.exceptions import PywhoisError  # type: ignore[import-untyped]
+
+_log = logging.getLogger("guarddog")
+
+# Serializes sys.stdout redirection to prevent output loss when multiple
+# threads suppress stdout concurrently via ThreadPoolExecutor.
+_stdout_redirect_lock = threading.Lock()
+
+
+@contextlib.contextmanager
+def _suppress_stdout():
+    """Suppress stdout and return the captured output buffer."""
+    import sys
+
+    captured = io.StringIO()
+    with _stdout_redirect_lock:
+        original_stdout = sys.stdout
+        sys.stdout = captured
+        try:
+            yield captured
+        finally:
+            sys.stdout = original_stdout
+
 
 NPM_MAINTAINER_EMAIL_WARNING = (
     "note that NPM's API may not provide accurate information regarding the maintainer's email, "
@@ -26,12 +52,19 @@ def get_domain_creation_date(domain) -> tuple[Optional[datetime], bool]:
         bool:     if the domain is currently registered
     """
 
+    captured_stdout = io.StringIO()
     try:
-        domain_information = whois.whois(domain)
+        with _suppress_stdout() as stdout:
+            captured_stdout = stdout
+            domain_information = whois.whois(domain)
     except PywhoisError as e:
         # The domain doesn't exist at all, if that's the case we consider it vulnerable
         # since someone could register it
         return None, (not str(e).lower().startswith("no match for"))
+    finally:
+        output = captured_stdout.getvalue()
+        if output and _log.isEnabledFor(logging.DEBUG):
+            _log.debug("[whois] %s", output.strip())
 
     if domain_information.creation_date is None:
         # No creation date in whois, so we can't know
