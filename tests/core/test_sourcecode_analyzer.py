@@ -414,3 +414,38 @@ def test_is_match_in_comment_with_byte_offset():
             assert Analyzer.is_match_in_comment(f.name, line_number=3, byte_offset=byte_offset) is True
         finally:
             os.unlink(f.name)
+
+def test_is_in_multiline_comment_python_triple_quotes_in_string():
+    """Test that triple quotes inside a string are not treated as a docstring."""
+    f = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False)
+    try:
+        f.write("banner = '\"\"\"'\n")
+        f.write("result = os.homedir()\n")
+        f.close()
+
+        byte_offset = len("banner = '\"\"\"'\nresult = ".encode())
+
+        assert Analyzer._is_in_multiline_comment(
+            f.name,
+            LANGUAGE.PYTHON,
+            byte_offset=byte_offset,
+        ) is False
+    finally:
+        os.unlink(f.name)
+def test_is_in_multiline_comment_python_triple_quotes_in_comment():
+    """Test that triple quotes inside a comment are not treated as a docstring."""
+    f = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False)
+    try:
+        f.write("# \"\"\"\n")
+        f.write("result = os.homedir()\n")
+        f.close()
+
+        byte_offset = len("# \"\"\"\nresult = ".encode())
+
+        assert Analyzer._is_in_multiline_comment(
+            f.name,
+            LANGUAGE.PYTHON,
+            byte_offset=byte_offset,
+        ) is False
+    finally:
+        os.unlink(f.name)
