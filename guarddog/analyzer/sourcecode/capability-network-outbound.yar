@@ -26,14 +26,14 @@ rule capability_network_outbound
         // JavaScript/TypeScript - HTTP
         $js_fetch = /\bfetch\s*\(/
         $js_axios = /axios\.(get|post|put|delete|patch)/
-        $js_http = /require\s*\(\s*['"]https?['"]\s*\)/
+        $js_http = /require\s*\(\s*['"`](node:)?https?['"`]\s*\)/
         $js_request = /\brequire\s*\(\s*['"]request['"]\s*\)/
 
         // JavaScript/TypeScript - DNS
-        $js_dns_require = /require\s*\(\s*['"]dns['"]\s*\)/
+        $js_dns_require = /require\s*\(\s*['"`](node:)?dns['"`]\s*\)/
         $js_dns_lookup = /\.(lookup|resolve4|resolve6|resolveMx|resolveTxt|resolveNs|resolveCname|resolveSrv|resolvePtr|resolveSoa|resolveNaptr)\s*\(/
         $js_dns_resolve = /\bresolve\s*\(/
-        $js_dns_import = /import\s+.*\s+from\s+['"]dns['"]/
+        $js_dns_import = /import\s+.*\s+from\s+['"](node:)?dns['"]/
 
         // Go - HTTP
         $go_http = /http\.(Get|Post|Head|Do)\(/
