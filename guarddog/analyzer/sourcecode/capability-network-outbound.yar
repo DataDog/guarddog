@@ -17,6 +17,12 @@ rule capability_network_outbound
         $py_http = /http\.client\.(HTTPConnection|HTTPSConnection)/
         $py_socket = /socket\.socket\([^)]*SOCK_STREAM/
 
+        // Python - aliased imports, which hide the module name at the call site
+        $py_requests_alias = /\bimport\s+requests\s+as\s+\w+/
+        $py_requests_from_alias = /\bfrom\s+requests\s+import\s+(get|post|put|delete|head|patch)\s+as\s+\w+/
+        $py_urllib_alias = /\bimport\s+urllib\.request\s+as\s+\w+/
+        $py_urllib_from_alias = /\bfrom\s+urllib\.request\s+import\s+(urlopen|urlretrieve|Request)\s+as\s+\w+/
+
         // Python - DNS
         $py_getaddrinfo = /socket\.getaddrinfo\s*\(/
         $py_gethostbyname = /socket\.gethostbyname/

@@ -18,6 +18,12 @@ rule capability_network_download
         $py_requests_download = /\brequests\.download\s*\(/ nocase
         $py_wget = /\bwget\.download\s*\(/ nocase
 
+        // Python - aliased imports, which hide the module name at the call site
+        $py_requests_alias = /\bimport\s+requests\s+as\s+\w+/
+        $py_requests_get_from_alias = /\bfrom\s+requests\s+import\s+get\s+as\s+\w+/
+        $py_urllib_alias = /\bimport\s+urllib\.request\s+as\s+\w+/
+        $py_urllib_from_alias = /\bfrom\s+urllib\.request\s+import\s+(urlopen|urlretrieve)\s+as\s+\w+/
+
         // JavaScript/Node.js - downloading
         $js_https_get = /https?\.(get|request)\b\s*\(/ nocase
         $js_axios = /axios\.(get|download)\b\s*\(/ nocase
