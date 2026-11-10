@@ -258,6 +258,8 @@ def _scan(
     try:
         if os.path.isdir(identifier):
             log.debug(f"Considering that '{identifier}' is a local directory")
+            if version is not None:
+                log.warning("--version is ignored when scanning a local directory")
             # Resolve symlinks so the sandbox sees the real path (macOS /tmp ->
             # /private/tmp); nono doesn't resolve symlinks and would otherwise
             # deny reads under the real path.
@@ -268,6 +270,8 @@ def _scan(
 
         elif os.path.isfile(identifier):
             log.debug(f"Considering that '{identifier}' is a local archive file")
+            if version is not None:
+                log.warning("--version is ignored when scanning a local archive file")
             # Resolve symlinks so the sandbox sees the real path (macOS /tmp ->
             # /private/tmp); nono doesn't resolve symlinks and would otherwise
             # deny reads under the symlinked path.
