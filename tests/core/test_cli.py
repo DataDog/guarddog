@@ -160,6 +160,58 @@ class TestCli(unittest.TestCase):
                         sandbox=False,
                     )
 
+    def test_local_scan_warns_when_version_is_ignored(self):
+        """--version is warned about (not silently dropped) for local scans"""
+        with mock.patch("os.path.isdir", return_value=True):
+            with mock.patch.object(
+                scanner.PackageScanner, "scan_local", return_value={}
+            ):
+                with self.assertLogs("guarddog", level="DEBUG") as cm:
+                    guarddog.cli._scan(
+                        "/tmp/foo",
+                        "0.1.0",
+                        (),
+                        (),
+                        None,
+                        False,
+                        ECOSYSTEM.PYPI,
+                        sandbox=False,
+                    )
+                self.assertTrue(
+                    any(
+                        "--version is ignored when scanning a local directory" in m
+                        for m in cm.output
+                    )
+                )
+
+    def test_local_archive_scan_warns_when_version_is_ignored(self):
+        """--version is warned about (not silently dropped) for local archives"""
+        with mock.patch("os.path.isdir", return_value=False):
+            with mock.patch("os.path.isfile", return_value=True):
+                with mock.patch("shutil.copyfile"):
+                    with mock.patch("guarddog.cli.safe_extract"):
+                        with mock.patch.object(
+                            scanner.PackageScanner, "scan_local", return_value={}
+                        ):
+                            with self.assertLogs("guarddog", level="DEBUG") as cm:
+                                guarddog.cli._scan(
+                                    "/tmp/foo.whl",
+                                "0.1.0",
+                                (),
+                                (),
+                                None,
+                                False,
+                                ECOSYSTEM.PYPI,
+                                sandbox=False,
+                            )
+                        self.assertTrue(
+                            any(
+                                "--version is ignored when scanning a local archive file"
+                                in m
+                                for m in cm.output
+                            )
+                        )
+
     def _test_remote_url_template(self, url: str):
         mock_response = mock.MagicMock()
         mock_response.raw.read.return_value = b""
