@@ -16,6 +16,8 @@ rule capability_process_spawn
         $py_os_system = "os.system(" nocase
         $py_os_popen = "os.popen(" nocase
         $py_os_spawn = /os\.(spawn|exec)/ nocase
+        $py_subprocess_alias = /\bimport\s+subprocess\s+as\s+\w+/
+        $py_subprocess_from_alias = /\bfrom\s+subprocess\s+import\s+(call|run|check_call|check_output|Popen)\s+as\s+\w+/
         $py_exec = /\bexec\s*\(\s*[a-zA-Z_'"(]/ nocase
         $py_eval = /\beval\s*\(\s*[a-zA-Z_'"(]/ nocase
 
