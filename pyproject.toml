@@ -19,7 +19,7 @@ version = "3.2.0"
 guarddog = "guarddog.cli:cli"
 
 [tool.poetry.dependencies]
-click = "^8.4.1"
+click = "^8.5.0"
 configparser = ">=5.3,<8.0"
 disposable-email-domains = ">=0.0.237,<0.0.238"
 prettytable="^3.17.0"
