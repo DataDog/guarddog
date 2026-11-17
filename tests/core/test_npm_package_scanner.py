@@ -74,3 +74,16 @@ def test_download_and_get_package_info_non_existing_packages():
             scanner.download_and_get_package_info(tmpdirname, "@datadog/minivlad")
         except Exception as e:
             assert e
+
+
+def test_download_and_get_package_info_unknown_version_raises_friendly_error():
+    """A missing version must raise a readable error, not a bare KeyError (#906)."""
+    scanner = NPMPackageScanner()
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        with pytest.raises(
+            Exception,
+            match="^Version 99[.]99[.]99 for package defuddle doesn't exist[.]$",
+        ):
+            scanner.download_and_get_package_info(
+                tmpdirname, "defuddle", version="99.99.99"
+            )
