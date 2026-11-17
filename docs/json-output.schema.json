@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DataDog/guarddog/blob/main/docs/json-output.schema.json",
+  "title": "GuardDog JSON output",
+  "description": "Output of `guarddog <ecosystem> scan|verify --output-format json`. See docs/json-output.md.",
+  "oneOf": [
+    {
+      "description": "Output of `scan`: a single scan result for the scanned package, directory or archive.",
+      "allOf": [
+        {"$ref": "#/$defs/scanResult"},
+        {"type": "object", "required": ["package"]}
+      ]
+    },
+    {
+      "description": "Output of `verify`: one entry per dependency found in the dependency file.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["dependency", "version", "result"],
+        "properties": {
+          "dependency": {"type": "string"},
+          "version": {"type": ["string", "null"]},
+          "result": {"$ref": "#/$defs/scanResult"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "scanResult": {
+      "type": "object",
+      "required": ["issues", "errors"],
+      "properties": {
+        "package": {
+          "type": "string",
+          "description": "The package name, directory or archive path passed to `scan`. Absent from `verify` results."
+        },
+        "issues": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Raw hit count: one per matching metadata rule, plus the number of YARA string patterns matched by source code rules."
+        },
+        "errors": {
+          "type": "object",
+          "description": "Rule name (or `download-package`) mapped to an error message for anything that failed to run.",
+          "additionalProperties": {"type": "string"}
+        },
+        "results": {
+          "type": "object",
+          "description": "Every rule that ran, keyed by rule name.",
+          "additionalProperties": {
+            "anyOf": [
+              {"type": "null", "description": "Metadata rule that did not match."},
+              {"type": "string", "description": "Metadata rule that matched: the explanation message."},
+              {"type": "object", "maxProperties": 0, "description": "Source code rule that did not match."},
+              {"type": "array", "items": {"$ref": "#/$defs/sourceCodeMatch"}, "description": "Source code rule that matched."}
+            ]
+          }
+        },
+        "path": {
+          "type": "string",
+          "description": "The directory that was analyzed. Present for remote packages and for local scans run with `--metadata`."
+        },
+        "risk_score": {"$ref": "#/$defs/riskScore"},
+        "risks": {"type": "array", "items": {"$ref": "#/$defs/risk"}},
+        "package_version": {"type": "string", "description": "Version that was scanned (remote packages only)."},
+        "pypi_dist_path": {"type": "string", "description": "PyPI `/packages/...` path of the scanned distribution (PyPI only)."},
+        "pypi_inspector_url": {"type": "string", "description": "PyPI Inspector link, only when `issues` >= 1 (PyPI only)."}
+      }
+    },
+    "sourceCodeMatch": {
+      "type": "object",
+      "required": ["location", "code", "match", "message"],
+      "properties": {
+        "location": {"type": "string", "description": "`<relative file path>:<line number>`"},
+        "code": {"type": "string", "description": "The matched line(s), trimmed around the match."},
+        "match": {"type": "string", "description": "The exact bytes that matched, or an empty string."},
+        "message": {"type": "string", "description": "The rule's description."}
+      }
+    },
+    "riskScore": {
+      "type": "object",
+      "required": ["score", "label", "findings_count", "score_breakdown"],
+      "properties": {
+        "score": {"type": "number", "minimum": 0, "maximum": 10},
+        "label": {"enum": ["no_risks_detected", "low", "suspicious", "high_risk"]},
+        "findings_count": {"type": "integer", "minimum": 0},
+        "score_breakdown": {
+          "type": "object",
+          "description": "Empty when there are no findings. Additional keys are only present when at least one risk was formed.",
+          "properties": {
+            "severity_component": {"type": "number"},
+            "chain_component": {"type": "number"},
+            "specificity_component": {"type": "number"},
+            "sophistication_component": {"type": "number"},
+            "num_stages": {"type": "integer"},
+            "has_source_code_risks": {"type": "boolean"},
+            "max_severity": {"type": "number"},
+            "dominant_specificity": {"enum": ["low", "medium", "high"]},
+            "dominant_sophistication": {"enum": ["low", "medium", "high"]}
+          }
+        },
+        "risks": {"type": "array", "maxItems": 0, "description": "Only present, and always empty, when there are no findings. Use the top-level `risks` instead."}
+      }
+    },
+    "risk": {
+      "type": "object",
+      "required": [
+        "name", "category", "severity", "mitre_tactics",
+        "threat_identifies", "threat_rule", "threat_description",
+        "threat_location", "threat_code", "threat_match",
+        "capability_identifies", "capability_rule", "file_path"
+      ],
+      "properties": {
+        "name": {"type": "string", "description": "For example `risk.filesystem.read`."},
+        "category": {"type": "string"},
+        "severity": {"enum": ["low", "medium", "high"]},
+        "mitre_tactics": {"type": "array", "items": {"type": "string"}},
+        "threat_identifies": {"type": "string"},
+        "threat_rule": {"type": "string"},
+        "threat_description": {"type": "string"},
+        "threat_location": {"type": "string", "description": "`<file>:<line>`, or an empty string for metadata threats."},
+        "threat_code": {"type": "string"},
+        "threat_match": {"type": "string"},
+        "capability_identifies": {"type": ["string", "null"], "description": "Null when the threat stands on its own without a capability."},
+        "capability_rule": {"type": ["string", "null"]},
+        "file_path": {"type": "string"}
+      }
+    }
+  }
+}
