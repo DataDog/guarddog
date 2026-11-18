@@ -20,8 +20,11 @@ rule threat_runtime_obfuscation
         // Hex-encoded strings
         $hex_1 = /\\x[0-9a-fA-F]{2}([\\x][0-9a-fA-F]{2}){20,}/
 
-        // Unicode escape sequences
-        $unicode_1 = /\\u[0-9a-fA-F]{4}(\\u[0-9a-fA-F]{4}){10,}/
+        // Unicode escape sequences. Requiring 25+ escapes per run keeps
+        // charset/whitespace tables (the core-js 'whitespaces' module in pdf.js
+        // writes 12-13 escapes per run, issue #903) out while still matching
+        // homoglyph-heavy obfuscation.
+        $unicode_1 = /\\u[0-9a-fA-F]{4}(\\u[0-9a-fA-F]{4}){24,}/
 
         // Obfuscated variable names (obfuscator.io-style hex identifiers).
         // The previous [A-Z]{10,} branch also matched ALLCAPS words (license

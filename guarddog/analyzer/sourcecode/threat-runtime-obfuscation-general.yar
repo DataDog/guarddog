@@ -13,8 +13,12 @@ rule threat_runtime_obfuscation_general
         path_include = "*.py,*.pyx,*.pyi,*.pth,*.js,*.ts,*.jsx,*.tsx,*.mjs,*.cjs"
 
     strings:
-        // Python - 50+ consecutive hex escapes (crypto test vectors are shorter)
-        $py_hex_chr = /\\x[0-9a-fA-F]{2}(\\x[0-9a-fA-F]{2}){49,}/ nocase
+        // Python - 50+ consecutive hex escapes (crypto test vectors are shorter).
+        // The run must spell out printable text: obfuscated payloads are ASCII
+        // written as escapes (e.g. \\x72\\x6d...), while lookup tables shipped by
+        // compilers are control-byte dictionaries (Brotli's static dictionary in
+        // pdf.js is all 0x00-0x1F, issue #903).
+        $py_hex_chr = /\\x([2-6][0-9a-f]|7[0-9a-e])(\\x([2-6][0-9a-f]|7[0-9a-e])){49,}/ nocase
         // Python - 50+ consecutive octal escapes
         $py_octal = /\\[0-7]{3}(\\[0-7]{3}){49,}/ nocase
 
