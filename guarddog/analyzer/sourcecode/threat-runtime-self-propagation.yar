@@ -22,7 +22,7 @@ rule threat_runtime_self_propagation
         $write_manifest = /\b(writeFile(Sync)?|writeJson(Sync)?|outputJson(Sync)?)\s*\(\s*['"`][^'"`]*package(-lock)?\.json/ nocase
 
         // Process-execution capability used to drive the publish.
-        $cp_require = /require\s*\(\s*['"]child_process['"]\s*\)/
+        $cp_require = /require\s*\(\s*['"`](node:)?child_process['"`]\s*\)/
         $cp_exec = /\bexec(Sync|File|FileSync)?\s*\(/
         $cp_spawn = /\bspawn(Sync)?\s*\(/
 

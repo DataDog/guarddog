@@ -21,7 +21,7 @@ rule capability_process_spawn
 
         // JavaScript/Node.js - child_process (both direct and destructured)
         $js_child_process = /child_process\.(exec|execSync|spawn|spawnSync|fork|execFile)/ nocase
-        $js_require_child_process = /require\s*\(\s*['"]child_process['"]\s*\)/ nocase
+        $js_require_child_process = /require\s*\(\s*['"`](node:)?child_process['"`]\s*\)/ nocase
         $js_spawn_destructure = /\{\s*(exec|execSync|spawn|spawnSync|fork|execFile)\s*\}\s*=\s*require/ nocase
         $js_eval = /(^|\s|\()eval\s*\(/ nocase
         $js_function = "new Function(" nocase
