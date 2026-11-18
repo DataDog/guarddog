@@ -49,6 +49,12 @@ class NPMRequirementsScanner(ProjectScanner):
             }
         """
         package = json.loads(raw_requirements)
+        if "lockfileVersion" in package:
+            raise ValueError(
+                "Unsupported file format: this looks like a package-lock.json. "
+                "GuardDog's npm verify expects a package.json manifest; point the "
+                "command at your package.json instead."
+            )
         dependencies_attr = package["dependencies"] if "dependencies" in package else {}
         dev_dependencies_attr = (
             package["devDependencies"] if "devDependencies" in package else {}

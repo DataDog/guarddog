@@ -1,6 +1,8 @@
 import os
 import pathlib
 
+import pytest
+
 import guarddog.scanners.npm_project_scanner as npm_project_scanner
 from guarddog.scanners.npm_project_scanner import NPMRequirementsScanner
 
@@ -131,3 +133,36 @@ def test_npm_requirements_scanner_includes_dev_dependencies_when_enabled(monkeyp
     dependency_names = {dependency.name for dependency in result}
     assert "express" in dependency_names
     assert "joi" in dependency_names
+
+
+def test_npm_requirements_scanner_rejects_lockfile():
+    """Passing a package-lock.json must fail with a clear error instead of
+    silently returning no dependencies (v3) or crashing on dict selectors (v2).
+    """
+    scanner = NPMRequirementsScanner()
+
+    # lockfile v3 has only a top-level "packages" map, no "dependencies".
+    with pytest.raises(ValueError, match="package-lock"):
+        scanner.parse_requirements("""
+        {
+            "name": "proj",
+            "lockfileVersion": 3,
+            "requires": true,
+            "packages": {
+                "": {"name": "proj", "dependencies": {"express": "4.19.2"}},
+                "node_modules/express": {"version": "4.19.2"}
+            }
+        }
+        """)
+
+    # lockfile v2 has a top-level "dependencies" map whose values are objects.
+    with pytest.raises(ValueError, match="package-lock"):
+        scanner.parse_requirements("""
+        {
+            "name": "proj",
+            "lockfileVersion": 2,
+            "dependencies": {
+                "express": {"version": "4.19.2"}
+            }
+        }
+        """)
