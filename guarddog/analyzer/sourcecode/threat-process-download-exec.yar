@@ -74,7 +74,8 @@ rule threat_process_download_exec
         // PowerShell download patterns
         $ps_download = /powershell.*curl\.exe/ nocase
         $ps_iwr = /Invoke-WebRequest/ nocase
-        $ps_downloadfile = /DownloadFile\s*\(/ nocase
+        // word boundary avoids matching substrings like a JS `ondownloadfile(` handler
+        $ps_downloadfile = /\bDownloadFile\s*\(/ nocase
 
     condition:
         // Direct download-execute patterns (high-signal strings only)

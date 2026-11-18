@@ -5,3 +5,11 @@ function trackRequest(requestId, input) {
   const match = urlRegex.exec(input);
   return { info, match };
 }
+
+// Legit: a bridge/adapter event-handler setter named `ondownloadfile`, not
+// a PowerShell file-transfer method call. Must NOT trip download-exec.
+class Bridge {
+  set ondownloadfile(handler) {
+    this._onDownloadFile = handler;
+  }
+}
