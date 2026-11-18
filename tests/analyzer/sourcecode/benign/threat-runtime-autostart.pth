@@ -1,0 +1,5 @@
+# Benign regression test for threat-runtime-autostart.
+# setuptools editable installs generate .pth files like this one; they are
+# artifacts of local development installs, never published wheels, and are
+# excluded via the __editable___ marker.
+import __editable___example_pkg_finder; __editable___example_pkg_finder.install()

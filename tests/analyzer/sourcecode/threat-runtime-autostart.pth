@@ -1,0 +1,5 @@
+# Positive test for threat-runtime-autostart.
+# A .pth file shipped in a package: site.py executes lines starting with
+# "import" at every interpreter startup (persistence).
+/some/vendored/path
+import helper_module; helper_module.run_startup()

@@ -170,6 +170,34 @@ max_hits: 3                                  # Limit findings per file
 path_include: "*.py,*.js,*/package.json"    # File patterns to scan (see below)
 ```
 
+**YARA External Variables:**
+
+The analyzer passes two external variables to every rule, available in rule
+conditions. Use them to scope rules that only make sense for one ecosystem or
+file type (rules are otherwise loaded for **every** ecosystem, so an unscoped
+Python/npm-specific rule can produce false findings while scanning other
+languages):
+
+- `filename` - the base name of the file being scanned (e.g. `evil.pth`)
+- `ecosystem` - the ecosystem being scanned: `pypi`, `npm`, `go`, `crates`,
+  `github-action`, `extension`, `rubygems`
+
+```yara
+rule threat_runtime_autostart
+{
+    // ...
+    condition:
+        // scope a whole rule (or a single condition arm) to one ecosystem
+        ecosystem == "pypi" and not $editable_marker
+}
+```
+
+- Both variables are declared with empty-string defaults, so existing rules
+  that don't reference them are unaffected.
+- Use `filename matches /\.pth$/` when a rule needs a file-name check in its
+  condition (complements `path_include`, which filters which files are
+  scanned at all).
+
 **path_include Pattern Matching:**
 
 GuardDog uses Python's `fnmatch` to match file paths. Patterns are matched against the **relative path** from the scan root:

@@ -56,6 +56,20 @@ rule threat_filesystem_autostart
         // Word boundary so urlopen()/fdopen() don't satisfy the open() condition.
         $py_open_write = /\bopen\s*\(/ nocase
 
+        // Python - .pth persistence: programmatically writing a .pth into
+        // site-packages. site.py executes .pth import lines at every interpreter
+        // startup, so a runtime .pth drop is self-installing persistence - the
+        // same playbook as the .bashrc writes above. Payload content is not
+        // required: writing any .pth into site-packages from library code is the
+        // persistence mechanism regardless of content. The __editable___ exclusion
+        // keeps setuptools editable installs (the only benign writer) out.
+        // Accepted gap: an attacker naming their payload __editable___ evades this
+        // arm - threat-runtime-autostart still catches the shipped file if present.
+        $py_sitepackages = "site-packages" nocase
+        $py_getsitepackages = "getsitepackages" nocase
+        $py_pth_file = /['"][^'"]*\.pth['"]/ nocase
+        $py_editable_marker = "__editable___" nocase
+
     condition:
         // Startup script modification patterns
         (any of ($py_bashrc, $py_bash_profile, $py_profile, $py_zshrc, $py_rc_local) and ($py_write_mode or $py_open_write)) or
@@ -70,5 +84,11 @@ rule threat_filesystem_autostart
         any of ($js_bashrc_write, $js_profile_write, $js_zshrc_write, $js_autostart_path, $js_init_path) or
 
         // Windows registry persistence
-        (any of ($win_run_key, $win_runonce_key, $win_startup_folder) and (any of ($py_winreg, $py_reg_setvalue) or any of ($js_*)))
+        (any of ($win_run_key, $win_runonce_key, $win_startup_folder) and (any of ($py_winreg, $py_reg_setvalue) or any of ($js_*))) or
+
+        // .pth drop into site-packages (pypi only - gated via ecosystem external)
+        (ecosystem == "pypi" and
+         $py_pth_file and ($py_sitepackages or $py_getsitepackages) and
+         ($py_write_mode or $py_open_write) and
+         not $py_editable_marker)
 }
