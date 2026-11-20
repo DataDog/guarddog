@@ -139,13 +139,34 @@ class Analyzer:
                 if last_open > last_close:
                     return True
 
-            elif language == LANGUAGE.PYTHON:
-                # For Python, check if we're inside """ or '''
-                for quote in ['"""', "'''"]:
-                    # Count occurrences - if odd, we're inside a docstring
-                    count = window.count(quote)
-                    if count % 2 == 1:
-                        return True
+                elif language == LANGUAGE.PYTHON:
+                    quote = None
+                    i = 0
+
+                while i < len(window):
+                    if window[i] == "\\":
+                        i += 2
+                        continue
+
+                    if quote:
+                        if window.startswith(quote, i):
+                            quote = None
+                            i += 3
+                            continue
+                    else:
+                        if window.startswith('"""', i):
+                            quote = '"""'
+                            i += 3
+                            continue
+                        if window.startswith("'''", i):
+                            quote = "'''"
+                            i += 3
+                            continue
+
+                    i += 1
+
+                if quote:
+                    return True
 
         except Exception:
             pass
