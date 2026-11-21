@@ -8,6 +8,10 @@ from pathlib import Path
 from typing import Optional, Dict, List
 
 from guarddog.analyzer.metadata import get_metadata_detectors
+from guarddog.analyzer.python_normalizer import (
+    is_python_source,
+    normalize_python_source,
+)
 from guarddog.analyzer.sourcecode import get_sourcecode_rules, YaraRule
 from guarddog.analyzer.risk_engine import (
     Finding,
@@ -419,6 +423,9 @@ class Analyzer:
         # Get rule metadata to access max_hits
         yara_rules = {r.id: r for r in get_sourcecode_rules(self.ecosystem, YaraRule)}
 
+        # Cache normalized Python views across rules so each file is parsed at most once.
+        normalized_python_cache: Dict[str, Optional[bytes]] = {}
+
         # Run each rule separately to enable per-rule timing and max_hits optimization
         for rule_name, rule_path in rules_path.items():
             try:
@@ -496,92 +503,129 @@ class Analyzer:
                         # External variables let rules scope themselves by ecosystem
                         # and file name (e.g. `ecosystem == "pypi"`). Values are
                         # supplied per file at match time.
-                        matches = scan_rule.match(
-                            scan_file_target_abspath,
-                            externals={
-                                "filename": f,
-                                "ecosystem": self.ecosystem.value,
-                            },
+                        externals = {
+                            "filename": f,
+                            "ecosystem": self.ecosystem.value,
+                        }
+                        scan_views: List[Optional[bytes]] = [None]
+                        normalized_bytes = self._get_normalized_python(
+                            scan_file_target_abspath, normalized_python_cache
                         )
+                        if normalized_bytes is not None:
+                            scan_views.append(normalized_bytes)
 
-                        for m in matches:
+                        for view_bytes in scan_views:
+                            if should_stop:
+                                break
 
-                            for s in m.strings:
-                                for i in s.instances:
-                                    # Convert byte offset to line number for better readability
-                                    line_number = self.get_line_number_from_offset(
-                                        scan_file_target_abspath, i.offset
-                                    )
+                            if view_bytes is None:
+                                matches = scan_rule.match(
+                                    scan_file_target_abspath,
+                                    externals=externals,
+                                )
+                            else:
+                                matches = scan_rule.match(
+                                    data=view_bytes,
+                                    externals=externals,
+                                )
 
-                                    # Filter out matches in comments
-                                    if self.is_match_in_comment(
-                                        scan_file_target_abspath,
-                                        line_number=line_number,
-                                        byte_offset=i.offset,
-                                    ):
-                                        log.debug(
-                                            f"Filtered match in comment at {scan_file_target_relpath}:{line_number}"
-                                        )
-                                        continue
-
-                                    # Extract a small window of code around the match offset
-                                    # for better readability in the report.
-                                    line_of_code = self.get_lines_around_offset(
-                                        scan_file_target_abspath,
-                                        i.offset,
-                                        before=1,
-                                        after=2,
-                                    )
-
-                                    # The exact bytes YARA matched, so the reporter can
-                                    # emphasize the flagged span within the snippet.
-                                    matched_text = ""
-                                    try:
-                                        if isinstance(i.matched_data, bytes):
-                                            matched_text = i.matched_data.decode(
-                                                "utf-8", errors="replace"
+                            for m in matches:
+                                for s in m.strings:
+                                    for i in s.instances:
+                                        offset = i.offset
+                                        if view_bytes is None:
+                                            line_number = (
+                                                self.get_line_number_from_offset(
+                                                    scan_file_target_abspath, offset
+                                                )
                                             )
-                                    except Exception:
+                                            comment_offset: Optional[int] = offset
+                                        else:
+                                            line_number = (
+                                                view_bytes[:offset].count(b"\n") + 1
+                                            )
+                                            comment_offset = None
+
+                                        # Filter out matches in comments
+                                        if self.is_match_in_comment(
+                                            scan_file_target_abspath,
+                                            line_number=line_number,
+                                            byte_offset=comment_offset,
+                                        ):
+                                            log.debug(
+                                                f"Filtered match in comment at {scan_file_target_relpath}:{line_number}"
+                                            )
+                                            continue
+
+                                        # Extract a small window of code around the match
+                                        # for better readability in the report.
+                                        if view_bytes is None:
+                                            line_of_code = self.get_lines_around_offset(
+                                                scan_file_target_abspath,
+                                                offset,
+                                                before=1,
+                                                after=2,
+                                            )
+                                        else:
+                                            line_of_code = self.get_lines_around_line(
+                                                scan_file_target_abspath,
+                                                line_number,
+                                                before=1,
+                                                after=2,
+                                            )
+
+                                        # The exact bytes YARA matched, so the reporter can
+                                        # emphasize the flagged span within the snippet.
                                         matched_text = ""
+                                        try:
+                                            if isinstance(i.matched_data, bytes):
+                                                matched_text = i.matched_data.decode(
+                                                    "utf-8", errors="replace"
+                                                )
+                                        except Exception:
+                                            matched_text = ""
 
-                                    finding = {
-                                        "location": f"{scan_file_target_relpath}:{line_number}",
-                                        "code": self.trim_code_snippet(
-                                            line_of_code, matched_text
-                                        ),
-                                        "match": matched_text,
-                                        "message": m.meta.get(
-                                            "description", f"{m.rule} rule matched"
-                                        ),
-                                    }
+                                        finding = {
+                                            "location": f"{scan_file_target_relpath}:{line_number}",
+                                            "code": self.trim_code_snippet(
+                                                line_of_code, matched_text
+                                            ),
+                                            "match": matched_text,
+                                            "message": m.meta.get(
+                                                "description", f"{m.rule} rule matched"
+                                            ),
+                                        }
 
-                                    # since yara can match the multiple times in the same file
-                                    # leading to finding several times the same word or pattern
-                                    # this dedup the matches
-                                    if [
-                                        f
-                                        for f in rule_results[rule_name]
-                                        if finding["code"] == f["code"]
-                                    ]:
-                                        continue
+                                        # since yara can match the multiple times in the same file
+                                        # leading to finding several times the same word or pattern
+                                        # this dedup the matches
+                                        if [
+                                            f
+                                            for f in rule_results[rule_name]
+                                            if finding["code"] == f["code"]
+                                        ]:
+                                            continue
 
-                                    issues += len(m.strings)
-                                    rule_results[rule_name].append(finding)
-                                    hits_found += 1
+                                        issues += len(m.strings)
+                                        rule_results[rule_name].append(finding)
+                                        hits_found += 1
 
-                                    # Check if we've reached max_hits
-                                    if max_hits is not None and hits_found >= max_hits:
-                                        should_stop = True
-                                        log.debug(
-                                            f"Rule {rule_name}.yar reached max_hits={max_hits}, stopping scan"
-                                        )
+                                        # Check if we've reached max_hits
+                                        if (
+                                            max_hits is not None
+                                            and hits_found >= max_hits
+                                        ):
+                                            should_stop = True
+                                            log.debug(
+                                                f"Rule {rule_name}.yar reached max_hits={max_hits}, stopping scan"
+                                            )
+                                            break
+
+                                    if should_stop:
                                         break
 
                                 if should_stop:
                                     break
-
-                            if should_stop:
-                                break
 
                 elapsed_time = time.time() - start_time
                 log.debug(
@@ -743,6 +787,45 @@ class Analyzer:
         except Exception as e:
             log.debug(
                 f"Failed to extract lines around offset {offset} from {file_path}: {e}"
+            )
+            return ""
+
+    @staticmethod
+    def _get_normalized_python(
+        file_path: str, cache: Dict[str, Optional[bytes]]
+    ) -> Optional[bytes]:
+        """Return a cached getattr-normalized Python view of *file_path*, if any."""
+        if file_path in cache:
+            return cache[file_path]
+        if not is_python_source(file_path):
+            cache[file_path] = None
+            return None
+        try:
+            with open(file_path, "rb") as fd:
+                raw = fd.read()
+        except OSError:
+            cache[file_path] = None
+            return None
+        normalized = normalize_python_source(raw)
+        cache[file_path] = normalized
+        return normalized
+
+    def get_lines_around_line(
+        self, file_path: str, line_number: int, before: int, after: int
+    ) -> str:
+        """Extract a window of lines around a 1-indexed line number."""
+        try:
+            with open(file_path, "rb") as f:
+                lines = f.read().splitlines()
+
+            start = max(0, line_number - 1 - before)
+            end = min(len(lines), line_number + after)
+            window = b"\n".join(lines[start:end])
+            return window.decode("utf-8", errors="replace").strip("\n")
+
+        except Exception as e:
+            log.debug(
+                f"Failed to extract lines around line {line_number} from {file_path}: {e}"
             )
             return ""
 

