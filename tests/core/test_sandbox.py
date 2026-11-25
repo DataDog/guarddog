@@ -1,11 +1,14 @@
 import os
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from guarddog.sandbox import (
+    ENTROPY_SOURCE,
     is_available,
     apply_sandbox,
+    extract_sandboxed,
     _get_common_read_paths,
     _path_variants,
 )
@@ -76,6 +79,101 @@ class TestApplySandbox:
         paths = _get_common_read_paths()
         assert paths
         mock_getcwd.assert_not_called()
+
+
+class TestEntropySource:
+    """CPython falls back to /dev/urandom when getrandom() fails; under
+    Landlock the sandboxed interpreter then dies in preinit unless the
+    device is readable."""
+
+    def _make_mock_nono(self):
+        mock = MagicMock()
+        mock.AccessMode.READ = "READ"
+        mock.AccessMode.READ_WRITE = "READ_WRITE"
+        mock.sandboxed_exec.return_value.exit_code = 0
+        return mock
+
+    @patch("guarddog.sandbox.os.path.exists", return_value=True)
+    @patch("guarddog.sandbox.sys.platform", "linux")
+    @patch("guarddog.sandbox._get_common_read_paths", return_value=["/usr"])
+    def test_apply_sandbox_allows_entropy_source_on_linux(self, *_):
+        mock_nono = self._make_mock_nono()
+
+        with patch.dict("sys.modules", {"nono_py": mock_nono}):
+            apply_sandbox(scan_paths=[], writable_paths=[])
+
+        caps = mock_nono.CapabilitySet.return_value
+        caps.allow_file.assert_any_call(ENTROPY_SOURCE, "READ")
+        # allow_path rejects a character device; it must not be used for it
+        assert (ENTROPY_SOURCE, "READ") not in [
+            c.args for c in caps.allow_path.call_args_list
+        ]
+
+    @patch("guarddog.sandbox.os.path.exists", return_value=True)
+    @patch("guarddog.sandbox.sys.platform", "linux")
+    @patch("guarddog.sandbox._get_common_read_paths", return_value=["/usr"])
+    def test_extract_sandboxed_allows_entropy_source_on_linux(
+        self, _paths, _exists, tmp_path
+    ):
+        mock_nono = self._make_mock_nono()
+        archive = tmp_path / "pkg.tgz"
+        archive.touch()
+
+        with patch.dict("sys.modules", {"nono_py": mock_nono}):
+            extract_sandboxed(str(archive), str(tmp_path / "out"))
+
+        caps = mock_nono.CapabilitySet.return_value
+        caps.allow_file.assert_any_call(ENTROPY_SOURCE, "READ")
+        # allow_path rejects a character device; it must not be used for it
+        assert (ENTROPY_SOURCE, "READ") not in [
+            c.args for c in caps.allow_path.call_args_list
+        ]
+
+    @patch("guarddog.sandbox.os.path.exists", return_value=False)
+    @patch("guarddog.sandbox.sys.platform", "linux")
+    @patch("guarddog.sandbox._get_common_read_paths", return_value=["/usr"])
+    def test_entropy_source_skipped_when_missing(self, *_):
+        # nono raises on a path that does not exist (e.g. a minimal container)
+        mock_nono = self._make_mock_nono()
+
+        with patch.dict("sys.modules", {"nono_py": mock_nono}):
+            apply_sandbox(scan_paths=[], writable_paths=[])
+
+        caps = mock_nono.CapabilitySet.return_value
+        assert (ENTROPY_SOURCE, "READ") not in [
+            c.args for c in caps.allow_file.call_args_list
+        ]
+
+    @patch("guarddog.sandbox.sys.platform", "darwin")
+    @patch("guarddog.sandbox._get_common_read_paths", return_value=["/usr"])
+    def test_entropy_source_not_added_outside_linux(self, *_):
+        mock_nono = self._make_mock_nono()
+
+        with patch.dict("sys.modules", {"nono_py": mock_nono}):
+            apply_sandbox(scan_paths=[], writable_paths=[])
+
+        caps = mock_nono.CapabilitySet.return_value
+        caps.allow_file.assert_not_called()
+
+    @pytest.mark.skipif(
+        not sys.platform.startswith("linux"), reason="Landlock is Linux-only"
+    )
+    def test_sandboxed_child_can_read_entropy_source(self, tmp_path):
+        """Real sandbox: a child started by extract_sandboxed can read
+        /dev/urandom, which is what CPython reads when getrandom() fails."""
+        nono = pytest.importorskip("nono_py")
+        if not nono.is_supported():
+            pytest.skip("kernel sandbox not supported here")
+        real_exec = nono.sandboxed_exec
+
+        def read_entropy_instead(caps, _argv, cwd):
+            child = "open('/dev/urandom', 'rb').read(16)"
+            return real_exec(caps, [sys.executable, "-c", child], cwd=cwd)
+
+        archive = tmp_path / "pkg.tgz"
+        archive.touch()
+        with patch.object(nono, "sandboxed_exec", side_effect=read_entropy_instead):
+            extract_sandboxed(str(archive), str(tmp_path / "out"))
 
 
 class TestPathVariants:
