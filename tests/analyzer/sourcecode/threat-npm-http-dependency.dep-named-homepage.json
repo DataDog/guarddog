@@ -1,0 +1,7 @@
+{
+  "name": "dependency-named-homepage",
+  "version": "1.0.0",
+  "dependencies": {
+    "homepage": "http://example.invalid/pkg"
+  }
+}

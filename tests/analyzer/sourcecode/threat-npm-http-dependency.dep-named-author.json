@@ -1,0 +1,7 @@
+{
+  "name": "dependency-named-author",
+  "version": "1.0.0",
+  "dependencies": {
+    "author": "http://example.invalid/pkg"
+  }
+}
