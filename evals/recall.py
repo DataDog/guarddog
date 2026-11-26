@@ -26,7 +26,7 @@ import sys
 import tempfile
 import time
 import urllib.request
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
@@ -509,6 +509,7 @@ def run_scan(work_dir: Path, ecosystems: list[str], workers: int, timeout: int, 
     total = len(samples)
     completed = 0
     errors = 0
+    error_messages = Counter()
     start = time.time()
     guarddog_bin = find_guarddog_bin()
     print(f"Using guarddog: {guarddog_bin}")
@@ -523,11 +524,12 @@ def run_scan(work_dir: Path, ecosystems: list[str], workers: int, timeout: int, 
         for fut in concurrent.futures.as_completed(futures):
             completed += 1
             try:
-                res = fut.result()
-                if res.get("error"):
-                    errors += 1
-            except Exception:
+                error = fut.result().get("error")
+            except Exception as e:
+                error = str(e) or type(e).__name__
+            if error:
                 errors += 1
+                error_messages[error[:200]] += 1
 
             if completed % 25 == 0 or completed == total:
                 elapsed = time.time() - start
@@ -536,6 +538,10 @@ def run_scan(work_dir: Path, ecosystems: list[str], workers: int, timeout: int, 
                 print(f"  [{completed}/{total}] {errors} errors | {elapsed:.0f}s | ETA {eta:.0f}s")
 
     print(f"Done. {completed} scans, {errors} errors, {time.time() - start:.0f}s total.")
+    if error_messages:
+        print("Most common scan errors:")
+        for message, count in error_messages.most_common(5):
+            print(f"  {count}x {message}")
 
 
 # ---------------------------------------------------------------------------

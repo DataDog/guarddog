@@ -51,17 +51,30 @@ def parse_args():
                    help="Total malicious samples per ecosystem (compromised_lib first, then malicious_intent)")
     p.add_argument("--seed", type=str, default=None,
                    help="Hex seed for malicious sampling (default: random)")
+    p.add_argument("--max-error-rate", type=float, default=0.2,
+                   help="Exit non-zero if more than this fraction of benign or malicious scans error")
     return p.parse_args()
 
 
-def run_subprocess(cmd: list[str], label: str):
+def run_subprocess(cmd: list[str], label: str) -> bool:
     print(f"\n{'='*60}")
     print(f"  Running: {label}")
     print(f"  Command: {' '.join(cmd)}")
-    print(f"{'='*60}\n")
+    print(f"{'='*60}\n", flush=True)
     result = subprocess.run(cmd, cwd=str(EVALS_DIR.parent))
     if result.returncode != 0:
-        print(f"WARNING: {label} exited with code {result.returncode}")
+        print(f"ERROR: {label} exited with code {result.returncode}", flush=True)
+        return False
+    return True
+
+
+def find_unhealthy_results(label: str, results: list[dict], max_error_rate: float) -> str | None:
+    if not results:
+        return f"{label}: no results"
+    error_rate = sum(1 for r in results if r.get("error")) / len(results)
+    if error_rate > max_error_rate:
+        return f"{label}: {error_rate:.0%} of {len(results)} scans errored (max allowed {max_error_rate:.0%})"
+    return None
 
 
 def load_benign_results(work_dir: Path, ecosystems: list[str]) -> list[dict]:
@@ -115,15 +128,17 @@ def _mcc(tp: int, tn: int, fp: int, fn: int) -> float:
     return (tp * tn - fp * fn) / denom if denom > 0 else 0.0
 
 
-def generate_combined_report(work_dir: Path, ecosystems: list[str], threshold: float):
+def generate_combined_report(work_dir: Path, ecosystems: list[str], threshold: float,
+                             max_error_rate: float) -> list[str]:
+    """Write the combined report and return a list of problems that should fail the run."""
     print("Loading results...")
     benign = load_benign_results(work_dir, ecosystems)
     malicious = load_malicious_results(work_dir, ecosystems)
 
-    if not benign:
-        print("WARNING: No benign results found. Run benchmark.py first.")
-    if not malicious:
-        print("WARNING: No malicious results found. Run recall.py first.")
+    problems = [p for p in (
+        find_unhealthy_results("Benign benchmark", benign, max_error_rate),
+        find_unhealthy_results("Malicious recall benchmark", malicious, max_error_rate),
+    ) if p]
 
     benign_ok = [r for r in benign if not r.get("error")]
     malicious_ok = [r for r in malicious if not r.get("error")]
@@ -201,6 +216,7 @@ def generate_combined_report(work_dir: Path, ecosystems: list[str], threshold: f
     print(f"  Benign scores:    avg={benign_stats['avg']:.2f}  median={benign_stats['median']:.1f}")
     print(f"  Malicious scores: avg={malicious_stats['avg']:.2f}  median={malicious_stats['median']:.1f}")
     print(f"{'='*60}")
+    return problems
 
 
 def build_combined_html(*, threshold, tp, fn, fp, tn, precision, recall, f1, mcc,
@@ -332,10 +348,11 @@ def main():
         subprocess.run(cmd, cwd=str(EVALS_DIR.parent))
         return
 
+    benchmarks_ok = True
     if args.phase == "all":
 
         # Run FP benchmark
-        run_subprocess([
+        benchmarks_ok &= run_subprocess([
             sys.executable, str(EVALS_DIR / "benchmark.py"),
             "--work-dir", str(work_dir),
             "--max-packages", str(args.benign_packages),
@@ -356,9 +373,15 @@ def main():
             recall_cmd.extend(["--dataset-path", str(args.dataset_path)])
         if args.no_sandbox:
             recall_cmd.append("--no-sandbox")
-        run_subprocess(recall_cmd, "Recall Benchmark (malicious packages)")
+        benchmarks_ok &= run_subprocess(recall_cmd, "Recall Benchmark (malicious packages)")
 
-    generate_combined_report(work_dir, args.ecosystems, args.threshold)
+    problems = generate_combined_report(work_dir, args.ecosystems, args.threshold, args.max_error_rate)
+    if not benchmarks_ok:
+        problems.append("at least one benchmark exited with a non-zero code")
+    if problems:
+        for problem in problems:
+            print(f"ERROR: {problem}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

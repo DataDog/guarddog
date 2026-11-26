@@ -34,10 +34,13 @@ jobs:
       - name: Run evals
         run: uv run evals/run.py --workers 16
 
-      - name: Upload combined report
+      - name: Upload reports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: combined-report
-          path: evals/workdir/combined_report.html
+          path: |
+            evals/workdir/combined_report.html
+            evals/workdir/report.html
+            evals/workdir/recall_report.html
           if-no-files-found: error
