@@ -9,6 +9,7 @@ from typing import Optional, Dict, List
 
 from guarddog.analyzer.metadata import get_metadata_detectors
 from guarddog.analyzer.sourcecode import get_sourcecode_rules, YaraRule
+from guarddog.analyzer.sourcecode import npm_http_dependency
 from guarddog.analyzer.risk_engine import (
     Finding,
     Level,
@@ -450,6 +451,9 @@ class Analyzer:
 
                 hits_found = 0
                 should_stop = False
+                # Manifests a rule could not read (only used by the npm HTTP
+                # dependency check); reported as a rule error, never as clean.
+                rule_problems: List[str] = []
 
                 for root, dirs, files in os.walk(path):
                     if should_stop:
@@ -503,6 +507,52 @@ class Analyzer:
                                 "ecosystem": self.ecosystem.value,
                             },
                         )
+
+                        if rule_name == npm_http_dependency.RULE_ID:
+                            # The YARA rule only selects candidate manifests; the
+                            # JSON check decides which URLs are dependency specifiers.
+                            if not matches:
+                                continue
+                            try:
+                                with open(scan_file_target_abspath, "rb") as stream:
+                                    manifest = npm_http_dependency.check_manifest(
+                                        stream.read()
+                                    )
+                            except OSError as e:
+                                rule_problems.append(
+                                    f"{scan_file_target_relpath}: could not be read ({e})"
+                                )
+                                continue
+                            rule_problems += [
+                                f"{scan_file_target_relpath}: {p}"
+                                for p in manifest.problems
+                            ]
+                            # Evidence (line, snippet) is only built for the
+                            # findings that are actually kept.
+                            for dependency in manifest.urls:
+                                finding = self._npm_http_dependency_finding(
+                                    scan_file_target_abspath,
+                                    scan_file_target_relpath,
+                                    matches[0].meta.get("description", ""),
+                                    dependency,
+                                    manifest.byte_offset(dependency),
+                                )
+                                if [
+                                    f
+                                    for f in rule_results[rule_name]
+                                    if finding["code"] == f["code"]
+                                ]:
+                                    continue
+                                issues += 1
+                                rule_results[rule_name].append(finding)
+                                hits_found += 1
+                                if max_hits is not None and hits_found >= max_hits:
+                                    should_stop = True
+                                    log.debug(
+                                        f"Rule {rule_name}.yar reached max_hits={max_hits}, stopping scan"
+                                    )
+                                    break
+                            continue
 
                         for m in matches:
 
@@ -583,6 +633,11 @@ class Analyzer:
                             if should_stop:
                                 break
 
+                if rule_problems:
+                    errors[rule_name] = "could not check manifest: " + "; ".join(
+                        rule_problems
+                    )
+
                 elapsed_time = time.time() - start_time
                 log.debug(
                     f"Rule {rule_name}.yar finished, took {elapsed_time:.2f}s ({hits_found} hits found)"
@@ -620,6 +675,31 @@ class Analyzer:
             log.error(f"Error reading file {file_path}: {str(e)}")
 
         return "".join(snippet)
+
+    def _npm_http_dependency_finding(
+        self,
+        file_path: str,
+        relpath: str,
+        description: str,
+        dependency: "npm_http_dependency.DependencyUrl",
+        offset: int,
+    ) -> dict:
+        """
+        Build one threat-npm-http-dependency finding. It names the dependency
+        field, the dependency and the URL as written in the file, and points at
+        the line of that dependency's own value.
+        """
+        line_number = self.get_line_number_from_offset(file_path, offset)
+        code = self.trim_code_snippet(
+            self.get_lines_around_offset(file_path, offset, before=1, after=2),
+            dependency.url_token,
+        )
+        return {
+            "location": f"{relpath}:{line_number}",
+            "code": code,
+            "match": dependency.url_token,
+            "message": f"{description}: {dependency.describe()}",
+        }
 
     # Makes sure the matching code to be displayed isn't too long. When the
     # matched bytes are known, the kept window is centered on them so the

@@ -1,0 +1,8 @@
+{
+  "name": "funding-string-array",
+  "version": "1.0.0",
+  "funding": ["https://example.invalid/sponsor"],
+  "dependencies": {
+    "url": "http://example.invalid/pkg"
+  }
+}
