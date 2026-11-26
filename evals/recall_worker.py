@@ -40,25 +40,21 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: s
         print("ERROR: Nono sandbox not supported on this platform. Refusing to run.", file=sys.stderr)
         sys.exit(1)
 
+    from guarddog.sandbox import _get_common_read_paths, _path_variants
+
     caps = nono.CapabilitySet()
     caps.allow_path(tmp_dir, nono.AccessMode.READ_WRITE)
     caps.allow_file(zip_path, nono.AccessMode.READ)
     caps.allow_file(output_path, nono.AccessMode.READ_WRITE)
 
-    # Allow Python runtime + site-packages (guarddog, semgrep, yara, etc.)
-    python_prefix = os.path.realpath(sys.prefix)
-    caps.allow_path(python_prefix, nono.AccessMode.READ)
-
-    # Allow the base prefix (for system Python libs). Use both realpath and the
-    # raw path because the sandbox checks raw paths without resolving symlinks —
-    # uv installs Python under a versioned dir (cpython-3.12.8-...) but exposes
-    # a symlink (cpython-3.12-...) and Python loads stdlib via the symlink path.
-    base_prefix = os.path.realpath(sys.base_prefix)
-    if base_prefix != python_prefix:
-        caps.allow_path(base_prefix, nono.AccessMode.READ)
-    stdlib_dir = os.path.dirname(os.__file__)
-    if not stdlib_dir.startswith(base_prefix) and not stdlib_dir.startswith(python_prefix):
-        caps.allow_path(stdlib_dir, nono.AccessMode.READ)
+    # The worker execs the guarddog CLI after the sandbox is applied, so the new
+    # process needs the dynamic loader, shared libraries (/usr, /lib) and CA certs.
+    # Landlock (Linux) denies anything not listed, unlike Seatbelt (macOS), which is
+    # why missing system paths only break scans in CI.
+    for path in _get_common_read_paths():
+        caps.allow_path(path, nono.AccessMode.READ)
+    for stdlib_variant in _path_variants(os.path.dirname(os.__file__)):
+        caps.allow_path(stdlib_variant, nono.AccessMode.READ)
 
     # Allow guarddog source tree (installed as editable via .pth, so the source
     # dir is separate from the venv and must be explicitly allowed)
@@ -67,8 +63,8 @@ def setup_sandbox(tmp_dir: str, zip_path: str, output_path: str, guarddog_bin: s
 
     # Allow guarddog binary and its directory (for subprocess execution)
     if guarddog_bin:
-        gd_dir = os.path.realpath(os.path.dirname(guarddog_bin))
-        caps.allow_path(gd_dir, nono.AccessMode.READ)
+        for gd_dir in _path_variants(os.path.dirname(guarddog_bin)):
+            caps.allow_path(gd_dir, nono.AccessMode.READ)
 
     caps.block_network()
 
